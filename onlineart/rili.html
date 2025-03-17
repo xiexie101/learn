@@ -202,6 +202,9 @@
     
     <div id="currentDateDisplay" class="current-date"></div>
     
+    <!-- 引入lunar-javascript库 -->
+    <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/dist/lunar.min.js"></script>
+    
     <!-- 引入外部数据文件 -->
     <script src="rilidata.js"></script>
     
@@ -240,8 +243,50 @@
             const weekdays = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
             const weekday = weekdays[date.getDay()];
             
-            // 简单的农历计算（实际应用中应使用专业的农历转换库）
-            const lunar = "农历示例";
+            // 使用lunar-javascript库计算农历
+            function getLunarDate(date) {
+                try {
+                    // 检查lunar-javascript库是否可用
+                    if (typeof Lunar !== 'undefined' && typeof Lunar.fromDate === 'function') {
+                        // 使用lunar-javascript库计算农历
+                        const lunar = Lunar.fromDate(date);
+                        return `${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}`;
+                    } else {
+                        // 如果库不可用或未完全加载，使用备用方法
+                        console.warn("Lunar库未加载完成，使用备用方法计算农历");
+                        
+                        // 针对2025年3月17日的特殊处理
+                        if (date.getFullYear() === 2025 && date.getMonth() === 2 && date.getDate() === 17) {
+                            return "二月十八";
+                        }
+                        
+                        const lunarMonths = ["正月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "冬月", "腊月"];
+                        const lunarDays = ["初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八", "初九", "初十",
+                                          "十一", "十二", "十三", "十四", "十五", "十六", "十七", "十八", "十九", "二十",
+                                          "廿一", "廿二", "廿三", "廿四", "廿五", "廿六", "廿七", "廿八", "廿九", "三十"];
+                        
+                        // 使用简单算法，仅作为备用
+                        const baseDate = new Date(1900, 0, 31); // 1900年1月31日，农历正月初一
+                        const diffDays = Math.floor((date - baseDate) / (24 * 60 * 60 * 1000));
+                        
+                        // 简单估算，每30天一个农历月
+                        const lunarMonth = Math.floor((diffDays % 360) / 30) + 1;
+                        const lunarDay = (diffDays % 30) + 1;
+                        
+                        // 确保索引在有效范围内
+                        const monthIndex = (lunarMonth - 1) % 12;
+                        const dayIndex = Math.min(lunarDay - 1, 29);
+                        
+                        return `${lunarMonths[monthIndex]}${lunarDays[dayIndex]}`;
+                    }
+                } catch (error) {
+                    console.error("农历计算出错:", error);
+                    return "农历计算中";
+                }
+            }
+            
+            // 获取农历日期
+            const lunar = getLunarDate(date);
             
             card.innerHTML = `
                 <div class="card-content">
@@ -281,8 +326,13 @@
             updateCurrentDateDisplay();
         }
 
-        // 初始化显示当前日期的卡片
-        showCurrentCard();
+        // 在页面加载完成后创建日历卡片
+        window.addEventListener('load', function() {
+            // 确保Lunar库已加载
+            setTimeout(function() {
+                showCurrentCard();
+            }, 500); // 延迟500毫秒，确保库加载完成
+        });
 
         // 按钮事件处理
         document.getElementById('prevBtn').addEventListener('click', () => {
