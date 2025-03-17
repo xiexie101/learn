@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>365天灵感日历</title>
+    <style>
+        @font-face {
+            font-family: 'KingHwa_OldSong';
+            /* 使用系统默认字体 */
+            src: local('SimSun'), local('宋体');
+            font-weight: normal;
+            font-style: normal;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            /* 添加备用字体 */
+            font-family: 'KingHwa_OldSong', 'SimSun', '宋体', serif;
+        }
+        
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        
+        h1 {
+            margin-bottom: 20px;
+            color: #615CED;
+        }
+        
+        .calendar-card {
+            width: 350px;
+            height: 850px;
+            background-color: #fff;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+        }
+        
+        .card-content {
+            padding: 40px 30px;
+            height: 100%;
+            position: relative;
+        }
+        
+        .left-column {
+            position: absolute;
+            top: 130px;
+            left: 60px;
+            width: 30px;
+            height: 480px;
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            color: #615CED;
+            font-size: 30px;
+            line-height: 1.5;
+            letter-spacing: 4px;
+        }
+        
+        .right-column {
+            position: absolute;
+            top: 25px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .circle-icon {
+            width: 85px;
+            height: 85px;
+            border: 2px solid #615CED;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #615CED;
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+        
+        .small-event {
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            color: #615CED;
+            font-size: 50px;
+            font-weight: bold;
+            letter-spacing: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .pinyin {
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            color: #888;
+            font-size: 12px;
+            letter-spacing: 2px;
+        }
+        
+        .date-area {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            background-color: #615CED;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            color: #fff;
+        }
+        
+        .date-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .date-number {
+            font-size: 80px;
+            font-weight: bold;
+            line-height: 1;
+        }
+        
+        .date-month {
+            font-size: 20px;
+            margin-left: 5px;
+        }
+        
+        .date-display {
+            display: flex;
+            align-items: baseline;
+        }
+        
+        .weekday {
+            font-size: 16px;
+            margin-top: 5px;
+        }
+        
+        .lunar {
+            font-size: 14px;
+            margin-top: 5px;
+            opacity: 0.8;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            letter-spacing: 5px;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            margin: 0 10px;
+            background-color: #615CED;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: #4a46c2;
+        }
+        
+        .current-date {
+            margin-top: 10px;
+            color: #615CED;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <h1>365天灵感日历</h1>
+    
+    <div id="cardContainer"></div>
+    
+    <div class="controls">
+        <button id="prevBtn" class="btn">上一天</button>
+        <button id="randomBtn" class="btn">随机日期</button>
+        <button id="nextBtn" class="btn">下一天</button>
+    </div>
+    
+    <div id="currentDateDisplay" class="current-date"></div>
+    
+    <!-- 引入外部数据文件 -->
+    <script src="rilidata.js"></script>
+    
+    <script>
+        // 获取当前日期
+        const today = new Date();
+        let currentDay = today.getDate();
+        let currentMonth = today.getMonth() + 1;
+        const currentYear = today.getFullYear();
+        
+        // 更新当前日期显示
+        function updateCurrentDateDisplay() {
+            const dateDisplay = document.getElementById('currentDateDisplay');
+            dateDisplay.textContent = `当前日期: ${currentYear}年${currentMonth}月${currentDay}日`;
+        }
+        
+        // 生成所有日历卡片
+        const cardContainer = document.getElementById('cardContainer');
+        
+        // 创建日历卡片
+        function createCard(month, day) {
+            // 查找当前日期的数据
+            const key = `${month}-${day}`;
+            const data = riliData[key] || {
+                event: "灵感", 
+                pinyin: "ling gan", 
+                quote: "今天也要充满灵感地生活。"
+            };
+            
+            const card = document.createElement('div');
+            card.className = 'calendar-card';
+            card.id = `card-${month}-${day}`;
+            
+            // 获取星期几
+            const date = new Date(currentYear, month - 1, day);
+            const weekdays = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
+            const weekday = weekdays[date.getDay()];
+            
+            // 简单的农历计算（实际应用中应使用专业的农历转换库）
+            const lunar = "农历示例";
+            
+            card.innerHTML = `
+                <div class="card-content">
+                    <div class="left-column">${data.quote}</div>
+                    <div class="right-column">
+                        <div class="circle-icon">宜</div>
+                        <div class="small-event">${data.event}</div>
+                        <div class="pinyin">${data.pinyin}</div>
+                    </div>
+                    <div class="date-area">
+                        <div class="date-info">
+                            <div class="date-display">
+                                <span class="date-number">${day}</span>
+                                <span class="date-month">/${month}</span>
+                            </div>
+                            <div class="weekday">${weekday}</div>
+                            <div class="lunar">${lunar}</div>
+                        </div>
+                        <div class="logo">灵感日历</div>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // 显示当前日期的卡片
+        function showCurrentCard() {
+            // 移除所有卡片
+            cardContainer.innerHTML = '';
+            
+            // 创建新卡片
+            const currentCard = createCard(currentMonth, currentDay);
+            cardContainer.appendChild(currentCard);
+            
+            // 更新日期显示
+            updateCurrentDateDisplay();
+        }
+
+        // 初始化显示当前日期的卡片
+        showCurrentCard();
+
+        // 按钮事件处理
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            currentDay--;
+            if (currentDay < 1) {
+                currentMonth--;
+                if (currentMonth < 1) {
+                    currentMonth = 12;
+                }
+                // 获取上个月的天数
+                const lastDayOfMonth = new Date(currentYear, currentMonth, 0).getDate();
+                currentDay = lastDayOfMonth;
+            }
+            showCurrentCard();
+        });
+
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            currentDay++;
+            const lastDayOfMonth = new Date(currentYear, currentMonth, 0).getDate();
+            if (currentDay > lastDayOfMonth) {
+                currentDay = 1;
+                currentMonth++;
+                if (currentMonth > 12) {
+                    currentMonth = 1;
+                }
+            }
+            showCurrentCard();
+        });
+
+        document.getElementById('randomBtn').addEventListener('click', () => {
+            currentMonth = Math.floor(Math.random() * 12) + 1;
+            const lastDayOfMonth = new Date(currentYear, currentMonth, 0).getDate();
+            currentDay = Math.floor(Math.random() * lastDayOfMonth) + 1;
+            showCurrentCard();
+        });
+    </script>
+</body>
+</html>
