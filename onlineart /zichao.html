@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>打工人哲学：一部自嘲的生存指南</title>
+    <style>
+        :root {
+            --text-color: #333;
+            --bg-color: #fff;
+            --accent-color: #555;
+            --border-color: #eee;
+            --highlight-color: #f0f0f0;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --text-color: #f0f0f0;
+                --bg-color: #121212;
+                --accent-color: #aaa;
+                --border-color: #333;
+                --highlight-color: #1e1e1e;
+            }
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            transition: background-color 0.3s ease;
+        }
+        
+        header {
+            text-align: center;
+            margin: 40px 0;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--accent-color);
+            font-weight: 300;
+            font-style: italic;
+        }
+        
+        .section {
+            margin: 80px 0;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        
+        .section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .illustration {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+        }
+        
+        .comic {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            margin-bottom: 20px;
+            filter: grayscale(100%);
+        }
+        
+        .caption {
+            font-size: 0.9rem;
+            color: var(--accent-color);
+            text-align: center;
+            max-width: 80%;
+            font-style: italic;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            font-weight: 300;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+        
+        p {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+        
+        .key-point {
+            font-weight: 500;
+            border-bottom: 1px dashed var(--accent-color);
+        }
+        
+        .quote {
+            font-style: italic;
+            padding-left: 20px;
+            border-left: 3px solid var(--accent-color);
+            margin: 30px 0;
+            color: var(--accent-color);
+        }
+        
+        .joke {
+            background-color: var(--highlight-color);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-style: italic;
+        }
+        
+        footer {
+            margin-top: 100px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--accent-color);
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .social-links {
+            margin-top: 10px;
+        }
+        
+        .social-links a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+        
+        .social-links a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+            
+            p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>打工人哲学</h1>
+            <div class="subtitle">一部关于996、007与ICU的自嘲生存指南</div>
+        </header>
+        
+        <section class="section" id="section1">
+            <h2>一、打工人的本质：现代社会的薪水农奴</h2>
+            <div class="illustration">
+                <svg class="comic" viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+                    <!-- 背景 -->
+                    <rect x="0" y="0" width="600" height="400" fill="white"/>
+                    
+                    <!-- 左侧：古代农奴 -->
+                    <rect x="50" y="50" width="200" height="300" fill="white" stroke="#333" stroke-width="1"/>
+                    <text x="150" y="80" font-size="14" text-anchor="middle">古代农奴</text>
+                    
+                    <!-- 古代农奴图像 -->
+                    <circle cx="150" cy="150" r="30" fill="white" stroke="#333" stroke-width="2"/>
+                    <path d="M140,145 L160,145" stroke="#333" stroke-width="2"/>
+                    <path d="M145,165 Q150,170 155,165" stroke="#333" stroke-width="2" fill="none"/>
+                    
+                    <rect x="120" y="180" width="60" height="80" fill="white" stroke="#333" stroke-width="1"/>
+                    <path d="M120,220 L180,220" stroke="#333" stroke-width="1"/>
+                    
+                    <!-- 锄头 -->
+                    <path d="M200,150 L230,120" stroke="#333" stroke-width="2"/>
+                    <path d="M230,120 Q240,110 250,120" stroke="#333" stroke-width="2" fill="none"/>
+                    
+                    <!-- 古代特征 -->
+                    <text x="150" y="290" font-size="10" text-anchor="middle">• 为地主劳作</text>
+                    <text x="150" y="310" font-size="10" text-anchor="middle">• 日出而作，日落而息</text>
+                    <text x="150" y="330" font-size="10" text-anchor="middle">• 交出大部分收成</text>
+                    
+                    <!-- 右侧：现代打工人 -->
+                    <rect x="350" y="50" width="200" height="300" fill="white" stroke="#333" stroke-width="1"/>
+                    <text x="450" y="80" font-size="14" text-anchor="middle">现代打工人</text>
+                    
+                    <!-- 现代打工人图像 -->
+                    <circle cx="450" cy="150" r="30" fill="white" stroke="#333" stroke-width="2"/>
+                    <path d="M440,145 L460,145" stroke="#333" stroke-width="2"/>
+                    <path d="M440,165 Q450,160 460,165" stroke="#333" stroke-width="2" fill="none"/>
+                    
+                    <rect x="420" y="180" width="60" height="80" fill="white" stroke="#333" stroke-width="1"/>
+                    <path d="M420,220 L480,220" stroke="#333" stroke-width="1"/>
+                    
+                    <!-- 电脑 -->
+                    <rect x="500" y="140" width="40" height="30" fill="white" stroke="#333" stroke-width="1"/>
+                    <rect x="510" y="170" width="20" height="5" fill="white" stroke="#333" stroke-width="1"/>
+                    
+                    <!-- 现代特征 -->
+                    <text x="450" y="290" font-size="10" text-anchor="middle">• 为公司打工</text>
+                    <text x="450" y="310" font-size="10" text-anchor="middle">• 朝九晚九，周六福报</text>
+                    <text x="450" y="330" font-size="10" text-anchor="middle">• 交出大部分时间</text>
+                    
+                    <!-- 中间连接 -->
+                    <path d="M250,200 L350,200" stroke="#333" stroke-width="1" stroke-dasharray="5,5"/>
+                    <text x="300" y="190" font-size="14" text-anchor="middle">进化</text>
+                    <text x="300" y="220" font-size="14" text-anchor="middle">几千年</text>
+                </svg>
+                <div class="caption">从古代农奴到现代打工人，本质上只是换了个剥削方式而已</div>
+            </div>
+            
+            <p>打工人的本质是<span class="key-point">现代社会的薪水农奴</span>。古代农奴为地主耕种土地，现代打工人为资本家耕种键盘。表面上看我们获得了"自由"，实际上只是从"土地依附"变成了"工资依附"。</p>
+            
+            <p>我们自嘲为"打工人"，正是对这种处境的集体认知：每天早起晚归，用生命换取薪水，然后用薪水维持生命，周而复始，像一个精心设计的"人类养殖场"。</p>
+            
+            <div class="joke">
+                问：古代农奴和现代打工人有什么区别？<br>
+                答：古代农奴知道自己是农奴，现代打工人还以为自己在实现人生价值。
+            </div>
+            
+            <div class="quote">
+                打工人，打工魂，打工都是人上人。
+            </div>
+        </section>
+        
+        <section class="section" id="section2">
+            <h2>二、时间的悖论：用生命换钱，再用钱买命</h2>
+            <div class="illustration">
+                <svg class="comic" viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+                    <!-- 背景 -->
+                    <rect x="0" y="0" width="600" height="400" fill="white"/>
+                    
+                    <!-- 中心人物 -->
+                    <circle cx="300" cy="200" r="40" fill="white" stroke="#333" stroke-width="2"/>
+                    <path d="M290,190 L310,190" stroke="#333" stroke-width="2"/>
+                    <path d="M285,210 Q300,220 315,210" stroke="#333" stroke-width="2" fill="none"/>
+                    
+                    <!-- 左侧：时间转换为金钱 -->
+                    <path d="M250,200 Q200,150 150,150" stroke="#333" stroke-width="1" fill="none" marker-end="url(#arrow)"/>
+                    <circle cx="150" cy="150" r="30" fill="white" stroke="#333" stroke-width="1"/>
+                    <text x="150" y="155" font-size="20" text-anchor="middle">¥</text>
+                    
+                    <!-- 右侧：金钱转换为生活 -->
+                    <path d="M350,200 Q400,250 450,250" stroke="#333" stroke-width="1" fill="none" marker-end="url(#arrow)"/>
+                    <rect x="420" y="220" width="60" height="60" fill="white" stroke="#333" stroke-width="1"/>
+                    <text x="450" y="250" font-size="10" text-anchor="middle">生活</text>
+                    <text x="450" y="265" font-size="10" text-anchor="middle">健康</text>
+                    <text x="450" y="280" font-size="10" text-anchor="middle">快乐</text>
+                    
+                    <!-- 箭头定义 -->
+                    <defs>
+                        <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                            <path d="M0,0 L0,6 L9,3 z" fill="#333" />
+                        </marker>
+                    </defs>
+                    
+                    <!-- 时钟 -->
+                    <circle cx="150" cy="250" r="30" fill="white" stroke="#333" stroke-width="1"/>
+                    <circle cx="150" cy="250" r="3" fill="#333"/>
+                    <path d="M150,250 L150,230" stroke="#333" stroke-width="1"/>
+                    <path d="M150,250 L165,250" stroke="#333" stroke-width="1"/>
+                    
+                    <!-- 循环箭头 -->
+                    <path d="M150,300 Q300,350 450,300" stroke="#333" stroke-width="1" fill="none" stroke-dasharray="5,5"/>
+                    <path d="M450,300 L445,295" stroke="#333" stroke-width="1"/>
+                    <path d="M450,300 L445,305" stroke="#333" stroke-width="1"/>
+                    
+                    <!-- 标签 -->
+                    <text x="150" y="100" font-size="14" text-anchor="middle">工作时间</text>
+                    <text x="450" y="350" font-size="14" text-anchor="middle">生活时间</text>
+                    <text x="300" y="370" font-size="14" text-anchor="middle">无尽循环</text>
+                </svg>
+                <div class="caption">打工人的终极悖论：用生命时间换取金钱，再用金钱购买所剩无几的生命时间</div>
+            </div>
+            
+            <p>打工人面临的核心悖论是<span class="key-point">时间与金钱的交换陷阱</span>。我们将最宝贵的青春年华投入工作，换取金钱，然后用这些金钱去购买健康、休闲和快乐——那些因为工作而失去的东西。</p>
+            
+            <p>年轻时，我们用健康换金钱；年老时，我们用金钱买健康。我们加班熬夜赚钱，然后用赚来的钱买各种保健品和医疗服务。我们错过孩子的成长，然后用高价补习班和昂贵玩具来弥补愧疚。</p>
+            
+            <div class="joke">
+                年轻打工人：熬夜加班，多赚1万<br>
+                中年打工人：花1万治疗颈椎病<br>
+                这就是传说中的"时间等价交换"
+            </div>
+            
+            <div class="quote">
+                我们以为金钱是目的，其实它只是交换时间的媒介。当你意识到这一点时，可能已经交换了大半生。
+            </div>
+        </section>
+        
+        <section class="section" id="section3">
+            <h2>三、KPI的哲学：看起来很忙 ≠ 真的有效</h2>
+            <div class="illustration">
+                <svg class="comic" viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+                    <!-- 背景 -->
+                    <rect x="0" y="0" width="600" height="400" fill="white"/>
+                    
+                    <!-- 左侧：忙碌的人 -->
+                    <circle cx="150" cy="150" r="30" fill="white" stroke="#333" stroke-width="2"/>
+                    <path d="M140,145 L160,145" stroke="#333" stroke-width="2"/>
+                    <path d="M140,165 Q150,170 160,165" stroke="#333" stroke-width="2" fill="none"/>
+                    
+                    <!-- 多任务 -->
+                    <rect x="100" y="200" width="30" height="40" fill="white" stroke="#333" stroke-width="1"/>
+                    <rect x="140" y="200" width="30" height="40" fill="white" stroke="#333" stroke-width="1"/>
+                    <rect x="180" y="200" width="30" height="40" fill="white" stroke="#333" stroke-width="1"/>
+                    
+                    <path d="M150,180 L115,200" stroke="#333" stroke-width="1"/>
+                    <path d="M150,180 L155,200" stroke="#333" stroke-width="1"/>
+                    <path d="M150,180 L195,200" stroke="#333" stroke-width="1"/>
+                    
+                    <!-- 汗水 -->
+                    <path d="M130,140 Q125,135 130,130" stroke="#333" stroke-width="1" fill="none"/>
+                    <path d="M170,140 Q175,135 170,130" stroke="#333" stroke-width="1" fill="none"/>
+                    
+                    <!-- 标签 -->
+                    <text x="150" y="260" font-size="14" text-anchor="middle">多任务处理</text>
+                    <text x="150" y="280" font-size="14" text-anchor="middle">看起来很忙</text>
+                    
+                    <!-- 右侧：高效的人 -->
+                    <circle cx="450" cy="150" r="30" fill="white" stroke="#333" stroke-width="2"/>
+                    <path d="M440,145 L460,145" stroke="#333" stroke-width="2"/>
+                    <path d="M440,165 Q450,160 460,165" stroke="#333" stroke-width="2" fill="none"/>
+                    
+                    <!-- 单一任务 -->
+                    <rect x="435" y="200" width="30" height="40" fill="white" stroke="#333" stroke-width="1"/>
+                    <path d="M450,180 L450,200" stroke="#333" stroke-width="1"/>
+                    
+                    <!-- 完成标记 -->
+                    <rect x="420" y="250" width="60" height="20" fill="white" stroke="#333" stroke-width="1"/>
+                    <text x="450" y="265" font-size="14" text-anchor="middle">完成</text>
+                    <path d="M435,260 L445,270 L465,250" stroke="#333" stroke-width="2" fill="none"/>
+                    
+                    <!-- 标签 -->
+                    <text x="450" y="300" font-size="14" text-anchor="middle">专注单一任务</text>
+                    <text x="450" y="320" font-size="14" text-anchor="middle">真正有效</text>
+                    
+                    <!-- 中间对比 -->
+                    <path d="M250,200 L350,200" stroke="#333" stroke-width="1" stroke-dasharray="5,5"/>
+                    <text x="300" y="190" font-size="14" text-anchor="middle">VS</text>
+                    
+                    <!-- KPI -->
+                    <path d="M250,100 L350,100" stroke="#333" stroke-width="1"/>
+                    <rect x="270" y="70" width="60" height="30" fill="white" stroke="#333" stroke-width="1"/>
+                    <text x="300" y="90" font-size="14" text-anchor="middle">KPI</text>
+                    
+                    <path d="M300,100 L150,120" stroke="#333" stroke-width="1" marker-end="url(#arrow2)"/>
+                    <path d="M300,100 L450,120" stroke="#333" stroke-width="1" marker-end="url(#arrow2)"/>
+                    
+                    <!-- 箭头定义 -->
+                    <defs>
+                        <marker id="arrow2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                            <path d="M0,0 L0,6 L9,3 z" fill="#333" />
+                        </marker>
+                    </defs>
+                </svg>
+                <div class="caption">KPI文化下的悖论：看起来很忙的人得到赞赏，真正高效的人反而不被注意</div>
+            </div>
+            
+            <p>在打工人世界里，<span class="key-point">表演型工作</span>往往比实际产出更受重视。我们被训练成KPI的奴隶，追求可量化的指标而非真正的价值。这就是为什么：</p>
+            
+            <p>• 加班到深夜的人被视为"敬业"，准时下班的人被视为"不够投入"<br>
+               • 频繁发言的人被认为"积极参与"，安静思考的人被视为"消极怠工"<br>
+               • 制造大量文档的人显得"工作充实"，专注解决问题的人反而"存在感不强"</p>
+            
+            <p>这种扭曲的评价体系导致了大量的无效劳动和表演性工作，我们忙于取悦上级而非创造真正的价值。</p>
+            
+            <div class="joke">
+                领导：这个项目为什么只用了两天就完成了？<br>
+                打工人：因为它本来就只需要两天...<br>
+                领导：那你再多花几天，做得更完美一些<br>
+                打工人内心：所以我应该先摸鱼三天，第四天再开始做？
+            </div>
+            
+            <div class="quote">
+                在职场，重要的不是你做了什么，而是别人认为你做了什么。
+            </div>
+        </section>
+        
+        <section class="section" id="section4">
+            <h2>四、内卷的本质：困在囚徒困境中的集体</h2>
+            <div class="illustration">
+                <svg class="comic" viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+                    <!-- 背景 -->
+                    <rect x="0" y="0" width="600" height="400" fill="white"/>
+                    
+                    <!-- 囚徒困境矩阵 -->
+                    <rect x="150" y="100" width="300" height="200" fill="white" stroke="#333" stroke-width="2"/>
+                    <path d="M300,100 L300,300" stroke="#333" stroke-width="2"/>
+                    <path d="M150,200 L450,200" stroke="#333" stroke-width="2"/>
+                    
+                    <!-- 标签 -->
+                    <text x="225" y="90" font-size="14" text-anchor="middle">我正常下班</text>
+                    <text x="375" y="90" font-size="14" text-anchor="middle">我选择加班</text>
+                    
+                    <text x="140" y="150" font-size="14" text-anchor="end">他人正常下班</text>
+                    <text x="140" y="250" font-size="14" text-anchor="end">他人选择加班</text>
+                    
+                    <!-- 四个象限 -->
+                    <text x="225" y="150" font-size="12" text-anchor="middle">大家都有正常生活</text>
+                    <text x="225" y="170" font-size="12" text-anchor="middle">(最佳结果)</text>
+                    
+                    <text x="375" y="150" font-size="12" text-anchor="middle">我得到晋升</text>
+                    <text x="375" y="170" font-size="12" text-anchor="middle">他人落后</text>
+                    
+                    <text x="225" y="250" font-size="12" text-anchor="middle">我落后</text>
+                    <text x="225" y="270" font-size="12" text-anchor="middle">他人得到晋升</text>
+                    
+                    <text x="375" y="250" font-size="12" text-anchor="middle">大家都没有生活</text>
+                    <text x="375" y="270" font-size="12" text-anchor="middle">(现实结果)</text>
+                    
+                    <!-- 人物 -->
+                    <circle cx="375" cy="250" r="15" fill="white" stroke="#333" stroke-width="1"/>
+                    <path d="M370,248 L380,248" stroke="#333" stroke-width="1"/>
+                    <path d="M370,255 Q375,258 380,255" stroke="#333" stroke-width="1" fill="none"/>
+                    
+                    <circle cx="390" cy="250" r="15" fill="white" stroke="#333" stroke-width="1"/>
+                    <path d="M385,248 L395,248" stroke="#333" stroke-width="1"/>
+                    <path d="M385,255 Q390,258 395,255" stroke="#333" stroke-width="1" fill="none"/>
+                    
+                    <!-- 箭头 -->
+                    <path d="M300,320 L375,320 L375,280" stroke="#333" stroke-width="1" fill="none" marker-end="url(#arrow3)"/>
+                    <text x="340" y="340" font-size="14" text-anchor="middle">内卷的结果</text>
+                    
+                    <!-- 箭头定义 -->
+                    <defs>
+                        <marker id="arrow3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                            <path d="M0,0 L0,6 L9,3 z" fill="#333" />
+                        </marker>
+                    </defs>
+                </svg>
+                <div class="caption">内卷是一场囚徒困境：每个人都为了自身利益选择加班，结果大家都没有了生活</div>
+            </div>
+            
+            <p>内卷的本质是<span class="key-point">集体陷入的囚徒困境</span>。从个体角度看，加班、多做、表现积极是理性选择；但当所有人都这样做时，集体福利反而下降了。</p>
+            
+            <p>• 如果只有你一个人加班，你会脱颖而出<br>
+               • 如果只有你一个人不加班，你会落后于人<br>
+               • 当所有人都加班，标准被抬高，大家都没有生活质量，却也没人获得相对优势</p>
+            
+            <p>这就是为什么尽管每个人都讨厌996，却又不得不参与其中。我们被困在一个自我强化的系统里，每个人都是受害者，也是加害者。</p>
+            
+            <div class="joke">
+                新员工：为什么大家都不按时下班？<br>
+                老员工：因为按时下班的都已经被优化了。<br>
+                新员工：那加班能多拿钱吗？<br>
+                老员工：不能，但能让你不被优化。
+            </div>
+            
+            <div class="quote">
+                内卷不是竞争，而是一场没有赢家的博弈。
+            </div>
+        </section>
+        
+        <section class="section" id="section5">
+            <h2>五、35岁危机：被消费的青春与被抛弃的中年</h2>
+            <div class="illustration">
+                <svg class="comic" viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+                    <!-- 背景 -->
+                    <rect x="0" y="0" width="600" height="400" fill="white"/>
+                    
+                    <!-- 年龄轴 -->
+                    <path d="M100,200 L500,200" stroke="#333" stroke-width="2"/>
+                    <path d="M100,195 L100,205" stroke="#333" stroke-width="2"/>
+                    <path d="M200,195 L200,205" stroke="#333" stroke-width="2"/>
+                    <path d="M300,195 L300,205" stroke="#333" stroke-width="2"/>
+                    <path d="M400,195 L400,205" stroke="#333" stroke-width="2"/>
+                    <path d="M500,195 L500,205" stroke="#333" stroke-width="2"/>
+                    
+                    <text x="100" y="220" font-size="12" text-anchor="middle">22岁</text>
+                    <text x="200" y="220" font-size="12" text-anchor="middle">28岁</text>
+                    <text x="300" y="220" font-size="12" text-anchor="middle">35岁</text>
+                    <text x="400" y="220" font-size="12" text-anchor="middle">45岁</text>
+                    <text x="500" y="220" font-size="12" text-anchor="middle">55岁</text>
+                    
+                    <!-- 价值曲线 -->
+                    <path d="M100,180 Q150,150 200,130 Q250,110 300,130 Q350,150 400,180 Q450,210 500,250" stroke="#333" stroke-width="2" fill="none"/>
+                    
+                    <!-- 标记点 -->
+                    <circle cx="300" cy="130" r="5" fill="#333"/>
+                    <path d="M300,130 L300,100" stroke="#333" stroke-width="1" stroke-dasharray="3,3"/>
+                    <rect x="250" y="70" width="100" height="30" rx="5" fill="white" stroke="#333" stroke-width="1"/>
+                    <text x="300" y="90" font-size="12" text-anchor="middle">35岁危机</text>
+                    
+                    <!-- 阶段标记 -->
+                    <text x="150" y="260" font-size="12" text-anchor="middle">高强度加班期</text>
+                    <path d="M150,240 L150,180" stroke="#333" stroke-width="1" stroke-dasharray="3,3"/>
+                    
+                    <text x="350" y="260" font-size="12" text-anchor="middle">价值下降期</text>
+                    <path d="M350,240 L350,150" stroke="#333" stroke-width="1" stroke-dasharray="3,3"/>
+                    
+                    <!-- 人物 -->
+                    <circle cx="300" cy="300" r="20" fill="white" stroke="#333" stroke-width="1"/>
+                    <path d="M290,295 L310,295" stroke="#333" stroke-width="1"/>
+                    <path d="M290,310 Q300,305 310,310" stroke="#333" stroke-width="1" fill="none" transform="rotate(180 300 305)"/>
+                    <text x="300" y="330" font-size="12" text-anchor="middle">迷茫的中年打工人</text>
+                    
+                    <!-- 思考泡泡 -->
+                    <path d="M320,290 Q340,270 360,280" stroke="#333" stroke-width="1" fill="none"/>
+                    <ellipse cx="380" cy="280" rx="30" ry="20" fill="white" stroke="#333" stroke-width="1"/>
+                    <text x="380" y="284" font-size="10" text-anchor="middle">我去哪了？</text>
+                </svg>
+                <div class="caption">35岁危机：当你的价值曲线开始下降，而家庭责任却在上升</div>
+            </div>
+            
+            <p>打工人的职场生命周期中，<span class="key-point">35岁是一道分水岭</span>。这个年龄段的危机源于多重因素的叠加：</p>
+            
+            <p>• <strong>身体资本耗尽</strong>：十几年的过度加班，健康状况开始下滑<br>
+               • <strong>技术更新迭代</strong>：新技术层出不穷，学习能力和精力下降<br>
+               • <strong>家庭责任增加</strong>：房贷、车贷、子女教育、父母赡养压力倍增<br>
+               • <strong>职场天花板</strong>：大多数人已经触及自己能力和资源的上限</p>
+            
+            <p>资本逻辑下，企业追求的是最大化效用。年轻人可以用低价格提供高强度劳动，而35岁以上的员工薪资更高却精力下降，自然成为优化的首选。</p>
+            
+            <div class="joke">
+                22岁：领导，这个需求不合理<br>
+                28岁：领导，这个需求虽然不合理，但我尽力做<br>
+                35岁：领导，这个需求...好的，马上做<br>
+                45岁：新领导，这个需求...（被打断）你是谁来着？
+            </div>
+            
+            <div class="quote">
+                青春被当作资源消耗，中年被视为可替代品。
+            </div>
+        </section>
+        
+        <section class="section" id="section6">
+            <h2>六、打工人的生存策略：在夹缝中求生</h2>
+            <div class="illustration">
+                <svg class="comic" viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+                    <!-- 背景 -->
+                    <rect x="0" y="0" width="600" height="400" fill="white"/>
+                    
+                    <!-- 中心人物 -->
+                    <circle cx="300" cy="200" r="30" fill="white" stroke="#333" stroke-width="2"/>
+                    <path d="M290,195 L310,195" stroke="#333" stroke-width="2"/>
+                    <path d="M290,210 Q300,215 310,210" stroke="#333" stroke-width="2" fill="none"/>
+                    
+                    <!-- 四个方向的策略 -->
+                    <rect x="150" y="100" width="100" height="50" rx="10" fill="white" stroke="#333" stroke-width="1"/>
+                    <text x="200" y="130" font-size="12" text-anchor="middle">技能多元化</text>
+                    <path d="M300,180 L200,150" stroke="#333" stroke-width="1" marker-end="url(#arrow4)"/>
+                    
+                    <rect x="400" y="100" width="100" height="50" rx="10" fill="white" stroke="#333" stroke-width="1"/>
+                    <text x="450" y="130" font-size="12" text-anchor="middle">副业自救</text>
+                    <path d="M320,180 L400,150" stroke="#333" stroke-width="1" marker-end="url(#arrow4)"/>
+                    
+                    <rect x="150" y="250" width="100" height="50" rx="10" fill="white" stroke="#333" stroke-width="1"/>
+                    <text x="200" y="280" font-size="12" text-anchor="middle">降低欲望</text>
+                    <path d="M280,220 L200,250" stroke="#333" stroke-width="1" marker-end="url(#arrow4)"/>
+                    
+                    <rect x="400" y="250" width="100" height="50" rx="10" fill="white" stroke="#333" stroke-width="1"/>
+                    <text x="450" y="280" font-size="12" text-anchor="middle">躺平摆烂</text>
+                    <path d="M320,220 L400,250" stroke="#333" stroke-width="1" marker-end="url(#arrow4)"/>
+                    
+                    <!-- 箭头定义 -->
+                    <defs>
+                        <marker id="arrow4" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                            <path d="M0,0 L0,6 L9,3 z" fill="#333" />
+                        </marker>
+                    </defs>
+                    
+                    <!-- 平衡 -->
+                    <text x="300" y="50" font-size="16" text-anchor="middle">打工人生存策略</text>
+                    <path d="M300,60 L300,160" stroke="#333" stroke-width="1" stroke-dasharray="5,5"/>
+                </svg>
+                <div class="caption">在资本与生活的夹缝中，打工人发展出多种求生策略</div>
+            </div>
+            
+            <p>面对职场的残酷现实，打工人发展出了多种<span class="key-point">生存策略</span>：</p>
+            
+            <p>1. <strong>技能多元化</strong>：不再押注单一技能，而是发展多种能力，增加职场适应性<br>
+               2. <strong>副业自救</strong>：工作之外发展副业，寻求额外收入来源和职业保障<br>
+               3. <strong>降低欲望</strong>：接受"小而美"的生活，减少物质需求，降低生存压力<br>
+               4. <strong>躺平摆烂</strong>：拒绝内卷，做最低限度的工作，保留精力给自己</p>
+            
+            <p>这些策略没有对错之分，每个人需要根据自身情况选择适合的生存之道。重要的是，无论选择哪种策略，都要保持对自我的尊重和对生活的热爱。</p>
+            
+            <div class="joke">
+                领导：你为什么不加班？<br>
+                打工人：因为我在用晚上的时间学习新技能<br>
+                领导：学什么技能？<br>
+                打工人：学习如何不用加班就能养活自己
+            </div>
+            
+            <div class="quote">
+                生存不仅是适应环境，也是创造自己的生存空间。
+            </div>
+        </section>
+        
+        <section class="section" id="section7">
+            <h2>七、打工人哲学的终极思考：为何而活？</h2>
+            <div class="illustration">
+                <svg class="comic" viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+                    <!-- 背景 -->
+                    <rect x="0" y="0" width="600" height="400" fill="white"/>
+                    
+                    <!-- 中心人物 -->
+                    <circle cx="300" cy="200" r="40" fill="white" stroke="#333" stroke-width="2"/>
+                    <path d="M290,195 L310,195" stroke="#333" stroke-width="2"/>
+                    <path d="M290,210 Q300,215 310,210" stroke="#333" stroke-width="2" fill="none"/>
+                    
+                    <!-- 思考泡泡 -->
+                    <path d="M340,180 Q370,160 400,170" stroke="#333" stroke-width="1" fill="none"/>
+                    <ellipse cx="450" cy="170" rx="50" ry="30" fill="white" stroke="#333" stroke-width="1"/>
+                    <text x="450" y="175" font-size="12" text-anchor="middle">为何而活？</text>
+                    
+                    <!-- 价值观 -->
+                    <path d="M150,100 L200,150" stroke="#333" stroke-width="1" marker-end="url(#arrow5)"/>
+                    <circle cx="120" cy="80" r="30" fill="white" stroke="#333" stroke-width="1"/>
+                    <text x="120" y="85" font-size="12" text-anchor="middle">家人</text>
+                    
+                    <path d="M150,300 L200,250" stroke="#333" stroke-width="1" marker-end="url(#arrow5)"/>
+                    <circle cx="120" cy="320" r="30" fill="white" stroke="#333" stroke-width="1"/>
+                    <text x="120" y="325" font-size="12" text-anchor="middle">兴趣</text>
+                    
+                    <path d="M450,100 L400,150" stroke="#333" stroke-width="1" marker-end="url(#arrow5)"/>
+                    <circle cx="480" cy="80" r="30" fill="white" stroke="#333" stroke-width="1"/>
+                    <text x="480" y="85" font-size="12" text-anchor="middle">成长</text>
+                    
+                    <path d="M450,300 L400,250" stroke="#333" stroke-width="1" marker-end="url(#arrow5)"/>
+                    <circle cx="480" cy="320" r="30" fill="white" stroke="#333" stroke-width="1"/>
+                    <text x="480" y="325" font-size="12" text-anchor="middle">自由</text>
+                    
+                    <!-- 箭头定义 -->
+                    <defs>
+                        <marker id="arrow5" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                            <path d="M0,0 L0,6 L9,3 z" fill="#333" />
+                        </marker>
+                    </defs>
+                    
+                    <!-- 平衡 -->
+                    <circle cx="300" cy="200" r="80" fill="none" stroke="#333" stroke-width="1" stroke-dasharray="5,5"/>
+                </svg>
+                <div class="caption">打工人的终极哲学思考：在资本逻辑之外，寻找自己真正的生活意义</div>
+            </div>
+            
+            <p>打工人哲学的终极思考是：<span class="key-point">为何而活？</span>当我们剥离资本赋予我们的价值观，每个人都需要面对这个问题。</p>
+            
+            <p>• <strong>工作是生活的全部吗？</strong> 当我们退休或失业，还剩下什么？<br>
+               • <strong>金钱是衡量成功的唯一标准吗？</strong> 高薪换来的健康损失和亲情缺失值得吗？<br>
+               • <strong>职场身份是我们的核心认同吗？</strong> 离开职位和头衔，我们还是谁？</p>
+            
+            <p>真正的打工人哲学，是在承认现实的前提下，仍然保持对生活的热爱和对自我的尊重。是在被资本化的世界里，坚守人性的温度和尊严。</p>
+            
+            <div class="joke">
+                朋友：你为什么不换个工作？<br>
+                打工人：因为所有工作都一样，只是老板不同<br>
+                朋友：那你为什么还在坚持？<br>
+                打工人：因为我知道我不只是一个打工人
+            </div>
+            
+            <div class="quote">
+                打工是一种谋生手段，但生活的意义远不止于此。
+            </div>
+        </section>
+        
+        <section class="section" id="conclusion">
+            <h2>结语：自嘲中的智慧</h2>
+            
+            <p>打工人的自嘲，是一种面对现实的智慧，是在荒谬中寻找意义的努力。我们自嘲：</p>
+            
+            <p>• 因为我们看清了游戏规则，却仍在游戏中<br>
+               • 因为我们明白系统的不公，却无力改变<br>
+               • 因为我们渴望自由，却被生活所束缚<br>
+               • 因为我们追求意义，却常常迷失在日常琐事中</p>
+            
+            <p>但正是这种自嘲，让我们保持了清醒和人性。它提醒我们：<span class="key-point">我们首先是人，其次才是打工人</span>。</p>
+            
+            <p>无论是奋斗还是躺平，是加班还是摸鱼，都只是生存的策略，而非生活的全部。真正的智慧，是在有限的生命中，找到属于自己的平衡点和意义。</p>
+            
+            <div class="quote">
+                笑对人生，是打工人最后的倔强，也是最深的智慧。
+            </div>
+        </section>
+        
+        <footer>
+            <p>© 2023 打工人哲学 | 作者：一位自嘲的打工人</p>
+            <div class="social-links">
+                <a href="https://github.com/author" target="_blank">GitHub</a> | 
+                <a href="https://twitter.com/author" target="_blank">Twitter</a> | 
+                <a href="https://linkedin.com/in/author" target="_blank">LinkedIn</a>
+            </div>
+        </footer>
+    </div>
+    
+    <script>
+        // 页面滚动时显示内容
+        function checkVisibility() {
+            const sections = document.querySelectorAll('.section');
+            
+            sections.forEach(section => {
+                const sectionTop = section.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+                
+                if (sectionTop < windowHeight * 0.75) {
+                    section.classList.add('visible');
+                }
+            });
+        }
+        
+        // 初始检查
+        window.addEventListener('load', checkVisibility);
+        // 滚动时检查
+        window.addEventListener('scroll', checkVisibility);
+    </script>
+</body>
+</html>

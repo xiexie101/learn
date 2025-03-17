@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+   <!-- ppt   -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>打工人哲学：一部自嘲的生存指南</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/theme/white.css">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/reveal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/plugin/notes/notes.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/plugin/markdown/markdown.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/plugin/highlight/highlight.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/plugin/zoom/zoom.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@latest/dist/mermaid.min.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #3a4a5a;
+            --secondary-color: #e74c3c;
+            --accent-color: #3498db;
+            --text-color: #2c3e50;
+            --light-text: #ecf0f1;
+            --background-color: #f9f9f9;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --gradient-start: #2c3e50;
+            --gradient-end: #4a6491;
+            --highlight-bg: rgba(231, 76, 60, 0.1);
+            --quote-bg: rgba(52, 152, 219, 0.1);
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Noto Sans SC', Tahoma, Arial, Roboto, "Droid Sans", "Helvetica Neue", "Droid Sans Fallback", "Heiti SC", "Hiragino Sans GB", Simsun, sans-self;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .reveal {
+            font-family: 'Noto Sans SC', Tahoma, Arial, Roboto, "Droid Sans", "Helvetica Neue", "Droid Sans Fallback", "Heiti SC", "Hiragino Sans GB", Simsun, sans-self;
+        }
+
+        .reveal h1,
+        .reveal h2,
+        .reveal h3,
+        .reveal h4 {
+            font-family: 'Noto Serif SC', serif;
+            color: var(--primary-color);
+            margin-bottom: 0.8em;
+            letter-spacing: 0.02em;
+            text-transform: none;
+        }
+
+        .reveal h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+
+        .reveal h2 {
+            font-size: 1.8em;
+            font-weight: 600;
+        }
+
+        .reveal h3 {
+            font-size: 1.4em;
+            font-weight: 500;
+            color: var(--secondary-color);
+        }
+
+        .reveal p,
+        .reveal li {
+            line-height: 1.6;
+            font-size: 1.1em;
+        }
+
+        .reveal strong {
+            color: var(--secondary-color);
+            font-weight: 600;
+        }
+
+        /* 封面样式 */
+        .cover {
+            text-align: center;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            color: var(--light-text);
+            padding: 0 2rem;
+        }
+
+        .cover h1 {
+            font-size: 3em;
+            margin-bottom: 0.2em;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .cover h2 {
+            font-size: 1.5em;
+            margin-bottom: 1em;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .cover-icon {
+            font-size: 5em;
+            margin-bottom: 0.5em;
+            opacity: 0.9;
+        }
+
+        /* 卡片样式 */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            box-shadow: 0 4px 12px var(--shadow-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px var(--shadow-color);
+        }
+
+        /* 引用样式 */
+        .quote {
+            background-color: var(--quote-bg);
+            border-left: 4px solid var(--accent-color);
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            font-style: italic;
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* 高亮文本 */
+        .highlight {
+            background-color: var(--highlight-bg);
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        /* 两列布局 */
+        .columns {
+            display: flex;
+            justify-content: space-between;
+            gap: 2rem;
+        }
+
+        .column {
+            flex: 1;
+        }
+
+        /* 图标样式 */
+        .icon {
+            color: var(--accent-color);
+            margin-right: 0.5em;
+        }
+
+        .icon-large {
+            font-size: 2em;
+            display: block;
+            margin-bottom: 0.5em;
+            color: var(--secondary-color);
+        }
+
+        /* 图表容器 */
+        .chart-container {
+            width: 100%;
+            height: 300px;
+            margin: 1rem 0;
+        }
+
+        /* 自定义列表 */
+        .custom-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .custom-list li {
+            padding: 0.5em 0;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .custom-list li i {
+            color: var(--secondary-color);
+            margin-right: 0.8em;
+            margin-top: 0.3em;
+        }
+
+        /* 笑话框 */
+        .joke-box {
+            background-color: rgba(52, 152, 219, 0.1);
+            border: 1px dashed var(--accent-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            position: relative;
+        }
+
+        .joke-box::before {
+            content: '\f599';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            top: -0.8em;
+            left: 1em;
+            background-color: white;
+            padding: 0 0.5em;
+            color: var(--accent-color);
+        }
+
+        /* 进度条 */
+        .progress-item {
+            margin: 1rem 0;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5em;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background-color: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--accent-color);
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+
+        /* 时间线 */
+        .timeline {
+            position: relative;
+            max-width: 80%;
+            margin: 0 auto;
+        }
+
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 4px;
+            background-color: var(--accent-color);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -2px;
+        }
+
+        .timeline-item {
+            padding: 10px 40px;
+            position: relative;
+            width: 50%;
+            box-sizing: border-box;
+        }
+
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border: 4px solid var(--secondary-color);
+            border-radius: 50%;
+            top: 15px;
+            z-index: 1;
+        }
+
+        .timeline-left {
+            left: 0;
+            text-align: right;
+        }
+
+        .timeline-right {
+            left: 50%;
+            text-align: left;
+        }
+
+        .timeline-left::after {
+            right: -10px;
+        }
+
+        .timeline-right::after {
+            left: -10px;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .columns {
+                flex-direction: column;
+            }
+
+            .timeline::after {
+                left: 31px;
+            }
+
+            .timeline-item {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 25px;
+            }
+
+            .timeline-left,
+            .timeline-right {
+                left: 0;
+                text-align: left;
+            }
+
+            .timeline-left::after,
+            .timeline-right::after {
+                left: 21px;
+            }
+        }
+
+        /* 动画效果 */
+        .reveal .slides section .fragment.highlight-current-red.current-fragment {
+            color: var(--secondary-color);
+        }
+
+        /* SVG样式 */
+        .svg-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* 页脚 */
+        .footer {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            font-size: 0.7em;
+            color: rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="reveal">
+        <div class="slides">
+            <!-- 封面 -->
+            <section class="cover">
+                <i class="fas fa-coffee cover-icon"></i>
+                <h1>打工人哲学</h1>
+                <h2>一部自嘲的生存指南</h2>
+                <p style="margin-top: 2em; font-size: 1em; opacity: 0.8;">
+                    <i class="fas fa-user"></i> 一位自嘲的打工人
+                </p>
+            </section>
+
+            <!-- 目录 -->
+            <section>
+                <h2>我们将探讨的内容</h2>
+                <div class="columns">
+                    <div class="column">
+                        <ul class="custom-list">
+                            <li><i class="fas fa-circle-question"></i> 打工人的本质</li>
+                            <li><i class="fas fa-hourglass-half"></i> 时间的困境</li>
+                            <li><i class="fas fa-masks-theater"></i> 表演型工作</li>
+                            <li><i class="fas fa-arrow-trend-up"></i> 内卷的本质</li>
+                        </ul>
+                    </div>
+                    <div class="column">
+                        <ul class="custom-list">
+                            <li><i class="fas fa-person-walking-arrow-right"></i> 35岁危机</li>
+                            <li><i class="fas fa-chess"></i> 打工人的生存策略</li>
+                            <li><i class="fas fa-brain"></i> 终极思考：为何而活？</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="quote">
+                    "打工人，打工魂，打工都是人上人"<br>
+                    —— 互联网自嘲文化
+                </div>
+            </section>
+
+            <!-- 第一部分：打工人的本质 -->
+            <section>
+                <section>
+                    <h2>一、打工人的本质</h2>
+                    <p>在资本主义生产关系中的<span class="highlight">双重身份</span></p>
+                    <div class="svg-container">
+                        <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+                            <!-- 背景 -->
+                            <rect x="0" y="0" width="600" height="400" fill="white" />
+
+                            <!-- 左侧：劳动力 -->
+                            <circle cx="200" cy="200" r="80" fill="#f9f9f9" stroke="#3498db" stroke-width="2" />
+                            <text x="200" y="190" font-size="18" text-anchor="middle" fill="#3498db">劳动力</text>
+                            <text x="200" y="220" font-size="14" text-anchor="middle" fill="#3498db">（人）</text>
+
+                            <!-- 右侧：生产资料 -->
+                            <circle cx="400" cy="200" r="80" fill="#f9f9f9" stroke="#e74c3c" stroke-width="2" />
+                            <text x="400" y="190" font-size="18" text-anchor="middle" fill="#e74c3c">生产资料</text>
+                            <text x="400" y="220" font-size="14" text-anchor="middle" fill="#e74c3c">（工具）</text>
+
+                            <!-- 中间：打工人 -->
+                            <circle cx="300" cy="200" r="40" fill="#3a4a5a" stroke="#3a4a5a" stroke-width="2" />
+                            <text x="300" y="205" font-size="16" text-anchor="middle" fill="white">打工人</text>
+
+                            <!-- 连接线 -->
+                            <path d="M240,200 L260,200" stroke="#3a4a5a" stroke-width="2" />
+                            <path d="M340,200 L360,200" stroke="#3a4a5a" stroke-width="2" />
+
+                            <!-- 箭头 -->
+                            <path d="M150,100 L200,150" stroke="#3a4a5a" stroke-width="1" fill="none" />
+                            <text x="140" y="95" font-size="14" text-anchor="middle">主体性</text>
+
+                            <path d="M450,100 L400,150" stroke="#3a4a5a" stroke-width="1" fill="none" />
+                            <text x="460" y="95" font-size="14" text-anchor="middle">工具性</text>
+                        </svg>
+                    </div>
+                </section>
+
+                <section>
+                    <h3>打工人的双重身份</h3>
+                    <div class="columns">
+                        <div class="column">
+                            <div class="card">
+                                <i class="fas fa-user icon-large"></i>
+                                <h3>作为人</h3>
+                                <ul>
+                                    <li>有情感需求</li>
+                                    <li>需要休息和恢复</li>
+                                    <li>追求自我实现</li>
+                                    <li>渴望被尊重和认可</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="column">
+                            <div class="card">
+                                <i class="fas fa-cogs icon-large"></i>
+                                <h3>作为工具</h3>
+                                <ul>
+                                    <li>被要求高效产出</li>
+                                    <li>可替代性高</li>
+                                    <li>价值由市场决定</li>
+                                    <li>被量化评估</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="quote fragment">
+                        资本逻辑下，人被异化为生产工具，而工具却被拟人化为"智能助手"。
+                    </div>
+                </section>
+
+                <section>
+                    <h3>异化的四个维度</h3>
+                    <div class="card">
+                        <ol>
+                            <li class="fragment">与<strong>劳动产品</strong>的异化：我们创造的产品不属于自己</li>
+                            <li class="fragment">与<strong>劳动过程</strong>的异化：工作流程由他人设计和控制</li>
+                            <li class="fragment">与<strong>类本质</strong>的异化：失去创造性和自主性</li>
+                            <li class="fragment">与<strong>他人</strong>的异化：同事变成竞争对手</li>
+                        </ol>
+                    </div>
+                    <div class="joke-box fragment">
+                        <p>HR：我们是一个大家庭！</p>
+                        <p>打工人：哪个家庭会因为经济困难就把孩子送走？</p>
+                    </div>
+                </section>
+            </section>
+
+            <!-- 第二部分：时间的困境 -->
+            <section>
+                <section>
+                    <h2>二、时间的困境</h2>
+                    <p>打工人最稀缺的资源是<span class="highlight">时间</span></p>
+                    <div class="svg-container">
+                        <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+                            <!-- 背景 -->
+                            <rect x="0" y="0" width="600" height="400" fill="white" />
+
+                            <!-- 时钟 -->
+                            <circle cx="300" cy="200" r="120" fill="none" stroke="#3a4a5a" stroke-width="2" />
+                            <circle cx="300" cy="200" r="5" fill="#3a4a5a" />
+
+                            <!-- 时针 -->
+                            <line x1="300" y1="200" x2="300" y2="120" stroke="#e74c3c" stroke-width="4" />
+
+                            <!-- 分针 -->
+                            <line x1="300" y1="200" x2="380" y2="200" stroke="#3498db" stroke-width="3" />
+
+                            <!-- 时间分配 -->
+                            <path d="M300,200 L300,80 A120,120 0 0,1 420,200 Z" fill="#e74c3c" fill-opacity="0.2"
+                                stroke="#e74c3c" stroke-width="1" />
+                            <text x="350" y="130" font-size="14" fill="#e74c3c">工作 (10h)</text>
+
+                            <path d="M300,200 L420,200 A120,120 0 0,1 300,320 Z" fill="#3498db" fill-opacity="0.2"
+                                stroke="#3498db" stroke-width="1" />
+                            <text x="380" y="250" font-size="14" fill="#3498db">通勤 (2h)</text>
+
+                            <path d="M300,200 L300,320 A120,120 0 0,1 180,200 Z" fill="#2ecc71" fill-opacity="0.2"
+                                stroke="#2ecc71" stroke-width="1" />
+                            <text x="250" y="280" font-size="14" fill="#2ecc71">睡眠 (7h)</text>
+
+                            <path d="M300,200 L180,200 A120,120 0 0,1 300,80 Z" fill="#f39c12" fill-opacity="0.2"
+                                stroke="#f39c12" stroke-width="1" />
+                            <text x="230" y="130" font-size="14" fill="#f39c12">生活 (5h)</text>
+                        </svg>
+                    </div>
+                </section>
+
+                <section>
+                    <h3>996工作制下的时间分配</h3>
+                    <div class="progress-item fragment">
+                        <div class="progress-label">
+                            <span>工作时间</span>
+                            <span>10-12小时/天</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 50%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="progress-item fragment">
+                        <div class="progress-label">
+                            <span>通勤时间</span>
+                            <span>1-3小时/天</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 10%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="progress-item fragment">
+                        <div class="progress-label">
+                            <span>睡眠时间</span>
+                            <span>6-7小时/天</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 30%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="progress-item fragment">
+                        <div class="progress-label">
+                            <span>个人生活时间</span>
+                            <span>2-5小时/天</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 10%;"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h3>时间困境的本质</h3>
+                    <div class="card">
+                        <p>打工人面临的是一个<strong>零和博弈</strong>：</p>
+                        <ul>
+                            <li class="fragment">24小时是固定的，分配给工作的时间越多，留给生活的就越少</li>
+                            <li class="fragment">资本追求的是最大化劳动时间，而人追求的是有质量的生活时间</li>
+                            <li class="fragment">在这场博弈中，资本往往处于优势地位</li>
+                        </ul>
+                    </div>
+                    <div class="quote fragment">
+                        "我们用生命中最好的时光，换取了别人眼中的'成功'，却错过了生活本身。"
+                    </div>
+                </section>
+
+                <section>
+                    <h3>时间的价值悖论</h3>
+                    <div class="columns">
+                        <div class="column">
+                            <div class="card">
+                                <h4><i class="fas fa-dollar-sign icon"></i>经济价值</h4>
+                                <p>时间可以转化为金钱</p>
+                                <p>加班 = 更多收入</p>
+                                <p>职场晋升 = 更高薪资</p>
+                            </div>
+                        </div>
+                        <div class="column">
+                            <div class="card">
+                                <h4><i class="fas fa-heart icon"></i>生活价值</h4>
+                                <p>时间是生活的本身</p>
+                                <p>陪伴家人 = 无价</p>
+                                <p>健康、爱好 = 幸福感</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="joke-box fragment">
+                        <p>年轻时用健康换钱，年老时用钱买健康。</p>
+                        <p>这个交易，怎么看都不划算。</p>
+                    </div>
+                </section>
+            </section>
+
+            <!-- 第三部分：表演型工作 -->
+            <section>
+                <section>
+                    <h2>三、表演型工作</h2>
+                    <p>当<span class="highlight">看起来很忙</span>比<span class="highlight">真正有产出</span>更重要</p>
+                    <div class="svg-container">
+                        <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+                            <!-- 背景 -->
+                            <rect x="0" y="0" width="600" height="400" fill="white" />
+
+                            <!-- 舞台 -->
+                            <rect x="100" y="250" width="400" height="20" fill="#3a4a5a" />
+                            <path d="M100,250 L50,300 L500,300 L550,250 Z" fill="#3a4a5a" fill-opacity="0.3" />
+
+                            <!-- 聚光灯效果 -->
+                            <ellipse cx="300" cy="250" rx="150" ry="30" fill="#f39c12" fill-opacity="0.2" />
+
+                            <!-- 人物 -->
+                            <circle cx="300" cy="200" r="30" fill="#3498db" />
+                            <rect x="270" y="230" width="60" height="80" fill="#3498db" />
+
+                            <!-- 手臂 -->
+                            <rect x="270" y="240" width="10" height="40" fill="#3498db"
+                                transform="rotate(20 270 240)" />
+                            <rect x="330" y="240" width="10" height="40" fill="#3498db"
+                                transform="rotate(-20 330 240)" />
+
+                            <!-- 电脑 -->
+                            <rect x="250" y="160" width="100" height="10" fill="#e74c3c" />
+                            <rect x="260" y="130" width="80" height="30" fill="#e74c3c" />
+
+                            <!-- 观众 -->
+                            <circle cx="150" cy="350" r="15" fill="#3a4a5a" fill-opacity="0.5" />
+                            <circle cx="200" cy="350" r="15" fill="#3a4a5a" fill-opacity="0.5" />
+                            <circle cx="250" cy="350" r="15" fill="#3a4a5a" fill-opacity="0.5" />
+                            <circle cx="300" cy="350" r="15" fill="#3a4a5a" fill-opacity="0.5" />
+                            <circle cx="350" cy="350" r="15" fill="#3a4a5a" fill-opacity="0.5" />
+                            <circle cx="400" cy="350" r="15" fill="#3a4a5a" fill-opacity="0.5" />
+                            <circle cx="450" cy="350" r="15" fill="#3a4a5a" fill-opacity="0.5" />
+
+                            <!-- 标签 -->
+                            <text x="300" y="100" font-size="20" text-anchor="middle" fill="#3a4a5a">表演型工作</text>
+                        </svg>
+                    </div>
+                </section>
+
+                <section>
+                    <h3>表演型工作的特征</h3>
+                    <div class="card">
+                        <ul>
+                            <li class="fragment"><strong>可见性优先</strong>：做容易被看到的事，而非最有价值的事</li>
+                            <li class="fragment"><strong>形式大于内容</strong>：报告的精美程度超过内容的实用性</li>
+                            <li class="fragment"><strong>忙碌即美德</strong>：看起来很忙比实际产出更重要</li>
+                            <li class="fragment"><strong>表达大于执行</strong>：会说比会做更容易获得认可</li>
+                        </ul>
+                    </div>
+                    <div class="quote fragment">
+                        "在现代职场，我们不仅要工作，还要表演我们在工作。"
+                    </div>
+                </section>
+
+                <section>
+                    <h3>KPI文化的扭曲</h3>
+                    <div class="columns">
+                        <div class="column">
+                            <div class="card">
+                                <h4><i class="fas fa-chart-line icon"></i>KPI的初衷</h4>
+                                <ul>
+                                    <li>量化工作成果</li>
+                                    <li>客观评价绩效</li>
+                                    <li>激励员工成长</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="column">
+                            <div class="card">
+                                <h4><i class="fas fa-theater-masks icon"></i>KPI的现实</h4>
+                                <ul>
+                                    <li>为指标而工作</li>
+                                    <li>数字游戏与造假</li>
+                                    <li>短期行为导向</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="joke-box fragment">
+                        <p>领导：这个月的KPI完成了吗？</p>
+                        <p>员工：完成了，报表做得比工作还好看。</p>
+                    </div>
+                </section>
+
+                <section>
+                    <h3>表演型工作的悖论</h3>
+                    <div class="card">
+                        <p>表演型工作创造了一个<strong>双重现实</strong>：</p>
+                        <div class="columns">
+                            <div class="column">
+                                <h4>表面现实</h4>
+                                <ul>
+                                    <li>人人都很忙</li>
+                                    <li>项目进展顺利</li>
+                                    <li>团队充满活力</li>
+                                </ul>
+                            </div>
+                            <div class="column">
+                                <h4>真实现实</h4>
+                                <ul>
+                                    <li>效率低下</li>
+                                    <li>问题被掩盖</li>
+                                    <li>资源被浪费</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="quote fragment">
+                        "我们花费大量时间在展示工作上，却没有足够时间做真正的工作。"
+                    </div>
+                </section>
+            </section>
+
+            <!-- 第四部分：内卷的本质 -->
+            <section>
+                <section>
+                    <h2>四、内卷的本质</h2>
+                    <p>困在<span class="highlight">囚徒困境</span>中的集体</p>
+                    <div class="svg-container">
+                        <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+                            <!-- 背景 -->
+                            <rect x="0" y="0" width="600" height="400" fill="white" />
+
+                            <!-- 囚徒困境矩阵 -->
+                            <rect x="150" y="100" width="300" height="200" fill="white" stroke="#3a4a5a"
+                                stroke-width="2" />
+                            <path d="M300,100 L300,300" stroke="#3a4a5a" stroke-width="2" />
+                            <path d="M150,200 L450,200" stroke="#3a4a5a" stroke-width="2" />
+
+                            <!-- 标签 -->
+                            <text x="225" y="90" font-size="14" text-anchor="middle" fill="#3a4a5a">我正常下班</text>
+                            <text x="375" y="90" font-size="14" text-anchor="middle" fill="#3a4a5a">我选择加班</text>
+
+                            <text x="140" y="150" font-size="14" text-anchor="end" fill="#3a4a5a">他人正常下班</text>
+                            <text x="140" y="250" font-size="14" text-anchor="end" fill="#3a4a5a">他人选择加班</text>
+
+                            <!-- 四个象限 -->
+                            <rect x="150" y="100" width="150" height="100" fill="#2ecc71" fill-opacity="0.2" />
+                            <text x="225" y="150" font-size="12" text-anchor="middle" fill="#2ecc71">大家都有正常生活</text>
+                            <text x="225" y="170" font-size="12" text-anchor="middle" fill="#2ecc71">(最佳结果)</text>
+
+                            <rect x="300" y="100" width="150" height="100" fill="#f39c12" fill-opacity="0.2" />
+                            <text x="375" y="150" font-size="12" text-anchor="middle" fill="#f39c12">我得到晋升</text>
+                            <text x="375" y="170" font-size="12" text-anchor="middle" fill="#f39c12">他人落后</text>
+
+                            <rect x="150" y="200" width="150" height="100" fill="#f39c12" fill-opacity="0.2" />
+                            <text x="225" y="250" font-size="12" text-anchor="middle" fill="#f39c12">我落后</text>
+                            <text x="225" y="270" font-size="12" text-anchor="middle" fill="#f39c12">他人得到晋升</text>
+
+                            <rect x="300" y="200" width="150" height="100" fill="#e74c3c" fill-opacity="0.2" />
+                            <text x="375" y="250" font-size="12" text-anchor="middle" fill="#e74c3c">大家都没有生活</text>
+                            <text x="375" y="270" font-size="12" text-anchor="middle" fill="#e74c3c">(现实结果)</text>
+
+                            <!-- 箭头 -->
+                            <path d="M300,320 L375,320 L375,280" stroke="#3a4a5a" stroke-width="1" fill="none"
+                                marker-end="url(#arrow)" />
+                            <text x="340" y="340" font-size="14" text-anchor="middle" fill="#3a4a5a">内卷的结果</text>
+
+                            <!-- 箭头定义 -->
+                            <defs>
+                                <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"
+                                    markerUnits="strokeWidth">
+                                    <path d="M0,0 L0,6 L9,3 z" fill="#3a4a5a" />
+                                </marker>
+                            </defs>
+                        </svg>
+                    </div>
+                </section>
+
+                <section>
+                    <h3>内卷的定义</h3>
+                    <div class="card">
+                        <p><strong>内卷</strong>：一种社会或文化模式，其中系统的成员之间的竞争加剧，但总体收益并未增加，甚至可能减少。</p>
+                        <p class="fragment">在职场中表现为：</p>
+                        <ul>
+                            <li class="fragment">工作时间不断延长</li>
+                            <li class="fragment">工作强度持续增加</li>
+                            <li class="fragment">评价标准不断抬高</li>
+                            <li class="fragment">但薪资和福利并未相应提升</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section>
+                    <h3>囚徒困境视角</h3>
+                    <div class="card">
+                        <p>内卷是一场<strong>囚徒困境</strong>：</p>
+                        <ul>
+                            <li class="fragment">如果只有你一个人加班，你会脱颖而出</li>
+                            <li class="fragment">如果只有你一个人不加班，你会落后于人</li>
+                            <li class="fragment">当所有人都加班，标准被抬高，大家都没有生活质量，却也没人获得相对优势</li>
+                        </ul>
+                    </div>
+                    <div class="quote fragment">
+                        "每个人都在为了不掉队而竞争，结果大家都在原地踏步。"
+                    </div>
+                </section>
+
+                <section>
+                    <h3>内卷的自我强化机制</h3>
+                    <div class="cycle-container">
+                        <div class="cycle-item fragment">
+                            <div class="cycle-icon"><i class="fas fa-user-clock"></i></div>
+                            <div class="cycle-text">有人开始加班</div>
+                        </div>
+                        <div class="cycle-arrow fragment"><i class="fas fa-arrow-right"></i></div>
+                        <div class="cycle-item fragment">
+                            <div class="cycle-icon"><i class="fas fa-chart-line"></i></div>
+                            <div class="cycle-text">标准被抬高</div>
+                        </div>
+                        <div class="cycle-arrow fragment"><i class="fas fa-arrow-right"></i></div>
+                        <div class="cycle-item fragment">
+                            <div class="cycle-icon"><i class="fas fa-users"></i></div>
+                            <div class="cycle-text">更多人被迫加班</div>
+                        </div>
+                        <div class="cycle-arrow fragment"><i class="fas fa-arrow-right"></i></div>
+                        <div class="cycle-item fragment">
+                            <div class="cycle-icon"><i class="fas fa-arrow-up"></i></div>
+                            <div class="cycle-text">标准进一步提高</div>
+                        </div>
+                    </div>
+                    <div class="joke-box fragment">
+                        <p>新员工：为什么大家都不按时下班？</p>
+                        <p>老员工：因为按时下班的都已经被优化了。</p>
+                    </div>
+                </section>
+            </section>
+
+            <!-- 第五部分：35岁危机 -->
+            <section>
+                <section>
+                    <h2>五、35岁危机</h2>
+                    <p>被消费的<span class="highlight">青春</span>与被抛弃的<span class="highlight">中年</span></p>
+                    <div class="svg-container">
+                        <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+                            <!-- 背景 -->
+                            <rect x="0" y="0" width="600" height="400" fill="white" />
+
+                            <!-- 年龄轴 -->
+                            <path d="M100,200 L500,200" stroke="#3a4a5a" stroke-width="2" />
+                            <path d="M100,195 L100,205" stroke="#3a4a5a" stroke-width="2" />
+                            <path d="M200,195 L200,205" stroke="#3a4a5a" stroke-width="2" />
+                            <path d="M300,195 L300,205" stroke="#3a4a5a" stroke-width="2" />
+                            <path d="M400,195 L400,205" stroke="#3a4a5a" stroke-width="2" />
+                            <path d="M500,195 L500,205" stroke="#3a4a5a" stroke-width="2" />
+
+                            <text x="100" y="220" font-size="12" text-anchor="middle" fill="#3a4a5a">22岁</text>
+                            <text x="200" y="220" font-size="12" text-anchor="middle" fill="#3a4a5a">28岁</text>
+                            <text x="300" y="220" font-size="12" text-anchor="middle" fill="#3a4a5a">35岁</text>
+                            <text x="400" y="220" font-size="12" text-anchor="middle" fill="#3a4a5a">45岁</text>
+                            <text x="500" y="220" font-size="12" text-anchor="middle" fill="#3a4a5a">55岁</text>
+
+                            <!-- 价值曲线 -->
+                            <path d="M100,180 Q150,150 200,130 Q250,110 300,130 Q350,150 400,180 Q450,210 500,250"
+                                stroke="#e74c3c" stroke-width="3" fill="none" />
+
+                            <!-- 标记点 -->
+                            <circle cx="300" cy="130" r="5" fill="#e74c3c" />
+                            <path d="M300,130 L300,100" stroke="#3a4a5a" stroke-width="1" stroke-dasharray="3,3" />
+                            <rect x="250" y="70" width="100" height="30" rx="5" fill="white" stroke="#e74c3c"
+                                stroke-width="1" />
+                            <text x="300" y="90" font-size="12" text-anchor="middle" fill="#e74c3c">35岁危机</text>
+
+                            <!-- 阶段标记 -->
+                            <text x="150" y="260" font-size="12" text-anchor="middle" fill="#3a4a5a">高强度加班期</text>
+                            <path d="M150,240 L150,180" stroke="#3a4a5a" stroke-width="1" stroke-dasharray="3,3" />
+
+                            <text x="350" y="260" font-size="12" text-anchor="middle" fill="#3a4a5a">价值下降期</text>
+                            <path d="M350,240 L350,150" stroke="#3a4a5a" stroke-width="1" stroke-dasharray="3,3" />
+                        </svg>
+                    </div>
+                </section>
+
+                <section>
+                    <h3>35岁危机的本质</h3>
+                    <div class="card">
+                        <p>35岁危机是<strong>多重因素叠加</strong>的结果：</p>
+                        <ul>
+                            <li class="fragment"><strong>身体资本耗尽</strong>：十几年的过度加班，健康状况开始下滑</li>
+                            <li class="fragment"><strong>技术更新迭代</strong>：新技术层出不穷，学习能力和精力下降</li>
+                            <li class="fragment"><strong>家庭责任增加</strong>：房贷、车贷、子女教育、父母赡养压力倍增</li>
+                            <li class="fragment"><strong>职场天花板</strong>：大多数人已经触及自己能力和资源的上限</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section>
+                    <h3>资本逻辑下的年龄歧视</h3>
+                    <div class="columns">
+                        <div class="column">
+                            <div class="card">
+                                <h4><i class="fas fa-child icon"></i>年轻人的"优势"</h4>
+                                <ul>
+                                    <li>薪资预期低</li>
+                                    <li>加班意愿强</li>
+                                    <li>学习能力强</li>
+                                    <li>家庭负担轻</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="column">
+                            <div class="card">
+                                <h4><i class="fas fa-user icon"></i>中年人的"劣势"</h4>
+                                <ul>
+                                    <li>薪资成本高</li>
+                                    <li>精力相对下降</li>
+                                    <li>家庭时间需求增加</li>
+                                    <li>适应变化能力降低</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="quote fragment">
+                        "资本逻辑下，人被视为可计算的资源，而非有尊严的个体。"
+                    </div>
+                </section>
+
+                <section>
+                    <h3>职场年龄变化</h3>
+                    <div class="joke-box">
+                        <p>22岁：领导，这个需求不合理</p>
+                        <p>28岁：领导，这个需求虽然不合理，但我尽力做</p>
+                        <p>35岁：领导，这个需求...好的，马上做</p>
+                        <p>45岁：新领导，这个需求...（被打断）你是谁来着？</p>
+                    </div>
+                    <div class="quote fragment">
+                        "青春被当作资源消耗，中年被视为可替代品。"
+                    </div>
+                </section>
+            </section>
+
+            <!-- 第六部分：打工人的生存策略 -->
+            <section>
+                <section>
+                    <h2>六、打工人的生存策略</h2>
+                    <p>在<span class="highlight">夹缝</span>中求生</p>
+                    <div class="svg-container">
+                        <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+                            <!-- 背景 -->
+                            <rect x="0" y="0" width="600" height="400" fill="white" />
+
+                            <!-- 中心人物 -->
+                            <circle cx="300" cy="200" r="30" fill="#3498db" fill-opacity="0.7" />
+                            <path d="M290,195 L310,195" stroke="white" stroke-width="2" />
+                            <path d="M290,210 Q300,215 310,210" stroke="white" stroke-width="2" fill="none" />
+
+                            <!-- 四个方向的策略 -->
+                            <rect x="150" y="100" width="100" height="50" rx="10" fill="white" stroke="#3a4a5a"
+                                stroke-width="1" />
+                            <text x="200" y="130" font-size="12" text-anchor="middle" fill="#3a4a5a">技能多元化</text>
+                            <path d="M300,180 L200,150" stroke="#3a4a5a" stroke-width="1" marker-end="url(#arrow2)" />
+
+                            <rect x="400" y="100" width="100" height="50" rx="10" fill="white" stroke="#3a4a5a"
+                                stroke-width="1" />
+                            <text x="450" y="130" font-size="12" text-anchor="middle" fill="#3a4a5a">副业自救</text>
+                            <path d="M320,180 L400,150" stroke="#3a4a5a" stroke-width="1" marker-end="url(#arrow2)" />
+
+                            <rect x="150" y="250" width="100" height="50" rx="10" fill="white" stroke="#3a4a5a"
+                                stroke-width="1" />
+                            <text x="200" y="280" font-size="12" text-anchor="middle" fill="#3a4a5a">降低欲望</text>
+                            <path d="M280,220 L200,250" stroke="#3a4a5a" stroke-width="1" marker-end="url(#arrow2)" />
+
+                            <rect x="400" y="250" width="100" height="50" rx="10" fill="white" stroke="#3a4a5a"
+                                stroke-width="1" />
+                            <text x="450" y="280" font-size="12" text-anchor="middle" fill="#3a4a5a">躺平摆烂</text>
+                            <path d="M320,220 L400,250" stroke="#3a4a5a" stroke-width="1" marker-end="url(#arrow2)" />
+
+                            <!-- 箭头定义 -->
+                            <defs>
+                                <marker id="arrow2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"
+                                    markerUnits="strokeWidth">
+                                    <path d="M0,0 L0,6 L9,3 z" fill="#3a4a5a" />
+                                </marker>
+                            </defs>
+
+                            <!-- 平衡 -->
+                            <text x="300" y="50" font-size="16" text-anchor="middle" fill="#3a4a5a">打工人生存策略</text>
+                            <path d="M300,60 L300,160" stroke="#3a4a5a" stroke-width="1" stroke-dasharray="5,5" />
+                        </svg>
+                    </div>
+                </section>
+
+                <section>
+                    <h3>技能多元化</h3>
+                    <div class="card">
+                        <p><i class="fas fa-tools icon"></i> <strong>技能多元化策略</strong></p>
+                        <ul>
+                            <li class="fragment">持续学习新技术，保持技术敏感度</li>
+                            <li class="fragment">跨领域发展，掌握多种互补技能</li>
+                            <li class="fragment">培养稀缺能力，提高不可替代性</li>
+                            <li class="fragment">建立个人品牌和专业声誉</li>
+                        </ul>
+                    </div>
+                    <div class="quote fragment">
+                        "在不确定的时代，最好的保障是持续学习的能力。"
+                    </div>
+                </section>
+
+                <section>
+                    <h3>副业自救</h3>
+                    <div class="card">
+                        <p><i class="fas fa-briefcase icon"></i> <strong>副业自救策略</strong></p>
+                        <ul>
+                            <li class="fragment">发展多元收入来源，降低对单一工作的依赖</li>
+                            <li class="fragment">利用专业技能进行自由职业或咨询</li>
+                            <li class="fragment">探索数字经济新机会（内容创作、知识付费等）</li>
+                            <li class="fragment">小规模创业或投资</li>
+                        </ul>
+                    </div>
+                    <div class="joke-box fragment">
+                        <p>同事：你周末在干嘛？</p>
+                        <p>打工人：做副业啊，这样我才能有钱辞掉这份工作。</p>
+                        <p>同事：辞职后干嘛？</p>
+                        <p>打工人：找一份新工作，然后继续做副业。</p>
+                    </div>
+                </section>
+
+                <section>
+                    <h3>降低欲望</h3>
+                    <div class="card">
+                        <p><i class="fas fa-leaf icon"></i> <strong>降低欲望策略</strong></p>
+                        <ul>
+                            <li class="fragment">减少物质消费，追求简约生活</li>
+                            <li class="fragment">降低房车等大额消费的标准</li>
+                            <li class="fragment">避免攀比心理，找到真正的幸福源泉</li>
+                            <li class="fragment">培养低成本的兴趣爱好</li>
+                        </ul>
+                    </div>
+                    <div class="quote fragment">
+                        "真正的自由不是拥有一切，而是不被欲望所奴役。"
+                    </div>
+                </section>
+
+                <section>
+                    <h3>躺平摆烂</h3>
+                    <div class="card">
+                        <p><i class="fas fa-couch icon"></i> <strong>躺平摆烂策略</strong></p>
+                        <ul>
+                            <li class="fragment">拒绝过度竞争，接受"够用就好"的理念</li>
+                            <li class="fragment">精准摸鱼，在工作中保存体力</li>
+                            <li class="fragment">降低职场期望，追求工作与生活的平衡</li>
+                            <li class="fragment">关注身心健康和个人成长</li>
+                        </ul>
+                    </div>
+                    <div class="joke-box fragment">
+                        <p>领导：你为什么不加班？</p>
+                        <p>打工人：因为我发现，无论我多努力，都改变不了我是个打工人的事实。</p>
+                        <p>领导：那你为什么还来上班？</p>
+                        <p>打工人：因为我发现，不上班会改变我是个有饭吃的打工人的事实。</p>
+                    </div>
+                </section>
+            </section>
+
+            <!-- 第七部分：终极思考 -->
+            <section>
+                <section>
+                    <h2>七、终极思考</h2>
+                    <p>打工人的<span class="highlight">存在意义</span></p>
+                    <div class="svg-container">
+                        <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+                            <!-- 背景 -->
+                            <rect x="0" y="0" width="600" height="400" fill="white" />
+
+                            <!-- 中心人物 -->
+                            <circle cx="300" cy="200" r="40" fill="#3a4a5a" />
+                            <path d="M290,195 L310,195" stroke="white" stroke-width="2" />
+                            <path d="M290,210 Q300,215 310,210" stroke="white" stroke-width="2" fill="none" />
+
+                            <!-- 思考泡泡 -->
+                            <path d="M340,180 Q370,160 400,170" stroke="#3a4a5a" stroke-width="1" fill="none" />
+                            <ellipse cx="450" cy="170" rx="50" ry="30" fill="white" stroke="#3a4a5a" stroke-width="1" />
+                            <text x="450" y="175" font-size="12" text-anchor="middle" fill="#3a4a5a">为何而活？</text>
+
+                            <!-- 价值观 -->
+                            <path d="M150,100 L200,150" stroke="#3a4a5a" stroke-width="1" marker-end="url(#arrow3)" />
+                            <circle cx="120" cy="80" r="30" fill="#e74c3c" fill-opacity="0.7" />
+                            <text x="120" y="85" font-size="12" text-anchor="middle" fill="white">家人</text>
+
+                            <path d="M150,300 L200,250" stroke="#3a4a5a" stroke-width="1" marker-end="url(#arrow3)" />
+                            <circle cx="120" cy="320" r="30" fill="#f39c12" fill-opacity="0.7" />
+                            <text x="120" y="325" font-size="12" text-anchor="middle" fill="white">兴趣</text>
+
+                            <path d="M450,100 L400,150" stroke="#3a4a5a" stroke-width="1" marker-end="url(#arrow3)" />
+                            <circle cx="480" cy="80" r="30" fill="#3498db" fill-opacity="0.7" />
+                            <text x="480" y="85" font-size="12" text-anchor="middle" fill="white">成长</text>
+
+                            <path d="M450,300 L400,250" stroke="#3a4a5a" stroke-width="1" marker-end="url(#arrow3)" />
+                            <circle cx="480" cy="320" r="30" fill="#2ecc71" fill-opacity="0.7" />
+                            <text x="480" y="325" font-size="12" text-anchor="middle" fill="white">自由</text>
+
+                            <!-- 箭头定义 -->
+                            <defs>
+                                <marker id="arrow3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"
+                                    markerUnits="strokeWidth">
+                                    <path d="M0,0 L0,6 L9,3 z" fill="#3a4a5a" />
+                                </marker>
+                            </defs>
+
+                            <!-- 平衡 -->
+                            <circle cx="300" cy="200" r="80" fill="none" stroke="#3a4a5a" stroke-width="1"
+                                stroke-dasharray="5,5" />
+                        </svg>
+                    </div>
+                </section>
+
+                <section>
+                    <h3>存在的三个问题</h3>
+                    <div class="card">
+                        <p>打工人哲学的终极思考是：<strong>为何而活？</strong></p>
+                        <div class="columns">
+                            <div class="column fragment">
+                                <div class="question-box">
+                                    <i class="fas fa-briefcase icon"></i>
+                                    <p>工作是生活的全部吗？</p>
+                                </div>
+                            </div>
+                            <div class="column fragment">
+                                <div class="question-box">
+                                    <i class="fas fa-dollar-sign icon"></i>
+                                    <p>金钱是成功的唯一标准吗？</p>
+                                </div>
+                            </div>
+                            <div class="column fragment">
+                                <div class="question-box">
+                                    <i class="fas fa-id-badge icon"></i>
+                                    <p>职场身份是我们的核心认同吗？</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="quote fragment">
+                        "当我们退休或失业，还剩下什么？"
+                    </div>
+                </section>
+
+                <section>
+                    <h3>重新定义成功</h3>
+                    <div class="card">
+                        <p>打工人需要<strong>重新定义成功</strong>：</p>
+                        <ul>
+                            <li class="fragment">从外在评价转向内在满足</li>
+                            <li class="fragment">从物质积累转向经验丰富</li>
+                            <li class="fragment">从社会地位转向个人成长</li>
+                            <li class="fragment">从比较他人转向超越自我</li>
+                        </ul>
+                    </div>
+                    <div class="quote fragment">
+                        "真正的成功不是拥有什么，而是成为什么样的人。"
+                    </div>
+                </section>
+
+                <section>
+                    <h3>寻找意义的来源</h3>
+                    <div class="columns">
+                        <div class="column">
+                            <div class="card">
+                                <h4><i class="fas fa-heart icon"></i>关系</h4>
+                                <ul>
+                                    <li>家庭连接</li>
+                                    <li>友谊纽带</li>
+                                    <li>社区归属</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="column">
+                            <div class="card">
+                                <h4><i class="fas fa-brain icon"></i>成长</h4>
+                                <ul>
+                                    <li>知识探索</li>
+                                    <li>技能掌握</li>
+                                    <li>自我超越</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="column">
+                            <div class="card">
+                                <h4><i class="fas fa-star icon"></i>贡献</h4>
+                                <ul>
+                                    <li>创造价值</li>
+                                    <li>帮助他人</li>
+                                    <li>留下遗产</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="joke-box fragment">
+                        <p>朋友：你为什么不换个工作？</p>
+                        <p>打工人：因为所有工作都一样，只是老板不同。</p>
+                        <p>朋友：那你为什么还在坚持？</p>
+                        <p>打工人：因为我知道我不只是一个打工人。</p>
+                    </div>
+                </section>
+
+                <section>
+                    <h3>平衡的艺术</h3>
+                    <div class="card">
+                        <p>打工人的智慧在于寻找<strong>平衡</strong>：</p>
+                        <ul>
+                            <li class="fragment">接受现实，但不放弃理想</li>
+                            <li class="fragment">努力工作，但不迷失自我</li>
+                            <li class="fragment">追求成功，但定义自己的成功</li>
+                            <li class="fragment">适应系统，但保持独立思考</li>
+                        </ul>
+                    </div>
+                    <div class="quote fragment">
+                        "打工是一种谋生手段，但生活的意义远不止于此。"
+                    </div>
+                </section>
+            </section>
+
+            <!-- 结语 -->
+            <section>
+                <h2>结语：自嘲中的智慧</h2>
+                <div class="card">
+                    <p>打工人的自嘲，是一种面对现实的智慧，是在荒谬中寻找意义的努力。</p>
+                    <p class="fragment">我们自嘲：</p>
+                    <ul>
+                        <li class="fragment">因为我们看清了游戏规则，却仍在游戏中</li>
+                        <li class="fragment">因为我们明白系统的不公，却无力改变</li>
+                        <li class="fragment">因为我们渴望自由，却被生活所束缚</li>
+                        <li class="fragment">因为我们追求意义，却常常迷失在日常琐事中</li>
+                    </ul>
+                </div>
+                <div class="quote fragment">
+                    <p>笑对人生，是打工人最后的倔强，也是最深的智慧。</p>
+                </div>
+            </section>
+
+            <!-- 封底 -->
+            <section class="cover end-cover">
+                <i class="fas fa-mug-hot cover-icon"></i>
+                <h1>打工人哲学</h1>
+                <h2>一部自嘲的生存指南</h2>
+                <p class="author">作者：一位自嘲的打工人</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-github"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 检查所有插件是否已加载
+            var pluginsLoaded = {
+                markdown: typeof RevealMarkdown !== 'undefined',
+                highlight: typeof RevealHighlight !== 'undefined',
+                notes: typeof RevealNotes !== 'undefined',
+                zoom: typeof RevealZoom !== 'undefined'
+            };
+            
+            var pluginsToLoad = [];
+            
+            if (!pluginsLoaded.markdown) {
+                console.warn('RevealMarkdown 插件未加载');
+                pluginsToLoad.push({
+                    name: 'markdown',
+                    src: 'https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/plugin/markdown/markdown.js'
+                });
+            }
+            
+            if (!pluginsLoaded.highlight) {
+                console.warn('RevealHighlight 插件未加载');
+                pluginsToLoad.push({
+                    name: 'highlight',
+                    src: 'https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/plugin/highlight/highlight.js'
+                });
+            }
+            
+            if (!pluginsLoaded.notes) {
+                console.warn('RevealNotes 插件未加载');
+                pluginsToLoad.push({
+                    name: 'notes',
+                    src: 'https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/plugin/notes/notes.js'
+                });
+            }
+            
+            if (!pluginsLoaded.zoom) {
+                console.warn('RevealZoom 插件未加载');
+                pluginsToLoad.push({
+                    name: 'zoom',
+                    src: 'https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/plugin/zoom/zoom.js'
+                });
+            }
+            
+            // 如果有插件需要加载
+            if (pluginsToLoad.length > 0) {
+                var loadedCount = 0;
+                
+                // 加载每个插件
+                pluginsToLoad.forEach(function(plugin) {
+                    var script = document.createElement('script');
+                    script.src = plugin.src;
+                    script.onload = function() {
+                        console.log(plugin.name + ' 插件已加载');
+                        loadedCount++;
+                        
+                        // 当所有插件都加载完成后，初始化 Reveal
+                        if (loadedCount === pluginsToLoad.length) {
+                            initializeReveal();
+                        }
+                    };
+                    script.onerror = function() {
+                        console.error('加载 ' + plugin.name + ' 插件失败');
+                        loadedCount++;
+                        
+                        // 即使有插件加载失败，也尝试初始化
+                        if (loadedCount === pluginsToLoad.length) {
+                            initializeReveal();
+                        }
+                    };
+                    document.head.appendChild(script);
+                });
+            } else {
+                // 如果所有插件都已加载，直接初始化
+                initializeReveal();
+            }
+            
+            // 初始化 RevealJS 的函数
+            function initializeReveal() {
+                console.log('初始化 RevealJS');
+                
+                // 获取可用的插件
+                var availablePlugins = [];
+                if (typeof RevealMarkdown !== 'undefined') availablePlugins.push(RevealMarkdown);
+                if (typeof RevealHighlight !== 'undefined') availablePlugins.push(RevealHighlight);
+                if (typeof RevealNotes !== 'undefined') availablePlugins.push(RevealNotes);
+                if (typeof RevealZoom !== 'undefined') availablePlugins.push(RevealZoom);
+                
+                // 初始化 Reveal
+                Reveal.initialize({
+                    hash: true,
+                    center: true,
+                    progress: true,
+                    controls: true,
+                    slideNumber: true,
+                    transition: 'slide',
+                    backgroundTransition: 'fade',
+                    plugins: availablePlugins,
+                    width: '100%',
+                    height: '100%',
+                    margin: 0.1,
+                    minScale: 0.2,
+                    maxScale: 2.0,
+                    responsive: true,
+                    autoSlide: 0,
+                    loop: false,
+                    keyboard: {
+                        70: function () {
+                            var element = document.documentElement;
+                            if (!document.fullscreenElement) {
+                                element.requestFullscreen();
+                            } else {
+                                if (document.exitFullscreen) {
+                                    document.exitFullscreen();
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // 进度条动画
+                setTimeout(function () {
+                    const progressBars = document.querySelectorAll('.progress-fill');
+                    progressBars.forEach(bar => {
+                        const width = bar.style.width;
+                        bar.style.width = '0%';
+                        setTimeout(() => {
+                            bar.style.width = width;
+                        }, 300);
+                    });
+                }, 500);
+            }
+        });
+    </script>
+</body>
+
+</html>

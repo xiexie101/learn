@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>3D画廊</title>
+    <meta charset="UTF-8">
+    <style>
+        body { 
+            margin: 0; 
+            font-family: 'Microsoft YaHei', '微软雅黑', sans-serif;
+        }
+        canvas { 
+            display: block; 
+        }
+        .control-item {
+            transition: color 0.3s;
+        }
+        .control-item:hover {
+            color: #cccccc;
+        }
+        @font-face {
+            font-family: 'Microsoft YaHei';
+            src: local('Microsoft YaHei');
+        }
+    </style>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+    <script src="gallery.js"></script>
+</body>
+</html> 
