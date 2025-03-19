@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>指数关键点位可视化</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background-color: #0052cc;
+            color: white;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .date-info {
+            display: flex;
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+        .date-info > div {
+            margin-right: 30px;
+        }
+        .input-section {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .input-group {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .input-group label {
+            width: 120px;
+            font-size: 14px;
+        }
+        .input-group input {
+            width: 100px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .visualization {
+            padding: 20px 15px;
+            position: relative;
+            height: 100px;
+            margin-bottom: 20px;
+        }
+        .scale {
+            position: relative;
+            height: 30px;
+            background: linear-gradient(to right, #00e5b8, #ffcc00, #ff3333);
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .marker {
+            position: absolute;
+            width: 2px;
+            height: 40px;
+            background-color: black;
+            top: -5px;
+        }
+        .marker::after {
+            content: attr(data-value);
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            font-size: 12px;
+        }
+        .zone-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            font-size: 12px;
+        }
+        .zone-label {
+            text-align: center;
+            flex: 1;
+        }
+        .support-label {
+            color: #00b894;
+        }
+        .normal-label {
+            color: #fdcb6e;
+        }
+        .pressure-label {
+            color: #d63031;
+        }
+        .stats-section {
+            padding: 0;
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+        .stat-box {
+            flex: 1;
+            padding: 0;
+            margin: 0 5px;
+            text-align: center;
+            border-radius: 0;
+            overflow: hidden;
+        }
+        .stat-box.high {
+            background-color: #000;
+            color: #00e5b8;
+        }
+        .stat-box.low {
+            background-color: white;
+            color: #333;
+            border: 1px solid #eee;
+        }
+        .stat-header {
+            padding: 8px 5px;
+            font-size: 14px;
+        }
+        .stat-box.high .stat-header {
+            background-color: #000;
+            color: #00e5b8;
+        }
+        .stat-box.low .stat-header {
+            background-color: #00b894;
+            color: white;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .stat-box.high .stat-value.drop {
+            color: #00e5b8;
+        }
+        .stat-box.high .stat-value.point {
+            color: #ff6b6b;
+        }
+        .stat-box.low .stat-value.rise {
+            color: #ff0000;
+            font-weight: bold;
+        }
+        .stat-box.low .stat-value.point {
+            color: #00b894;
+        }
+        .stat-date {
+            font-size: 12px;
+            padding: 5px;
+            color: rgba(255,255,255,0.8);
+        }
+        .stat-box.high .stat-date {
+            color: #ff6b6b;
+            font-style: italic;
+        }
+        .stat-box.low .stat-date {
+            color: #00b894;
+            font-style: italic;
+        }
+        .arrow-up {
+            display: inline-block;
+            margin-left: 5px;
+            color: #ff0000;
+        }
+        .button {
+            background-color: #0052cc;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .button:hover {
+            background-color: #003d99;
+        }
+        .index-section {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .index-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .index-name {
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .index-value {
+            font-size: 16px;
+            color: #ff6b6b;
+        }
+        .index-distance {
+            font-size: 14px;
+            color: #ff6b6b;
+        }
+        .index-visualization {
+            height: 20px;
+            background-color: #f1f1f1;
+            position: relative;
+            margin-bottom: 30px;
+            border-radius: 4px;
+        }
+        .support-zone {
+            position: absolute;
+            height: 100%;
+            background-color: #00e5b8;
+            border-radius: 4px 0 0 4px;
+        }
+        .normal-zone {
+            position: absolute;
+            height: 100%;
+            background-color: #ffcc00;
+        }
+        .pressure-zone {
+            position: absolute;
+            height: 100%;
+            background-color: #ff9999;
+            border-radius: 0 4px 4px 0;
+        }
+        .current-marker {
+            position: absolute;
+            width: 2px;
+            height: 30px;
+            background-color: red;
+            top: -5px;
+        }
+        .support-value, .pressure-value {
+            position: absolute;
+            bottom: -25px;
+            font-size: 12px;
+        }
+        /* 添加70/80位样式 */
+        .key-levels {
+            margin-top: 15px;
+            padding: 10px 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        .key-level {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .key-level-name {
+            font-weight: bold;
+        }
+        
+        .key-level-value {
+            color: #ff6b6b;
+        }
+        
+        .key-level-percent {
+            color: #00b894;
+        }
+        
+        /* 批量输入相关样式 */
+        .batch-input-section {
+            margin-top: 20px;
+            padding: 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        .batch-textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+            margin-bottom: 10px;
+        }
+        
+        .batch-button {
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .batch-button:hover {
+            background-color: #e74c3c;
+        }
+        
+        .toggle-batch {
+            margin-top: 15px;
+            text-align: center;
+            color: #0052cc;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        
+        .multi-visualization {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <span>【笔记】E大的『关键点位』</span>
+            <div style="display: flex;">
+                <div style="background-color: #000; color: #ff6b6b; padding: 5px 10px; margin-right: 5px;">
+                    近三年 最高点
+                </div>
+                <div style="background-color: #00b894; color: white; padding: 5px 10px;">
+                    近三年 最低点
+                </div>
+            </div>
+        </div>
+        
+        <div class="date-info">
+            <div>今日日期: <span id="current-date"></span></div>
+            <div>更新时间: <span id="update-time"></span></div>
+        </div>
+        
+        <div class="input-section">
+            <div class="input-group">
+                <label for="index-code">指数代码:</label>
+                <input type="text" id="index-code" placeholder="如: 000001">
+            </div>
+            <div class="input-group">
+                <label for="index-name">指数名称:</label>
+                <input type="text" id="index-name" placeholder="如: 上证指数">
+            </div>
+            <div class="input-group">
+                <label for="current-value">当前点位:</label>
+                <input type="number" id="current-value" placeholder="如: 3426">
+            </div>
+            <div class="input-group">
+                <label for="support1">支撑位1:</label>
+                <input type="number" id="support1" placeholder="如: 3000">
+            </div>
+            <div class="input-group">
+                <label for="support2">支撑位2:</label>
+                <input type="number" id="support2" placeholder="如: 2800">
+            </div>
+            <div class="input-group">
+                <label for="pressure1">压力位1:</label>
+                <input type="number" id="pressure1" placeholder="如: 3700">
+            </div>
+            <div class="input-group">
+                <label for="pressure2">压力位2:</label>
+                <input type="number" id="pressure2" placeholder="如: 4000">
+            </div>
+            
+            <!-- 新增最高点和最低点输入 -->
+            <div class="input-group">
+                <label for="highest-value">历史最高点:</label>
+                <input type="number" id="highest-value" placeholder="如: 5931">
+            </div>
+            <div class="input-group">
+                <label for="highest-date">最高点日期:</label>
+                <input type="date" id="highest-date">
+            </div>
+            <div class="input-group">
+                <label for="lowest-value">历史最低点:</label>
+                <input type="number" id="lowest-value" placeholder="如: 3108">
+            </div>
+            <div class="input-group">
+                <label for="lowest-date">最低点日期:</label>
+                <input type="date" id="lowest-date">
+            </div>
+            
+            <button class="button" onclick="generateVisualization()">生成可视化</button>
+            
+            <div class="toggle-batch" onclick="toggleBatchInput()">
+                切换到批量输入模式
+            </div>
+        </div>
+        
+        <div class="batch-input-section" id="batch-input-section" style="display: none;">
+            <h3>批量输入JSON数据</h3>
+            <p>请输入符合格式的JSON数据，每个对象代表一个指数：</p>
+            <textarea class="batch-textarea" id="batch-json-input" placeholder='[
+  {
+    "code": "000001",
+    "name": "上证指数",
+    "current": 3426,
+    "support1": 3000,
+    "support2": 2800,
+    "pressure1": 3700,
+    "pressure2": 4000,
+    "highest": 5931,
+    "highestDate": "2021-02-18",
+    "lowest": 3108,
+    "lowestDate": "2024-02-02"
+  },
+  {
+    "code": "399006",
+    "name": "创业板指",
+    "current": 2222,
+    "support1": 1750,
+    "support2": 1600,
+    "pressure1": 2500,
+    "pressure2": 2800,
+    "highest": 3576,
+    "highestDate": "2021-07-22",
+    "lowest": 1483,
+    "lowestDate": "2024-02-05"
+  }
+]'></textarea>
+            <button class="batch-button" onclick="generateBatchVisualizations()">批量生成可视化</button>
+        </div>
+        
+        <div id="visualization-container">
+            <!-- 可视化内容将在这里动态生成 -->
+        </div>
+        
+        <div id="multi-visualization-container" class="multi-visualization">
+            <!-- 批量可视化内容将在这里动态生成 -->
+        </div>
+        
+        <div id="stats-container" class="stats-section">
+            <!-- 统计信息将在这里动态生成 -->
+        </div>
+    </div>
+
+    <script>
+        // 设置当前日期和时间
+        function updateDateTime() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = (now.getMonth() + 1).toString().padStart(2, '0');
+            const day = now.getDate().toString().padStart(2, '0');
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            
+            document.getElementById('current-date').textContent = `${year}年${month}月${day}日`;
+            document.getElementById('update-time').textContent = `${hours}:${minutes}`;
+        }
+        
+        // 格式化日期为中文格式
+        function formatDateToChinese(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return `${date.getFullYear()}年${(date.getMonth() + 1).toString().padStart(2, '0')}月${date.getDate().toString().padStart(2, '0')}日`;
+        }
+        
+        // 生成可视化
+        function generateVisualization() {
+            const indexCode = document.getElementById('index-code').value || '000001';
+            const indexName = document.getElementById('index-name').value || '上证指数';
+            const currentValue = parseFloat(document.getElementById('current-value').value) || 3426;
+            const support1 = parseFloat(document.getElementById('support1').value) || 3000;
+            const support2 = parseFloat(document.getElementById('support2').value) || 2800;
+            const pressure1 = parseFloat(document.getElementById('pressure1').value) || 3700;
+            const pressure2 = parseFloat(document.getElementById('pressure2').value) || 4000;
+            
+            // 获取最高点和最低点数据
+            const highestValue = parseFloat(document.getElementById('highest-value').value) || 5931;
+            const highestDate = document.getElementById('highest-date').value;
+            const lowestValue = parseFloat(document.getElementById('lowest-value').value) || 3108;
+            const lowestDate = document.getElementById('lowest-date').value;
+            
+            // 计算自最高点跌幅和自最低点上涨
+            const dropFromHighest = ((currentValue - highestValue) / highestValue * 100).toFixed(2);
+            const riseFromLowest = ((currentValue - lowestValue) / lowestValue * 100).toFixed(2);
+            
+            // 找出最小值和最大值来确定比例尺
+            const minValue = Math.min(support2, support1, currentValue);
+            const maxValue = Math.max(pressure1, pressure2, currentValue);
+            const range = maxValue - minValue;
+            
+            // 计算距离大支撑的百分比
+            const distanceToSupport = ((currentValue - support1) / support1 * 100).toFixed(2);
+            const distanceToPressure = ((pressure1 - currentValue) / currentValue * 100).toFixed(2);
+            
+            // 修正70位和80位的计算方法
+            // 70位表示从最高点下跌70%后的点位，即最高点的30%
+            // 80位表示从最高点下跌80%后的点位，即最高点的20%
+            const level70 = (highestValue * 0.3).toFixed(0);  // 下跌70%
+            const level80 = (highestValue * 0.2).toFixed(0);  // 下跌80%
+            
+            // 计算当前点位与70位和80位的关系
+            const distanceTo70 = ((currentValue - level70) / level70 * 100).toFixed(2);
+            const distanceTo80 = ((currentValue - level80) / level80 * 100).toFixed(2);
+            
+            // 创建可视化HTML
+            const html = `
+                <div class="index-section">
+                    <div class="index-header">
+                        <div class="index-name">${indexName} ${indexCode}</div>
+                        <div class="index-value">${currentValue}</div>
+                    </div>
+                    <div class="index-distance">
+                        距离大支撑: <span style="color: ${distanceToSupport < 0 ? '#ff6b6b' : '#00b894'}">${distanceToSupport}%</span>
+                        &nbsp;&nbsp;
+                        距离外太空: <span style="color: ${distanceToPressure < 0 ? '#ff6b6b' : '#00b894'}">${distanceToPressure}%</span>
+                    </div>
+                    <div class="index-visualization">
+                        <div class="support-zone" style="width: ${((support1 - minValue) / range) * 100}%; left: 0;"></div>
+                        <div class="normal-zone" style="width: ${((pressure1 - support1) / range) * 100}%; left: ${((support1 - minValue) / range) * 100}%;"></div>
+                        <div class="pressure-zone" style="width: ${((maxValue - pressure1) / range) * 100}%; left: ${((pressure1 - minValue) / range) * 100}%;"></div>
+                        <div class="current-marker" style="left: ${((currentValue - minValue) / range) * 100}%;"></div>
+                        <div class="support-value" style="left: ${((support1 - minValue) / range) * 100}%;">${support1}<br>大支撑</div>
+                        <div class="pressure-value" style="left: ${((pressure1 - minValue) / range) * 100}%;">${pressure1}<br>大压力</div>
+                    </div>
+                    <div class="zone-labels">
+                        <div class="zone-label support-label">大支撑位 (${support2}~${support1})</div>
+                        <div class="zone-label normal-label">正常区</div>
+                        <div class="zone-label pressure-label">外太空</div>
+                    </div>
+                </div>
+            `;
+            
+            // 创建统计信息HTML
+            const statsHtml = `
+                <div class="stat-box high">
+                    <div class="stat-header">自最高点跌幅</div>
+                    <div class="stat-value drop">${dropFromHighest}%</div>
+                    <div>最高点</div>
+                    <div class="stat-value point">${highestValue}</div>
+                    <div class="stat-date">${formatDateToChinese(highestDate)}</div>
+                </div>
+                <div class="stat-box low">
+                    <div class="stat-header">自最低点上涨</div>
+                    <div class="stat-value rise">${riseFromLowest}% <span class="arrow-up">↑</span></div>
+                    <div>最低点</div>
+                    <div class="stat-value point">${lowestValue}</div>
+                    <div class="stat-date">${formatDateToChinese(lowestDate)}</div>
+                </div>
+            `;
+            
+            // 修改70/80位HTML的描述
+            const keyLevelsHtml = `
+                <div class="key-levels">
+                    <div class="key-level">
+                        <div class="key-level-name">最高点70位(下跌70%):</div>
+                        <div class="key-level-value">${level70}</div>
+                        <div class="key-level-percent">
+                            距离当前: ${distanceTo70 > 0 ? '+' : ''}${distanceTo70}%
+                        </div>
+                    </div>
+                    <div class="key-level">
+                        <div class="key-level-name">最高点80位(下跌80%):</div>
+                        <div class="key-level-value">${level80}</div>
+                        <div class="key-level-percent">
+                            距离当前: ${distanceTo80 > 0 ? '+' : ''}${distanceTo80}%
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('visualization-container').innerHTML = html + keyLevelsHtml;
+            document.getElementById('stats-container').innerHTML = statsHtml;
+        }
+        
+        // 初始化
+        updateDateTime();
+        setInterval(updateDateTime, 60000); // 每分钟更新一次时间
+        
+        // 设置默认日期
+        function setDefaultDates() {
+            // 设置默认的最高点日期（2021年2月18日）
+            const highestDateInput = document.getElementById('highest-date');
+            highestDateInput.value = '2021-02-18';
+            
+            // 设置默认的最低点日期（2024年2月2日）
+            const lowestDateInput = document.getElementById('lowest-date');
+            lowestDateInput.value = '2024-02-02';
+        }
+        
+        // 修改批量生成可视化函数
+        function generateBatchVisualizations() {
+            try {
+                const jsonInput = document.getElementById('batch-json-input').value.trim();
+                
+                // 检查输入是否为空
+                if (!jsonInput) {
+                    throw new Error('请输入JSON数据');
+                }
+                
+                let indexDataArray;
+                try {
+                    indexDataArray = JSON.parse(jsonInput);
+                } catch (parseError) {
+                    throw new Error('JSON格式不正确，请检查格式: ' + parseError.message);
+                }
+                
+                if (!Array.isArray(indexDataArray)) {
+                    throw new Error('输入必须是一个数组');
+                }
+                
+                if (indexDataArray.length === 0) {
+                    throw new Error('数组不能为空，请至少输入一个指数数据');
+                }
+                
+                let allHTML = '';
+                
+                indexDataArray.forEach((indexData, index) => {
+                    // 验证必要字段
+                    const requiredFields = ['code', 'name', 'current', 'support1', 'support2', 
+                                           'pressure1', 'pressure2', 'highest', 'lowest'];
+                    
+                    for (const field of requiredFields) {
+                        if (indexData[field] === undefined) {
+                            throw new Error(`第${index+1}个指数缺少必要字段: ${field}`);
+                        }
+                    }
+                    
+                    // 生成这个指数的HTML
+                    const indexHTML = generateIndexHTML(indexData);
+                    allHTML += `<div style="margin-bottom: 30px; border-bottom: 2px dashed #ccc; padding-bottom: 20px;">${indexHTML}</div>`;
+                });
+                
+                document.getElementById('multi-visualization-container').innerHTML = allHTML;
+                document.getElementById('visualization-container').innerHTML = '';
+                document.getElementById('stats-container').innerHTML = '';
+                
+            } catch (error) {
+                alert('JSON解析错误: ' + error.message);
+                console.error(error);
+            }
+        }
+        
+        // 添加一个辅助函数，用于在页面加载时填充示例JSON数据
+        function fillExampleJson() {
+            const exampleJson = [
+                {
+                    "code": "000001",
+                    "name": "上证指数",
+                    "current": 3426,
+                    "support1": 3000,
+                    "support2": 2800,
+                    "pressure1": 3700,
+                    "pressure2": 4000,
+                    "highest": 5931,
+                    "highestDate": "2021-02-18",
+                    "lowest": 3108,
+                    "lowestDate": "2024-02-02"
+                },
+                {
+                    "code": "399006",
+                    "name": "创业板指",
+                    "current": 2222,
+                    "support1": 1750,
+                    "support2": 1600,
+                    "pressure1": 2500,
+                    "pressure2": 2800,
+                    "highest": 3576,
+                    "highestDate": "2021-07-22",
+                    "lowest": 1483,
+                    "lowestDate": "2024-02-05"
+                }
+            ];
+            
+            document.getElementById('batch-json-input').value = JSON.stringify(exampleJson, null, 2);
+        }
+        
+        // 修改window.onload函数，添加填充示例JSON的调用
+        window.onload = function() {
+            document.getElementById('index-code').value = '000001';
+            document.getElementById('index-name').value = '上证指数';
+            document.getElementById('current-value').value = '3426';
+            document.getElementById('support1').value = '3000';
+            document.getElementById('support2').value = '2800';
+            document.getElementById('pressure1').value = '3700';
+            document.getElementById('pressure2').value = '4000';
+            document.getElementById('highest-value').value = '5931';
+            document.getElementById('lowest-value').value = '3108';
+            setDefaultDates();
+            generateVisualization();
+            
+            // 填充示例JSON数据
+            fillExampleJson();
+        };
+        
+        // 切换批量输入模式
+        function toggleBatchInput() {
+            const batchSection = document.getElementById('batch-input-section');
+            const inputSection = document.querySelector('.input-section');
+            const toggleText = document.querySelector('.toggle-batch');
+            
+            if (batchSection.style.display === 'none') {
+                batchSection.style.display = 'block';
+                toggleText.textContent = '切换到单个输入模式';
+                document.getElementById('visualization-container').innerHTML = '';
+                document.getElementById('stats-container').innerHTML = '';
+            } else {
+                batchSection.style.display = 'none';
+                toggleText.textContent = '切换到批量输入模式';
+                document.getElementById('multi-visualization-container').innerHTML = '';
+            }
+        }
+        
+        // 生成单个指数的可视化HTML
+        function generateIndexHTML(indexData) {
+            const {
+                code, name, current, support1, support2, pressure1, pressure2,
+                highest, highestDate, lowest, lowestDate
+            } = indexData;
+            
+            // 计算自最高点跌幅和自最低点上涨
+            const dropFromHighest = ((current - highest) / highest * 100).toFixed(2);
+            const riseFromLowest = ((current - lowest) / lowest * 100).toFixed(2);
+            
+            // 找出最小值和最大值来确定比例尺
+            const minValue = Math.min(support2, support1, current);
+            const maxValue = Math.max(pressure1, pressure2, current);
+            const range = maxValue - minValue;
+            
+            // 计算距离大支撑的百分比
+            const distanceToSupport = ((current - support1) / support1 * 100).toFixed(2);
+            const distanceToPressure = ((pressure1 - current) / current * 100).toFixed(2);
+            
+            // 计算70位和80位
+            const level70 = (highest * 0.3).toFixed(0);  // 下跌70%
+            const level80 = (highest * 0.2).toFixed(0);  // 下跌80%
+            
+            // 计算当前点位与70位和80位的关系
+            const distanceTo70 = ((current - level70) / level70 * 100).toFixed(2);
+            const distanceTo80 = ((current - level80) / level80 * 100).toFixed(2);
+            
+            // 创建可视化HTML
+            const html = `
+                <div class="index-section">
+                    <div class="index-header">
+                        <div class="index-name">${name} ${code}</div>
+                        <div class="index-value">${current}</div>
+                    </div>
+                    <div class="index-distance">
+                        距离大支撑: <span style="color: ${distanceToSupport < 0 ? '#ff6b6b' : '#00b894'}">${distanceToSupport}%</span>
+                        &nbsp;&nbsp;
+                        距离外太空: <span style="color: ${distanceToPressure < 0 ? '#ff6b6b' : '#00b894'}">${distanceToPressure}%</span>
+                    </div>
+                    <div class="index-visualization">
+                        <div class="support-zone" style="width: ${((support1 - minValue) / range) * 100}%; left: 0;"></div>
+                        <div class="normal-zone" style="width: ${((pressure1 - support1) / range) * 100}%; left: ${((support1 - minValue) / range) * 100}%;"></div>
+                        <div class="pressure-zone" style="width: ${((maxValue - pressure1) / range) * 100}%; left: ${((pressure1 - minValue) / range) * 100}%;"></div>
+                        <div class="current-marker" style="left: ${((current - minValue) / range) * 100}%;"></div>
+                        <div class="support-value" style="left: ${((support1 - minValue) / range) * 100}%;">${support1}<br>大支撑</div>
+                        <div class="pressure-value" style="left: ${((pressure1 - minValue) / range) * 100}%;">${pressure1}<br>大压力</div>
+                    </div>
+                    <div class="zone-labels">
+                        <div class="zone-label support-label">大支撑位 (${support2}~${support1})</div>
+                        <div class="zone-label normal-label">正常区</div>
+                        <div class="zone-label pressure-label">外太空</div>
+                    </div>
+                </div>
+                
+                <div class="key-levels">
+                    <div class="key-level">
+                        <div class="key-level-name">最高点70位(下跌70%):</div>
+                        <div class="key-level-value">${level70}</div>
+                        <div class="key-level-percent">
+                            距离当前: ${distanceTo70 > 0 ? '+' : ''}${distanceTo70}%
+                        </div>
+                    </div>
+                    <div class="key-level">
+                        <div class="key-level-name">最高点80位(下跌80%):</div>
+                        <div class="key-level-value">${level80}</div>
+                        <div class="key-level-percent">
+                            距离当前: ${distanceTo80 > 0 ? '+' : ''}${distanceTo80}%
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stats-section">
+                    <div class="stat-box high">
+                        <div class="stat-header">自最高点跌幅</div>
+                        <div class="stat-value drop">${dropFromHighest}%</div>
+                        <div>最高点</div>
+                        <div class="stat-value point">${highest}</div>
+                        <div class="stat-date">${formatDateToChinese(highestDate)}</div>
+                    </div>
+                    <div class="stat-box low">
+                        <div class="stat-header">自最低点上涨</div>
+                        <div class="stat-value rise">${riseFromLowest}% <span class="arrow-up">↑</span></div>
+                        <div>最低点</div>
+                        <div class="stat-value point">${lowest}</div>
+                        <div class="stat-date">${formatDateToChinese(lowestDate)}</div>
+                    </div>
+                </div>
+            `;
+            
+            return html;
+        }
+    </script>
+</body>
+</html> 
