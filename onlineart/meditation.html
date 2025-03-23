@@ -623,8 +623,8 @@
                 let content = "";
                 
                 // 添加个性化引导
-                content += `<p class="fade-in"><strong>1.</strong> 让我们开始这段为你定制的${type}之旅，专注于：${theme}。</p>`;
-                content += `<p class="fade-in"><strong>2.</strong> ${guidance}</p>`;
+                content += `<p class="fade-in"> 让我们开始这段为你定制的${type}之旅，专注于：${theme}。</p>`;
+                content += `<p class="fade-in"> ${guidance}</p>`;
                 
                 // 添加API生成的内容
                 const contentLines = generatedContent.split('\n').filter(line => line.trim() !== '');
@@ -632,10 +632,13 @@
                     content += `<p class="fade-in"> ${line}</p>`;
                 });
                 // <strong>${index + 3}.</strong>
-                
+                // <strong>1.</strong> 
+                // <strong>${contentLines.length + 3}.</strong>
+                // <strong>${contentLines.length + 4}.</strong> 
+                // <strong>2.</strong>
                 // 添加结束语
-                content += `<p class="fade-in"><strong>${contentLines.length + 3}.</strong> 当你准备好时，慢慢睁开眼睛，带着新的视角回到当下。</p>`;
-                content += `<p class="fade-in"><strong>${contentLines.length + 4}.</strong> 记住，这种体验随时可以通过练习找回。</p>`;
+                content += `<p class="fade-in"> 当你准备好时，慢慢睁开眼睛，带着新的视角回到当下。</p>`;
+                content += `<p class="fade-in"> 记住，这种体验随时可以通过练习找回。</p>`;
                 
                 // 显示背景音乐信息
                 content += `
