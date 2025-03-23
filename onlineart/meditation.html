@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>情绪舒缓冥想指导</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #6b8cae;
+            --accent-color: #9cb4cc;
+            --light-color: #e5edf5;
+            --dark-color: #2c3e50;
+            --success-color: #27ae60;
+            --warning-color: #e67e22;
+            --info-color: #3498db;
+            --danger-color: #e74c3c;
+            --text-color: #333;
+            --border-radius: 10px;
+            --box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4efe9 100%);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        
+        .form-section {
+            flex: 1;
+            min-width: 350px;
+            background: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+        
+        .form-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .preview-section {
+            flex: 1;
+            min-width: 350px;
+            background: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .preview-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        h1, h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--dark-color);
+        }
+        
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: var(--transition);
+            background-color: var(--light-color);
+        }
+        
+        input[type="text"]:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.2);
+        }
+        
+        textarea {
+            height: 120px;
+            resize: vertical;
+        }
+        
+        .required:after {
+            content: " *";
+            color: var(--danger-color);
+        }
+        
+        .form-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            color: white;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn i {
+            font-size: 18px;
+        }
+        
+        .btn-primary {
+            background-color: var(--success-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: #219653;
+        }
+        
+        .btn-secondary {
+            background-color: var(--warning-color);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #d35400;
+        }
+        
+        .btn-info {
+            background-color: var(--info-color);
+        }
+        
+        .btn-info:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .meditation-player {
+            margin-top: 20px;
+            text-align: center;
+            flex-grow: 0;
+        }
+        
+        .meditation-text {
+            background: var(--light-color);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-top: 20px;
+            flex-grow: 1;
+            overflow-y: auto;
+            line-height: 1.8;
+            max-height: 400px;
+        }
+        
+        .meditation-text p {
+            margin-bottom: 15px;
+        }
+        
+        .meditation-controls {
+            margin: 20px 0;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .meditation-controls button {
+            font-size: 24px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+        
+        .meditation-controls button:hover {
+            background: var(--secondary-color);
+            transform: scale(1.05);
+        }
+        
+        #meditation-timer {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 0 15px;
+            display: none;
+        }
+        
+        .meditation-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            color: var(--secondary-color);
+            font-size: 14px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .meditation-info span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading p {
+            margin-bottom: 15px;
+            color: var(--secondary-color);
+        }
+        
+        .utility-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .utility-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 10px 15px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+        
+        .utility-btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        .tooltip {
+            position: relative;
+        }
+        
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 120px;
+            background-color: var(--dark-color);
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -60px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-section">
+            <h1>请下单你的冥想需求</h1>
+            
+            <div class="form-group">
+                <label for="theme" class="required">冥想主题</label>
+                <input type="text" id="theme" placeholder="请输入">
+            </div>
+            
+            <div class="form-group">
+                <label for="guidance" class="required">你希望得到怎样的思维和引导</label>
+                <textarea id="guidance" placeholder="请输入你此刻的情绪，希望缓解什么痛苦，希望得到的指引"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="duration" class="required">冥想时长</label>
+                <select id="duration">
+                    <option value="5">5分钟</option>
+                    <option value="10">10分钟</option>
+                    <option value="15">15分钟</option>
+                    <option value="20">20分钟</option>
+                    <option value="30">30分钟</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="background" class="required">配乐主题</label>
+                <select id="background">
+                    <option value="nature">自然</option>
+                    <option value="ocean">大海</option>
+                    <option value="forest">森林</option>
+                    <option value="rain">雨声</option>
+                    <option value="none">无音乐</option>
+                </select>
+            </div>
+            
+            <div class="form-actions">
+                <button class="btn btn-primary" onclick="generateMeditation()"><i class="fas fa-heart"></i> 情绪安抚</button>
+                <button class="btn btn-secondary" id="btn-secondary"><i class="fas fa-wind"></i> 情绪疏导</button>
+                <button class="btn btn-info" id="btn-info"><i class="fas fa-bolt"></i> 回升能量</button>
+                <button class="btn btn-danger" id="btn-danger"><i class="fas fa-comment-dots"></i> 替我吐槽</button>
+            </div>
+        </div>
+        
+        <div class="preview-section">
+            <h2 id="meditation-title">冥想指导</h2>
+            
+            <div class="meditation-controls">
+                <button id="play-button"><i class="fas fa-play"></i></button>
+                <span id="meditation-timer">00:00</span>
+            </div>
+            
+            <div class="meditation-text" id="meditation-content">
+                <!-- 冥想内容将在这里显示 -->
+                <p>请在左侧填写您的冥想需求，然后点击按钮生成个性化冥想内容。</p>
+            </div>
+            
+            <div class="utility-buttons">
+                <button class="utility-btn tooltip" onclick="copyMeditationText()">
+                    <i class="fas fa-copy"></i>
+                    <span id="copy-tooltip">复制冥想内容</span>
+                </button>
+                <button class="utility-btn tooltip" onclick="openTTSMaker()">
+                    <i class="fas fa-volume-up"></i>
+                    <span class="tooltip-text">转换为语音</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 预设的冥想文本模板
+        const meditationTemplates = {
+            "情绪安抚": [
+                "找到一个舒适的姿势，闭上眼睛，深呼吸三次。",
+                "感受你的呼吸，让它自然流动，不需要刻意控制。",
+                "注意你的身体，从头顶开始，慢慢向下扫描至脚尖。",
+                "觉察任何紧张或不适的区域，用呼吸将温暖的能量送到那里。",
+                "想象你的情绪是流动的河水，允许它们自然流过，不抗拒，不执着。",
+                "每一次呼气，释放一些紧张；每一次吸气，带入平静和安宁。",
+                "你是安全的，此刻就在这里，完全地存在。",
+                "慢慢地，感受内心的平静扩散到全身。"
+            ],
+            "情绪疏导": [
+                "闭上眼睛，深呼吸，让自己完全放松。",
+                "觉察当前的情绪，不评判，只是观察它们的存在。",
+                "想象这些情绪有形状、颜色和质地。",
+                "允许自己完全感受这些情绪，它们是你体验的一部分。",
+                "现在，想象有一个安全的容器，可以暂时存放这些情绪。",
+                "慢慢地，将这些情绪转移到容器中，给自己一些空间。",
+                "感受释放后的轻松，知道你可以在准备好时再次面对它们。",
+                "带着这种轻松感，慢慢回到当下。"
+            ],
+            "回升能量": [
+                "找到舒适的姿势，闭上眼睛，深呼吸。",
+                "想象有一道温暖的金色光芒从头顶进入你的身体。",
+                "这道光芒充满活力和能量，滋养你的每一个细胞。",
+                "感受这光芒流经你的头部，肩膀，手臂，躯干，腿部，一直到脚尖。",
+                "每一次呼吸，这光芒变得更加明亮，你的能量不断提升。",
+                "想象你被这光芒完全包围，感受它带来的力量和活力。",
+                "你充满能量，准备好面对任何挑战。",
+                "带着这种能量感，慢慢回到当下。"
+            ],
+            "替我吐槽": [
+                "闭上眼睛，深呼吸，让自己完全放松。",
+                "想象面前有一个安全的空间，你可以在这里表达所有的不满和沮丧。",
+                "允许那些困扰你的想法浮现在脑海中，不要压抑它们。",
+                "想象你正在向一个完全理解你的人倾诉，他们接纳你的所有情绪。",
+                "把那些让你烦恼的事情一一说出来，不需要过滤或修饰。",
+                "感受说出这些话后的释放感，就像卸下了一个重担。",
+                "现在，想象这些负面情绪正在离开你的身体，化作烟雾消散在空气中。",
+                "带着这种轻松感，慢慢回到当下，知道你已经释放了那些压力。"
+            ]
+        };
+
+        // 背景音乐映射
+        const backgroundSounds = {
+            "nature": "自然环境音",
+            "ocean": "海浪声",
+            "forest": "森林声",
+            "rain": "雨声",
+            "none": "无背景音"
+        };
+
+        // API配置
+        const API_KEY = "8e350397-50a9-4f67-a1a8-6922791cf423"; // 请替换为您的火山引擎API密钥
+        const API_ENDPOINT = "https://ark.cn-beijing.volces.com/api/v3/chat/completions"; // 火山引擎DeepSeek API端点
+
+        // 生成冥想内容
+        async function generateMeditation() {
+            const theme = document.getElementById('theme').value || "情绪舒缓";
+            const guidance = document.getElementById('guidance').value;
+            const duration = document.getElementById('duration').value;
+            const background = document.getElementById('background').value;
+            const meditationType = "情绪安抚"; // 默认类型，可以根据按钮点击修改
+            
+            // 设置标题
+            document.getElementById('meditation-title').textContent = theme + " 冥想指导";
+            
+            // 显示加载状态
+            document.getElementById('meditation-content').innerHTML = "<p>正在生成个性化冥想内容，请稍候...</p>";
+            
+            try {
+                // 调用API生成冥想内容
+                const generatedContent = await callDeepSeekAPI(theme, guidance, duration, meditationType);
+                
+                // 显示生成的内容
+                let content = "";
+                
+                // 添加个性化引导
+                content += `<p>1. 让我们开始这段为你定制的冥想之旅，专注于：${theme}。</p>`;
+                
+                // 添加API生成的内容
+                const contentLines = generatedContent.split('\n').filter(line => line.trim() !== '');
+                contentLines.forEach((line, index) => {
+                    content += `<p>${index + 2}. ${line}</p>`;
+                });
+                
+                // 添加结束语
+                content += `<p>${contentLines.length + 2}. 当你准备好时，慢慢睁开眼睛，带着平静的心回到当下。</p>`;
+                content += `<p>${contentLines.length + 3}. 记住，这种平静随时可以通过呼吸找回。</p>`;
+                
+                // 显示背景音乐信息
+                content += `<p><small>背景音乐: ${backgroundSounds[background]}</small></p>`;
+                content += `<p><small>冥想时长: ${duration}分钟</small></p>`;
+                
+                document.getElementById('meditation-content').innerHTML = content;
+            } catch (error) {
+                console.error("生成冥想内容时出错:", error);
+                
+                // 出错时使用预设模板
+                let content = "";
+                const template = meditationTemplates[meditationType];
+                
+                // 添加个性化引导
+                if (guidance) {
+                    content += `<p>1. 让我们开始这段为你定制的冥想之旅，专注于：${theme}。</p>`;
+                    content += `<p>2. ${guidance}</p>`;
+                }
+                
+                // 添加模板内容
+                template.forEach((line, index) => {
+                    content += `<p>${index + 3}. ${line}</p>`;
+                });
+                
+                // 添加结束语
+                content += `<p>${template.length + 3}. 当你准备好时，慢慢睁开眼睛，带着平静的心回到当下。</p>`;
+                content += `<p>${template.length + 4}. 记住，这种平静随时可以通过呼吸找回。</p>`;
+                
+                // 显示背景音乐信息
+                content += `<p><small>背景音乐: ${backgroundSounds[background]}</small></p>`;
+                content += `<p><small>冥想时长: ${duration}分钟</small></p>`;
+                content += `<p><small>注意: 使用了预设模板，因为API调用失败。</small></p>`;
+                
+                document.getElementById('meditation-content').innerHTML = content;
+            }
+        }
+        
+        // 调用DeepSeek API生成冥想内容
+        async function callDeepSeekAPI(theme, guidance, duration, meditationType) {
+            const prompt = `
+            请为我生成一段${duration}分钟的${meditationType}冥想引导文本，主题是"${theme}"。
+            用户的具体需求是：${guidance}
+            
+            要求：
+            1. 生成8-12个简短的引导段落
+            2. 使用平静、舒缓的语言
+            3. 包含呼吸引导和身体觉察
+            4. 针对用户的具体需求提供个性化内容
+            5. 适合${duration}分钟的冥想时长
+            6. 不要包含编号，只返回纯文本段落
+            7. 请使用中文回复
+            `;
+            
+            try {
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: "deepseek-r1-250120",
+                        messages: [
+                            {
+                                role: "user",
+                                content: prompt
+                            }
+                        ],
+                        temperature: 0.7,
+                        max_tokens: 1000
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("API响应错误:", errorText);
+                    throw new Error(`API调用失败: ${response.status} - ${errorText}`);
+                }
+                
+                const data = await response.json();
+                // 根据火山引擎API的响应格式调整
+                if (data.choices && data.choices.length > 0 && data.choices[0].message) {
+                    return data.choices[0].message.content;
+                } else {
+                    console.error("API响应格式不符合预期:", data);
+                    throw new Error("API响应格式不符合预期");
+                }
+            } catch (error) {
+                console.error("API调用错误:", error);
+                throw error;
+            }
+        }
+        
+        // 设置按钮点击事件
+        document.addEventListener('DOMContentLoaded', function() {
+            // 情绪安抚按钮已经在HTML中设置了onclick事件
+            
+            // 情绪疏导按钮
+            document.querySelector('.btn-secondary').addEventListener('click', function() {
+                generateMeditationByType("情绪疏导");
+            });
+            
+            // 回升能量按钮
+            document.querySelector('.btn-info').addEventListener('click', function() {
+                generateMeditationByType("回升能量");
+            });
+            
+            // 替我吐槽按钮
+            document.querySelector('.btn-danger').addEventListener('click', function() {
+                generateMeditationByType("替我吐槽");
+            });
+        });
+        
+        // 根据类型生成冥想
+        async function generateMeditationByType(type) {
+            const theme = document.getElementById('theme').value || type;
+            const guidance = document.getElementById('guidance').value;
+            const duration = document.getElementById('duration').value;
+            const background = document.getElementById('background').value;
+            
+            // 设置标题
+            document.getElementById('meditation-title').textContent = theme + " 冥想指导";
+            
+            // 显示加载状态
+            document.getElementById('meditation-content').innerHTML = "<p>正在生成个性化冥想内容，请稍候...</p>";
+            
+            try {
+                // 调用API生成冥想内容
+                const generatedContent = await callDeepSeekAPI(theme, guidance, duration, type);
+                
+                // 显示生成的内容
+                let content = "";
+                
+                // 添加个性化引导
+                content += `<p class="fade-in"><strong>1.</strong> 让我们开始这段为你定制的${type}之旅，专注于：${theme}。</p>`;
+                content += `<p class="fade-in"><strong>2.</strong> ${guidance}</p>`;
+                
+                // 添加API生成的内容
+                const contentLines = generatedContent.split('\n').filter(line => line.trim() !== '');
+                contentLines.forEach((line, index) => {
+                    content += `<p class="fade-in"><strong>${index + 3}.</strong> ${line}</p>`;
+                });
+                
+                // 添加结束语
+                content += `<p class="fade-in"><strong>${contentLines.length + 3}.</strong> 当你准备好时，慢慢睁开眼睛，带着新的视角回到当下。</p>`;
+                content += `<p class="fade-in"><strong>${contentLines.length + 4}.</strong> 记住，这种体验随时可以通过练习找回。</p>`;
+                
+                // 显示背景音乐信息
+                content += `
+                <div class="meditation-info">
+                    <span><i class="fas fa-music"></i> ${backgroundSounds[background]}</span>
+                    <span><i class="fas fa-clock"></i> ${duration}分钟</span>
+                </div>
+                `;
+                
+                document.getElementById('meditation-content').innerHTML = content;
+            } catch (error) {
+                console.error("生成冥想内容时出错:", error);
+                
+                // 出错时使用预设模板
+                let content = "";
+                const template = meditationTemplates[type] || meditationTemplates["情绪安抚"];
+                
+                // 添加个性化引导
+                if (guidance) {
+                    content += `<p class="fade-in"><strong>1.</strong> 让我们开始这段为你定制的${type}之旅，专注于：${theme}。</p>`;
+                    content += `<p class="fade-in"><strong>2.</strong> ${guidance}</p>`;
+                }
+                
+                // 添加模板内容
+                template.forEach((line, index) => {
+                    content += `<p class="fade-in"><strong>${index + 3}.</strong> ${line}</p>`;
+                });
+                
+                // 添加结束语
+                content += `<p class="fade-in"><strong>${template.length + 3}.</strong> 当你准备好时，慢慢睁开眼睛，带着新的视角回到当下。</p>`;
+                content += `<p class="fade-in"><strong>${template.length + 4}.</strong> 记住，这种体验随时可以通过练习找回。</p>`;
+                
+                // 显示背景音乐信息
+                content += `
+                <div class="meditation-info">
+                    <span><i class="fas fa-music"></i> ${backgroundSounds[background]}</span>
+                    <span><i class="fas fa-clock"></i> ${duration}分钟</span>
+                    <span><i class="fas fa-exclamation-circle"></i> 使用了预设模板，因为API调用失败</span>
+                </div>
+                `;
+                
+                document.getElementById('meditation-content').innerHTML = content;
+            }
+        }
+        
+        // 复制冥想文本
+        function copyMeditationText() {
+            const meditationContent = document.getElementById('meditation-content');
+            
+            // 创建一个临时的文本区域来存放纯文本内容
+            let textToCopy = '';
+            const paragraphs = meditationContent.querySelectorAll('p');
+            
+            paragraphs.forEach(p => {
+                // 移除HTML标签，只保留文本内容
+                const text = p.textContent.trim();
+                if (text && !text.includes('背景音乐') && !text.includes('冥想时长') && !text.includes('使用了预设模板')) {
+                    textToCopy += text + '\n\n';
+                }
+            });
+            
+            // 创建临时textarea元素
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy;
+            textarea.setAttribute('readonly', '');
+            textarea.style.position = 'absolute';
+            textarea.style.left = '-9999px';
+            document.body.appendChild(textarea);
+            
+            // 选择文本并复制
+            textarea.select();
+            document.execCommand('copy');
+            
+            // 移除临时元素
+            document.body.removeChild(textarea);
+            
+            // 显示复制成功提示
+            const tooltip = document.getElementById('copy-tooltip');
+            tooltip.textContent = '复制成功!';
+            
+            // 2秒后恢复原始提示
+            setTimeout(() => {
+                tooltip.textContent = '复制冥想内容';
+            }, 2000);
+        }
+        
+        // 打开TTSMaker网站
+        function openTTSMaker() {
+            // 获取冥想文本
+            const meditationContent = document.getElementById('meditation-content');
+            let textToConvert = '';
+            const paragraphs = meditationContent.querySelectorAll('p');
+            
+            paragraphs.forEach(p => {
+                // 移除HTML标签，只保留文本内容
+                const text = p.textContent.trim();
+                if (text && !text.includes('背景音乐') && !text.includes('冥想时长') && !text.includes('使用了预设模板')) {
+                    textToConvert += text + '\n\n';
+                }
+            });
+            
+            // 如果有内容，则打开TTSMaker网站
+            if (textToConvert) {
+                // 尝试使用URL参数传递文本（如果TTSMaker支持）
+                // 注意：由于URL长度限制，这种方法可能不适用于长文本
+                const encodedText = encodeURIComponent(textToConvert);
+                
+                // 打开新窗口
+                window.open('https://ttsmaker.cn/', '_blank');
+                
+                // 复制文本到剪贴板，以便用户可以粘贴
+                const textarea = document.createElement('textarea');
+                textarea.value = textToConvert;
+                textarea.setAttribute('readonly', '');
+                textarea.style.position = 'absolute';
+                textarea.style.left = '-9999px';
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                
+                // 提示用户
+                alert('冥想文本已复制到剪贴板，请在TTSMaker网站中粘贴。');
+            } else {
+                alert('请先生成冥想内容。');
+            }
+        }
+        
+        // 播放冥想
+        function playMeditation() {
+            const duration = document.getElementById('duration').value;
+            const background = document.getElementById('background').value;
+            
+            // 创建音频元素（如果不存在）
+            let audioElement = document.getElementById('background-audio');
+            if (!audioElement) {
+                audioElement = document.createElement('audio');
+                audioElement.id = 'background-audio';
+                audioElement.loop = true;
+                document.body.appendChild(audioElement);
+            }
+            
+            // 设置音频源
+            const audioSources = {
+                "nature": "audio/nature.mp3",
+                "ocean": "audio/ocean.mp3",
+                "forest": "audio/forest.mp3",
+                "rain": "audio/rain.mp3"
+            };
+            
+            if (background !== "none" && audioSources[background]) {
+                audioElement.src = audioSources[background];
+                audioElement.play().catch(e => {
+                    console.warn("无法自动播放音频:", e);
+                    alert("请点击页面以允许播放背景音乐");
+                });
+            }
+            
+            // 显示计时器
+            const timerElement = document.getElementById('meditation-timer');
+            timerElement.style.display = 'block';
+            
+            // 设置剩余时间
+            let remainingTime = duration * 60; // 转换为秒
+            
+            // 更新计时器显示
+            function updateTimer() {
+                const minutes = Math.floor(remainingTime / 60);
+                const seconds = remainingTime % 60;
+                timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (remainingTime <= 0) {
+                    clearInterval(timerInterval);
+                    timerElement.textContent = "完成";
+                    
+                    // 停止音频
+                    if (audioElement) {
+                        audioElement.pause();
+                    }
+                    
+                    // 播放结束提示音
+                    const endSound = new Audio('audio/bell.mp3');
+                    endSound.play().catch(e => console.warn("无法播放结束提示音:", e));
+                    
+                    // 恢复播放按钮
+                    resetPlayButton();
+                    
+                    return;
+                }
+                
+                remainingTime--;
+            }
+            
+            // 初始显示
+            updateTimer();
+            
+            // 开始计时
+            const timerInterval = setInterval(updateTimer, 1000);
+            
+            // 存储计时器ID以便后续清除
+            timerElement.dataset.intervalId = timerInterval;
+            
+            // 修改播放按钮为暂停
+            const playButton = document.getElementById('play-button');
+            playButton.innerHTML = '<i class="fas fa-pause"></i>';
+            playButton.onclick = pauseMeditation;
+            
+            // 添加停止按钮（如果不存在）
+            if (!document.getElementById('stop-button')) {
+                const stopButton = document.createElement('button');
+                stopButton.id = 'stop-button';
+                stopButton.innerHTML = '<i class="fas fa-stop"></i>';
+                stopButton.onclick = stopMeditation;
+                document.querySelector('.meditation-controls').appendChild(stopButton);
+            }
+        }
+        
+        // 暂停冥想
+        function pauseMeditation() {
+            const audioElement = document.getElementById('background-audio');
+            const playButton = document.getElementById('play-button');
+            
+            if (audioElement) {
+                if (audioElement.paused) {
+                    // 恢复播放
+                    audioElement.play();
+                    playButton.innerHTML = '<i class="fas fa-pause"></i>';
+                    
+                    // 恢复计时器
+                    const timerElement = document.getElementById('meditation-timer');
+                    if (timerElement && timerElement.dataset.intervalId) {
+                        const intervalId = parseInt(timerElement.dataset.intervalId);
+                        if (!isNaN(intervalId)) {
+                            clearInterval(intervalId);
+                        }
+                        const newIntervalId = setInterval(() => {
+                            const timeText = timerElement.textContent;
+                            const [minutes, seconds] = timeText.split(':').map(Number);
+                            let remainingTime = minutes * 60 + seconds - 1;
+                            
+                            if (remainingTime <= 0) {
+                                clearInterval(newIntervalId);
+                                timerElement.textContent = "完成";
+                                
+                                // 停止音频
+                                audioElement.pause();
+                                
+                                // 播放结束提示音
+                                const endSound = new Audio('audio/bell.mp3');
+                                endSound.play().catch(e => console.warn("无法播放结束提示音:", e));
+                                
+                                // 恢复播放按钮
+                                resetPlayButton();
+                                
+                                return;
+                            }
+                            
+                            const newMinutes = Math.floor(remainingTime / 60);
+                            const newSeconds = remainingTime % 60;
+                            timerElement.textContent = `${newMinutes.toString().padStart(2, '0')}:${newSeconds.toString().padStart(2, '0')}`;
+                        }, 1000);
+                        
+                        timerElement.dataset.intervalId = newIntervalId;
+                    }
+                } else {
+                    // 暂停播放
+                    audioElement.pause();
+                    playButton.innerHTML = '<i class="fas fa-play"></i>';
+                    
+                    // 暂停计时器
+                    const timerElement = document.getElementById('meditation-timer');
+                    if (timerElement && timerElement.dataset.intervalId) {
+                        const intervalId = parseInt(timerElement.dataset.intervalId);
+                        if (!isNaN(intervalId)) {
+                            clearInterval(intervalId);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // 停止冥想
+        function stopMeditation() {
+            // 停止音频
+            const audioElement = document.getElementById('background-audio');
+            if (audioElement) {
+                audioElement.pause();
+                audioElement.currentTime = 0;
+            }
+            
+            // 停止计时器
+            const timerElement = document.getElementById('meditation-timer');
+            if (timerElement) {
+                if (timerElement.dataset.intervalId) {
+                    const intervalId = parseInt(timerElement.dataset.intervalId);
+                    if (!isNaN(intervalId)) {
+                        clearInterval(intervalId);
+                    }
+                }
+                timerElement.style.display = 'none';
+            }
+            
+            // 恢复播放按钮
+            resetPlayButton();
+            
+            // 移除停止按钮
+            const stopButton = document.getElementById('stop-button');
+            if (stopButton) {
+                stopButton.remove();
+            }
+        }
+        
+        // 重置播放按钮
+        function resetPlayButton() {
+            const playButton = document.getElementById('play-button');
+            playButton.innerHTML = '<i class="fas fa-play"></i>';
+            playButton.onclick = playMeditation;
+        }
+        
+        // 添加音频预加载功能
+        function preloadAudios() {
+            const audioSources = {
+                "nature": "audio/nature.mp3",
+                "ocean": "audio/ocean.mp3",
+                "forest": "audio/forest.mp3",
+                "rain": "audio/rain.mp3",
+                "bell": "audio/bell.mp3"
+            };
+            
+            for (const [key, src] of Object.entries(audioSources)) {
+                const audio = new Audio();
+                audio.preload = 'auto';
+                audio.src = src;
+            }
+        }
+        
+        // 页面加载完成后预加载音频
+        window.addEventListener('load', preloadAudios);
+    </script>
+</body>
+</html> 

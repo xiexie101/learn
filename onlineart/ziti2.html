@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>话题卡片</title>
+    <style>
+      @font-face {
+        font-family: 'Huiwen-mincho';
+        src: local('Huiwen-mincho');
+        font-weight: normal;
+        font-style: normal;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: #f0f0f0;
+        font-family: 'Huiwen-mincho', serif;
+        margin: 0;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cg fill='%23000000' fill-opacity='0.05'%3E%3Cpath d='M0 0h4v4H0V0zm4 4h4v4H4V4z'%3E%3C/path%3E%3C/g%3E%3C/svg%3E"); /* 更加 subtle 的纹理 */
+      }
+
+      .card {
+        background-color: #fefefe; /* 稍微偏白的纸张 */
+        width: 350px;
+        height: 450px;
+        padding: 30px;
+        border-radius: 12px; /* 更圆润的边角 */
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08); /* 更柔和的阴影 */
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; /* 添加过渡效果 */
+        position: relative;
+        border: 1px solid #eee; /* হালকা বর্ডার */
+      }
+
+      .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+      }
+
+      .topic {
+        font-size: 28px;
+        margin-bottom: 15px;
+        color: #2c3e50; /* более গাঢ় রং */
+        text-align: center;
+        font-weight: normal;
+        letter-spacing: 0.5px;
+      }
+
+      .translation {
+        font-size: 14px;
+        margin-bottom: 25px;
+        color: #7f8c8d;
+        text-align: center;
+        font-style: italic; /* 添加斜体 */
+      }
+
+      .analysis {
+        font-size: 17px;
+        line-height: 1.6;
+        color: #34495e;
+        text-align: justify;
+        font-weight: normal;
+        padding-bottom: 60px; /* 为签名留出空间 */
+      }
+
+      .signature {
+        position: absolute;
+        bottom: 20px;
+        right: 30px;
+        font-size: 14px;
+        color: #95a5a6;
+        font-style: normal;
+      }
+
+      .input-area {
+        margin-top: 20px;
+        text-align: center;
+      }
+
+      .input-area textarea {
+        width: 80%;
+        height: 180px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        font-family: 'Huiwen-mincho', serif;
+        font-size: 16px;
+        resize: none;
+      }
+
+      .input-area button {
+        padding: 10px 20px;
+        background-color: #3498db;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-family: 'Huiwen-mincho', serif;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+      }
+
+      .input-area button:hover {
+        background-color: #2980b9;
+      }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="topic" id="userTopic">用户输入的话题</div>
+        <div class="translation" id="translatedTopic">话题的英文翻译</div>
+        <div class="analysis" id="topicAnalysis">
+            对话题深层含义的拆解。
+        </div>
+        <div class="signature">xiexie</div>
+    </div>
+
+    <div class="input-area">
+        <textarea id="dataInput" placeholder="请输入多组数据，每组包含中文话题、英文翻译和分析，用逗号分隔，每组数据之间用换行符分隔，例如：\n明知会散落，仍不惧盛开。,Knowing it will fall, still it blooms.,绽放不问结果，凋零亦是归宿。珍惜当下，热烈盛开。\n话题2,Translation 2,Analysis 2\n话题3,Translation 3,Analysis 3"></textarea>
+        <button id="updateButton">更新卡片内容</button>
+    </div>
+
+    <script>
+      const userTopicElement = document.getElementById("userTopic");
+      const translatedTopicElement = document.getElementById("translatedTopic");
+      const topicAnalysisElement = document.getElementById("topicAnalysis");
+      const dataInput = document.getElementById("dataInput");
+      const updateButton = document.getElementById("updateButton");
+
+      function updateCard(topic, translation, analysis) {
+          userTopicElement.textContent = topic;
+          translatedTopicElement.textContent = translation;
+          topicAnalysisElement.textContent = analysis;
+      }
+
+      updateButton.addEventListener("click", () => {
+          const inputData = dataInput.value.trim().split("\n").map(item => item.trim().split("，").map(item => item.trim()));
+          if (inputData.length > 0 && inputData.every(group => group.length === 3)) {
+              const randomIndex = Math.floor(Math.random() * inputData.length);
+              const randomData = inputData[randomIndex];
+              const topic = randomData[0];
+              const translation = randomData[1];
+              const analysis = randomData[2];
+              updateCard(topic, translation, analysis);
+          } else {
+              alert("请输入正确格式的数据，每组包含中文话题、英文翻译和分析，用逗号分隔，每组数据之间用换行符分隔。");
+          }
+      });
+
+      // 初始显示
+      let userInput = "明知会散落，仍不惧盛开。";
+      let englishTranslation = "Knowing it will fall, still it blooms.";
+      let deepAnalysis = "绽放不问结果，凋零亦是归宿。珍惜当下，热烈盛开。";
+      updateCard(userInput, englishTranslation, deepAnalysis);
+        //困难版,纵知绽放即沉沦,偏以血泪铸花期，Bloom in decay's shadow,thorns carve paths of glory，以痛楚刻写存在,在坠落中对抗宿命
+        // 奇怪版,向死而开,花蕊裂成星图，Petals code cosmic riddles before dissolving，用荒诞形态解构消亡,宿命转为神秘仪式
+        // 害怕版,颤栗捧出芬芳,任凋零啃噬掌心，Shivering blooms confess to devouring wind，恐惧献祭美的信徒,以脆弱触碰永恒悖论
+        // 愚蠢版,愚勇炸裂成花,灰烬里大笑三声，Fools burst into blooms,ashes echo laughter，荒诞对抗虚无狂欢,用无意义击碎宿命锁链
+      
+    </script>
+</body>
+</html>
