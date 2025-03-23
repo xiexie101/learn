@@ -27,7 +27,7 @@
     },
     {
         "code": "399396",
-        "name": "食品饮料",
+        "name": "国证食品（食品饮料）",
         "current": 20031,
         "support1": 17000,
         "support2": 12210,
@@ -40,7 +40,7 @@
     },
     {
         "code": "HSHCI",
-        "name": "恒生医疗",
+        "name": "恒生医疗保健指数",
         "current": 2950,
         "support1": 2900,
         "support2": 2340,
