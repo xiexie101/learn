@@ -375,8 +375,9 @@
             <h2 id="meditation-title">冥想指导</h2>
             
             <div class="meditation-controls">
-                <button id="play-button"><i class="fas fa-play"></i></button>
-                <span id="meditation-timer">00:00</span>
+                <button id="play-button" onclick="playBackgroundMusic()"><i class="fas fa-music"></i></button>
+                <!-- <span id="meditation-timer">00:00</span>
+                <button id="start-meditation-button" onclick="playMeditation()"><i class="fas fa-play"></i></button> -->
             </div>
             
             <div class="meditation-text" id="meditation-content">
@@ -628,8 +629,9 @@
                 // 添加API生成的内容
                 const contentLines = generatedContent.split('\n').filter(line => line.trim() !== '');
                 contentLines.forEach((line, index) => {
-                    content += `<p class="fade-in"><strong>${index + 3}.</strong> ${line}</p>`;
+                    content += `<p class="fade-in"> ${line}</p>`;
                 });
+                // <strong>${index + 3}.</strong>
                 
                 // 添加结束语
                 content += `<p class="fade-in"><strong>${contentLines.length + 3}.</strong> 当你准备好时，慢慢睁开眼睛，带着新的视角回到当下。</p>`;
@@ -762,9 +764,8 @@
             }
         }
         
-        // 播放冥想
-        function playMeditation() {
-            const duration = document.getElementById('duration').value;
+        // 播放背景音乐
+        function playBackgroundMusic() {
             const background = document.getElementById('background').value;
             
             // 创建音频元素（如果不存在）
@@ -785,12 +786,42 @@
             };
             
             if (background !== "none" && audioSources[background]) {
-                audioElement.src = audioSources[background];
-                audioElement.play().catch(e => {
-                    console.warn("无法自动播放音频:", e);
-                    alert("请点击页面以允许播放背景音乐");
-                });
+                // 如果音频源发生变化，则更新音频源
+                if (audioElement.src !== audioSources[background] && !audioElement.src.endsWith(audioSources[background])) {
+                    audioElement.src = audioSources[background];
+                }
+                
+                // 检查音频是否已在播放
+                if (audioElement.paused) {
+                    // 尝试播放音频
+                    const playPromise = audioElement.play();
+                    
+                    // 处理播放承诺
+                    if (playPromise !== undefined) {
+                        playPromise.then(_ => {
+                            // 播放成功
+                            document.getElementById('play-button').innerHTML = '<i class="fas fa-pause"></i>';
+                        }).catch(e => {
+                            console.warn("无法自动播放音频:", e);
+                            alert("请点击页面以允许播放背景音乐");
+                        });
+                    }
+                } else {
+                    // 如果音频正在播放，则暂停
+                    audioElement.pause();
+                    document.getElementById('play-button').innerHTML = '<i class="fas fa-music"></i>';
+                }
+            } else {
+                alert("请先选择背景音乐类型");
             }
+            
+            // 添加调试信息
+            console.log("音频状态:", audioElement.paused ? "已暂停" : "正在播放");
+        }
+        
+        // 播放冥想（启动计时器）
+        function playMeditation() {
+            const duration = document.getElementById('duration').value;
             
             // 显示计时器
             const timerElement = document.getElementById('meditation-timer');
@@ -809,17 +840,12 @@
                     clearInterval(timerInterval);
                     timerElement.textContent = "完成";
                     
-                    // 停止音频
-                    if (audioElement) {
-                        audioElement.pause();
-                    }
-                    
                     // 播放结束提示音
                     const endSound = new Audio('audio/bell.mp3');
                     endSound.play().catch(e => console.warn("无法播放结束提示音:", e));
                     
                     // 恢复播放按钮
-                    resetPlayButton();
+                    resetMeditationButton();
                     
                     return;
                 }
@@ -837,9 +863,9 @@
             timerElement.dataset.intervalId = timerInterval;
             
             // 修改播放按钮为暂停
-            const playButton = document.getElementById('play-button');
-            playButton.innerHTML = '<i class="fas fa-pause"></i>';
-            playButton.onclick = pauseMeditation;
+            const startButton = document.getElementById('start-meditation-button');
+            startButton.innerHTML = '<i class="fas fa-pause"></i>';
+            startButton.onclick = pauseMeditation;
             
             // 添加停止按钮（如果不存在）
             if (!document.getElementById('stop-button')) {
@@ -853,77 +879,63 @@
         
         // 暂停冥想
         function pauseMeditation() {
-            const audioElement = document.getElementById('background-audio');
-            const playButton = document.getElementById('play-button');
+            const startButton = document.getElementById('start-meditation-button');
             
-            if (audioElement) {
-                if (audioElement.paused) {
-                    // 恢复播放
-                    audioElement.play();
-                    playButton.innerHTML = '<i class="fas fa-pause"></i>';
-                    
-                    // 恢复计时器
-                    const timerElement = document.getElementById('meditation-timer');
-                    if (timerElement && timerElement.dataset.intervalId) {
-                        const intervalId = parseInt(timerElement.dataset.intervalId);
-                        if (!isNaN(intervalId)) {
-                            clearInterval(intervalId);
-                        }
-                        const newIntervalId = setInterval(() => {
-                            const timeText = timerElement.textContent;
-                            const [minutes, seconds] = timeText.split(':').map(Number);
-                            let remainingTime = minutes * 60 + seconds - 1;
-                            
-                            if (remainingTime <= 0) {
-                                clearInterval(newIntervalId);
-                                timerElement.textContent = "完成";
-                                
-                                // 停止音频
-                                audioElement.pause();
-                                
-                                // 播放结束提示音
-                                const endSound = new Audio('audio/bell.mp3');
-                                endSound.play().catch(e => console.warn("无法播放结束提示音:", e));
-                                
-                                // 恢复播放按钮
-                                resetPlayButton();
-                                
-                                return;
-                            }
-                            
-                            const newMinutes = Math.floor(remainingTime / 60);
-                            const newSeconds = remainingTime % 60;
-                            timerElement.textContent = `${newMinutes.toString().padStart(2, '0')}:${newSeconds.toString().padStart(2, '0')}`;
-                        }, 1000);
-                        
-                        timerElement.dataset.intervalId = newIntervalId;
-                    }
-                } else {
-                    // 暂停播放
-                    audioElement.pause();
-                    playButton.innerHTML = '<i class="fas fa-play"></i>';
-                    
-                    // 暂停计时器
-                    const timerElement = document.getElementById('meditation-timer');
-                    if (timerElement && timerElement.dataset.intervalId) {
-                        const intervalId = parseInt(timerElement.dataset.intervalId);
-                        if (!isNaN(intervalId)) {
-                            clearInterval(intervalId);
-                        }
-                    }
+            // 检查计时器状态
+            const timerElement = document.getElementById('meditation-timer');
+            if (timerElement && timerElement.dataset.intervalId) {
+                const intervalId = parseInt(timerElement.dataset.intervalId);
+                
+                // 如果计时器正在运行，则暂停
+                if (!isNaN(intervalId)) {
+                    clearInterval(intervalId);
+                    timerElement.dataset.intervalId = '';
+                    startButton.innerHTML = '<i class="fas fa-play"></i>';
+                    startButton.onclick = resumeMeditation;
                 }
+            }
+        }
+        
+        // 恢复冥想
+        function resumeMeditation() {
+            const timerElement = document.getElementById('meditation-timer');
+            const startButton = document.getElementById('start-meditation-button');
+            
+            if (timerElement) {
+                const timeText = timerElement.textContent;
+                const [minutes, seconds] = timeText.split(':').map(Number);
+                let remainingTime = minutes * 60 + seconds - 1;
+                
+                const newIntervalId = setInterval(() => {
+                    if (remainingTime <= 0) {
+                        clearInterval(newIntervalId);
+                        timerElement.textContent = "完成";
+                        
+                        // 播放结束提示音
+                        const endSound = new Audio('audio/bell.mp3');
+                        endSound.play().catch(e => console.warn("无法播放结束提示音:", e));
+                        
+                        // 恢复播放按钮
+                        resetMeditationButton();
+                        
+                        return;
+                    }
+                    
+                    const newMinutes = Math.floor(remainingTime / 60);
+                    const newSeconds = remainingTime % 60;
+                    timerElement.textContent = `${newMinutes.toString().padStart(2, '0')}:${newSeconds.toString().padStart(2, '0')}`;
+                    
+                    remainingTime--;
+                }, 1000);
+                
+                timerElement.dataset.intervalId = newIntervalId;
+                startButton.innerHTML = '<i class="fas fa-pause"></i>';
+                startButton.onclick = pauseMeditation;
             }
         }
         
         // 停止冥想
         function stopMeditation() {
-            // 停止音频
-            const audioElement = document.getElementById('background-audio');
-            if (audioElement) {
-                audioElement.pause();
-                audioElement.currentTime = 0;
-            }
-            
             // 停止计时器
             const timerElement = document.getElementById('meditation-timer');
             if (timerElement) {
@@ -937,7 +949,7 @@
             }
             
             // 恢复播放按钮
-            resetPlayButton();
+            resetMeditationButton();
             
             // 移除停止按钮
             const stopButton = document.getElementById('stop-button');
@@ -946,11 +958,11 @@
             }
         }
         
-        // 重置播放按钮
-        function resetPlayButton() {
-            const playButton = document.getElementById('play-button');
-            playButton.innerHTML = '<i class="fas fa-play"></i>';
-            playButton.onclick = playMeditation;
+        // 重置冥想按钮
+        function resetMeditationButton() {
+            const startButton = document.getElementById('start-meditation-button');
+            startButton.innerHTML = '<i class="fas fa-play"></i>';
+            startButton.onclick = playMeditation;
         }
         
         // 添加音频预加载功能
