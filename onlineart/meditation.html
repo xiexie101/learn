@@ -376,8 +376,8 @@
             
             <div class="meditation-controls">
                 <button id="play-button" onclick="playBackgroundMusic()"><i class="fas fa-music"></i></button>
-                <!-- <span id="meditation-timer">00:00</span>
-                <button id="start-meditation-button" onclick="playMeditation()"><i class="fas fa-play"></i></button> -->
+                <span id="meditation-timer">00:00</span>
+                <button id="start-meditation-button" onclick="playMeditation()"><i class="fas fa-play"></i></button>
             </div>
             
             <div class="meditation-text" id="meditation-content">
@@ -825,6 +825,14 @@
         // 播放冥想（启动计时器）
         function playMeditation() {
             const duration = document.getElementById('duration').value;
+            const meditationContent = document.getElementById('meditation-content');
+            const paragraphs = meditationContent.querySelectorAll('p');
+            
+            // 检查是否有冥想内容
+            if (paragraphs.length <= 1) {
+                alert('请先生成冥想内容。');
+                return;
+            }
             
             // 显示计时器
             const timerElement = document.getElementById('meditation-timer');
@@ -842,6 +850,9 @@
                 if (remainingTime <= 0) {
                     clearInterval(timerInterval);
                     timerElement.textContent = "完成";
+                    
+                    // 停止语音
+                    window.speechSynthesis.cancel();
                     
                     // 播放结束提示音
                     const endSound = new Audio('audio/bell.mp3');
@@ -878,6 +889,94 @@
                 stopButton.onclick = stopMeditation;
                 document.querySelector('.meditation-controls').appendChild(stopButton);
             }
+            
+            // 开始语音播放
+            speakMeditationText(paragraphs);
+        }
+        
+        // 使用Web Speech API播放冥想文本
+        function speakMeditationText(paragraphs) {
+            // 检查浏览器是否支持语音合成
+            if (!('speechSynthesis' in window)) {
+                alert('您的浏览器不支持语音合成功能。');
+                return;
+            }
+            
+            // 取消任何正在进行的语音
+            window.speechSynthesis.cancel();
+            
+            // 提取冥想文本
+            const textToSpeak = [];
+            paragraphs.forEach(p => {
+                const text = p.textContent.trim();
+                if (text && !text.includes('背景音乐') && !text.includes('冥想时长') && !text.includes('使用了预设模板')) {
+                    textToSpeak.push(text);
+                }
+            });
+            
+            // 如果没有文本，则返回
+            if (textToSpeak.length === 0) {
+                return;
+            }
+            
+            // 创建语音合成实例
+            const synth = window.speechSynthesis;
+            
+            // 获取可用的语音
+            let voices = synth.getVoices();
+            
+            // 如果voices为空，等待voiceschanged事件
+            if (voices.length === 0) {
+                synth.addEventListener('voiceschanged', () => {
+                    voices = synth.getVoices();
+                    startSpeaking();
+                });
+            } else {
+                startSpeaking();
+            }
+            
+            function startSpeaking() {
+                // 选择中文语音
+                let chineseVoice = voices.find(voice => 
+                    voice.lang.includes('zh') || 
+                    voice.lang.includes('cmn') || 
+                    voice.name.includes('Chinese')
+                );
+                
+                // 如果没有找到中文语音，使用默认语音
+                if (!chineseVoice) {
+                    chineseVoice = voices[0];
+                }
+                
+                // 设置语音参数
+                const utterance = new SpeechSynthesisUtterance();
+                utterance.voice = chineseVoice;
+                utterance.rate = 0.9; // 语速稍慢
+                utterance.pitch = 1;
+                utterance.volume = 1;
+                
+                // 设置语音结束后播放下一段的回调
+                let currentIndex = 0;
+                
+                function speakNext() {
+                    if (currentIndex < textToSpeak.length) {
+                        utterance.text = textToSpeak[currentIndex];
+                        
+                        // 在段落之间添加适当的停顿
+                        utterance.onend = () => {
+                            setTimeout(() => {
+                                currentIndex++;
+                                speakNext();
+                            }, 1500); // 1.5秒的停顿
+                        };
+                        
+                        synth.speak(utterance);
+                    }
+                }
+                
+                // 开始播放第一段
+                speakNext();
+            }
         }
         
         // 暂停冥想
@@ -895,6 +994,9 @@
                     timerElement.dataset.intervalId = '';
                     startButton.innerHTML = '<i class="fas fa-play"></i>';
                     startButton.onclick = resumeMeditation;
+                    
+                    // 暂停语音
+                    window.speechSynthesis.pause();
                 }
             }
         }
@@ -913,6 +1015,9 @@
                     if (remainingTime <= 0) {
                         clearInterval(newIntervalId);
                         timerElement.textContent = "完成";
+                        
+                        // 停止语音
+                        window.speechSynthesis.cancel();
                         
                         // 播放结束提示音
                         const endSound = new Audio('audio/bell.mp3');
@@ -934,6 +1039,9 @@
                 timerElement.dataset.intervalId = newIntervalId;
                 startButton.innerHTML = '<i class="fas fa-pause"></i>';
                 startButton.onclick = pauseMeditation;
+                
+                // 恢复语音
+                window.speechSynthesis.resume();
             }
         }
         
@@ -950,6 +1058,9 @@
                 }
                 timerElement.style.display = 'none';
             }
+            
+            // 停止语音
+            window.speechSynthesis.cancel();
             
             // 恢复播放按钮
             resetMeditationButton();
