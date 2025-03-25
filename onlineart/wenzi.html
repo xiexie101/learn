@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>汉语新解 - Say No 清单</title>
+    <style>
+      @font-face {
+            font-family: 'HuiwenMincho';
+            src: url('./font/Huiwenmincho-improved.ttf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        
+
+        body {
+            font-family: 'HuiwenMincho', serif;
+            background-color: #f8f5f2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+        .card-container {
+            width: 400px;
+            height: 600px;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+        .card-container:hover {
+            transform: translateY(-5px);
+        }
+        /* 添加打印样式 */
+        @media print {
+            body {
+                background-color: white;
+            }
+            .card-container {
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="card-container">
+      <svg width="400" height="600" xmlns="http://www.w3.org/2000/svg">
+        <!-- 背景 -->
+        <rect width="400" height="600" fill="#fdfaf5" rx="10" ry="10"/>
+        <rect x="20" y="20" width="360" height="560" fill="none" stroke="#e0ddd5" stroke-width="1" rx="8" ry="8"/>
+        
+        <!-- 标题 -->
+        <text x="200" y="50" font-family="楷体" font-size="24" text-anchor="middle" fill="#333">汉语新解</text>
+        <line x1="50" y1="70" x2="350" y2="70" stroke="#888" stroke-width="1"/>
+        
+        <!-- 词汇 -->
+        <text x="200" y="100" font-family="HuiwenMincho" font-size="18" text-anchor="middle" fill="#444">
+          "每个地球人都需要一份say no的清单"
+        </text>
+        
+        <!-- 简笔画人物 - Ralph Hammer 风格 -->
+        <g transform="translate(100, 140)">
+          <!-- 人物1 - 被任务压垮 -->
+          <circle cx="50" cy="30" r="20" fill="none" stroke="#333" stroke-width="1.5"/>
+          <line x1="50" y1="50" x2="50" y2="100" stroke="#333" stroke-width="1.5"/>
+          <line x1="50" y1="70" x2="20" y2="90" stroke="#333" stroke-width="1.5"/>
+          <line x1="50" y1="70" x2="80" y2="90" stroke="#333" stroke-width="1.5"/>
+          <line x1="50" y1="100" x2="30" y2="130" stroke="#333" stroke-width="1.5"/>
+          <line x1="50" y1="100" x2="70" y2="130" stroke="#333" stroke-width="1.5"/>
+          
+          <!-- 表情 - 疲惫 -->
+          <path d="M45,30 A5,5 0 0,0 55,30" fill="none" stroke="#333" stroke-width="1"/>
+          <circle cx="43" cy="25" r="2" fill="#333"/>
+          <circle cx="57" cy="25" r="2" fill="#333"/>
+          
+          <!-- 堆积如山的任务 -->
+          <rect x="100" y="40" width="20" height="10" fill="none" stroke="#333" stroke-width="1"/>
+          <rect x="95" y="30" width="20" height="10" fill="none" stroke="#333" stroke-width="1"/>
+          <rect x="105" y="20" width="20" height="10" fill="none" stroke="#333" stroke-width="1"/>
+          <rect x="100" y="10" width="20" height="10" fill="none" stroke="#333" stroke-width="1"/>
+          <rect x="90" y="0" width="20" height="10" fill="none" stroke="#333" stroke-width="1"/>
+          
+          <!-- 箭头 -->
+          <line x1="140" y1="70" x2="170" y2="70" stroke="#333" stroke-width="1.5"/>
+          <polygon points="170,70 160,65 160,75" fill="#333"/>
+          
+          <!-- 人物2 - 有清单的人 -->
+          <circle cx="200" cy="30" r="20" fill="none" stroke="#333" stroke-width="1.5"/>
+          <line x1="200" y1="50" x2="200" y2="100" stroke="#333" stroke-width="1.5"/>
+          <line x1="200" y1="70" x2="170" y2="90" stroke="#333" stroke-width="1.5"/>
+          <line x1="200" y1="70" x2="230" y2="90" stroke="#333" stroke-width="1.5"/>
+          <line x1="200" y1="100" x2="180" y2="130" stroke="#333" stroke-width="1.5"/>
+          <line x1="200" y1="100" x2="220" y2="130" stroke="#333" stroke-width="1.5"/>
+          
+          <!-- 表情 - 自信 -->
+          <path d="M190,30 A10,10 0 0,0 210,30" fill="none" stroke="#333" stroke-width="1"/>
+          <circle cx="193" cy="25" r="2" fill="#333"/>
+          <circle cx="207" cy="25" r="2" fill="#333"/>
+          
+          <!-- 清单 -->
+          <rect x="230" y="20" width="30" height="40" fill="none" stroke="#333" stroke-width="1"/>
+          <line x1="235" y1="30" x2="255" y2="30" stroke="#333" stroke-width="1"/>
+          <line x1="235" y1="40" x2="255" y2="40" stroke="#333" stroke-width="1"/>
+          <line x1="235" y1="50" x2="255" y2="50" stroke="#333" stroke-width="1"/>
+          
+          <!-- 打勾标记 -->
+          <path d="M237,28 L242,33 L252,23" stroke="#333" stroke-width="1" fill="none"/>
+        </g>
+        
+        <!-- 解释文本 -->
+        <text x="50" y="310" font-family="HuiwenMincho" font-size="16" fill="#333">
+          <tspan x="50" dy="0">我们不是缺少时间，</tspan>
+          <tspan x="50" dy="25">而是缺少边界。</tspan>
+          <tspan x="50" dy="25"></tspan>
+          <tspan x="50" dy="25">每一个"是"都是一份承诺，</tspan>
+          <tspan x="50" dy="25">每一个"否"都是一道防线。</tspan>
+          <tspan x="50" dy="25"></tspan>
+          <tspan x="50" dy="25">拒绝不是结束对话，</tspan>
+          <tspan x="50" dy="25">而是开始尊重自己。</tspan>
+        </text>
+        
+        <!-- 简约图形元素 -->
+        <line x1="50" y1="450" x2="350" y2="450" stroke="#888" stroke-width="1" stroke-dasharray="1,3"/>
+        <circle cx="50" cy="450" r="3" fill="#333"/>
+        <circle cx="350" cy="450" r="3" fill="#333"/>
+        
+        <!-- 底部总结 -->
+        <rect x="70" y="480" width="260" height="70" fill="#f0ebe0" rx="5" ry="5"/>
+        <text x="200" y="510" font-family="HuiwenMincho" font-size="16" text-anchor="middle" fill="#555">
+          <tspan x="200" dy="0">说"不"不是任性，</tspan>
+          <tspan x="200" dy="25">而是对自己最深情的守护。</tspan>
+        </text>
+        
+        <!-- Ralph Hammer 风格装饰元素 -->
+        <circle cx="30" cy="30" r="10" fill="none" stroke="#888" stroke-width="1"/>
+        <rect x="350" y="550" width="20" height="20" fill="none" stroke="#888" stroke-width="1"/>
+        <line x1="20" y1="570" x2="50" y2="540" stroke="#888" stroke-width="1" stroke-dasharray="2,2"/>
+        
+        <!-- 添加简约几何装饰 -->
+        <circle cx="200" cy="570" r="5" fill="#333"/>
+        <circle cx="220" cy="570" r="3" fill="#555"/>
+        <circle cx="235" cy="570" r="2" fill="#777"/>
+        
+        <!-- 签名 -->
+        <text x="340" y="585" font-family="楷体" font-size="10" text-anchor="end" fill="#999">汉语新解</text>
+      </svg>
+    </div>
+</body>
+</html>
