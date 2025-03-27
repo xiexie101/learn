@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>发现新解 - Say No 清单</title>
+    <title>发现新解 - 心动与自我消耗</title>
     <style>
         @font-face {
             font-family: 'HuiwenMincho';
@@ -71,13 +71,14 @@
         <line x1="50" y1="70" x2="350" y2="70" stroke="#888" stroke-width="1"/>
         
         <!-- 词汇 -->
-        <text x="200" y="100" font-family="HuiwenMincho" font-size="18" text-anchor="middle" fill="#444">
-          "每个地球人都需要一份say no的清单"
+        <text x="200" y="100" font-family="HuiwenMincho" font-size="16" text-anchor="middle" fill="#444">
+          <tspan x="200" dy="0">"多些心动瞬间，少些自我消耗——</tspan>
+          <tspan x="200" dy="25">生活再难，休想折磨我！"</tspan>
         </text>
         
-        <!-- 简笔画人物 - Ralph Hammer 风格 -->
-        <g transform="translate(100, 140)">
-          <!-- 人物1 - 被任务压垮 -->
+        <!-- 简笔画 - Ralph Hammer 风格 -->
+        <g transform="translate(100, 150)">
+          <!-- 左侧：自我消耗的人 -->
           <circle cx="50" cy="30" r="20" fill="none" stroke="#333" stroke-width="1.5"/>
           <line x1="50" y1="50" x2="50" y2="100" stroke="#333" stroke-width="1.5"/>
           <line x1="50" y1="70" x2="20" y2="90" stroke="#333" stroke-width="1.5"/>
@@ -85,55 +86,62 @@
           <line x1="50" y1="100" x2="30" y2="130" stroke="#333" stroke-width="1.5"/>
           <line x1="50" y1="100" x2="70" y2="130" stroke="#333" stroke-width="1.5"/>
           
-          <!-- 表情 - 疲惫 -->
-          <path d="M45,30 A5,5 0 0,0 55,30" fill="none" stroke="#333" stroke-width="1"/>
+          <!-- 疲惫表情 -->
+          <path d="M40,35 A10,10 0 0,0 60,35" fill="none" stroke="#333" stroke-width="1" transform="rotate(180,50,30)"/>
           <circle cx="43" cy="25" r="2" fill="#333"/>
           <circle cx="57" cy="25" r="2" fill="#333"/>
           
-          <!-- 堆积如山的任务 -->
-          <rect x="100" y="40" width="20" height="10" fill="none" stroke="#333" stroke-width="1"/>
-          <rect x="95" y="30" width="20" height="10" fill="none" stroke="#333" stroke-width="1"/>
-          <rect x="105" y="20" width="20" height="10" fill="none" stroke="#333" stroke-width="1"/>
-          <rect x="100" y="10" width="20" height="10" fill="none" stroke="#333" stroke-width="1"/>
-          <rect x="90" y="0" width="20" height="10" fill="none" stroke="#333" stroke-width="1"/>
+          <!-- 思维负担 -->
+          <g transform="translate(30, 0)">
+            <path d="M0,0 C5,-5 15,-5 20,0" fill="none" stroke="#333" stroke-width="1"/>
+            <text x="10" y="-10" font-family="HuiwenMincho" font-size="8" text-anchor="middle" fill="#333">焦虑</text>
+          </g>
+          <g transform="translate(50, -10)">
+            <path d="M0,0 C5,-5 15,-5 20,0" fill="none" stroke="#333" stroke-width="1"/>
+            <text x="10" y="-10" font-family="HuiwenMincho" font-size="8" text-anchor="middle" fill="#333">内耗</text>
+          </g>
           
           <!-- 箭头 -->
-          <line x1="140" y1="70" x2="170" y2="70" stroke="#333" stroke-width="1.5"/>
-          <polygon points="170,70 160,65 160,75" fill="#333"/>
+          <line x1="100" y1="70" x2="130" y2="70" stroke="#333" stroke-width="1.5"/>
+          <polygon points="130,70 120,65 120,75" fill="#333"/>
           
-          <!-- 人物2 - 有清单的人 -->
-          <circle cx="200" cy="30" r="20" fill="none" stroke="#333" stroke-width="1.5"/>
-          <line x1="200" y1="50" x2="200" y2="100" stroke="#333" stroke-width="1.5"/>
-          <line x1="200" y1="70" x2="170" y2="90" stroke="#333" stroke-width="1.5"/>
-          <line x1="200" y1="70" x2="230" y2="90" stroke="#333" stroke-width="1.5"/>
-          <line x1="200" y1="100" x2="180" y2="130" stroke="#333" stroke-width="1.5"/>
-          <line x1="200" y1="100" x2="220" y2="130" stroke="#333" stroke-width="1.5"/>
+          <!-- 右侧：心动瞬间的人 -->
+          <circle cx="180" cy="30" r="20" fill="none" stroke="#333" stroke-width="1.5"/>
+          <line x1="180" y1="50" x2="180" y2="100" stroke="#333" stroke-width="1.5"/>
+          <line x1="180" y1="70" x2="150" y2="90" stroke="#333" stroke-width="1.5"/>
+          <line x1="180" y1="70" x2="210" y2="90" stroke="#333" stroke-width="1.5"/>
+          <line x1="180" y1="100" x2="160" y2="130" stroke="#333" stroke-width="1.5"/>
+          <line x1="180" y1="100" x2="200" y2="130" stroke="#333" stroke-width="1.5"/>
           
-          <!-- 表情 - 自信 -->
-          <path d="M190,30 A10,10 0 0,0 210,30" fill="none" stroke="#333" stroke-width="1"/>
-          <circle cx="193" cy="25" r="2" fill="#333"/>
-          <circle cx="207" cy="25" r="2" fill="#333"/>
+          <!-- 快乐表情 -->
+          <path d="M170,35 A10,10 0 0,1 190,35" fill="none" stroke="#333" stroke-width="1"/>
+          <circle cx="173" cy="25" r="2" fill="#333"/>
+          <circle cx="187" cy="25" r="2" fill="#333"/>
           
-          <!-- 清单 -->
-          <rect x="230" y="20" width="30" height="40" fill="none" stroke="#333" stroke-width="1"/>
-          <line x1="235" y1="30" x2="255" y2="30" stroke="#333" stroke-width="1"/>
-          <line x1="235" y1="40" x2="255" y2="40" stroke="#333" stroke-width="1"/>
-          <line x1="235" y1="50" x2="255" y2="50" stroke="#333" stroke-width="1"/>
+          <!-- 心动元素 -->
+          <path d="M180,15 L185,10 L190,15 L195,10 L200,15 L195,20 L190,25 L185,20 L180,15" fill="none" stroke="#333" stroke-width="1" transform="translate(30, -30)"/>
           
-          <!-- 打勾标记 -->
-          <path d="M237,28 L242,33 L252,23" stroke="#333" stroke-width="1" fill="none"/>
+          <!-- 小花朵 -->
+          <g transform="translate(220, 40)">
+            <circle cx="0" cy="0" r="5" fill="none" stroke="#333" stroke-width="1"/>
+            <circle cx="0" cy="-8" r="3" fill="none" stroke="#333" stroke-width="1"/>
+            <circle cx="8" cy="0" r="3" fill="none" stroke="#333" stroke-width="1"/>
+            <circle cx="0" cy="8" r="3" fill="none" stroke="#333" stroke-width="1"/>
+            <circle cx="-8" cy="0" r="3" fill="none" stroke="#333" stroke-width="1"/>
+            <line x1="0" y1="5" x2="0" y2="15" stroke="#333" stroke-width="1"/>
+          </g>
         </g>
         
         <!-- 解释文本 -->
-        <text x="50" y="310" font-family="HuiwenMincho" font-size="16" fill="#333">
-          <tspan x="50" dy="0">我们不是缺少时间，</tspan>
-          <tspan x="50" dy="25">而是缺少边界。</tspan>
+        <text x="50" y="320" font-family="HuiwenMincho" font-size="16" fill="#333">
+          <tspan x="50" dy="0">我们常常被生活的重负压垮，</tspan>
+          <tspan x="50" dy="25">却忘了自己才是情绪的主人。</tspan>
           <tspan x="50" dy="25"></tspan>
-          <tspan x="50" dy="25">每一个"是"都是一份承诺，</tspan>
-          <tspan x="50" dy="25">每一个"否"都是一道防线。</tspan>
+          <tspan x="50" dy="25">自我消耗是内心的漏洞，</tspan>
+          <tspan x="50" dy="25">心动瞬间是生命的能源。</tspan>
           <tspan x="50" dy="25"></tspan>
-          <tspan x="50" dy="25">拒绝不是结束对话，</tspan>
-          <tspan x="50" dy="25">而是开始尊重自己。</tspan>
+          <tspan x="50" dy="25">拒绝被生活折磨，</tspan>
+          <tspan x="50" dy="25">就是学会在平凡中发现惊喜。</tspan>
         </text>
         
         <!-- 简约图形元素 -->
@@ -144,8 +152,8 @@
         <!-- 底部总结 -->
         <rect x="70" y="480" width="260" height="70" fill="#f0ebe0" rx="5" ry="5"/>
         <text x="200" y="510" font-family="HuiwenMincho" font-size="16" text-anchor="middle" fill="#555">
-          <tspan x="200" dy="0">说"不"不是任性，</tspan>
-          <tspan x="200" dy="25">而是对自己最深情的守护。</tspan>
+          <tspan x="200" dy="0">生活的意义不在于承受多少，</tspan>
+          <tspan x="200" dy="25">而在于享受多少心动时刻。</tspan>
         </text>
         
         <!-- Ralph Hammer 风格装饰元素 -->
@@ -179,7 +187,7 @@
                 ctx.drawImage(img, 0, 0);
                 const pngFile = canvas.toDataURL('image/png');
                 const downloadLink = document.createElement('a');
-                downloadLink.download = 'SayNoList.png';
+                downloadLink.download = 'HeartMoments.png';
                 downloadLink.href = pngFile;
                 downloadLink.click();
             };
