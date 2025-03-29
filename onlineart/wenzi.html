@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>发现新解 - 坚强与问题解决</title>
+    <title>发现新解 - 弯路与成长</title>
     <style>
         @font-face {
             font-family: 'HuiwenMincho';
@@ -24,7 +24,7 @@
         }
         .card-container {
             width: 400px;
-            height: 650px;
+            height: 600px;
             position: relative;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             border-radius: 12px;
@@ -71,65 +71,74 @@
         <line x1="50" y1="70" x2="350" y2="70" stroke="#888" stroke-width="1"/>
         
         <!-- 词汇 -->
-        <text x="200" y="100" font-family="HuiwenMincho" font-size="16" text-anchor="middle" fill="#444">
-          <tspan x="200" dy="0">"只要足够坚强，就有办法解决问题</tspan>
-          <tspan x="200" dy="25">没得事（川语），除了生死都是小事"</tspan>
+        <text x="200" y="100" font-family="HuiwenMincho" font-size="18" text-anchor="middle" fill="#444">
+          <tspan x="200" dy="0">"弯路走多了，</tspan>
+          <tspan x="200" dy="25">便都是我能走的路了"</tspan>
         </text>
         
         <!-- 简笔画 - Ralph Hammer 风格 -->
-        <g transform="translate(100, 150)">
-          <!-- 左侧：坚强的人 -->
-          <circle cx="50" cy="30" r="20" fill="none" stroke="#333" stroke-width="1.5"/>
-          <line x1="50" y1="50" x2="50" y2="100" stroke="#333" stroke-width="1.5"/>
-          <line x1="50" y1="70" x2="20" y2="90" stroke="#333" stroke-width="1.5"/>
-          <line x1="50" y1="70" x2="80" y2="90" stroke="#333" stroke-width="1.5"/>
-          <line x1="50" y1="100" x2="30" y2="130" stroke="#333" stroke-width="1.5"/>
-          <line x1="50" y1="100" x2="70" y2="130" stroke="#333" stroke-width="1.5"/>
+        <g transform="translate(50, 150)">
+          <!-- 人生路径图 -->
+          <!-- 起点 -->
+          <circle cx="30" cy="30" r="10" fill="none" stroke="#333" stroke-width="1.5"/>
+          <text x="30" y="20" font-family="HuiwenMincho" font-size="10" text-anchor="middle" fill="#333">起点</text>
           
-          <!-- 表情 - 坚定 -->
-          <circle cx="43" cy="25" r="2" fill="#333"/>
-          <circle cx="57" cy="25" r="2" fill="#333"/>
-          <line x1="45" y1="35" x2="55" y2="35" stroke="#333" stroke-width="1.5"/>
+          <!-- 理想直线路径（虚线） -->
+          <line x1="40" y1="30" x2="280" y2="30" stroke="#aaa" stroke-width="1.5" stroke-dasharray="5,5"/>
+          <circle cx="280" cy="30" r="10" fill="none" stroke="#aaa" stroke-width="1"/>
+          <text x="280" y="20" font-family="HuiwenMincho" font-size="10" text-anchor="middle" fill="#aaa">目标</text>
           
-          <!-- 心态之盾 -->
-          <path d="M20,70 A30,30 0 0,0 80,70" fill="none" stroke="#333" stroke-width="1" stroke-dasharray="2,2"/>
-          <text x="50" y="60" font-family="HuiwenMincho" font-size="8" text-anchor="middle" fill="#333">心态之盾</text>
+          <!-- 实际弯路 -->
+          <path d="M40,30 C70,80 100,0 130,50 S180,90 210,40 S260,70 280,30" fill="none" stroke="#333" stroke-width="2"/>
           
-          <!-- 右侧：问题与解决方案 -->
-          <g transform="translate(120, 20)">
-            <!-- 问题山 -->
-            <path d="M0,80 L30,20 L60,50 L90,0 L120,80" fill="none" stroke="#333" stroke-width="1.5"/>
+          <!-- 弯路上的经验点 -->
+          <circle cx="70" cy="60" r="5" fill="white" stroke="#333" stroke-width="1"/>
+          <text x="70" cy="75" font-family="HuiwenMincho" font-size="8" text-anchor="middle" fill="#333">挫折</text>
+          
+          <circle cx="130" cy="50" r="5" fill="white" stroke="#333" stroke-width="1"/>
+          <text x="130" cy="65" font-family="HuiwenMincho" font-size="8" text-anchor="middle" fill="#333">尝试</text>
+          
+          <circle cx="180" cy="70" r="5" fill="white" stroke="#333" stroke-width="1"/>
+          <text x="180" cy="85" font-family="HuiwenMincho" font-size="8" text-anchor="middle" fill="#333">领悟</text>
+          
+          <circle cx="230" cy="50" r="5" fill="white" stroke="#333" stroke-width="1"/>
+          <text x="230" cy="65" font-family="HuiwenMincho" font-size="8" text-anchor="middle" fill="#333">成长</text>
+          
+          <!-- 人物 -->
+          <g transform="translate(280, 30)">
+            <circle cx="0" cy="-10" r="8" fill="none" stroke="#333" stroke-width="1.5"/>
+            <line x1="0" y1="-2" x2="0" y2="15" stroke="#333" stroke-width="1.5"/>
+            <line x1="0" y1="5" x2="-10" y2="10" stroke="#333" stroke-width="1.5"/>
+            <line x1="0" y1="5" x2="10" y2="10" stroke="#333" stroke-width="1.5"/>
+            <line x1="0" y1="15" x2="-7" y2="25" stroke="#333" stroke-width="1.5"/>
+            <line x1="0" y1="15" x2="7" y2="25" stroke="#333" stroke-width="1.5"/>
             
-            <!-- 问题标签 -->
-            <text x="20" y="40" font-family="HuiwenMincho" font-size="8" text-anchor="middle" fill="#333">工作</text>
-            <text x="50" y="60" font-family="HuiwenMincho" font-size="8" text-anchor="middle" fill="#333">家庭</text>
-            <text x="80" y="30" font-family="HuiwenMincho" font-size="8" text-anchor="middle" fill="#333">健康</text>
-            <text x="100" y="50" font-family="HuiwenMincho" font-size="8" text-anchor="middle" fill="#333">金钱</text>
-            
-            <!-- 解决方案路径 -->
-            <path d="M-70,70 Q0,90 60,30" fill="none" stroke="#333" stroke-width="1" stroke-dasharray="3,3"/>
-            <polygon points="60,30 55,35 50,25" fill="#333"/>
-            
-            <!-- 阶梯 -->
-            <line x1="30" y1="60" x2="50" y2="60" stroke="#333" stroke-width="1"/>
-            <line x1="50" y1="60" x2="50" y2="50" stroke="#333" stroke-width="1"/>
-            <line x1="50" y1="50" x2="70" y2="50" stroke="#333" stroke-width="1"/>
-            <line x1="70" y1="50" x2="70" y2="40" stroke="#333" stroke-width="1"/>
-            <line x1="70" y1="40" x2="90" y2="40" stroke="#333" stroke-width="1"/>
-            <line x1="90" y1="40" x2="90" y2="30" stroke="#333" stroke-width="1"/>
+            <!-- 表情 - 自信 -->
+            <circle cx="-3" cy="-12" r="1" fill="#333"/>
+            <circle cx="3" cy="-12" r="1" fill="#333"/>
+            <path d="M-3,-8 A3,3 0 0,0 3,-8" fill="none" stroke="#333" stroke-width="1"/>
           </g>
+          
+          <!-- 新的可能路径（从经验点延伸） -->
+          <path d="M70,60 Q90,100 120,110" fill="none" stroke="#333" stroke-width="1" stroke-dasharray="3,3"/>
+          <path d="M180,70 Q200,100 230,110" fill="none" stroke="#333" stroke-width="1" stroke-dasharray="3,3"/>
+          
+          <!-- 能力范围示意 -->
+          <path d="M30,30 Q150,150 280,30" fill="none" stroke="#333" stroke-width="1" stroke-dasharray="1,1"/>
+          <text x="150" y="120" font-family="HuiwenMincho" font-size="10" text-anchor="middle" fill="#333">能力范围</text>
         </g>
         
-        <!-- 解释文本 - 深入浅出风格 -->
+        <!-- 解释文本 -->
         <text x="50" y="320" font-family="HuiwenMincho" font-size="16" fill="#333">
-          <tspan x="50" dy="0">这句川语蕴含着东方智慧的精髓：</tspan>
-          <tspan x="50" dy="25">心态决定一切。</tspan>
+          <tspan x="50" dy="0">人生没有白走的路。</tspan>
+          <tspan x="50" dy="25">每一段弯路都是一次能力的扩展，</tspan>
+          <tspan x="50" dy="25">每一次迷失都是一次边界的拓宽。</tspan>
           <tspan x="50" dy="25"></tspan>
-          <tspan x="50" dy="25">坚强不是不感到痛苦，</tspan>
-          <tspan x="50" dy="25">而是在痛苦中保持前行的能力。</tspan>
+          <tspan x="50" dy="25">弯路不是偏离目标，</tspan>
+          <tspan x="50" dy="25">而是扩大了我们的可能性版图。</tspan>
           <tspan x="50" dy="25"></tspan>
-          <tspan x="50" dy="25">"没得事"是一种心理弹性，</tspan>
-          <tspan x="50" dy="25">让我们在困境中看到可能性。</tspan>
+          <tspan x="50" dy="25">走得越多，能走的地方就越多；</tspan>
+          <tspan x="50" dy="25">尝试越多，可选择的道路就越多。</tspan>
         </text>
         
         <!-- 简约图形元素 -->
@@ -140,8 +149,8 @@
         <!-- 底部总结 -->
         <rect x="70" y="480" width="260" height="70" fill="#f0ebe0" rx="5" ry="5"/>
         <text x="200" y="510" font-family="HuiwenMincho" font-size="16" text-anchor="middle" fill="#555">
-          <tspan x="200" dy="0">坚强是一种选择，</tspan>
-          <tspan x="200" dy="25">也是面对生活最有力的工具。</tspan>
+          <tspan x="200" dy="0">弯路不是浪费，</tspan>
+          <tspan x="200" dy="25">而是对生命半径的扩展。</tspan>
         </text>
         
         <!-- Ralph Hammer 风格装饰元素 -->
@@ -157,7 +166,7 @@
         <!-- 签名 -->
         <text x="340" y="585" font-family="楷体" font-size="10" text-anchor="end" fill="#999">发现新解</text>
       </svg>
-      <button class="download-btn" onclick="downloadImage()">下载图片</button>
+      <!-- <button class="download-btn" onclick="downloadImage()">下载图片</button> -->
     </div>
 
     <script>
@@ -175,7 +184,7 @@
                 ctx.drawImage(img, 0, 0);
                 const pngFile = canvas.toDataURL('image/png');
                 const downloadLink = document.createElement('a');
-                downloadLink.download = 'StayStrong_Wisdom.png';
+                downloadLink.download = 'WindingRoad_Wisdom.png';
                 downloadLink.href = pngFile;
                 downloadLink.click();
             };
