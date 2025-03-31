@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>发现新解 - 弯路与成长</title>
+    <title>发现新解 - 时间的矛盾</title>
     <style>
         @font-face {
             font-family: 'HuiwenMincho';
@@ -43,20 +43,6 @@
                 box-shadow: none;
             }
         }
-        .download-btn {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 10px 20px;
-            background-color: #333;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-family: 'HuiwenMincho', serif;
-            font-size: 16px;
-        }
     </style>
 </head>
 <body>
@@ -72,40 +58,23 @@
         
         <!-- 词汇 -->
         <text x="200" y="100" font-family="HuiwenMincho" font-size="18" text-anchor="middle" fill="#444">
-          <tspan x="200" dy="0">"弯路走多了，</tspan>
-          <tspan x="200" dy="25">便都是我能走的路了"</tspan>
+          <tspan x="200" dy="0">"时间是最好的老师，</tspan>
+          <tspan x="200" dy="25">时间也杀死了它的学生"</tspan>
         </text>
         
         <!-- 简笔画 - Ralph Hammer 风格 -->
         <g transform="translate(50, 150)">
-          <!-- 人生路径图 -->
-          <!-- 起点 -->
-          <circle cx="30" cy="30" r="10" fill="none" stroke="#333" stroke-width="1.5"/>
-          <text x="30" y="20" font-family="HuiwenMincho" font-size="10" text-anchor="middle" fill="#333">起点</text>
+          <!-- 时间之河 -->
+          <path d="M30,50 C80,30 150,70 200,50 S270,30 300,50" fill="none" stroke="#333" stroke-width="2"/>
           
-          <!-- 理想直线路径（虚线） -->
-          <line x1="40" y1="30" x2="280" y2="30" stroke="#aaa" stroke-width="1.5" stroke-dasharray="5,5"/>
-          <circle cx="280" cy="30" r="10" fill="none" stroke="#aaa" stroke-width="1"/>
-          <text x="280" y="20" font-family="HuiwenMincho" font-size="10" text-anchor="middle" fill="#aaa">目标</text>
+          <!-- 时钟符号 -->
+          <circle cx="30" cy="20" r="15" fill="none" stroke="#333" stroke-width="1.5"/>
+          <line x1="30" y1="20" x2="30" y2="10" stroke="#333" stroke-width="1.5"/>
+          <line x1="30" y1="20" x2="38" y2="20" stroke="#333" stroke-width="1.5"/>
           
-          <!-- 实际弯路 -->
-          <path d="M40,30 C70,80 100,0 130,50 S180,90 210,40 S260,70 280,30" fill="none" stroke="#333" stroke-width="2"/>
-          
-          <!-- 弯路上的经验点 -->
-          <circle cx="70" cy="60" r="5" fill="white" stroke="#333" stroke-width="1"/>
-          <text x="70" cy="75" font-family="HuiwenMincho" font-size="8" text-anchor="middle" fill="#333">挫折</text>
-          
-          <circle cx="130" cy="50" r="5" fill="white" stroke="#333" stroke-width="1"/>
-          <text x="130" cy="65" font-family="HuiwenMincho" font-size="8" text-anchor="middle" fill="#333">尝试</text>
-          
-          <circle cx="180" cy="70" r="5" fill="white" stroke="#333" stroke-width="1"/>
-          <text x="180" cy="85" font-family="HuiwenMincho" font-size="8" text-anchor="middle" fill="#333">领悟</text>
-          
-          <circle cx="230" cy="50" r="5" fill="white" stroke="#333" stroke-width="1"/>
-          <text x="230" cy="65" font-family="HuiwenMincho" font-size="8" text-anchor="middle" fill="#333">成长</text>
-          
-          <!-- 人物 -->
-          <g transform="translate(280, 30)">
+          <!-- 人生阶段 -->
+          <!-- 年轻学生 -->
+          <g transform="translate(80, 40)">
             <circle cx="0" cy="-10" r="8" fill="none" stroke="#333" stroke-width="1.5"/>
             <line x1="0" y1="-2" x2="0" y2="15" stroke="#333" stroke-width="1.5"/>
             <line x1="0" y1="5" x2="-10" y2="10" stroke="#333" stroke-width="1.5"/>
@@ -113,32 +82,77 @@
             <line x1="0" y1="15" x2="-7" y2="25" stroke="#333" stroke-width="1.5"/>
             <line x1="0" y1="15" x2="7" y2="25" stroke="#333" stroke-width="1.5"/>
             
-            <!-- 表情 - 自信 -->
+            <!-- 表情 - 好奇 -->
             <circle cx="-3" cy="-12" r="1" fill="#333"/>
             <circle cx="3" cy="-12" r="1" fill="#333"/>
-            <path d="M-3,-8 A3,3 0 0,0 3,-8" fill="none" stroke="#333" stroke-width="1"/>
+            <path d="M-2,-8 A2,2 0 0,0 2,-8" fill="none" stroke="#333" stroke-width="1"/>
+            
+            <!-- 学习气泡 -->
+            <path d="M10,-15 L20,-20 L25,-15" fill="none" stroke="#333" stroke-width="1"/>
+            <text x="15" y="-25" font-family="HuiwenMincho" font-size="8" text-anchor="middle" fill="#333">学习</text>
           </g>
           
-          <!-- 新的可能路径（从经验点延伸） -->
-          <path d="M70,60 Q90,100 120,110" fill="none" stroke="#333" stroke-width="1" stroke-dasharray="3,3"/>
-          <path d="M180,70 Q200,100 230,110" fill="none" stroke="#333" stroke-width="1" stroke-dasharray="3,3"/>
+          <!-- 中年智者 -->
+          <g transform="translate(160, 60)">
+            <circle cx="0" cy="-10" r="8" fill="none" stroke="#333" stroke-width="1.5"/>
+            <line x1="0" y1="-2" x2="0" y2="15" stroke="#333" stroke-width="1.5"/>
+            <line x1="0" y1="5" x2="-10" y2="10" stroke="#333" stroke-width="1.5"/>
+            <line x1="0" y1="5" x2="10" y2="10" stroke="#333" stroke-width="1.5"/>
+            <line x1="0" y1="15" x2="-7" y2="25" stroke="#333" stroke-width="1.5"/>
+            <line x1="0" y1="15" x2="7" y2="25" stroke="#333" stroke-width="1.5"/>
+            
+            <!-- 表情 - 智慧 -->
+            <circle cx="-3" cy="-12" r="1" fill="#333"/>
+            <circle cx="3" cy="-12" r="1" fill="#333"/>
+            <line x1="-3" y1="-8" x2="3" y2="-8" stroke="#333" stroke-width="1"/>
+            
+            <!-- 智慧光环 -->
+            <circle cx="0" cy="-15" r="12" fill="none" stroke="#333" stroke-width="1" stroke-dasharray="2,2"/>
+            <text x="0" y="-25" font-family="HuiwenMincho" font-size="8" text-anchor="middle" fill="#333">智慧</text>
+          </g>
           
-          <!-- 能力范围示意 -->
-          <path d="M30,30 Q150,150 280,30" fill="none" stroke="#333" stroke-width="1" stroke-dasharray="1,1"/>
-          <text x="150" y="120" font-family="HuiwenMincho" font-size="10" text-anchor="middle" fill="#333">能力范围</text>
+          <!-- 老年/消逝 -->
+          <g transform="translate(240, 40)">
+            <circle cx="0" cy="-10" r="8" fill="none" stroke="#333" stroke-width="1" stroke-dasharray="2,2"/>
+            <line x1="0" y1="-2" x2="0" y2="15" stroke="#333" stroke-width="1" stroke-dasharray="2,2"/>
+            <line x1="0" y1="5" x2="-10" y2="10" stroke="#333" stroke-width="1" stroke-dasharray="2,2"/>
+            <line x1="0" y1="5" x2="10" y2="10" stroke="#333" stroke-width="1" stroke-dasharray="2,2"/>
+            <line x1="0" y1="15" x2="-7" y2="25" stroke="#333" stroke-width="1" stroke-dasharray="2,2"/>
+            <line x1="0" y1="15" x2="7" y2="25" stroke="#333" stroke-width="1" stroke-dasharray="2,2"/>
+            
+            <!-- 消逝符号 -->
+            <path d="M-10,-20 L10,0 M-10,0 L10,-20" stroke="#333" stroke-width="1"/>
+            <text x="0" y="-25" font-family="HuiwenMincho" font-size="8" text-anchor="middle" fill="#333">消逝</text>
+          </g>
+          
+          <!-- 知识传递 -->
+          <path d="M90,30 Q125,10 150,50" fill="none" stroke="#333" stroke-width="1" stroke-dasharray="3,3"/>
+          <polygon points="150,50 145,45 155,45" fill="#333"/>
+          
+          <!-- 时间流逝 -->
+          <path d="M170,50 Q205,30 230,40" fill="none" stroke="#333" stroke-width="1" stroke-dasharray="3,3"/>
+          <polygon points="230,40 225,35 235,35" fill="#333"/>
+          
+          <!-- 沙漏 -->
+          <g transform="translate(300, 20)">
+            <path d="M-10,0 L10,0 L5,15 L-5,15 Z" fill="none" stroke="#333" stroke-width="1"/>
+            <path d="M-5,15 L5,15 L10,30 L-10,30 Z" fill="none" stroke="#333" stroke-width="1"/>
+            <line x1="0" y1="0" x2="0" y2="30" stroke="#333" stroke-width="1" stroke-dasharray="1,1"/>
+            <text x="0" y="-5" font-family="HuiwenMincho" font-size="8" text-anchor="middle" fill="#333">时间</text>
+          </g>
         </g>
         
         <!-- 解释文本 -->
         <text x="50" y="320" font-family="HuiwenMincho" font-size="16" fill="#333">
-          <tspan x="50" dy="0">人生没有白走的路。</tspan>
-          <tspan x="50" dy="25">每一段弯路都是一次能力的扩展，</tspan>
-          <tspan x="50" dy="25">每一次迷失都是一次边界的拓宽。</tspan>
+          <tspan x="50" dy="0">时间是一位矛盾的老师。</tspan>
+          <tspan x="50" dy="25">它慷慨地给予我们经验和智慧，</tspan>
+          <tspan x="50" dy="25">却又无情地带走我们的生命。</tspan>
           <tspan x="50" dy="25"></tspan>
-          <tspan x="50" dy="25">弯路不是偏离目标，</tspan>
-          <tspan x="50" dy="25">而是扩大了我们的可能性版图。</tspan>
+          <tspan x="50" dy="25">我们在时间中学会生活，</tspan>
+          <tspan x="50" dy="25">却无法逃脱时间的终结。</tspan>
           <tspan x="50" dy="25"></tspan>
-          <tspan x="50" dy="25">走得越多，能走的地方就越多；</tspan>
-          <tspan x="50" dy="25">尝试越多，可选择的道路就越多。</tspan>
+          <tspan x="50" dy="25">这是生命最大的悖论：</tspan>
+          <tspan x="50" dy="25">越是理解生活，越接近离别。</tspan>
         </text>
         
         <!-- 简约图形元素 -->
@@ -149,8 +163,8 @@
         <!-- 底部总结 -->
         <rect x="70" y="480" width="260" height="70" fill="#f0ebe0" rx="5" ry="5"/>
         <text x="200" y="510" font-family="HuiwenMincho" font-size="16" text-anchor="middle" fill="#555">
-          <tspan x="200" dy="0">弯路不是浪费，</tspan>
-          <tspan x="200" dy="25">而是对生命半径的扩展。</tspan>
+          <tspan x="200" dy="0">时间教会我们如何活着，</tspan>
+          <tspan x="200" dy="25">却不允许我们永远活着。</tspan>
         </text>
         
         <!-- Ralph Hammer 风格装饰元素 -->
@@ -166,7 +180,6 @@
         <!-- 签名 -->
         <text x="340" y="585" font-family="楷体" font-size="10" text-anchor="end" fill="#999">发现新解</text>
       </svg>
-      <!-- <button class="download-btn" onclick="downloadImage()">下载图片</button> -->
     </div>
 
     <script>
@@ -184,7 +197,7 @@
                 ctx.drawImage(img, 0, 0);
                 const pngFile = canvas.toDataURL('image/png');
                 const downloadLink = document.createElement('a');
-                downloadLink.download = 'WindingRoad_Wisdom.png';
+                downloadLink.download = 'TimeTeacher.png';
                 downloadLink.href = pngFile;
                 downloadLink.click();
             };
