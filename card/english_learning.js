@@ -13,18 +13,21 @@ let touchStartX = 0; // 触摸开始的X坐标
 // 从localStorage加载学习状态
 function loadLearningState() {
     try {
+        // 初始化清零
+        learnedWordsCount = 0;
+        
         const savedState = localStorage.getItem('englishLearningState');
         if (savedState) {
             const state = JSON.parse(savedState);
-            learnedWordsCount = state.learnedWords || 0;
             listenCount = state.listenCount || 0;
             
             // 恢复学习状态
-            if (state.learnedWordsIds) {
+            if (state.learnedWordsIds && state.learnedWordsIds.length > 0) {
                 state.learnedWordsIds.forEach(id => {
                     const card = wordCards[id];
                     if (card) {
                         card.classList.add('learned');
+                        learnedWordsCount++; // 每标记一个单词为已学习，计数+1
                     }
                 });
             }
@@ -60,7 +63,7 @@ function updateStats() {
     document.getElementById('listenCount').textContent = listenCount;
     
     // 检查是否学习完所有单词
-    if (learnedWordsCount === words.length) {
+    if (words.length > 0 && learnedWordsCount === words.length && learnedWordsCount > 0) {
         showCelebration();
     }
 }
@@ -79,9 +82,9 @@ function showCelebration() {
 // 确保这个脚本在DOM完全加载后运行
 document.addEventListener('DOMContentLoaded', function() {
     // 使用来自word_data.js的单词数据，该文件中定义了allWords变量
-    const words = allWords;
+    words = allWords; // 赋值给全局变量words，而不是创建局部变量
     
-    // 全局变量
+    // 局部变量
     let currentWordIndex = 0; // 当前显示的单词索引
     let learningState = {}; // 学习状态
     let cardFlipped = false; // 卡片是否已翻转
@@ -91,18 +94,18 @@ document.addEventListener('DOMContentLoaded', function() {
     let wordsByCategory = {}; // 按类别分组的单词
     let selectedCategory = null; // 当前选择的类别
 
-    // 加载保存的学习状态
-    loadLearningState();
-
     const wordContainer = document.getElementById('wordContainer');
     const loadingContainer = document.getElementById('loadingContainer');
-    
+
     // 生成单词卡片
     words.forEach((word, index) => {
         const card = createWordCard(word, index);
         wordContainer.appendChild(card);
         wordCards[index] = card;  // 存储卡片引用
     });
+    
+    // 加载保存的学习状态
+    loadLearningState();
 
     // 隐藏没有图片的分类按钮
     hideEmptyCategoryButtons();
