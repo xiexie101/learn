@@ -7,23 +7,24 @@
     <style>
         body {
             font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
-            background-color: #f0f8ff;
+            background-color: #f8f9fa;
             margin: 0;
             padding: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            color: #333;
         }
         
         .header {
-            background-color: #ff9900;
+            background: linear-gradient(135deg, #ff9900, #ff7730);
             color: white;
-            padding: 12px 15px;
+            padding: 15px 20px;
             border-radius: 15px;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             text-align: center;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(255, 153, 0, 0.2);
             width: 95%;
             max-width: 800px;
         }
@@ -31,6 +32,7 @@
         .header h1 {
             margin: 0;
             font-size: 1.8em;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         }
         
         .category-menu {
@@ -38,29 +40,38 @@
             justify-content: center;
             margin-bottom: 15px;
             flex-wrap: wrap;
-            gap: 6px;
+            gap: 8px;
             width: 95%;
             max-width: 900px;
+            padding: 10px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
         }
         
         .category-btn {
             background-color: white;
             border: 2px solid #ff9900;
-            border-radius: 15px;
-            padding: 5px 10px;
+            border-radius: 20px;
+            padding: 6px 14px;
             font-size: 0.85em;
             cursor: pointer;
             transition: all 0.3s;
-            margin-bottom: 4px;
+            margin: 4px;
+            color: #ff9900;
+            font-weight: 600;
         }
         
         .category-btn:hover {
             background-color: #fff3e0;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         
         .category-btn.active {
-            background-color: #ff9900;
+            background: linear-gradient(135deg, #ff9900, #ff7730);
             color: white;
+            border-color: transparent;
         }
         
         .stats-container {
@@ -75,11 +86,15 @@
         
         .stat-card {
             background-color: white;
-            border-radius: 10px;
-            padding: 10px;
+            border-radius: 12px;
+            padding: 12px;
             min-width: 80px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
             text-align: center;
+            flex: 1;
+            min-width: 80px;
+            max-width: 150px;
+            border-top: 3px solid #ff9900;
         }
         
         .stat-value {
@@ -90,40 +105,42 @@
         }
         
         .stat-label {
-            color: #666;
-            font-size: 0.8em;
+            color: #777;
+            font-size: 0.85em;
         }
         
         .word-container {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 15px;
+            gap: 16px;
             width: 95%;
             max-width: 900px;
+            padding: 10px;
         }
         
         .word-card {
             background-color: white;
-            border-radius: 12px;
+            border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
             transition: transform 0.3s, box-shadow 0.3s;
             cursor: pointer;
             display: flex;
             flex-direction: column;
             align-items: center;
             position: relative;
+            height: 100%;
         }
         
         .word-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
         }
         
         .word-card.keyboard-focus {
             outline: 2px solid #ff9900;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
         }
         
         .word-card.speaking {
@@ -148,23 +165,36 @@
             position: absolute;
             top: 8px;
             left: 8px;
-            background-color: #4CAF50;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
             color: white;
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
             font-size: 0.8em;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+        
+        .word-image-container {
+            width: 100%;
+            height: 0;
+            padding-bottom: 75%; /* 4:3 aspect ratio */
+            position: relative;
+            overflow: hidden;
         }
         
         .word-image {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            height: 160px;
+            height: 100%;
             object-fit: cover;
-            transition: transform 0.3s;
+            transition: transform 0.4s;
         }
         
         .word-card:hover .word-image,
@@ -173,42 +203,48 @@
         }
         
         .word-info {
-            padding: 12px;
+            padding: 15px;
             text-align: center;
             width: 100%;
+            background-color: white;
+            position: relative;
+            z-index: 2;
         }
         
         .english-word {
             font-size: 1.5em;
             color: #333;
-            margin: 3px 0;
+            margin: 4px 0;
         }
         
         .chinese-word {
             font-size: 1.2em;
             color: #666;
-            margin: 3px 0;
+            margin: 4px 0;
         }
         
         .sound-icon {
             position: absolute;
             top: 8px;
             right: 8px;
-            background-color: rgba(255, 255, 255, 0.7);
+            background-color: rgba(255, 255, 255, 0.8);
             border-radius: 50%;
-            padding: 4px;
-            width: 20px;
-            height: 20px;
+            padding: 8px;
+            width: 32px;
+            height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
             opacity: 0;
-            transition: opacity 0.3s;
+            transition: opacity 0.3s, transform 0.3s;
+            z-index: 5;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         
         .word-card:hover .sound-icon,
         .word-card.keyboard-focus .sound-icon {
             opacity: 1;
+            transform: scale(1.1);
         }
         
         .loading-container {
@@ -221,7 +257,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(255, 255, 255, 0.9);
+            background-color: rgba(255, 255, 255, 0.95);
             z-index: 1000;
             transition: opacity 0.5s;
         }
@@ -229,11 +265,11 @@
         .loading-spinner {
             width: 50px;
             height: 50px;
-            border: 6px solid #f3f3f3;
-            border-top: 6px solid #ff9900;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #ff9900;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
         
         @keyframes spin {
@@ -244,6 +280,7 @@
         .loading-text {
             font-size: 1.2em;
             color: #333;
+            margin-top: 15px;
         }
         
         .hidden {
@@ -256,30 +293,33 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            padding: 25px;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
             z-index: 1100;
             display: none;
-            width: 85%;
+            width: 90%;
             max-width: 320px;
         }
         
         .celebration h2 {
             color: #ff9900;
             margin-top: 0;
-            font-size: 1.5em;
+            font-size: 1.8em;
         }
         
         footer {
             margin-top: 30px;
             text-align: center;
-            color: #666;
+            color: #777;
             width: 100%;
             font-size: 0.8em;
-            padding: 10px 0;
+            padding: 15px 0;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
         }
         
         /* 响应式设计优化 */
@@ -303,12 +343,12 @@
         
         @media (min-width: 769px) {
             .header {
-                padding: 15px 30px;
+                padding: 20px 30px;
             }
             
             .word-container {
                 grid-template-columns: repeat(3, 1fr);
-                gap: 25px;
+                gap: 20px;
             }
             
             .header h1 {
@@ -316,12 +356,8 @@
             }
             
             .category-btn {
-                padding: 6px 12px;
+                padding: 8px 16px;
                 font-size: 0.9em;
-            }
-            
-            .word-image {
-                height: 180px;
             }
             
             .english-word {
@@ -337,7 +373,7 @@
 <body>
     <div class="loading-container" id="loadingContainer">
         <div class="loading-spinner"></div>
-        <div class="loading-text">加载中...</div>
+        <div class="loading-text">正在加载精彩内容...</div>
     </div>
     
     <div class="header">
@@ -386,11 +422,11 @@
     <div class="celebration" id="celebration">
         <h2>太棒了!</h2>
         <p>你已经完成了所有的单词学习，继续保持！</p>
-        <button id="celebrationCloseBtn" style="background-color: #ff9900; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 1em;">继续学习</button>
+        <button id="celebrationCloseBtn" style="background: linear-gradient(135deg, #ff9900, #ff7730); color: white; border: none; padding: 10px 20px; border-radius: 50px; cursor: pointer; font-size: 1em; box-shadow: 0 3px 6px rgba(0,0,0,0.1); margin-top: 10px;">继续学习</button>
     </div>
     
     <footer>
-        <p>© 2025 小朋友学英语 - 点击图片听发音</p>
+        <p>© 2025 小朋友学英语 - 点击卡片听发音</p>
     </footer>
 
     <script src="word_data.js"></script>

@@ -41,12 +41,12 @@ const allWords = [
     },
     
     // 身体部位 (Body Parts)
-    {
-        english: 'Eye',
-        chinese: '眼睛',
-        image: 'https://images.unsplash.com/photo-1496737018672-b1a6be2e949c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
-        category: 'bodyparts'
-    },
+    // {
+    //     english: 'Eye',
+    //     chinese: '眼睛',
+    //     image: 'https://images.unsplash.com/photo-1496737018672-b1a6be2e949c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+    //     category: 'bodyparts'
+    // },
     
     // 食物与饮料 (Food & Drink)
     {
@@ -63,28 +63,87 @@ const allWords = [
     },
     
     // 颜色 (Colors)
+    {
+        english: 'Red',
+        chinese: '红色',
+        image: 'https://cdn.jsdelivr.net/gh/xiexie101/xiexieBot@release-v1.0.0/images/红.jpg',
+        category: 'colors'
+    },
+    {
+        english: 'Blue',
+        chinese: '蓝色',
+        image: 'https://cdn.jsdelivr.net/gh/xiexie101/xiexieBot@release-v1.0.0/images/蓝.jpg',
+        category: 'colors'
+    },
+    {
+        english: 'Yellow',
+        chinese: '黄色',
+        image: 'https://cdn.jsdelivr.net/gh/xiexie101/xiexieBot@release-v1.0.0/images/黄.jpg',
+        category: 'colors'
+    },
+    {
+        english: 'Green',
+        chinese: '绿色',
+        image: 'https://cdn.jsdelivr.net/gh/xiexie101/xiexieBot@release-v1.0.0/images/绿.jpg',
+        category: 'colors'
+    },
+    {
+        english: 'Orange',
+        chinese: '橙色',
+        image: 'https://cdn.jsdelivr.net/gh/xiexie101/xiexieBot@release-v1.0.0/images/橙.jpg',
+        category: 'colors'
+    },
+    {
+        english: 'Purple',
+        chinese: '紫色',
+        image: 'https://cdn.jsdelivr.net/gh/xiexie101/xiexieBot@release-v1.0.0/images/紫.jpg',
+        category: 'colors'
+    },
+    {
+        english: 'Pink',
+        chinese: '粉色',
+        image: 'https://cdn.jsdelivr.net/gh/xiexie101/xiexieBot@release-v1.0.0/images/粉.jpg',
+        category: 'colors'
+    },
+    {
+        english: 'Brown',
+        chinese: '棕色',
+        image: 'https://cdn.jsdelivr.net/gh/xiexie101/xiexieBot@release-v1.0.0/images/棕.jpg',
+        category: 'colors'
+    },
+    {
+        english: 'Black',
+        chinese: '黑色',
+        image: 'https://cdn.jsdelivr.net/gh/xiexie101/xiexieBot@release-v1.0.0/images/黑.jpg',
+        category: 'colors'
+    },
+    {
+        english: 'White',
+        chinese: '白色',
+        image: 'https://cdn.jsdelivr.net/gh/xiexie101/xiexieBot@release-v1.0.0/images/白.jpg',
+        category: 'colors'
+    },
+    {
+        english: 'Gray',
+        chinese: '灰色',
+        image: 'https://cdn.jsdelivr.net/gh/xiexie101/xiexieBot@release-v1.0.0/images/灰.jpg',
+        category: 'colors'
+    },
+    // 数字 (Numbers)
     // {
-    //     english: 'Red',
-    //     chinese: '红色',
-    //     image: 'https://images.unsplash.com/photo-1531804055935-76f44d7c3621?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
-    //     category: 'colors'
+    //     english: 'One',
+    //     chinese: '一',
+    //     image: 'https://images.unsplash.com/photo-1516383740770-fbcc5ccbece0?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+    //     category: 'numbers'
     // },
     
-    // 数字 (Numbers)
-    {
-        english: 'One',
-        chinese: '一',
-        image: 'https://images.unsplash.com/photo-1516383740770-fbcc5ccbece0?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
-        category: 'numbers'
-    },
-    
     // 形状 (Shapes)
-    {
-        english: 'Circle',
-        chinese: '圆形',
-        image: 'https://images.unsplash.com/photo-1494059980473-813e73ee784b?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
-        category: 'shapes'
-    },
+    // {
+    //     english: 'Circle',
+    //     chinese: '圆形',
+    //     image: 'https://images.unsplash.com/photo-1494059980473-813e73ee784b?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+    //     category: 'shapes'
+    // },
     
     // 恐龙
     {
@@ -113,42 +172,42 @@ const allWords = [
     //     image: 'https://images.unsplash.com/photo-1603104397975-11014728d15a?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
     //     category: 'vehicles'
     // },
-    {
-        english: 'Truck',
-        chinese: '卡车',
-        image: 'https://cdn.pixabay.com/photo/2020/11/14/19/10/truck-5743515_640.png',
-        category: 'vehicles'
-    },
-    {
-        english: 'Fire engine',
-        chinese: '消防车',
-        image: 'https://cdn.pixabay.com/photo/2021/06/06/16/22/fire-truck-6315761_1280.png',
-        category: 'vehicles'
-    },
-    {
-        english: 'Dump truck',
-        chinese: '工程车',
-        image: 'https://cdn.pixabay.com/photo/2024/08/19/23/05/dump-truck-8981619_640.jpg',
-        category: 'vehicles'
-    },
-    {
-        english: 'Police car',
-        chinese: '警车',
-        image: 'https://cdn.pixabay.com/photo/2020/05/19/15/46/police-car-5191397_640.png',
-        category: 'vehicles'
-    },
-    {
-        english: 'Ambulance',
-        chinese: '救护车',
-        image: 'https://cdn.pixabay.com/photo/2024/04/15/06/49/ai-generated-8696898_640.png',
-        category: 'vehicles'
-    },
-    {
-        english: 'Motorbike',
-        chinese: '摩托车',
-        image: 'https://images.unsplash.com/photo-1558981359-219d6364c9c8?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
-        category: 'vehicles'
-    },
+    // {
+    //     english: 'Truck',
+    //     chinese: '卡车',
+    //     image: 'https://cdn.pixabay.com/photo/2020/11/14/19/10/truck-5743515_640.png',
+    //     category: 'vehicles'
+    // },
+    // {
+    //     english: 'Fire engine',
+    //     chinese: '消防车',
+    //     image: 'https://cdn.pixabay.com/photo/2021/06/06/16/22/fire-truck-6315761_1280.png',
+    //     category: 'vehicles'
+    // },
+    // {
+    //     english: 'Dump truck',
+    //     chinese: '工程车',
+    //     image: 'https://cdn.pixabay.com/photo/2024/08/19/23/05/dump-truck-8981619_640.jpg',
+    //     category: 'vehicles'
+    // },
+    // {
+    //     english: 'Police car',
+    //     chinese: '警车',
+    //     image: 'https://cdn.pixabay.com/photo/2020/05/19/15/46/police-car-5191397_640.png',
+    //     category: 'vehicles'
+    // },
+    // {
+    //     english: 'Ambulance',
+    //     chinese: '救护车',
+    //     image: 'https://cdn.pixabay.com/photo/2024/04/15/06/49/ai-generated-8696898_640.png',
+    //     category: 'vehicles'
+    // },
+    // {
+    //     english: 'Motorbike',
+    //     chinese: '摩托车',
+    //     image: 'https://images.unsplash.com/photo-1558981359-219d6364c9c8?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+    //     category: 'vehicles'
+    // },
     {
         english: 'Bike',
         chinese: '自行车',
