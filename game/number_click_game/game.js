@@ -6,9 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
         targetSequence: [], // 目标点击顺序
         clickedNumbers: [],
         clickOrder: [],
-        score: 0,
-        hintsLeft: 25,
-        skipsLeft: 50
+        gameMode: 'normal', // 'normal', 'hidden', 'moving'
+        obstacles: [], // 遮挡物信息
+        movingIntervals: [] // 移动数字的定时器
     };
 
     // 初始化游戏
@@ -36,6 +36,28 @@ document.addEventListener('DOMContentLoaded', () => {
         numbers.forEach(num => {
             num.addEventListener('click', () => {
                 document.querySelector('.target-sequence').classList.add('hidden');
+            });
+        });
+        
+        // 添加模式选择按钮事件
+        const modeButtons = document.querySelectorAll('.mode-btn');
+        modeButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // 移除所有按钮的活动状态
+                modeButtons.forEach(b => b.classList.remove('active'));
+                // 添加当前按钮的活动状态
+                btn.classList.add('active');
+                
+                // 设置游戏模式
+                const newMode = btn.dataset.mode;
+                
+                // 如果模式不同，重置游戏
+                if (newMode !== gameState.gameMode) {
+                    gameState.gameMode = newMode;
+                    clearAllMovingIntervals(); // 清除所有移动定时器
+                    removeAllObstacles(); // 移除所有障碍物
+                    restartLevel();
+                }
             });
         });
     }
@@ -135,6 +157,181 @@ document.addEventListener('DOMContentLoaded', () => {
             
             container.appendChild(numElement);
         });
+        
+        // 根据游戏模式初始化特殊效果
+        initGameModeEffects(container, positions, containerWidth, containerHeight);
+    }
+    
+    // 根据游戏模式初始化特殊效果
+    function initGameModeEffects(container, positions, containerWidth, containerHeight) {
+        // 先清除之前的效果
+        clearAllMovingIntervals();
+        removeAllObstacles();
+        
+        if (gameState.gameMode === 'hidden') {
+            // 隐藏数字模式：添加障碍物
+            createObstacles(container, positions, containerWidth, containerHeight);
+        } else if (gameState.gameMode === 'moving') {
+            // 动态数字模式：添加移动效果
+            const numbers = document.querySelectorAll('.number');
+            numbers.forEach(num => {
+                num.classList.add('moving');
+                startNumberMoving(num, containerWidth, containerHeight);
+            });
+        }
+    }
+    
+    // 创建障碍物
+    function createObstacles(container, positions, containerWidth, containerHeight) {
+        const obstacleCount = Math.min(5, Math.floor(gameState.level / 2) + 2); // 根据关卡增加障碍物数量
+        const obstacleSize = 80; // 障碍物大小
+        
+        for (let i = 0; i < obstacleCount; i++) {
+            const obstacle = document.createElement('div');
+            obstacle.className = 'obstacle';
+            
+            // 随机位置
+            const left = Math.random() * (containerWidth - obstacleSize);
+            const top = Math.random() * (containerHeight - obstacleSize);
+            
+            obstacle.style.left = `${left}px`;
+            obstacle.style.top = `${top}px`;
+            
+            // 存储障碍物信息
+            const obstacleInfo = { element: obstacle, left, top };
+            gameState.obstacles.push(obstacleInfo);
+            
+            // 使障碍物可拖动
+            makeObstacleDraggable(obstacle);
+            
+            container.appendChild(obstacle);
+        }
+    }
+    
+    // 使障碍物可拖动
+    function makeObstacleDraggable(obstacle) {
+        let isDragging = false;
+        let offsetX, offsetY;
+        
+        obstacle.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            offsetX = e.clientX - obstacle.getBoundingClientRect().left;
+            offsetY = e.clientY - obstacle.getBoundingClientRect().top;
+            obstacle.style.opacity = '0.8';
+            obstacle.style.zIndex = '10';
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            
+            const container = document.getElementById('numbers-container');
+            const containerRect = container.getBoundingClientRect();
+            
+            let left = e.clientX - containerRect.left - offsetX;
+            let top = e.clientY - containerRect.top - offsetY;
+            
+            // 限制在容器内
+            const maxLeft = containerRect.width - obstacle.offsetWidth;
+            const maxTop = containerRect.height - obstacle.offsetHeight;
+            
+            left = Math.max(0, Math.min(left, maxLeft));
+            top = Math.max(0, Math.min(top, maxTop));
+            
+            obstacle.style.left = `${left}px`;
+            obstacle.style.top = `${top}px`;
+        });
+        
+        document.addEventListener('mouseup', () => {
+            if (isDragging) {
+                isDragging = false;
+                obstacle.style.opacity = '0.7';
+                obstacle.style.zIndex = '3';
+            }
+        });
+        
+        // 触摸设备支持
+        obstacle.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            const touch = e.touches[0];
+            offsetX = touch.clientX - obstacle.getBoundingClientRect().left;
+            offsetY = touch.clientY - obstacle.getBoundingClientRect().top;
+            obstacle.style.opacity = '0.8';
+            obstacle.style.zIndex = '10';
+            e.preventDefault();
+        });
+        
+        document.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            
+            const touch = e.touches[0];
+            const container = document.getElementById('numbers-container');
+            const containerRect = container.getBoundingClientRect();
+            
+            let left = touch.clientX - containerRect.left - offsetX;
+            let top = touch.clientY - containerRect.top - offsetY;
+            
+            // 限制在容器内
+            const maxLeft = containerRect.width - obstacle.offsetWidth;
+            const maxTop = containerRect.height - obstacle.offsetHeight;
+            
+            left = Math.max(0, Math.min(left, maxLeft));
+            top = Math.max(0, Math.min(top, maxTop));
+            
+            obstacle.style.left = `${left}px`;
+            obstacle.style.top = `${top}px`;
+            e.preventDefault();
+        });
+        
+        document.addEventListener('touchend', () => {
+            if (isDragging) {
+                isDragging = false;
+                obstacle.style.opacity = '0.7';
+                obstacle.style.zIndex = '3';
+            }
+        });
+    }
+    
+    // 移除所有障碍物
+    function removeAllObstacles() {
+        gameState.obstacles.forEach(obstacleInfo => {
+            if (obstacleInfo.element && obstacleInfo.element.parentNode) {
+                obstacleInfo.element.parentNode.removeChild(obstacleInfo.element);
+            }
+        });
+        gameState.obstacles = [];
+    }
+    
+    // 让数字开始移动
+    function startNumberMoving(numElement, containerWidth, containerHeight) {
+        const moveNumber = () => {
+            const numSize = 65;
+            const padding = 20;
+            
+            // 生成新的随机位置
+            const newLeft = padding + Math.random() * (containerWidth - numSize - padding * 2);
+            const newTop = padding + Math.random() * (containerHeight - numSize - padding * 2);
+            
+            // 平滑移动到新位置
+            numElement.style.left = `${newLeft}px`;
+            numElement.style.top = `${newTop}px`;
+        };
+        
+        // 随机初始延迟，使数字不同步移动
+        const initialDelay = Math.random() * 2000;
+        setTimeout(() => {
+            moveNumber();
+            // 每3-7秒移动一次
+            const interval = setInterval(moveNumber, 3000 + Math.random() * 4000);
+            gameState.movingIntervals.push(interval);
+        }, initialDelay);
+    }
+    
+    // 清除所有移动定时器
+    function clearAllMovingIntervals() {
+        gameState.movingIntervals.forEach(interval => {
+            clearInterval(interval);
+        });
+        gameState.movingIntervals = [];
     }
 
     // 处理数字点击
@@ -233,6 +430,10 @@ document.addEventListener('DOMContentLoaded', () => {
         gameState.clickedNumbers = [];
         gameState.clickOrder = [];
         
+        // 清除效果
+        clearAllMovingIntervals();
+        removeAllObstacles();
+        
         // 重新渲染数字
         renderNumbers();
         
@@ -249,7 +450,11 @@ document.addEventListener('DOMContentLoaded', () => {
         gameState.level++;
         
         // 更新关卡显示
-        document.querySelector('.level-text').textContent = `關卡 ${gameState.level}`;
+        document.querySelector('.level-text').textContent = `关卡 ${gameState.level}`;
+        
+        // 清除效果
+        clearAllMovingIntervals();
+        removeAllObstacles();
         
         // 生成新的数字组合
         generateNewNumbers();
@@ -299,6 +504,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 添加窗口大小变化监听器，以重新布局数字
     window.addEventListener('resize', () => {
         if (document.querySelector('.number')) {
+            clearAllMovingIntervals();
             renderNumbers();
         }
     });

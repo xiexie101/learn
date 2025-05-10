@@ -131,7 +131,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     padding-bottom: 15px;
     border-bottom: 1px solid #e0e0e0;
 }
@@ -171,6 +171,38 @@ body {
     border-radius: 50%;
 }
 
+/* 模式选择器 */
+.mode-selector {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    gap: 10px;
+}
+
+.mode-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    background-color: #f0f0f0;
+    color: #555;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.mode-btn:hover {
+    background-color: #e5e5e5;
+}
+
+.mode-btn.active {
+    background-color: #4a6fa5;
+    color: white;
+    box-shadow: 0 4px 8px rgba(74, 111, 165, 0.3);
+}
+
 /* 游戏内容 */
 .game-content {
     flex-grow: 1;
@@ -203,6 +235,7 @@ body {
     background-color: #fffef2;
     border-radius: 15px;
     margin-bottom: 20px;
+    overflow: hidden;
 }
 
 .number {
@@ -219,6 +252,7 @@ body {
     border-radius: 50%;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
     transition: all 0.2s ease;
+    z-index: 2;
 }
 
 .number:hover {
@@ -230,6 +264,10 @@ body {
     background-color: #f0f0f0;
     color: #999;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.number.moving {
+    transition: left 3s linear, top 3s linear;
 }
 
 .number-order {
@@ -246,6 +284,28 @@ body {
     top: -5px;
     right: -5px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* 遮罩元素 */
+.obstacle {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    background-color: rgba(255, 200, 97, 0.7);
+    border-radius: 10px;
+    cursor: move;
+    user-select: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    z-index: 3;
+}
+
+.obstacle::after {
+    content: '移动我';
+    font-size: 12px;
+    color: #333;
 }
 
 .button-group {
