@@ -2,19 +2,27 @@ document.addEventListener('DOMContentLoaded', () => {
     // 游戏数据
     const gameState = {
         level: 1,
-        numbers: [1, 49, 80, 5, 7, 11, 101], // 原始数字
+        numbers: [], // 原始数字
         targetSequence: [], // 目标点击顺序
         clickedNumbers: [],
         clickOrder: [],
         gameMode: 'normal', // 'normal', 'hidden', 'moving'
         obstacles: [], // 遮挡物信息
-        movingIntervals: [] // 移动数字的定时器
+        movingIntervals: [], // 移动数字的定时器
+        numberCount: 7 // 默认数字数量
     };
 
     // 初始化游戏
     function initGame() {
         // 初始化下一关按钮状态
         document.querySelector('.next-btn').disabled = true;
+        
+        // 初始化数字数量
+        const numberCountSelect = document.getElementById('number-count');
+        gameState.numberCount = parseInt(numberCountSelect.value);
+        
+        // 生成随机数字
+        generateNewNumbers();
         
         // 生成随机目标顺序
         gameState.targetSequence = [...gameState.numbers];
@@ -30,6 +38,12 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('.restart-btn').addEventListener('click', restartLevel);
         document.querySelector('.submit-btn').addEventListener('click', checkAnswer);
         document.querySelector('.next-btn').addEventListener('click', nextLevel);
+        
+        // 监听数字数量选择
+        numberCountSelect.addEventListener('change', (e) => {
+            gameState.numberCount = parseInt(e.target.value);
+            restartLevel(true); // 传递参数表示是数量变更引起的重启
+        });
         
         // 点击数字后隐藏目标序列
         const numbers = document.querySelectorAll('.number');
@@ -109,7 +123,9 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // 如果尝试了太多次还找不到位置，使用固定网格布局
         const index = existingPositions.length;
-        const cols = 3;
+        
+        // 根据数字总数调整布局
+        const cols = gameState.numberCount <= 9 ? 3 : 4;
         const cellWidth = containerWidth / cols;
         const cellHeight = cellWidth;
         const row = Math.floor(index / cols);
@@ -133,7 +149,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // 获取容器尺寸以放置数字
         const containerWidth = container.offsetWidth;
         const containerHeight = container.offsetHeight;
-        const numSize = 65; // 与CSS中的数字尺寸一致
+        
+        // 调整数字大小，根据数量动态调整
+        const numSizeBase = 65; // 基础大小
+        const numSize = gameState.numberCount > 9 ? numSizeBase * 0.8 : numSizeBase;
         
         // 存储已放置数字的位置
         const positions = [];
@@ -144,6 +163,13 @@ document.addEventListener('DOMContentLoaded', () => {
             numElement.className = 'number';
             numElement.textContent = num;
             numElement.dataset.number = num;
+            
+            // 根据数字数量动态调整样式
+            if (gameState.numberCount > 9) {
+                numElement.style.width = `${numSize}px`;
+                numElement.style.height = `${numSize}px`;
+                numElement.style.fontSize = '28px';
+            }
             
             // 计算不重叠位置
             const position = calculateNonOverlappingPosition(containerWidth, containerHeight, numSize, positions);
@@ -183,7 +209,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 创建障碍物
     function createObstacles(container, positions, containerWidth, containerHeight) {
-        const obstacleCount = Math.min(5, Math.floor(gameState.level / 2) + 2); // 根据关卡增加障碍物数量
+        // 根据数字数量和关卡动态调整障碍物数量
+        const baseObstacleCount = Math.ceil(gameState.numberCount / 3);
+        const levelFactor = Math.floor(gameState.level / 2);
+        const obstacleCount = Math.min(gameState.numberCount - 1, baseObstacleCount + levelFactor);
+        
         const obstacleSize = 80; // 障碍物大小
         
         for (let i = 0; i < obstacleCount; i++) {
@@ -304,7 +334,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // 让数字开始移动
     function startNumberMoving(numElement, containerWidth, containerHeight) {
         const moveNumber = () => {
-            const numSize = 65;
+            // 根据数字数量动态调整大小
+            const numSize = gameState.numberCount > 9 ? 65 * 0.8 : 65;
             const padding = 20;
             
             // 生成新的随机位置
@@ -320,9 +351,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const initialDelay = Math.random() * 2000;
         setTimeout(() => {
             moveNumber();
-            // 每3-7秒移动一次
-            const interval = setInterval(moveNumber, 3000 + Math.random() * 4000);
-            gameState.movingIntervals.push(interval);
+            // 每3-7秒移动一次，根据关卡调整速度
+            const baseInterval = 5000 - (gameState.level * 300);
+            const interval = Math.max(2000, baseInterval + Math.random() * 2000);
+            const moveInterval = setInterval(moveNumber, interval);
+            gameState.movingIntervals.push(moveInterval);
         }, initialDelay);
     }
     
@@ -425,7 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 重新开始当前关卡
-    function restartLevel() {
+    function restartLevel(isNumberCountChange = false) {
         // 重置游戏状态
         gameState.clickedNumbers = [];
         gameState.clickOrder = [];
@@ -433,6 +466,15 @@ document.addEventListener('DOMContentLoaded', () => {
         // 清除效果
         clearAllMovingIntervals();
         removeAllObstacles();
+        
+        // 如果是数量变更引起的重启，重新生成数字
+        if (isNumberCountChange) {
+            generateNewNumbers();
+            
+            // 重新生成随机目标顺序
+            gameState.targetSequence = [...gameState.numbers];
+            shuffleArray(gameState.targetSequence);
+        }
         
         // 重新渲染数字
         renderNumbers();
@@ -482,8 +524,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // 清空当前数字
         gameState.numbers = [];
         
-        // 生成7个随机数字
-        const count = 7; // 固定7个数字
+        // 使用当前设置的数字数量
+        const count = gameState.numberCount;
         
         for (let i = 0; i < count; i++) {
             // 生成1-100范围内的随机数

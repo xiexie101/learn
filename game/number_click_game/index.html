@@ -15,10 +15,23 @@
             </div>
         </div>
 
-        <div class="mode-selector">
-            <button class="mode-btn active" data-mode="normal">普通模式</button>
-            <button class="mode-btn" data-mode="hidden">隐藏数字</button>
-            <button class="mode-btn" data-mode="moving">动态数字</button>
+        <div class="settings-panel">
+            <div class="mode-selector">
+                <button class="mode-btn active" data-mode="normal">普通模式</button>
+                <button class="mode-btn" data-mode="hidden">隐藏数字</button>
+                <button class="mode-btn" data-mode="moving">动态数字</button>
+            </div>
+            
+            <div class="number-count-setting">
+                <label for="number-count">数字个数:</label>
+                <select id="number-count" class="number-count-select">
+                    <option value="3">3个</option>
+                    <option value="5">5个</option>
+                    <option value="7" selected>7个</option>
+                    <option value="9">9个</option>
+                    <option value="12">12个</option>
+                </select>
+            </div>
         </div>
 
         <div class="game-content">
