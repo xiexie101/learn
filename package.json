@@ -1,0 +1,14 @@
+{
+  "name": "kankanews-crawler",
+  "version": "1.0.0",
+  "description": "看看新闻爬虫 - Node.js版本",
+  "main": "puppeteer_version.js",
+  "scripts": {
+    "start": "node puppeteer_version.js"
+  },
+  "dependencies": {
+    "puppeteer": "^21.5.0"
+  },
+  "author": "",
+  "license": "MIT"
+} 

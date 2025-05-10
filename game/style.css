@@ -1,0 +1,26 @@
+#board {
+    position: relative;
+    width: 400px;
+    height: 400px;
+    border: 1px solid #ccc;
+  }
+  .number {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background: #fffbe6;
+    border: 1px solid #aaa;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 40px;
+    font-size: 20px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s;
+  }
+  .number.correct {
+    background: #b6fcb6;
+  }
+  .number.wrong {
+    background: #fcb6b6;
+  }
