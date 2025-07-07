@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>八段锦禅意花园追踪器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-start: #d4e5ff;
+            --bg-end: #f3e7e9;
+            --glass-bg: rgba(255, 255, 255, 0.45);
+            --border-color: rgba(255, 255, 255, 0.6);
+            --text-color: #374151;
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --level-color: #f59e0b;
+        }
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, var(--bg-start), var(--bg-end));
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+        .glass-card:hover {
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            transform: translateY(-2px);
+        }
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+        }
+        .progress-bar-inner {
+            transition: width 0.5s ease-in-out;
+        }
+        .calendar-day.practiced {
+            background-color: rgba(79, 70, 229, 0.7);
+            color: white;
+            border-radius: 50%;
+            position: relative;
+        }
+        .calendar-day.today {
+            border: 2px solid var(--primary-color);
+            border-radius: 50%;
+        }
+        .achievement-icon.unlocked {
+            filter: none;
+            opacity: 1;
+        }
+        .achievement-icon.locked {
+            filter: grayscale(100%);
+            opacity: 0.4;
+        }
+        .zen-garden-element {
+            position: absolute;
+            transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+            opacity: 0;
+            transform: scale(0.5);
+        }
+        .zen-garden-element.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* New styles for move selection */
+        .move-item-label {
+            display: block;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            background-color: rgba(255,255,255,0.4);
+        }
+        .move-item-label:hover {
+            background-color: rgba(255, 255, 255, 0.8);
+            border-color: var(--primary-color);
+        }
+        .move-item-input:checked + .move-item-label {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-hover);
+            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.2);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 sm:p-6 lg:p-8">
+
+    <div id="loading-overlay" class="fixed inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center z-50">
+        <div class="text-center">
+            <div class="w-16 h-16 border-4 border-t-transparent border-indigo-500 rounded-full animate-spin"></div>
+            <p class="mt-4 text-lg font-semibold text-gray-700">正在加载您的禅意花园...</p>
+        </div>
+    </div>
+
+    <main id="app-container" class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 opacity-0 transition-opacity duration-500">
+        <!-- Left Column: Main Controls & Garden -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Header -->
+            <div class="glass-card rounded-2xl p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800">八段锦禅意花园</h1>
+                    <p id="zen-quote" class="mt-2 text-gray-600">每日禅语：加载中...</p>
+                </div>
+                 <div class="mt-4 sm:mt-0 flex items-center gap-3">
+                    <div id="user-level" class="text-center">
+                        <div class="font-bold text-lg text-amber-600">--</div>
+                        <div class="text-sm text-gray-500">等级</div>
+                    </div>
+                     <button id="export-btn" class="p-2 text-gray-500 hover:bg-gray-200/50 rounded-full transition-colors" title="导出数据 (Ctrl+E)">
+                        <i data-lucide="download"></i>
+                    </button>
+                    <button id="import-btn" class="p-2 text-gray-500 hover:bg-gray-200/50 rounded-full transition-colors" title="导入数据">
+                        <i data-lucide="upload"></i>
+                    </button>
+                    <button id="reset-btn" class="p-2 text-gray-500 hover:bg-red-200/50 rounded-full transition-colors" title="重置数据 (Ctrl+R)">
+                        <i data-lucide="trash-2" class="text-gray-500 hover:text-red-500"></i>
+                    </button>
+                    <input type="file" id="import-file-input" class="hidden" accept=".json">
+                </div>
+            </div>
+
+            <!-- Zen Garden -->
+            <div class="glass-card rounded-2xl p-6 h-96">
+                <div id="zen-garden" class="relative w-full h-full bg-gradient-to-br from-green-50 to-blue-100 rounded-lg overflow-hidden">
+                    <!-- Garden elements will be injected here -->
+                    <div id="garden-msg" class="absolute top-4 left-4 text-sm text-gray-500 bg-white/50 px-3 py-1 rounded-full">您的花园正在等待灌溉...</div>
+                </div>
+            </div>
+
+            <!-- Practice Tracker -->
+            <div class="glass-card rounded-2xl p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold">今日练习：八段锦</h2>
+                    <button id="select-all-btn" class="text-sm btn-primary px-3 py-1 rounded-md">全选</button>
+                </div>
+                <div id="ba-duan-jin-moves" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                    <!-- Moves will be injected here -->
+                </div>
+                <button id="complete-practice-btn" class="w-full btn-primary font-bold py-3 px-4 rounded-lg text-lg flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300">
+                    <i data-lucide="check-circle"></i>
+                    <span>完成今日练习</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Right Column: Stats & History -->
+        <div class="space-y-6">
+            <!-- Stats Dashboard -->
+            <div class="glass-card rounded-2xl p-6">
+                <h2 class="text-xl font-semibold mb-4">修行总览</h2>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-sm font-medium">当前等级: <span id="level-name">--</span></span>
+                            <span class="text-sm font-medium"><span id="xp-current">0</span> / <span id="xp-next">100</span> XP</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div id="xp-bar" class="bg-amber-500 h-2.5 rounded-full progress-bar-inner" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 text-center">
+                        <div class="bg-white/50 rounded-lg p-3">
+                            <p class="text-2xl font-bold" id="streak-days">0</p>
+                            <p class="text-sm text-gray-600">连续练习</p>
+                        </div>
+                        <div class="bg-white/50 rounded-lg p-3">
+                            <p class="text-2xl font-bold" id="total-days">0</p>
+                            <p class="text-sm text-gray-600">总练习天数</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Achievements -->
+            <div class="glass-card rounded-2xl p-6">
+                <h2 class="text-xl font-semibold mb-4">成就徽章</h2>
+                <div id="achievements-grid" class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-3 gap-4">
+                    <!-- Achievements will be injected here -->
+                </div>
+            </div>
+
+            <!-- Calendar -->
+            <div class="glass-card rounded-2xl p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <button id="prev-month-btn" class="p-2 rounded-full hover:bg-gray-200/50"><i data-lucide="chevron-left"></i></button>
+                    <h2 id="calendar-header" class="text-lg font-semibold"></h2>
+                    <button id="next-month-btn" class="p-2 rounded-full hover:bg-gray-200/50"><i data-lucide="chevron-right"></i></button>
+                </div>
+                <div class="grid grid-cols-7 text-center text-xs text-gray-500 mb-2">
+                    <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+                </div>
+                <div id="calendar-grid" class="grid grid-cols-7 text-center gap-1">
+                    <!-- Calendar days will be injected here -->
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Modal for reset confirmation -->
+    <div id="reset-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl p-8 shadow-xl max-w-sm w-full mx-4">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">确认重置</h3>
+            <p class="text-gray-600 mb-6">您确定要重置所有数据吗？此操作不可撤销，您的禅意花园和所有进度都将消失。</p>
+            <div class="flex justify-end gap-4">
+                <button id="cancel-reset-btn" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors">取消</button>
+                <button id="confirm-reset-btn" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">确认重置</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="module">
+        // Firebase is not used in this version for simplicity and to ensure it runs anywhere.
+        // All data is stored in localStorage.
+        
+        // --- CONFIGURATION ---
+        const CONFIG = {
+            moves: [
+                "两手托天理三焦", "左右开弓似射雕", "调理脾胃须单举", "五劳七伤往后瞧",
+                "摇头摆尾去心火", "两手攀足固肾腰", "攒拳怒目增气力", "背后七颠百病消"
+            ],
+            levels: [
+                { name: "初学者", xp: 0 }, { name: "入门者", xp: 100 }, { name: "修行者", xp: 300 },
+                { name: "精进者", xp: 700 }, { name: "禅定者", xp: 1500 }, { name: "得道者", xp: 3000 },
+                { name: "宗师", xp: 5000 }
+            ],
+            achievements: {
+                first_glimpse: { name: "初窥门径", icon: "eye", desc: "完成第一次练习", goal: (data) => data.totalDays >= 1 },
+                three_day_perseverance: { name: "三日之功", icon: "git-commit", desc: "连续练习3天", goal: (data) => data.streak >= 3 },
+                seven_day_zen: { name: "七日禅心", icon: "sparkles", desc: "连续练习7天", goal: (data) => data.streak >= 7 },
+                thirty_day_habit: { name: "三十日养成", icon: "calendar-days", desc: "总计练习30天", goal: (data) => data.totalDays >= 30 },
+                hundred_day_mastery: { name: "百日筑基", icon: "award", desc: "总计练习100天", goal: (data) => data.totalDays >= 100 },
+                heaven_lifter: { name: "托天宗师", icon: "chevrons-up", desc: "完成“两手托天理三焦”50次", goal: (data) => (data.moveCounts?.[0] || 0) >= 50 },
+                archer_master: { name: "射雕英雄", icon: "crosshair", desc: "完成“左右开弓似射雕”50次", goal: (data) => (data.moveCounts?.[1] || 0) >= 50 },
+                grandmaster: { name: "八段锦宗师", icon: "crown", desc: "达到宗师等级", goal: (data) => data.level >= 6 },
+            },
+            zenQuotes: [
+                "身心合一，气贯长虹。", "流水不腐，户枢不蠹。", "动以养形，静以养神。",
+                "恬淡虚无，真气从之。", "一呼一吸，皆是修行。", "筋长一寸，寿延十年。",
+                "气血通畅，百病不生。"
+            ],
+            gardenStages: [
+                { level: 0, msg: "您的花园空灵宁静，等待第一颗石头的落下。", elements: [{ type: 'stone', x: '50%', y: '50%' }] },
+                { level: 1, msg: "青苔悄然生长，为花园增添一抹绿意。", elements: [{ type: 'moss', x: '45%', y: '55%' }] },
+                { level: 2, msg: "一株小草破土而出，充满生命力。", elements: [{ type: 'grass', x: '60%', y: '40%' }] },
+                { level: 3, msg: "一朵莲花在池中绽放，清净无染。", elements: [{ type: 'pond', x: '30%', y: '70%' }, { type: 'lotus', x: '30%', y: '70%' }] },
+                { level: 4, msg: "锦鲤在池中嬉戏，花园更添生机。", elements: [{ type: 'koi', x: '35%', y: '75%' }] },
+                { level: 5, msg: "一棵小树茁壮成长，象征着您的坚持。", elements: [{ type: 'tree', x: '75%', y: '30%' }] },
+                { level: 6, msg: "石灯笼点亮，照亮您的修行之路。花园已然圆满。", elements: [{ type: 'lantern', x: '15%', y: '25%' }] },
+            ],
+            gardenElementSVG: {
+                stone: `<svg viewBox="0 0 120 100" width="64" height="64"><defs><radialGradient id="stoneGrad" cx="50%" cy="50%" r="50%" fx="50%" fy="50%"><stop offset="0%" style="stop-color:rgb(200,200,200)" /><stop offset="100%" style="stop-color:rgb(150,150,150)" /></radialGradient></defs><g transform="translate(10, 10)"><path d="M 50,80 Q 20,90 25,60 Q 30,30 60,35 Q 90,40 85,70 Q 80,100 50,80 Z" fill="url(#stoneGrad)" stroke="#888" stroke-width="1.5"/><path d="M 75,75 Q 60,85 65,65 Q 70,45 85,50 Q 100,55 95,70 Q 90,85 75,75 Z" fill="url(#stoneGrad)" stroke="#888" stroke-width="1.5" transform="translate(-40, 5)"/></g></svg>`,
+                moss: `<svg viewBox="0 0 100 100" width="48" height="48"><defs><radialGradient id="mossGrad" cx="50%" cy="50%" r="50%"><stop offset="0%" style="stop-color:#6B8E23" /><stop offset="100%" style="stop-color:#556B2F" /></radialGradient></defs><g><path d="M 30,70 C 10,70 10,50 30,50 C 40,30 60,30 70,50 C 90,50 90,70 70,70 Z" fill="url(#mossGrad)"/><path d="M 50,80 C 40,80 40,65 50,65 C 55,55 65,55 70,65 C 80,65 80,80 70,80 Z" fill="url(#mossGrad)"/></g></svg>`,
+                grass: `<svg viewBox="0 0 100 100" width="40" height="40"><g><path d="M 50,90 C 40,70 45,50 50,30" stroke="#6B8E23" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M 40,90 C 35,75 38,55 42,40" stroke="#556B2F" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M 60,90 C 55,75 58,55 62,40" stroke="#9ACD32" stroke-width="4" fill="none" stroke-linecap="round"/></g></svg>`,
+                pond: `<svg viewBox="0 0 150 100" width="192" height="128"><defs><linearGradient id="pondGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#ADD8E6" /><stop offset="100%" style="stop-color:#4682B4" /></linearGradient></defs><ellipse cx="75" cy="50" rx="70" ry="45" fill="url(#pondGrad)" /><ellipse cx="75" cy="50" rx="50" ry="30" stroke="rgba(255,255,255,0.5)" stroke-width="1" fill="none"/><ellipse cx="75" cy="50" rx="30" ry="18" stroke="rgba(255,255,255,0.4)" stroke-width="1" fill="none"/></svg>`,
+                lotus: `<svg viewBox="0 0 100 100" width="64" height="64"><defs><radialGradient id="lotusGrad" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#FFC0CB" /><stop offset="100%" stop-color="#FF69B4" /></radialGradient><filter id="blur"><feGaussianBlur stdDeviation="1" /></filter></defs><path d="M 20 100 C 20 70, 80 70, 80 100 Z" fill="#3CB371" stroke="#2E8B57" stroke-width="2"/><g transform="translate(0, -10)"><path d="M50 45 C 30 55, 30 75, 50 85 C 70 75, 70 55, 50 45" fill="url(#lotusGrad)" transform="rotate(0 50 50)"/><path d="M50 45 C 30 55, 30 75, 50 85 C 70 75, 70 55, 50 45" fill="url(#lotusGrad)" transform="rotate(60 50 50)"/><path d="M50 45 C 30 55, 30 75, 50 85 C 70 75, 70 55, 50 45" fill="url(#lotusGrad)" transform="rotate(120 50 50)"/><circle cx="50" cy="50" r="8" fill="#FFD700" filter="url(#blur)"/></g></svg>`,
+                koi: `<svg viewBox="0 0 100 80" width="48" height="38.4"><g transform="rotate(25 50 40)"><path d="M 50,10 C 90,20 100,70 50,70 C 0,70 10,20 50,10" fill="#FFA500"/><path d="M 50,10 C 90,20 100,70 50,70" fill="none" stroke="#E69500" stroke-width="2"/><circle cx="65" cy="30" r="10" fill="white"/><circle cx="35" cy="45" r="12" fill="white"/><circle cx="75" cy="25" r="3" fill="black"/></g></svg>`,
+                tree: `<svg viewBox="0 0 150 150" width="160" height="160"><defs><linearGradient id="trunkGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#8B4513" /><stop offset="50%" stop-color="#A0522D" /><stop offset="100%" stop-color="#8B4513" /></linearGradient><radialGradient id="leavesGrad1" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#228B22" /><stop offset="100%" stop-color="#006400" /></radialGradient><radialGradient id="leavesGrad2" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#32CD32" /><stop offset="100%" stop-color="#228B22" /></radialGradient></defs><path d="M 70 140 L 80 140 L 85 80 L 65 80 Z" fill="url(#trunkGrad)"/><g><circle cx="75" cy="60" r="40" fill="url(#leavesGrad1)"/><circle cx="105" cy="65" r="25" fill="url(#leavesGrad2)"/><circle cx="45" cy="65" r="25" fill="url(#leavesGrad2)"/><circle cx="75" cy="35" r="20" fill="url(#leavesGrad2)"/></g></svg>`,
+                lantern: `<svg viewBox="0 0 100 100" width="80" height="80"><defs><linearGradient id="lanternGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#696969"/><stop offset="100%" stop-color="#2F4F4F"/></linearGradient><radialGradient id="lightGrad" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(255,255,0,0.8)"/><stop offset="100%" stop-color="rgba(251,191,36,0)"/></radialGradient></defs><path d="M 20 90 L 80 90 L 80 80 L 20 80 Z" fill="url(#lanternGrad)"/><path d="M 35 80 L 65 80 L 65 40 L 35 40 Z" fill="url(#lanternGrad)"/><path d="M 10 40 L 90 40 L 80 20 L 20 20 Z" fill="url(#lanternGrad)"/><rect x="40" y="45" width="20" height="30" fill="#FDE68A"/><circle cx="50" cy="60" r="25" fill="url(#lightGrad)"/></svg>`,
+            }
+        };
+
+        // --- STATE MANAGEMENT ---
+        let state = {};
+        let calendarDate = new Date();
+
+        function getDefaultState() {
+            return {
+                xp: 0,
+                level: 0,
+                practiceHistory: [], // dates in "YYYY-MM-DD" format
+                moveCounts: Array(CONFIG.moves.length).fill(0),
+                achievements: [],
+                lastPracticeDate: null,
+                streak: 0,
+                totalDays: 0,
+            };
+        }
+
+        // --- DATA PERSISTENCE (localStorage) ---
+        function saveData() {
+            localStorage.setItem('baDuanJinTrackerData', JSON.stringify(state));
+        }
+
+        function loadData() {
+            const savedData = localStorage.getItem('baDuanJinTrackerData');
+            state = savedData ? JSON.parse(savedData) : getDefaultState();
+            // Ensure all keys from default state exist
+            state = { ...getDefaultState(), ...state };
+        }
+        
+        // --- AUDIO ---
+        let audioContext;
+        function initAudio() {
+            if (!audioContext) {
+                try {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    console.error("Web Audio API is not supported in this browser.");
+                }
+            }
+        }
+        
+        function playSuccessSound() {
+            if (!audioContext) return;
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.type = 'sine';
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.5, audioContext.currentTime + 0.05);
+            
+            oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // A4
+            oscillator.frequency.exponentialRampToValueAtTime(880, audioContext.currentTime + 0.2);
+            
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.5);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+        }
+
+        // --- UI RENDERING ---
+        function updateUI() {
+            renderPracticeMoves();
+            renderDashboard();
+            renderAchievements();
+            renderCalendar();
+            renderZenGarden();
+            updateCompleteButton();
+        }
+        
+        function renderPracticeMoves() {
+            const container = document.getElementById('ba-duan-jin-moves');
+            container.innerHTML = CONFIG.moves.map((move, index) => `
+                <div class="move-item">
+                    <input type="checkbox" id="move-${index}" data-index="${index}" class="move-item-input hidden">
+                    <label for="move-${index}" class="move-item-label text-sm">${move}</label>
+                </div>
+            `).join('');
+        }
+
+        function renderDashboard() {
+            const currentLevel = CONFIG.levels[state.level];
+            const nextLevel = CONFIG.levels[state.level + 1];
+            
+            document.getElementById('user-level').innerHTML = `
+                <div class="font-bold text-lg text-amber-600">${state.level + 1}</div>
+                <div class="text-sm text-gray-500">等级</div>`;
+
+            document.getElementById('level-name').textContent = currentLevel.name;
+            document.getElementById('xp-current').textContent = state.xp;
+            
+            if (nextLevel) {
+                document.getElementById('xp-next').textContent = nextLevel.xp;
+                const progress = Math.min(100, ((state.xp - currentLevel.xp) / (nextLevel.xp - currentLevel.xp)) * 100);
+                document.getElementById('xp-bar').style.width = `${progress}%`;
+            } else {
+                document.getElementById('xp-next').textContent = 'MAX';
+                document.getElementById('xp-bar').style.width = '100%';
+            }
+
+            document.getElementById('streak-days').textContent = state.streak;
+            document.getElementById('total-days').textContent = state.totalDays;
+        }
+
+        function renderAchievements() {
+            const container = document.getElementById('achievements-grid');
+            container.innerHTML = Object.entries(CONFIG.achievements).map(([key, ach]) => {
+                const unlocked = state.achievements.includes(key);
+                return `
+                    <div class="text-center p-2 rounded-lg ${unlocked ? 'bg-amber-100' : ''}" title="${ach.desc}">
+                        <div class="achievement-icon ${unlocked ? 'unlocked' : 'locked'} w-12 h-12 mx-auto flex items-center justify-center ${unlocked ? 'text-amber-500' : 'text-gray-400'}">
+                            <i data-lucide="${ach.icon}" class="w-10 h-10"></i>
+                        </div>
+                        <p class="text-xs mt-1 font-medium ${unlocked ? 'text-amber-800' : 'text-gray-500'}">${ach.name}</p>
+                    </div>
+                `;
+            }).join('');
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+        }
+
+        function renderCalendar() {
+            const header = document.getElementById('calendar-header');
+            const grid = document.getElementById('calendar-grid');
+            
+            header.textContent = `${calendarDate.getFullYear()}年 ${calendarDate.getMonth() + 1}月`;
+            grid.innerHTML = '';
+
+            const year = calendarDate.getFullYear();
+            const month = calendarDate.getMonth();
+            
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const today = new Date();
+            const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+            for (let i = 0; i < firstDay; i++) {
+                grid.innerHTML += `<div></div>`;
+            }
+
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dayStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                const isPracticed = state.practiceHistory.includes(dayStr);
+                const isToday = dayStr === todayStr;
+                
+                
+                grid.innerHTML += `
+                    <div class="calendar-day w-8 h-8 flex items-center justify-center text-sm
+                        ${isPracticed ? 'practiced' : ''}
+                        ${isToday ? 'today' : ''}
+                    ">
+                        ${i}
+                    </div>
+                `;
+            }
+        }
+        
+        function renderZenGarden() {
+            const garden = document.getElementById('zen-garden');
+            const gardenMsg = document.getElementById('garden-msg');
+            
+            let stage = CONFIG.gardenStages[0];
+            for (let i = CONFIG.gardenStages.length - 1; i >= 0; i--) {
+                if (state.level >= CONFIG.gardenStages[i].level) {
+                    stage = CONFIG.gardenStages[i];
+                    break;
+                }
+            }
+
+            gardenMsg.textContent = stage.msg;
+            garden.querySelectorAll('.zen-garden-element').forEach(el => el.remove());
+
+            let cumulativeElements = [];
+            for(let i = 0; i <= state.level && i < CONFIG.gardenStages.length; i++) {
+                if(CONFIG.gardenStages[i].elements) {
+                    cumulativeElements.push(...CONFIG.gardenStages[i].elements);
+                }
+            }
+
+            cumulativeElements.forEach((el, index) => {
+                const elementDiv = document.createElement('div');
+                elementDiv.className = 'zen-garden-element';
+                elementDiv.style.left = el.x;
+                elementDiv.style.top = el.y;
+                elementDiv.innerHTML = CONFIG.gardenElementSVG[el.type];
+                garden.appendChild(elementDiv);
+                
+                setTimeout(() => {
+                    elementDiv.classList.add('visible');
+                }, 100 * (index + 1));
+            });
+        }
+
+        function updateCompleteButton() {
+            const todayStr = getTodayString();
+            const btn = document.getElementById('complete-practice-btn');
+            if (state.practiceHistory.includes(todayStr)) {
+                btn.disabled = true;
+                btn.classList.add('bg-green-500', 'cursor-not-allowed');
+                btn.classList.remove('btn-primary');
+                btn.innerHTML = `<i data-lucide="check-check"></i><span>今日已完成</span>`;
+            } else {
+                btn.disabled = false;
+                btn.classList.remove('bg-green-500', 'cursor-not-allowed');
+                btn.classList.add('btn-primary');
+                btn.innerHTML = `<i data-lucide="check-circle"></i><span>完成今日练习</span>`;
+            }
+            if(window.lucide) {
+                window.lucide.createIcons();
+            }
+        }
+        
+        function showCelebration() {
+            if (typeof window.confetti !== 'function') {
+                console.error('Confetti function not found!');
+                return;
+            }
+
+            const duration = 3 * 1000;
+            const animationEnd = Date.now() + duration;
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 100 };
+
+            function randomInRange(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            const interval = setInterval(function() {
+                const timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
+                
+                const particleCount = 50 * (timeLeft / duration);
+                // Use window.confetti to ensure it's called from the global scope
+                window.confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+                window.confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+            }, 250);
+        }
+
+        // --- GAME LOGIC ---
+        function getTodayString() {
+            const today = new Date();
+            return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        }
+
+        function completePractice() {
+            initAudio(); // Ensure audio context is ready on user interaction
+            const todayStr = getTodayString();
+            if (state.practiceHistory.includes(todayStr)) {
+                console.log("Already practiced today.");
+                return;
+            }
+
+            // 1. Get selected moves
+            const selectedMoves = [];
+            document.querySelectorAll('#ba-duan-jin-moves .move-item-input:checked').forEach(cb => {
+                const index = parseInt(cb.dataset.index);
+                selectedMoves.push(index);
+                state.moveCounts[index]++;
+            });
+
+            if (selectedMoves.length === 0) {
+                alert("请至少选择一个动作来完成练习。");
+                return;
+            }
+
+            // 2. Grant XP
+            const xpGained = 10 + selectedMoves.length * 2; // Base XP + bonus per move
+            state.xp += xpGained;
+
+            // 3. Update history and stats
+            state.practiceHistory.push(todayStr);
+            state.totalDays++;
+
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
+
+            if (state.lastPracticeDate === yesterdayStr) {
+                state.streak++;
+            } else {
+                state.streak = 1;
+            }
+            state.lastPracticeDate = todayStr;
+
+            // 4. Check for level up
+            const oldLevel = state.level;
+            while (state.level < CONFIG.levels.length - 1 && state.xp >= CONFIG.levels[state.level + 1].xp) {
+                state.level++;
+            }
+            const leveledUp = state.level > oldLevel;
+
+            // 5. Check for achievements
+            const newAchievements = [];
+            Object.entries(CONFIG.achievements).forEach(([key, ach]) => {
+                if (!state.achievements.includes(key) && ach.goal(state)) {
+                    state.achievements.push(key);
+                    newAchievements.push(ach.name);
+                }
+            });
+
+            // 6. Save and update UI
+            saveData();
+            updateUI();
+            
+            // 7. Feedback
+            showCelebration();
+            playSuccessSound();
+            
+            // Show summary
+            let summary = `练习完成！获得 ${xpGained} XP.`;
+            if(leveledUp) summary += `\n🎉 等级提升至 ${CONFIG.levels[state.level].name}!`;
+            if(newAchievements.length > 0) summary += `\n🏅 获得新成就: ${newAchievements.join(', ')}`;
+            setTimeout(() => alert(summary), 100); // Use alert as a simple notification
+        }
+
+        // --- EVENT LISTENERS ---
+        function setupEventListeners() {
+            document.getElementById('complete-practice-btn').addEventListener('click', completePractice);
+            
+            document.getElementById('select-all-btn').addEventListener('click', (e) => {
+                const checkboxes = document.querySelectorAll('#ba-duan-jin-moves .move-item-input');
+                const allSelected = Array.from(checkboxes).every(cb => cb.checked);
+                
+                checkboxes.forEach(cb => {
+                    cb.checked = !allSelected;
+                });
+
+                e.target.textContent = allSelected ? '全选' : '取消全选';
+            });
+
+            document.getElementById('prev-month-btn').addEventListener('click', () => {
+                calendarDate.setMonth(calendarDate.getMonth() - 1);
+                renderCalendar();
+            });
+            document.getElementById('next-month-btn').addEventListener('click', () => {
+                calendarDate.setMonth(calendarDate.getMonth() + 1);
+                renderCalendar();
+            });
+            
+            // Import / Export / Reset
+            const importBtn = document.getElementById('import-btn');
+            const importInput = document.getElementById('import-file-input');
+            const exportBtn = document.getElementById('export-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const resetModal = document.getElementById('reset-modal');
+            const cancelResetBtn = document.getElementById('cancel-reset-btn');
+            const confirmResetBtn = document.getElementById('confirm-reset-btn');
+
+            exportBtn.addEventListener('click', exportData);
+            importBtn.addEventListener('click', () => importInput.click());
+            importInput.addEventListener('change', importData);
+            resetBtn.addEventListener('click', () => resetModal.classList.remove('hidden'));
+            cancelResetBtn.addEventListener('click', () => resetModal.classList.add('hidden'));
+            confirmResetBtn.addEventListener('click', () => {
+                resetModal.classList.add('hidden');
+                resetData();
+            });
+            
+            // Keyboard shortcuts
+            window.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.key.toLowerCase() === 'e') {
+                    e.preventDefault();
+                    exportData();
+                }
+                if (e.ctrlKey && e.key.toLowerCase() === 'r') {
+                    e.preventDefault();
+                    resetModal.classList.remove('hidden');
+                }
+            });
+        }
+        
+        // --- DATA ACTIONS ---
+        function exportData() {
+            const dataStr = JSON.stringify(state, null, 2);
+            const blob = new Blob([dataStr], {type: "application/json"});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ba-duan-jin-data-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    // Basic validation
+                    if (importedData && typeof importedData.xp === 'number') {
+                        if (confirm("您确定要用导入的数据覆盖当前进度吗？")) {
+                            state = { ...getDefaultState(), ...importedData };
+                            saveData();
+                            updateUI();
+                            alert("数据导入成功！");
+                        }
+                    } else {
+                        throw new Error("Invalid data format");
+                    }
+                } catch (error) {
+                    alert("导入失败。请确保文件格式正确。");
+                    console.error("Import error:", error);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = ''; // Reset input
+        }
+
+        function resetData() {
+            if (confirm("最后一次确认：真的要重置所有数据吗？")) {
+                state = getDefaultState();
+                saveData();
+                location.reload(); // Reload to ensure clean state
+            }
+        }
+
+        // --- INITIALIZATION ---
+        function init() {
+            document.getElementById('loading-overlay').style.display = 'flex';
+            
+            // Set random zen quote
+            const quote = CONFIG.zenQuotes[Math.floor(Math.random() * CONFIG.zenQuotes.length)];
+            document.getElementById('zen-quote').textContent = `每日禅语：${quote}`;
+            
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+            
+            loadData();
+            setupEventListeners();
+            updateUI();
+            
+            // Fade in app
+            setTimeout(() => {
+                document.getElementById('loading-overlay').style.display = 'none';
+                document.getElementById('app-container').classList.remove('opacity-0');
+            }, 500);
+        }
+
+        // Run on DOM ready
+        document.addEventListener('DOMContentLoaded', init);
+
+    </script>
+</body>
+</html>

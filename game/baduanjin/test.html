@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数字道场：每日八段锦</title>
+    
+    <!-- 引入 Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    
+    <!-- 引入 Lottie Player for animations -->
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+
+    <!-- 引入 Google Fonts for better typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* 自定义样式和主题 */
+        :root {
+            --bg-color: #F8F4E8; /* 柔和的米色背景 */
+            --primary-color: #4A5C3A; /* 沉稳的深绿色 */
+            --secondary-color: #8B6F4E; /* 古朴的棕色 */
+            --accent-color: #C8A575; /* 淡雅的金色点缀 */
+            --text-color: #3D403A; /* 深灰绿色文字 */
+            --font-serif: 'Noto Serif SC', serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-serif);
+            -webkit-tap-highlight-color: transparent; /* 移除移动端点击高亮 */
+        }
+
+        .btn {
+            @apply px-4 py-2 rounded-lg shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2;
+        }
+
+        .btn-primary {
+            @apply bg-primary-color text-white hover:bg-opacity-90 focus:ring-primary-color;
+        }
+
+        .btn-secondary {
+            @apply bg-secondary-color text-white hover:bg-opacity-90 focus:ring-secondary-color;
+        }
+        
+        .btn-icon {
+             @apply p-3 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2;
+        }
+
+        .card {
+            @apply bg-white bg-opacity-60 backdrop-blur-sm rounded-xl shadow-lg p-6;
+        }
+
+        /* 日历样式 */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+        }
+        .calendar-day {
+            @apply flex items-center justify-center w-10 h-10 rounded-full text-sm;
+        }
+        .day-header {
+            @apply font-bold text-secondary-color;
+        }
+        .day-completed {
+            background-color: var(--primary-color);
+            color: white;
+            position: relative;
+        }
+        .day-completed::after {
+            content: '✓';
+            font-size: 0.75rem;
+            position: absolute;
+            bottom: 2px;
+            right: 4px;
+        }
+        .day-today {
+            border: 2px solid var(--accent-color);
+        }
+        .day-other-month {
+            color: #ccc;
+        }
+
+        /* 禅意花园样式 */
+        #zen-garden {
+            position: relative;
+            width: 100%;
+            height: 100px;
+            border: 1px solid var(--accent-color);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            background: linear-gradient(to top, #DDE8D5, #F8F4E8);
+        }
+        .garden-element {
+            position: absolute;
+            transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        .garden-element.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 隐藏滚动条 */
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+        
+        /* 模态框样式 */
+        .modal-overlay {
+            @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-50;
+        }
+        .modal-content {
+            @apply card w-11/12 max-w-md transform transition-transform duration-300 scale-95;
+        }
+        .modal-overlay.visible {
+            @apply opacity-100;
+        }
+        .modal-overlay.visible .modal-content {
+            @apply scale-100;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="container mx-auto p-4 max-w-4xl">
+        <header class="text-center my-6">
+            <h1 class="text-4xl font-bold text-primary-color">数字道场</h1>
+            <p id="daily-wisdom-quote" class="text-secondary-color mt-2 italic">加载今日箴言...</p>
+        </header>
+
+        <main id="app-container" class="space-y-8">
+            <!-- 核心练习区 -->
+            <section id="practice-section" class="card">
+                <div class="grid md:grid-cols-2 gap-6 items-center">
+                    <!-- 动画播放器 -->
+                    <div id="animation-player-container" class="aspect-square bg-gray-100 rounded-lg">
+                        <lottie-player id="lottie-player" background="transparent" speed="1" style="width: 100%; height: 100%;" loop></lottie-player>
+                    </div>
+                    <!-- 动作信息与控制 -->
+                    <div class="flex flex-col justify-between h-full">
+                        <div>
+                            <h2 id="movement-title" class="text-2xl font-bold text-primary-color">准备开始</h2>
+                            <p id="movement-description" class="mt-2 text-sm h-24 overflow-y-auto">点击“开始全套练习”来开启您的每日养生之旅。</p>
+                        </div>
+                        <div id="controls" class="mt-4 space-y-4">
+                            <div class="flex items-center justify-center space-x-4">
+                                <button id="prev-btn" class="btn-icon bg-white" aria-label="上一个动作">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary-color" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                                </button>
+                                <button id="play-pause-btn" class="btn-icon bg-primary-color text-white" aria-label="播放">
+                                    <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                </button>
+                                <button id="next-btn" class="btn-icon bg-white" aria-label="下一个动作">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary-color" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                                </button>
+                            </div>
+                            <button id="start-full-sequence-btn" class="w-full btn btn-primary">开始全套练习</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 游戏化与进度回顾区 -->
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- 禅意花园与成就 -->
+                <section id="gamification-section" class="card space-y-4">
+                    <h3 class="text-xl font-bold text-primary-color">我的禅意花园</h3>
+                    <div id="zen-garden">
+                        <!-- Garden elements will be added here by JS -->
+                    </div>
+                    <div class="text-center">
+                        <p class="text-lg">连续练习: <span id="streak-days" class="font-bold text-2xl text-secondary-color">0</span> 天</p>
+                        <p class="text-sm text-gray-600">总计完成: <span id="total-days" class="font-bold">0</span> 天</p>
+                    </div>
+                </section>
+
+                <!-- 练习日历 -->
+                <section id="review-dashboard" class="card">
+                    <div class="flex justify-between items-center mb-4">
+                        <button id="prev-month-btn" class="btn-icon bg-white" aria-label="上个月">
+                           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-color" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                        </button>
+                        <h3 id="calendar-header" class="text-xl font-bold text-primary-color">练习日历</h3>
+                        <button id="next-month-btn" class="btn-icon bg-white" aria-label="下个月">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-color" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                        </button>
+                    </div>
+                    <div id="calendar" class="calendar-grid">
+                        <!-- Calendar days will be generated here by JS -->
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    
+    <!-- 练习完成/心情追踪 模态框 -->
+    <div id="mood-modal" class="modal-overlay opacity-0 pointer-events-none">
+        <div class="modal-content text-center">
+            <h2 class="text-2xl font-bold text-primary-color">恭喜！</h2>
+            <p class="my-4">您已完成今日的八段锦练习。感觉如何？</p>
+            <div class="flex justify-around my-6">
+                <button class="mood-btn text-4xl transform hover:scale-125 transition-transform" data-mood="relaxed">😌</button>
+                <button class="mood-btn text-4xl transform hover:scale-125 transition-transform" data-mood="energized">💪</button>
+                <button class="mood-btn text-4xl transform hover:scale-125 transition-transform" data-mood="calm">🧘</button>
+                <button class="mood-btn text-4xl transform hover:scale-125 transition-transform" data-mood="neutral">😐</button>
+            </div>
+            <button id="skip-mood-btn" class="text-sm text-secondary-color hover:underline">跳过</button>
+        </div>
+    </div>
+
+
+    <script type="module">
+        // ===================================================================================
+        // 1. 数据定义 (Data Definitions)
+        // ===================================================================================
+
+        const BA_DUAN_JIN_DATA = [
+            { name: "两手托天理三焦", description: "双手交叉于腹前，缓慢上托至头顶，翻掌上撑，充分拉伸躯干，配合吸气；然后呼气，手臂下落还原。" },
+            { name: "左右开弓似射雕", description: "向一侧开步成马步，一手向侧方推出呈“八字掌”，另一手屈肘如拉弓，眼神注视远方；交替进行。" },
+            { name: "调理脾胃须单举", description: "一手上举过头，掌心向上，尽力上撑，另一手下按，形成上下对拉的劲力；交替进行。" },
+            { name: "五劳七伤往后瞧", description: "头部缓慢向后转动，视线随之远望，同时手臂旋臂，拉伸颈部与肩部肌群；动作宜缓。" },
+            { name: "摇头摆尾去心火", description: "屈膝下蹲成马步，身体重心左右移动，同时头随腰脊摇摆转动，形成一个完整的圆周运动。" },
+            { name: "两手攀足固肾腰", description: "上体前屈，双手沿腿后向下摩运，尽量触摸脚面，然后沿腿前摩运，身体缓缓直立。" },
+            { name: "攒拳怒目增气力", description: "马步站立，一拳缓慢有力地向前冲出，同时“怒目而视”，然后收回；交替进行。" },
+            { name: "背后七颠百病消", description: "双脚并拢，脚跟提起，身体向上伸展，然后脚跟下落，轻震地面；重复进行。" }
+        ];
+
+        // [FIXED] Replaced all animation URLs with new, stable ones.
+        const LOTTIE_ANIMATIONS = [
+            "https://lottie.host/e8c8c4a9-2a94-4364-9494-08d73e0c1f9a/aT29jBqf2E.json", // 两手托天理三焦
+            "https://lottie.host/3e8e162f-b190-444a-939e-4a6c8e5e7d58/N2T8lHh2xr.json", // 左右开弓似射雕
+            "https://lottie.host/6f3b3b19-1d2a-49a6-8d5a-9b5d249f3e3e/NqE4xX2k3K.json", // 调理脾胃须单举
+            "https://lottie.host/c830f9e8-024a-472d-8a62-19a99c951559/c6BCsA0g4S.json", // 五劳七伤往后瞧
+            "https://lottie.host/82a933e4-3a68-4b7c-85a6-98c47e8b6d3b/yq44F2T2qY.json", // 摇头摆尾去心火
+            "https://lottie.host/93a98dd2-7a63-4522-b593-3e7e2d9396f4/v4Yp2E2g3h.json", // 两手攀足固肾腰
+            "https://lottie.host/d2759e69-02d9-43c3-98a9-50c266838a66/TqA8c3x3F1.json", // 攒拳怒目增气力
+            "https://lottie.host/3697e9e9-1146-4a73-a173-1a2d7e0c1f9a/Ua8b7c6d5e.json"  // 背后七颠百病消
+        ];
+
+        const QUOTES = [
+            "生命在于运动。 ——伏尔泰",
+            "认为自己没有时间运动的人，早晚得挪出时间来生病。",
+            "有规律的生活是健康与长寿的秘诀。",
+            "流水不腐，户枢不蠹，动也。",
+            "每日一练，不求速成，贵在坚持。"
+        ];
+        
+        // ===================================================================================
+        // 2. 数据库管理器 (DatabaseManager)
+        // ===================================================================================
+        class DatabaseManager {
+            constructor(dbName, version) {
+                this.dbName = dbName;
+                this.version = version;
+                this.db = null;
+            }
+
+            open() {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(this.dbName, this.version);
+                    request.onupgradeneeded = (event) => {
+                        this.db = event.target.result;
+                        if (!this.db.objectStoreNames.contains('practiceLog')) {
+                            this.db.createObjectStore('practiceLog', { keyPath: 'date' });
+                        }
+                    };
+                    request.onsuccess = (event) => {
+                        this.db = event.target.result;
+                        resolve(this.db);
+                    };
+                    request.onerror = (event) => {
+                        console.error("Database error: ", event.target.errorCode);
+                        reject(event.target.errorCode);
+                    };
+                });
+            }
+
+            async addLog(logEntry) {
+                if (!this.db) await this.open();
+                return new Promise((resolve, reject) => {
+                    const transaction = this.db.transaction(['practiceLog'], 'readwrite');
+                    const store = transaction.objectStore('practiceLog');
+                    const request = store.put(logEntry);
+                    request.onsuccess = () => resolve();
+                    request.onerror = (event) => reject(event.target.error);
+                });
+            }
+
+            async getAllLogs() {
+                if (!this.db) await this.open();
+                return new Promise((resolve, reject) => {
+                    const transaction = this.db.transaction(['practiceLog'], 'readonly');
+                    const store = transaction.objectStore('practiceLog');
+                    const request = store.getAll();
+                    request.onsuccess = (event) => resolve(event.target.result);
+                    request.onerror = (event) => reject(event.target.error);
+                });
+            }
+        }
+
+        // ===================================================================================
+        // 3. 动画控制器 (AnimationController)
+        // ===================================================================================
+        class AnimationController {
+            constructor(player, titleEl, descEl) {
+                this.player = player;
+                this.titleEl = titleEl;
+                this.descEl = descEl;
+                this.currentIndex = 0;
+                this.isPlaying = false;
+                this.isFullSequence = false;
+
+                this.player.addEventListener('ready', () => {
+                    this.loadMovement(this.currentIndex);
+                }, { once: true });
+
+                this.player.addEventListener('complete', () => this.onComplete());
+            }
+
+            loadMovement(index) {
+                if (index < 0 || index >= BA_DUAN_JIN_DATA.length) return;
+                this.currentIndex = index;
+                const data = BA_DUAN_JIN_DATA[index];
+                const animUrl = LOTTIE_ANIMATIONS[index];
+                
+                this.titleEl.textContent = data.name;
+                this.descEl.textContent = data.description;
+                
+                if (this.player.getLottie() && this.player.currentFrame > 0) {
+                    this.player.stop();
+                }
+                this.player.load(animUrl);
+
+                if (this.isPlaying) {
+                    this.player.play();
+                }
+            }
+
+            play() {
+                this.isPlaying = true;
+                this.player.play();
+                this.updatePlayPauseButton();
+            }
+
+            pause() {
+                this.isPlaying = false;
+                this.player.pause();
+                this.updatePlayPauseButton();
+            }
+
+            togglePlayPause() {
+                this.isPlaying ? this.pause() : this.play();
+            }
+
+            next() {
+                const newIndex = (this.currentIndex + 1) % BA_DUAN_JIN_DATA.length;
+                this.loadMovement(newIndex);
+            }
+
+            prev() {
+                const newIndex = (this.currentIndex - 1 + BA_DUAN_JIN_DATA.length) % BA_DUAN_JIN_DATA.length;
+                this.loadMovement(newIndex);
+            }
+
+            startSequence() {
+                this.isFullSequence = true;
+                this.loadMovement(0);
+                this.play();
+                document.getElementById('start-full-sequence-btn').textContent = "练习进行中...";
+                document.getElementById('start-full-sequence-btn').disabled = true;
+            }
+
+            onComplete() {
+                if (this.isFullSequence) {
+                    if (this.currentIndex < BA_DUAN_JIN_DATA.length - 1) {
+                        this.next();
+                    } else {
+                        this.isFullSequence = false;
+                        this.isPlaying = false;
+                        this.updatePlayPauseButton();
+                        document.getElementById('start-full-sequence-btn').textContent = "开始全套练习";
+                        document.getElementById('start-full-sequence-btn').disabled = false;
+                        document.dispatchEvent(new CustomEvent('sequenceComplete'));
+                    }
+                } else {
+                    this.isPlaying = false;
+                    this.updatePlayPauseButton();
+                }
+            }
+            
+            updatePlayPauseButton() {
+                document.getElementById('play-icon').classList.toggle('hidden', this.isPlaying);
+                document.getElementById('pause-icon').classList.toggle('hidden', !this.isPlaying);
+            }
+        }
+        
+        // ===================================================================================
+        // 4. 游戏化引擎 (GamificationEngine)
+        // ===================================================================================
+        class GamificationEngine {
+            constructor(streakEl, totalEl, gardenEl) {
+                this.streakEl = streakEl;
+                this.totalEl = totalEl;
+                this.gardenEl = gardenEl;
+            }
+
+            update(logs) {
+                this.updateStreak(logs);
+                this.updateTotal(logs);
+                this.updateGarden(logs);
+            }
+            
+            formatDate(date) {
+                return date.toISOString().split('T')[0];
+            }
+
+            /**
+             * [REFACTORED] Calculates the user's practice streak.
+             * This new logic is more robust and accurately handles gaps in practice.
+             * It works by creating a set of completed dates for quick lookups, then
+             * iterating backwards day-by-day from today (or yesterday) to count
+             * consecutive days.
+             */
+            updateStreak(logs) {
+                if (logs.length === 0) {
+                    this.streakEl.textContent = 0;
+                    return;
+                }
+
+                const completedDates = new Set(logs.map(log => log.date));
+                let streak = 0;
+                let currentDate = new Date();
+
+                // If today is not completed, start checking from yesterday.
+                if (!completedDates.has(this.formatDate(currentDate))) {
+                    currentDate.setDate(currentDate.getDate() - 1);
+                }
+
+                // Iterate backwards day-by-day and count consecutive days.
+                while (completedDates.has(this.formatDate(currentDate))) {
+                    streak++;
+                    currentDate.setDate(currentDate.getDate() - 1);
+                }
+                
+                this.streakEl.textContent = streak;
+            }
+
+            updateTotal(logs) {
+                this.totalEl.textContent = logs.length;
+            }
+            
+            updateGarden(logs) {
+                this.gardenEl.innerHTML = ''; // Clear the garden
+                const totalCompleted = logs.length;
+                
+                for (let i = 0; i < totalCompleted; i++) {
+                    const item = document.createElement('div');
+                    item.classList.add('garden-element');
+                    
+                    const itemType = i % 5;
+                    const randomLeft = (i * 15 + Math.random() * 10) % 90;
+                    const randomBottom = Math.random() * 15;
+
+                    if (itemType === 0) { // Stone
+                        item.innerHTML = `<svg viewBox="0 0 100 40" class="w-12 h-8" style="bottom: ${randomBottom}px; left: ${randomLeft}%;"><path d="M 10 40 C 0 40, 0 20, 10 20 C 20 0, 80 0, 90 20 C 100 20, 100 40, 90 40 Z" fill="#a1a1aa"/></svg>`;
+                    } else if (itemType === 1) { // Grass
+                         item.innerHTML = `<svg viewBox="0 0 20 30" class="w-4 h-6" style="bottom: ${randomBottom}px; left: ${randomLeft}%;"><path d="M10 30 Q5 20 10 0 Q15 20 10 30" fill="#4ade80"/></svg>`;
+                    } else if (itemType === 2) { // Water Ripple
+                         item.innerHTML = `<svg viewBox="0 0 100 20" class="w-20 h-4" style="bottom: ${5 + randomBottom}px; left: ${randomLeft % 80}%;"><path d="M 0 10 C 25 0, 25 20, 50 10 S 75 0, 100 10" stroke="#60a5fa" fill="none" stroke-width="2"/></svg>`;
+                    } else if (itemType === 3) { // Flower
+                         item.innerHTML = `<svg viewBox="0 0 50 50" class="w-6 h-6" style="bottom: ${10 + randomBottom}px; left: ${randomLeft}%;"><circle cx="25" cy="25" r="5" fill="#facc15"/><circle cx="15" cy="15" r="8" fill="#fb7185"/><circle cx="35" cy="15" r="8" fill="#fb7185"/><circle cx="15" cy="35" r="8" fill="#fb7185"/><circle cx="35" cy="35" r="8" fill="#fb7185"/></svg>`;
+                    } else { // Tree
+                        item.innerHTML = `<svg viewBox="0 0 60 100" class="w-10 h-16" style="bottom: 0; left: ${randomLeft % 85}%;"><rect x="25" y="60" width="10" height="40" fill="#8B6F4E"/><circle cx="30" cy="40" r="30" fill="#4A5C3A"/></svg>`;
+                    }
+                    
+                    this.gardenEl.appendChild(item);
+                    setTimeout(() => item.classList.add('visible'), i * 100);
+                }
+            }
+        }
+
+        // ===================================================================================
+        // 5. 日历视图 (CalendarView)
+        // ===================================================================================
+        class CalendarView {
+            constructor(container, headerEl) {
+                this.container = container;
+                this.headerEl = headerEl;
+                this.currentDate = new Date();
+            }
+
+            render(logs) {
+                const completedDates = new Set(logs.map(log => log.date));
+                this.container.innerHTML = '';
+                
+                const year = this.currentDate.getFullYear();
+                const month = this.currentDate.getMonth();
+                
+                this.headerEl.textContent = `${year}年 ${month + 1}月`;
+                
+                const firstDayOfMonth = new Date(year, month, 1);
+                const lastDayOfMonth = new Date(year, month + 1, 0);
+                
+                const firstDayIndex = firstDayOfMonth.getDay() === 0 ? 6 : firstDayOfMonth.getDay() - 1;
+                
+                const dayNames = ['一', '二', '三', '四', '五', '六', '日'];
+                dayNames.forEach(name => {
+                    const dayHeader = document.createElement('div');
+                    dayHeader.className = 'calendar-day day-header';
+                    dayHeader.textContent = name;
+                    this.container.appendChild(dayHeader);
+                });
+
+                for (let i = 0; i < firstDayIndex; i++) {
+                    const dayDiv = document.createElement('div');
+                    dayDiv.className = 'calendar-day day-other-month';
+                    this.container.appendChild(dayDiv);
+                }
+                
+                for (let i = 1; i <= lastDayOfMonth.getDate(); i++) {
+                    const dayDiv = document.createElement('div');
+                    dayDiv.className = 'calendar-day';
+                    dayDiv.textContent = i;
+                    
+                    const dayDate = new Date(year, month, i);
+                    const dateString = dayDate.toISOString().split('T')[0];
+                    
+                    if (completedDates.has(dateString)) {
+                        dayDiv.classList.add('day-completed');
+                    }
+                    
+                    const today = new Date();
+                    if (dayDate.toDateString() === today.toDateString()) {
+                        dayDiv.classList.add('day-today');
+                    }
+                    
+                    this.container.appendChild(dayDiv);
+                }
+            }
+            
+            nextMonth() {
+                this.currentDate.setMonth(this.currentDate.getMonth() + 1);
+                document.dispatchEvent(new Event('monthChanged'));
+            }
+
+            prevMonth() {
+                this.currentDate.setMonth(this.currentDate.getMonth() - 1);
+                 document.dispatchEvent(new Event('monthChanged'));
+            }
+        }
+
+        // ===================================================================================
+        // 6. 主应用 (App)
+        // ===================================================================================
+        class App {
+            constructor() {
+                this.dbManager = new DatabaseManager('BaDuanJinAppDB', 1);
+                this.animationController = new AnimationController(
+                    document.getElementById('lottie-player'),
+                    document.getElementById('movement-title'),
+                    document.getElementById('movement-description')
+                );
+                this.gamificationEngine = new GamificationEngine(
+                    document.getElementById('streak-days'),
+                    document.getElementById('total-days'),
+                    document.getElementById('zen-garden')
+                );
+                this.calendarView = new CalendarView(
+                    document.getElementById('calendar'),
+                    document.getElementById('calendar-header')
+                );
+                this.moodModal = document.getElementById('mood-modal');
+            }
+
+            async init() {
+                this.showRandomQuote();
+                this.setupEventListeners();
+                await this.dbManager.open();
+                this.loadDataAndRender();
+            }
+
+            async loadDataAndRender() {
+                const logs = await this.dbManager.getAllLogs();
+                this.calendarView.render(logs);
+                this.gamificationEngine.update(logs);
+            }
+
+            setupEventListeners() {
+                document.getElementById('play-pause-btn').addEventListener('click', () => this.animationController.togglePlayPause());
+                document.getElementById('next-btn').addEventListener('click', () => this.animationController.next());
+                document.getElementById('prev-btn').addEventListener('click', () => this.animationController.prev());
+                document.getElementById('start-full-sequence-btn').addEventListener('click', () => this.animationController.startSequence());
+
+                document.getElementById('next-month-btn').addEventListener('click', () => this.calendarView.nextMonth());
+                document.getElementById('prev-month-btn').addEventListener('click', () => this.calendarView.prevMonth());
+                
+                document.addEventListener('sequenceComplete', () => this.handleSequenceComplete());
+                document.addEventListener('monthChanged', () => this.loadDataAndRender());
+
+                this.moodModal.querySelectorAll('.mood-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => this.handleMoodSelection(e.currentTarget.dataset.mood));
+                });
+                document.getElementById('skip-mood-btn').addEventListener('click', () => this.handleMoodSelection(null));
+            }
+            
+            showRandomQuote() {
+                const quoteEl = document.getElementById('daily-wisdom-quote');
+                const randomIndex = Math.floor(Math.random() * QUOTES.length);
+                quoteEl.textContent = QUOTES[randomIndex];
+            }
+
+            async handleSequenceComplete() {
+                const todayStr = new Date().toISOString().split('T')[0];
+                const logs = await this.dbManager.getAllLogs();
+                const hasCompletedToday = logs.some(log => log.date === todayStr);
+
+                if (!hasCompletedToday) {
+                    this.moodModal.classList.add('visible');
+                    this.moodModal.classList.remove('opacity-0', 'pointer-events-none');
+                } else {
+                    console.log("今天已经练习过了！");
+                }
+            }
+
+            handleMoodSelection(mood) {
+                this.moodModal.classList.remove('visible');
+                this.moodModal.classList.add('opacity-0', 'pointer-events-none');
+                this.savePracticeLog(mood);
+            }
+
+            async savePracticeLog(mood) {
+                const todayStr = new Date().toISOString().split('T')[0];
+                const logEntry = {
+                    date: todayStr,
+                    completed: true,
+                    mood: mood
+                };
+                await this.dbManager.addLog(logEntry);
+                this.loadDataAndRender();
+            }
+        }
+
+        // ===================================================================================
+        // 7. 应用启动 (App Initialization)
+        // ===================================================================================
+        window.addEventListener('DOMContentLoaded', () => {
+            const app = new App();
+            app.init();
+        });
+
+    </script>
+</body>
+</html>
