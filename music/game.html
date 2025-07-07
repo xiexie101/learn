@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>唱歌进阶游戏 - 从零到歌神</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            color: #f0f0f0;
+            font-size: 1.2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            height: 30px;
+            border-radius: 15px;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .level-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .level-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 3px solid transparent;
+        }
+
+        .level-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .level-card.completed {
+            border-color: #4CAF50;
+            background: linear-gradient(135deg, #e8f5e8, #ffffff);
+        }
+
+        .level-card.current {
+            border-color: #2196F3;
+            background: linear-gradient(135deg, #e3f2fd, #ffffff);
+            animation: pulse 2s infinite;
+        }
+
+        .level-card.locked {
+            opacity: 0.6;
+            border-color: #ccc;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.4); }
+            70% { box-shadow: 0 0 0 20px rgba(33, 150, 243, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(33, 150, 243, 0); }
+        }
+
+        .level-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .level-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-right: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            font-weight: bold;
+        }
+
+        .level-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .level-subtitle {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .level-content {
+            margin-bottom: 1.5rem;
+        }
+
+        .skill-list {
+            list-style: none;
+            margin-bottom: 1rem;
+        }
+
+        .skill-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .skill-list li:before {
+            content: "🎵";
+            position: absolute;
+            left: 0;
+        }
+
+        .practice-methods {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+        }
+
+        .practice-methods h4 {
+            color: #555;
+            margin-bottom: 0.5rem;
+        }
+
+        .method-item {
+            background: white;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin: 0.5rem 0;
+            border-left: 4px solid #2196F3;
+        }
+
+        .level-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #2196F3, #21CBF3);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .btn-locked {
+            background: #ccc;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        .checkpoint {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 15px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .checkpoint h4 {
+            color: #856404;
+            margin-bottom: 0.5rem;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2196F3;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .tips-section {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .tips-section h3 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .tip-item {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 0.5rem 0;
+            border-left: 4px solid #FF5722;
+        }
+
+        @media (max-width: 768px) {
+            .level-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .level-actions {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎤 唱歌进阶游戏</h1>
+        <p>从程序员到歌神的3个月冒险之旅</p>
+    </div>
+
+    <div class="container">
+        <!-- 进度条 -->
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar" style="width: 8%">
+                Level 1 - 初级歌者 (8%)
+            </div>
+        </div>
+
+        <!-- 统计数据 -->
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="currentLevel">1</div>
+                <div class="stat-label">当前等级</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="completedLevels">0</div>
+                <div class="stat-label">已完成关卡</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="practiceTime">0</div>
+                <div class="stat-label">练习天数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="skillPoints">0</div>
+                <div class="stat-label">技能点数</div>
+            </div>
+        </div>
+
+        <!-- 关卡列表 -->
+        <div class="level-grid" id="levelGrid">
+            <!-- 关卡将通过JavaScript生成 -->
+        </div>
+
+        <!-- 程序员专属提示 -->
+        <div class="tips-section">
+            <h3>🧑‍💻 程序员学唱歌专属攻略</h3>
+            <div class="tip-item">
+                <strong>调试思维：</strong> 把音准问题当作bug，用录音对比标准音高来"调试"你的声音
+            </div>
+            <div class="tip-item">
+                <strong>版本控制：</strong> 每周录制一首歌，建立你的"音乐仓库"，追踪进步轨迹
+            </div>
+            <div class="tip-item">
+                <strong>单元测试：</strong> 每个音阶、每个技巧都要反复测试，确保稳定性
+            </div>
+            <div class="tip-item">
+                <strong>重构优化：</strong> 定期回顾之前学过的歌曲，优化演唱技巧
+            </div>
+            <div class="tip-item">
+                <strong>Code Review：</strong> 找朋友或老师听你唱歌，获得反馈和建议
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 游戏数据
+        const gameData = {
+            currentLevel: 1,
+            completedLevels: 0,
+            practiceTime: 0,
+            skillPoints: 0,
+            unlockedLevels: [1]
+        };
+
+        // 关卡数据
+        const levels = [
+            {
+                id: 1,
+                title: "呼吸基础",
+                subtitle: "掌握正确的呼吸方法",
+                icon: "🫁",
+                color: "#4CAF50",
+                skills: [
+                    "腹式呼吸法",
+                    "气息控制练习",
+                    "发声前的呼吸准备",
+                    "呼吸节奏训练"
+                ],
+                practices: [
+                    {
+                        name: "躺姿呼吸练习",
+                        description: "平躺，手放胸腹部，感受腹部起伏",
+                        duration: "每天10分钟，持续1周"
+                    },
+                    {
+                        name: "数数呼吸法",
+                        description: "吸气4拍，保持4拍，呼气8拍",
+                        duration: "每天3组，每组10次"
+                    },
+                    {
+                        name: "蜡烛练习",
+                        description: "对着蜡烛发'呼'音，火焰摇摆但不熄灭",
+                        duration: "每天练习15分钟"
+                    }
+                ],
+                checkpoint: {
+                    title: "通关测试",
+                    description: "能够稳定控制气息，连续发'啊'音15秒以上"
+                },
+                week: 1,
+                skillPointsReward: 10
+            },
+            {
+                id: 2,
+                title: "发声练习",
+                subtitle: "建立正确的发声习惯",
+                icon: "🗣️",
+                color: "#2196F3",
+                skills: [
+                    "口腔共鸣",
+                    "咽腔共鸣",
+                    "胸腔共鸣",
+                    "发声位置调整"
+                ],
+                practices: [
+                    {
+                        name: "哼鸣练习",
+                        description: "闭嘴哼唱，感受头部震动",
+                        duration: "每天早晚各10分钟"
+                    },
+                    {
+                        name: "母音练习",
+                        description: "练习a、e、i、o、u的纯净发音",
+                        duration: "每个母音持续5秒，重复20次"
+                    },
+                    {
+                        name: "共鸣练习",
+                        description: "用'ma'音练习不同共鸣腔体",
+                        duration: "每天20分钟，分别练习胸、口、头腔共鸣"
+                    }
+                ],
+                checkpoint: {
+                    title: "通关测试",
+                    description: "能够清晰发出五个母音，并感受到不同的共鸣"
+                },
+                week: 2,
+                skillPointsReward: 15
+            },
+            {
+                id: 3,
+                title: "音准训练",
+                subtitle: "告别五音不全",
+                icon: "🎯",
+                color: "#FF9800",
+                skills: [
+                    "音阶识别",
+                    "音程练习",
+                    "音准矫正",
+                    "听音训练"
+                ],
+                practices: [
+                    {
+                        name: "钢琴音阶跟唱",
+                        description: "跟随钢琴弹奏do、re、mi音阶",
+                        duration: "每天练习30分钟，使用调音器检测"
+                    },
+                    {
+                        name: "音程练习",
+                        description: "练习二度、三度、四度、五度音程",
+                        duration: "每个音程练习10分钟"
+                    },
+                    {
+                        name: "简单歌曲跟唱",
+                        description: "选择《小星星》、《生日快乐》等简单歌曲",
+                        duration: "每天练习2-3首，重点关注音准"
+                    }
+                ],
+                checkpoint: {
+                    title: "通关测试",
+                    description: "能够准确唱出do、re、mi、fa、sol、la、si、do音阶"
+                },
+                week: 3,
+                skillPointsReward: 20
+            },
+            {
+                id: 4,
+                title: "节奏感培养",
+                subtitle: "掌握歌曲的律动",
+                icon: "🥁",
+                color: "#9C27B0",
+                skills: [
+                    "基础节拍",
+                    "节奏型识别",
+                    "拍子练习",
+                    "节奏与旋律配合"
+                ],
+                practices: [
+                    {
+                        name: "拍手练习",
+                        description: "跟随节拍器练习各种节拍型",
+                        duration: "每天20分钟，从60BPM开始"
+                    },
+                    {
+                        name: "数拍唱歌",
+                        description: "边数拍子边唱歌，保持节奏稳定",
+                        duration: "选择3-5首歌曲练习"
+                    },
+                    {
+                        name: "身体律动",
+                        description: "跟随音乐做简单的身体摆动",
+                        duration: "每天练习15分钟"
+                    }
+                ],
+                checkpoint: {
+                    title: "通关测试",
+                    description: "能够稳定跟随节拍器唱完一首歌，不跑拍"
+                },
+                week: 4,
+                skillPointsReward: 20
+            },
+            {
+                id: 5,
+                title: "简单歌曲演唱",
+                subtitle: "完整演唱你的第一首歌",
+                icon: "🎵",
+                color: "#F44336",
+                skills: [
+                    "歌曲选择",
+                    "分句练习",
+                    "连接流畅度",
+                    "情感表达基础"
+                ],
+                practices: [
+                    {
+                        name: "歌曲分析",
+                        description: "分析歌曲结构，标记呼吸点",
+                        duration: "每首歌花30分钟分析"
+                    },
+                    {
+                        name: "分句练习",
+                        description: "逐句练习，确保每句都唱准",
+                        duration: "每句重复10-15次"
+                    },
+                    {
+                        name: "完整演唱",
+                        description: "完整演唱整首歌曲",
+                        duration: "每天完整演唱3-5遍"
+                    }
+                ],
+                checkpoint: {
+                    title: "通关测试",
+                    description: "能够完整、流畅地演唱一首简单歌曲，基本音准正确"
+                },
+                week: 5,
+                skillPointsReward: 25
+            },
+            {
+                id: 6,
+                title: "声音控制",
+                subtitle: "掌握音量和音色变化",
+                icon: "🎚️",
+                color: "#607D8B",
+                skills: [
+                    "音量控制",
+                    "音色变化",
+                    "轻声练习",
+                    "力度变化"
+                ],
+                practices: [
+                    {
+                        name: "渐强渐弱练习",
+                        description: "练习从pp到ff的音量变化",
+                        duration: "每天练习20分钟"
+                    },
+                    {
+                        name: "轻声练习",
+                        description: "练习用气声、轻声演唱",
+                        duration: "选择抒情歌曲练习"
+                    },
+                    {
+                        name: "音色模仿",
+                        description: "模仿不同歌手的音色特点",
+                        duration: "每天练习不同风格15分钟"
+                    }
+                ],
+                checkpoint: {
+                    title: "通关测试",
+                    description: "能够在一首歌中展现至少3种不同的音量层次"
+                },
+                week: 6,
+                skillPointsReward: 20
+            },
+            {
+                id: 7,
+                title: "情感表达",
+                subtitle: "让歌声传达感情",
+                icon: "❤️",
+                color: "#E91E63",
+                skills: [
+                    "歌词理解",
+                    "情感投入",
+                    "面部表情",
+                    "肢体语言"
+                ],
+                practices: [
+                    {
+                        name: "歌词朗读",
+                        description: "有感情地朗读歌词，理解含义",
+                        duration: "每首歌朗读10遍"
+                    },
+                    {
+                        name: "情感演唱",
+                        description: "根据歌词内容调整演唱情感",
+                        duration: "每天练习2-3首不同情感的歌"
+                    },
+                    {
+                        name: "镜前练习",
+                        description: "对着镜子练习面部表情",
+                        duration: "每天练习15分钟"
+                    }
+                ],
+                checkpoint: {
+                    title: "通关测试",
+                    description: "演唱时能够自然地表达歌曲情感，有感染力"
+                },
+                week: 7,
+                skillPointsReward: 30
+            },
+            {
+                id: 8,
+                title: "高音训练",
+                subtitle: "突破音域限制",
+                icon: "🚀",
+                color: "#3F51B5",
+                skills: [
+                    "高音技巧",
+                    "假声运用",
+                    "混声练习",
+                    "音域扩展"
+                ],
+                practices: [
+                    {
+                        name: "假声练习",
+                        description: "从中音区开始练习假声",
+                        duration: "每天练习20分钟，逐步提高"
+                    },
+                    {
+                        name: "混声练习",
+                        description: "练习真假声的混合",
+                        duration: "每天练习25分钟"
+                    },
+                    {
+                        name: "高音歌曲",
+                        description: "选择有挑战性的高音歌曲练习",
+                        duration: "每天练习1-2首"
+                    }
+                ],
+                checkpoint: {
+                    title: "通关测试",
+                    description: "能够用假声或混声唱到高音C，音质稳定"
+                },
+                week: 8,
+                skillPointsReward: 35
+            },
+            {
+                id: 9,
+                title: "演唱技巧",
+                subtitle: "掌握进阶技巧",
+                icon: "⭐",
+                color: "#FF5722",
+                skills: [
+                    "颤音技巧",
+                    "滑音运用",
+                    "装饰音",
+                    "气息转换"
+                ],
+                practices: [
+                    {
+                        name: "颤音练习",
+                        description: "练习喉部颤音和气息颤音",
+                        duration: "每天练习20分钟"
+                    },
+                    {
+                        name: "滑音练习",
+                        description: "练习上滑音和下滑音",
+                        duration: "每天练习15分钟"
+                    },
+                    {
+                        name: "技巧歌曲",
+                        description: "选择技巧性强的歌曲练习",
+                        duration: "每天练习2首"
+                    }
+                ],
+                checkpoint: {
+                    title: "通关测试",
+                    description: "能够在演唱中自然运用各种技巧，不显生硬"
+                },
+                week: 9,
+                skillPointsReward: 30
+            },
+            {
+                id: 10,
+                title: "风格演绎",
+                subtitle: "尝试不同音乐风格",
+                icon: "🎭",
+                color: "#795548",
+                skills: [
+                    "流行演唱",
+                    "民族唱法",
+                    "爵士风格",
+                    "摇滚演唱"
+                ],
+                practices: [
+                    {
+                        name: "风格分析",
+                        description: "分析不同风格的演唱特点",
+                        duration: "每种风格研究2天"
+                    },
+                    {
+                        name: "模仿练习",
+                        description: "模仿不同风格的代表歌手",
+                        duration: "每天练习一种风格"
+                    },
+                    {
+                        name: "风格演唱",
+                        description: "用不同风格演唱同一首歌",
+                        duration: "每天练习改编演唱"
+                    }
+                ],
+                checkpoint: {
+                    title: "通关测试",
+                    description: "能够用至少3种不同风格演唱歌曲，各有特色"
+                },
+                week: 10,
+                skillPointsReward: 35
+            },
+            {
+                id: 11,
+                title: "舞台表现",
+                subtitle: "成为真正的表演者",
+                icon: "🎪",
+                color: "#009688",
+                skills: [
+                    "舞台站姿",
+                    "手势运用",
+                    "观众互动",
+                    "紧张克服"
+                ],
+                practices: [
+                    {
+                        name: "舞台练习",
+                        description: "在镜子前练习舞台表现",
+                        duration: "每天练习30分钟"
+                    },
+                    {
+                        name: "录像分析",
+                        description: "录制演唱视频，分析表现",
+                        duration: "每周录制3个视频"
+                    },
+                    {
+                        name: "朋友表演",
+                        description: "在朋友面前表演练习",
+                        duration: "每周至少一次"
+                    }
+                ],
+                checkpoint: {
+                    title: "通关测试",
+                    description: "能够在他人面前自信表演，有良好的舞台表现力"
+                },
+                week: 11,
+                skillPointsReward: 30
+            },
+            {
+                id: 12,
+                title: "歌神挑战",
+                subtitle: "展示3个月的学习成果",
+                icon: "👑",
+                color: "#FFC107",
+                skills: [
+                    "综合运用",
+                    "完美演绎",
+                    "个人风格",
+                    "艺术表达"
+                ],
+                practices: [
+                    {
+                        name: "曲目准备",
+                        description: "准备3-5首不同风格的歌曲",
+                        duration: "每首歌精练到完美"
+                    },
+                    {
+                        name: "录音制作",
+                        description: "录制高质量的演唱作品",
+                        duration: "制作个人演唱专辑"
+                    },
+                    {
+                        name: "成果展示",
+                        description: "组织个人演唱会或分享演唱视频",
+                        duration: "向朋友展示学习成果"
+                    }
+                ],
+                checkpoint: {
+                    title: "终极挑战",
+                    description: "完成个人演唱会，展示全面的演唱技能和个人风格"
+                },
+                week: 12,
+                skillPointsReward: 50
+            }
+        ];
+
+        // 初始化游戏
+        function initGame() {
+            loadGameData();
+            renderLevels();
+            updateStats();
+            updateProgressBar();
+        }
+
+        // 渲染关卡
+        function renderLevels() {
+            const levelGrid = document.getElementById('levelGrid');
+            levelGrid.innerHTML = '';
+
+            levels.forEach((level, index) => {
+                const isCompleted = gameData.completedLevels >= level.id;
+                const isCurrent = gameData.currentLevel === level.id;
+                const isLocked = !gameData.unlockedLevels.includes(level.id);
+
+                const levelCard = document.createElement('div');
+                levelCard.className = `level-card ${isCompleted ? 'completed' : ''} ${isCurrent ? 'current' : ''} ${isLocked ? 'locked' : ''}`;
+                
+                levelCard.innerHTML = `
+                    <div class="level-header">
+                        <div class="level-icon" style="background: ${level.color}">
+                            ${level.icon}
+                        </div>
+                        <div>
+                            <div class="level-title">${level.title}</div>
+                            <div class="level-subtitle">${level.subtitle}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="level-content">
+                        <h4>🎯 学习目标：</h4>
+                        <ul class="skill-list">
+                            ${level.skills.map(skill => `<li>${skill}</li>`).join('')}
+                        </ul>
+                        
+                        <div class="practice-methods">
+                            <h4>📚 练习方法：</h4>
+                            ${level.practices.map(practice => `
+                                <div class="method-item">
+                                    <strong>${practice.name}</strong><br>
+                                    <small>${practice.description}</small><br>
+                                    <em>练习时长：${practice.duration}</em>
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <div class="checkpoint">
+                            <h4>🏆 ${level.checkpoint.title}</h4>
+                            <p>${level.checkpoint.description}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="level-actions">
+                        <div>
+                            <small>第${level.week}周 | 奖励${level.skillPointsReward}技能点</small>
+                        </div>
+                        <div>
+                            ${isCompleted ? 
+                                '<button class="btn btn-success">✅ 已完成</button>' :
+                                isCurrent ? 
+                                    `<button class="btn btn-primary" onclick="completeLevel(${level.id})">开始挑战</button>` :
+                                    isLocked ?
+                                        '<button class="btn btn-locked">🔒 未解锁</button>' :
+                                        `<button class="btn btn-primary" onclick="startLevel(${level.id})">开始学习</button>`
+                            }
+                        </div>
+                    </div>
+                `;
+                
+                levelGrid.appendChild(levelCard);
+            });
+        }
+
+        // 开始关卡
+        function startLevel(levelId) {
+            gameData.currentLevel = levelId;
+            saveGameData();
+            updateStats();
+            updateProgressBar();
+            renderLevels();
+            
+            // 显示开始提示
+            alert(`🎉 开始第${levelId}关：${levels[levelId-1].title}！\n\n记住：每天坚持练习，记录你的进步！`);
+        }
+
+        // 完成关卡
+        function completeLevel(levelId) {
+            const level = levels.find(l => l.id === levelId);
+            const confirmed = confirm(`🎯 确认完成第${levelId}关：${level.title}吗？\n\n请确保你已经通过了通关测试：\n${level.checkpoint.description}`);
+            
+            if (confirmed) {
+                gameData.completedLevels = Math.max(gameData.completedLevels, levelId);
+                gameData.skillPoints += level.skillPointsReward;
+                gameData.practiceTime += 7; // 假设每关卡练习7天
+                
+                // 解锁下一关
+                if (levelId < levels.length) {
+                    if (!gameData.unlockedLevels.includes(levelId + 1)) {
+                        gameData.unlockedLevels.push(levelId + 1);
+                    }
+                    gameData.currentLevel = levelId + 1;
+                } else {
+                    // 所有关卡完成
+                    alert('🎉🎉🎉 恭喜！你已经完成了所有关卡，成为真正的歌神！');
+                }
+                
+                saveGameData();
+                updateStats();
+                updateProgressBar();
+                renderLevels();
+                
+                // 显示完成提示
+                alert(`✨ 恭喜完成第${levelId}关！\n\n🏆 获得${level.skillPointsReward}技能点\n🎵 解锁新技能：${level.skills.join('、')}`);
+            }
+        }
+
+        // 更新统计数据
+        function updateStats() {
+            document.getElementById('currentLevel').textContent = gameData.currentLevel;
+            document.getElementById('completedLevels').textContent = gameData.completedLevels;
+            document.getElementById('practiceTime').textContent = gameData.practiceTime;
+            document.getElementById('skillPoints').textContent = gameData.skillPoints;
+        }
+
+        // 更新进度条
+        function updateProgressBar() {
+            const progress = (gameData.completedLevels / levels.length) * 100;
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = `${Math.max(8, progress)}%`;
+            
+            if (gameData.completedLevels === levels.length) {
+                progressBar.textContent = '🎉 歌神 - 完美完成！';
+                progressBar.style.background = 'linear-gradient(90deg, #FFD700, #FFA500)';
+            } else {
+                const currentLevelTitle = levels[gameData.currentLevel - 1]?.title || '未知关卡';
+                progressBar.textContent = `Level ${gameData.currentLevel} - ${currentLevelTitle} (${Math.round(progress)}%)`;
+            }
+        }
+
+        // 保存游戏数据到内存
+        function saveGameData() {
+            // 在实际应用中，这里可以保存到localStorage
+            // 但在Claude环境中，我们只在内存中保存
+        }
+
+        // 加载游戏数据
+        function loadGameData() {
+            // 在实际应用中，这里可以从localStorage加载
+            // 在Claude环境中，使用默认数据
+        }
+
+        // 重置游戏
+        function resetGame() {
+            if (confirm('确定要重置游戏进度吗？所有数据将被清除！')) {
+                gameData.currentLevel = 1;
+                gameData.completedLevels = 0;
+                gameData.practiceTime = 0;
+                gameData.skillPoints = 0;
+                gameData.unlockedLevels = [1];
+                
+                saveGameData();
+                updateStats();
+                updateProgressBar();
+                renderLevels();
+                
+                alert('🔄 游戏已重置！重新开始你的歌神之路吧！');
+            }
+        }
+
+        // 显示详细指南
+        function showGuide() {
+            const guideText = `
+🎤 唱歌学习游戏指南
+
+📖 游戏规则：
+• 按顺序完成12个关卡，每个关卡对应一周的学习内容
+• 每完成一个关卡可获得技能点奖励
+• 必须通过当前关卡的测试才能解锁下一关
+• 坚持每天练习，记录你的进步
+
+🎯 学习建议：
+• 每天至少练习30分钟
+• 使用手机录音功能记录练习过程
+• 定期回顾之前学过的内容
+• 不要急于求成，扎实掌握每个技能
+
+🏆 通关奖励：
+• 完成所有关卡将获得"歌神"称号
+• 掌握完整的唱歌技能体系
+• 能够自信地在他人面前表演
+
+📱 推荐工具：
+• 调音器APP（检测音准）
+• 节拍器APP（练习节奏）
+• 录音APP（记录进步）
+• 钢琴APP（练习音阶）
+
+🎵 祝你学习愉快，早日成为歌神！
+            `;
+            
+            alert(guideText);
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', initGame);
+    </script>
+
+    <!-- 底部工具栏 -->
+    <div style="position: fixed; bottom: 20px; right: 20px; display: flex; gap: 10px;">
+        <button class="btn btn-primary" onclick="showGuide()" style="border-radius: 50%; width: 50px; height: 50px; font-size: 20px;">📖</button>
+        <button class="btn" onclick="resetGame()" style="border-radius: 50%; width: 50px; height: 50px; font-size: 20px; background: #f44336; color: white;">🔄</button>
+    </div>
+
+    <!-- 隐藏的音频元素，可以用来播放提示音 -->
+    <audio id="successSound" preload="auto">
+        <!-- 可以添加音效文件 -->
+    </audio>
+</body>
+</html>
