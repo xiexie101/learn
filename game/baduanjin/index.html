@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>八段锦每日运动追踪器</title>
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧘‍♂️ 八段锦修行之路 🧘‍♀️</h1>
+            <div class="motivational-quote" id="motivationalQuote">
+                "每日坚持，强身健体，心境平和"
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalDays">0</div>
+                <div class="stat-label">总练习天数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="streak">0</div>
+                <div class="stat-label">连续天数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="completionRate">0%</div>
+                <div class="stat-label">完成率</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="currentLevel">1</div>
+                <div class="stat-label">当前等级</div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="section">
+                <h2>🎯 今日练习</h2>
+                <ul class="baduanjin-list">
+                    <li class="baduanjin-item">
+                        <input type="checkbox" class="baduanjin-checkbox" data-exercise="0">
+                        <span class="baduanjin-name">两手托天理三焦</span>
+                    </li>
+                    <li class="baduanjin-item">
+                        <input type="checkbox" class="baduanjin-checkbox" data-exercise="1">
+                        <span class="baduanjin-name">左右开弓似射雕</span>
+                    </li>
+                    <li class="baduanjin-item">
+                        <input type="checkbox" class="baduanjin-checkbox" data-exercise="2">
+                        <span class="baduanjin-name">调理脾胃须单举</span>
+                    </li>
+                    <li class="baduanjin-item">
+                        <input type="checkbox" class="baduanjin-checkbox" data-exercise="3">
+                        <span class="baduanjin-name">五劳七伤往后瞧</span>
+                    </li>
+                    <li class="baduanjin-item">
+                        <input type="checkbox" class="baduanjin-checkbox" data-exercise="4">
+                        <span class="baduanjin-name">摇头摆尾去心火</span>
+                    </li>
+                    <li class="baduanjin-item">
+                        <input type="checkbox" class="baduanjin-checkbox" data-exercise="5">
+                        <span class="baduanjin-name">两手攀足固肾腰</span>
+                    </li>
+                    <li class="baduanjin-item">
+                        <input type="checkbox" class="baduanjin-checkbox" data-exercise="6">
+                        <span class="baduanjin-name">攒拳怒目增气力</span>
+                    </li>
+                    <li class="baduanjin-item">
+                        <input type="checkbox" class="baduanjin-checkbox" data-exercise="7">
+                        <span class="baduanjin-name">背后七颠百病消</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>📅 练习记录</h2>
+                <div class="calendar-header">
+                    <button class="calendar-nav" onclick="changeMonth(-1)">←</button>
+                    <h3 id="calendarTitle">2025年7月</h3>
+                    <button class="calendar-nav" onclick="changeMonth(1)">→</button>
+                </div>
+                <div class="calendar-weekdays">
+                    <div class="weekday">日</div>
+                    <div class="weekday">一</div>
+                    <div class="weekday">二</div>
+                    <div class="weekday">三</div>
+                    <div class="weekday">四</div>
+                    <div class="weekday">五</div>
+                    <div class="weekday">六</div>
+                </div>
+                <div class="calendar-grid" id="calendar">
+                    <!-- 日历将通过JavaScript生成 -->
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🏆 等级系统</h2>
+            <div class="level-system">
+                <div class="level-badge" id="levelBadge">初学者 - 等级 1</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+                <div id="progressText">0 / 7 天 (下一等级)</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🎖️ 成就系统</h2>
+            <div class="achievement-grid">
+                <div class="achievement" id="achievement-first">
+                    <div class="achievement-icon">🌟</div>
+                    <div class="achievement-name">初次体验</div>
+                </div>
+                <div class="achievement" id="achievement-week">
+                    <div class="achievement-icon">🔥</div>
+                    <div class="achievement-name">坚持一周</div>
+                </div>
+                <div class="achievement" id="achievement-month">
+                    <div class="achievement-icon">💪</div>
+                    <div class="achievement-name">月度达人</div>
+                </div>
+                <div class="achievement" id="achievement-perfect">
+                    <div class="achievement-icon">⭐</div>
+                    <div class="achievement-name">完美一天</div>
+                </div>
+                <div class="achievement" id="achievement-streak">
+                    <div class="achievement-icon">🏆</div>
+                    <div class="achievement-name">连击高手</div>
+                </div>
+                <div class="achievement" id="achievement-master">
+                    <div class="achievement-icon">🎯</div>
+                    <div class="achievement-name">八段锦大师</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-buttons">
+            <button class="btn btn-primary" onclick="markTodayComplete()">完成今日练习</button>
+            <button class="btn btn-secondary" onclick="resetProgress()">重置进度</button>
+        </div>
+    </div>
+    <script src="index.js"></script>
+    
+</body>
+</html>
