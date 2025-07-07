@@ -85,6 +85,14 @@ h1 {
     background: linear-gradient(135deg, #96ceb4, #4caf50);
 }
 
+.stat-card:nth-child(5) {
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+}
+
+.stat-card:nth-child(6) {
+    background: linear-gradient(135deg, #ffecd2, #fcb69f);
+}
+
 .stat-number {
     font-size: 2.5em;
     font-weight: bold;
