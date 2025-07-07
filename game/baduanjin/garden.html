@@ -193,6 +193,14 @@
                             <p class="text-2xl font-bold" id="total-days">0</p>
                             <p class="text-sm text-gray-600">总练习天数</p>
                         </div>
+                        <div class="bg-white/50 rounded-lg p-3">
+                            <p class="text-2xl font-bold" id="days-since-start">0</p>
+                            <p class="text-sm text-gray-600">已修行(天)</p>
+                        </div>
+                        <div class="bg-white/50 rounded-lg p-3">
+                            <p class="text-lg font-bold" id="start-date">--</p>
+                            <p class="text-sm text-gray-600">开始时间</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -300,6 +308,7 @@
                 lastPracticeDate: null,
                 streak: 0,
                 totalDays: 0,
+                startDate: null, // NEW: Track the start date
             };
         }
 
@@ -311,8 +320,12 @@
         function loadData() {
             const savedData = localStorage.getItem('baDuanJinTrackerData');
             state = savedData ? JSON.parse(savedData) : getDefaultState();
-            // Ensure all keys from default state exist
             state = { ...getDefaultState(), ...state };
+
+            // Retroactively set startDate for old users for compatibility
+            if (!state.startDate && state.practiceHistory.length > 0) {
+                state.startDate = state.practiceHistory[0];
+            }
         }
         
         // --- AUDIO ---
@@ -389,6 +402,24 @@
 
             document.getElementById('streak-days').textContent = state.streak;
             document.getElementById('total-days').textContent = state.totalDays;
+
+            // NEW: Render start date and days since start
+            if (state.startDate) {
+                const startDateObj = new Date(state.startDate);
+                const today = new Date();
+                // Normalize dates to midnight to get a clean day difference
+                const start = new Date(startDateObj.getFullYear(), startDateObj.getMonth(), startDateObj.getDate());
+                const end = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+                const diffTime = Math.abs(end - start);
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+                document.getElementById('days-since-start').textContent = diffDays;
+                document.getElementById('start-date').textContent = state.startDate.replace(/-/g, '.');
+            } else {
+                document.getElementById('days-since-start').textContent = 0;
+                document.getElementById('start-date').textContent = '尚未开始';
+            }
         }
 
         function renderAchievements() {
@@ -538,6 +569,11 @@
                 console.log("Already practiced today.");
                 return;
             }
+            
+            // NEW: Set start date on first practice
+            if (!state.startDate) {
+                state.startDate = todayStr;
+            }
 
             // 1. Get selected moves
             const selectedMoves = [];
@@ -684,6 +720,10 @@
                     if (importedData && typeof importedData.xp === 'number') {
                         if (confirm("您确定要用导入的数据覆盖当前进度吗？")) {
                             state = { ...getDefaultState(), ...importedData };
+                            // Add backward compatibility for imported data without startDate
+                            if (!state.startDate && state.practiceHistory.length > 0) {
+                                state.startDate = state.practiceHistory[0];
+                            }
                             saveData();
                             updateUI();
                             alert("数据导入成功！");
