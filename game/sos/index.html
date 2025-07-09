@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>福州家庭医药箱交互指南</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chosen Palette: Calm Harmony -->
+    <!-- Application Structure Plan: The application is designed as a task-oriented single-page application (SPA) to provide immediate, actionable help. The structure prioritizes user needs over mirroring the report's linear format. It uses a top navigation to switch between four core 'views' or 'tasks': 1) '应急处理' (Emergency Guide) for immediate first-aid needs, using an icon-based system for quick access. 2) '常备清单' (Kit Checklist) for proactive preparation, with interactive filters for different family members. 3) '用药安全' (Medication Safety) to highlight critical, life-saving information like avoiding drug stacking. 4) '本地资源' (Local Resources) for Fuzhou-specific contacts. This structure was chosen because in a real-world scenario, a user is either reacting to an event or preparing for one; the design directly serves these two primary use cases, making information discovery faster and more intuitive than a long, scrollable document. -->
+    <!-- Visualization & Content Choices: The application eschews traditional data charts as the source report is qualitative and procedural. Instead, it focuses on 'information visualization' through interactive components. Report Info: First-aid steps for injuries. -> Goal: Provide quick, clear instructions in a stressful situation. -> Viz/Presentation: Icon-based grid leading to step-by-step instruction cards (HTML/CSS). -> Interaction: Click an icon to reveal the relevant guide. -> Justification: Faster than reading a text menu. Report Info: The comprehensive list of medical supplies. -> Goal: Help users build and manage their kit. -> Viz/Presentation: Interactive checklist tables (HTML/CSS). -> Interaction: Clickable filters (All/Child/Elderly) to toggle content visibility. -> Justification: Turns a passive list into an active management tool. Report Info: Dangers of combining cold medicines. -> Goal: Emphatically warn users. -> Viz/Presentation: A structured 'Dos & Don'ts' comparison table (HTML/CSS). -> Justification: Visually contrasts safe and dangerous practices for better retention. All interactions are powered by vanilla JavaScript. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #F8F7F4;
+            color: #4A4A4A;
+        }
+        .nav-button {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-button.active {
+            color: #5A8B7B;
+            border-bottom-color: #5A8B7B;
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .guide-card, .info-card {
+            background-color: #FFFFFF;
+            border: 1px solid #EAEAEA;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .guide-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        }
+        .step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        .step-number {
+            flex-shrink: 0;
+            width: 2.5rem;
+            height: 2.5rem;
+            background-color: #E8F0EE;
+            color: #5A8B7B;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin-right: 1rem;
+        }
+        .filter-btn {
+            transition: all 0.2s ease;
+        }
+        .filter-btn.active {
+            background-color: #5A8B7B;
+            color: white;
+        }
+        .checklist-table th {
+            background-color: #F8F7F4;
+        }
+        .checklist-table td, .checklist-table th {
+            padding: 1rem 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #EAEAEA;
+        }
+        .tag-child, .tag-elderly { display: none; }
+        .show-child .tag-child, .show-elderly .tag-elderly { display: inline-block; }
+        .tag-pill {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-left: 0.5rem;
+        }
+        .bg-child { background-color: #E6F4FF; color: #006DCC; }
+        .bg-elderly { background-color: #FFF4E6; color: #D98C60; }
+        .warning-banner {
+            background-color: #FFFBEB;
+            border-left: 4px solid #FBBF24;
+            color: #92400E;
+        }
+         .danger-banner {
+            background-color: #FEF2F2;
+            border-left: 4px solid #EF4444;
+            color: #991B1B;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-bold text-[#5A8B7B] tracking-tight">福州家庭医药箱交互指南</h1>
+            <p class="mt-3 text-lg text-gray-600">一个为您的家庭健康安全设计的快速、实用指南</p>
+        </header>
+
+        <nav class="flex justify-center border-b border-gray-200 mb-12">
+            <div class="flex space-x-4 sm:space-x-8">
+                <button data-target="emergency" class="nav-button active py-4 px-2 sm:px-4 text-sm sm:text-base font-medium text-gray-500 hover:text-[#5A8B7B]">🚨 应急处理</button>
+                <button data-target="checklist" class="nav-button py-4 px-2 sm:px-4 text-sm sm:text-base font-medium text-gray-500 hover:text-[#5A8B7B]">✅ 常备清单</button>
+                <button data-target="safety" class="nav-button py-4 px-2 sm:px-4 text-sm sm:text-base font-medium text-gray-500 hover:text-[#5A8B7B]">🛡️ 用药安全</button>
+                <button data-target="resources" class="nav-button py-4 px-2 sm:px-4 text-sm sm:text-base font-medium text-gray-500 hover:text-[#5A8B7B]">🏥 本地资源</button>
+            </div>
+        </nav>
+
+        <main>
+            <!-- 应急处理 Section -->
+            <section id="emergency" class="content-section active">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold">紧急情况处理</h2>
+                    <p class="mt-2 text-gray-600 max-w-2xl mx-auto">当意外发生时，保持冷静并遵循以下步骤。点击您遇到的情况，获取详细指引。如果情况严重，请立即拨打120。</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- 切割伤 -->
+                    <div class="guide-card cursor-pointer" onclick="showDetail('detail-cut')">
+                        <h3 class="text-xl font-semibold mb-2 flex items-center">🔪 切割伤 / 擦伤</h3>
+                        <p class="text-gray-600">厨房切菜、户外活动时最常见的意外。学习正确的止血、消毒和包扎方法。</p>
+                    </div>
+                    <!-- 扭伤 -->
+                    <div class="guide-card cursor-pointer" onclick="showDetail('detail-sprain')">
+                        <h3 class="text-xl font-semibold mb-2 flex items-center">🤸 扭伤 / 拉伤</h3>
+                        <p class="text-gray-600">记住国际通用的P.R.I.C.E.急救原则，正确处理脚踝、手腕扭伤。</p>
+                    </div>
+                    <!-- 烫伤 -->
+                    <div class="guide-card cursor-pointer" onclick="showDetail('detail-burn')">
+                        <h3 class="text-xl font-semibold mb-2 flex items-center">🔥 轻微烧伤 / 烫伤</h3>
+                        <p class="text-gray-600">开水、热油烫伤？“冲、脱、泡、盖、送”五步法能最大程度减轻伤害。</p>
+                    </div>
+                    <!-- 腹泻 -->
+                    <div class="guide-card cursor-pointer" onclick="showDetail('detail-diarrhea')">
+                        <h3 class="text-xl font-semibold mb-2 flex items-center">💨 急性腹泻 / 呕吐</h3>
+                        <p class="text-gray-600">腹泻最危险的是脱水。了解补液的核心重要性及正确的饮食调整。</p>
+                    </div>
+                    <!-- 鼻出血 -->
+                    <div class="guide-card cursor-pointer" onclick="showDetail('detail-nosebleed')">
+                        <h3 class="text-xl font-semibold mb-2 flex items-center">🩸 鼻出血</h3>
+                        <p class="text-gray-600">不要后仰！学习正确的姿势和指压止血法，快速有效地处理流鼻血。</p>
+                    </div>
+                    <!-- 危险信号 -->
+                    <div class="guide-card cursor-pointer bg-red-50 border-red-200" onclick="showDetail('detail-redflags')">
+                        <h3 class="text-xl font-semibold mb-2 flex items-center text-red-700">❗ 何时必须就医</h3>
+                        <p class="text-red-600">家庭急救有边界。识别这些危险信号，果断寻求专业医疗帮助。</p>
+                    </div>
+                </div>
+
+                <!-- Detail Views -->
+                <div id="emergency-details" class="mt-12"></div>
+            </section>
+            
+            <!-- 常备清单 Section -->
+            <section id="checklist" class="content-section">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold">家庭医药箱常备清单</h2>
+                    <p class="mt-2 text-gray-600 max-w-2xl mx-auto">一个“精选”而非“囤积”的医药箱是家庭健康的第一道防线。使用下面的清单来准备和定期检查您的医药箱。</p>
+                    <div id="checklist-filter" class="mt-6 flex justify-center space-x-2">
+                        <button class="filter-btn active px-4 py-2 rounded-full text-sm font-medium bg-gray-200 text-gray-700" data-filter="all">综合清单</button>
+                        <button class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-200 text-gray-700" data-filter="child">儿童专用</button>
+                        <button class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-200 text-gray-700" data-filter="elderly">老人关怀</button>
+                    </div>
+                </div>
+
+                <div class="space-y-10">
+                    <div>
+                        <h3 class="text-2xl font-semibold mb-4 border-l-4 border-[#5A8B7B] pl-3">医疗工具与敷料</h3>
+                        <div class="overflow-x-auto info-card">
+                            <table class="w-full checklist-table">
+                                <thead>
+                                    <tr><th>项目</th><th>主要用途</th><th>关键说明</th></tr>
+                                </thead>
+                                <tbody id="table-tools"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-semibold mb-4 border-l-4 border-[#5A8B7B] pl-3">消毒与外用药</h3>
+                        <div class="overflow-x-auto info-card">
+                            <table class="w-full checklist-table">
+                                <thead>
+                                    <tr><th>类别</th><th>药品/用品</th><th>关键说明</th></tr>
+                                </thead>
+                                <tbody id="table-external"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                     <div>
+                        <h3 class="text-2xl font-semibold mb-4 border-l-4 border-[#5A8B7B] pl-3">核心口服药 (非处方)</h3>
+                        <div class="overflow-x-auto info-card">
+                            <table class="w-full checklist-table">
+                                <thead>
+                                    <tr><th>类别</th><th>通用名</th><th>关键说明</th></tr>
+                                </thead>
+                                <tbody id="table-internal"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 用药安全 Section -->
+            <section id="safety" class="content-section">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold">核心用药安全须知</h2>
+                    <p class="mt-2 text-gray-600 max-w-2xl mx-auto">了解药品不是越多越好，正确使用比拥有更重要。这里是每个家庭都必须掌握的安全知识。</p>
+                </div>
+
+                <div class="space-y-12">
+                    <div class="info-card danger-banner">
+                        <h3 class="text-xl font-bold text-red-800 mb-3">头号警示：切勿叠加服用感冒药！</h3>
+                        <p class="mb-4">许多不同品牌的感冒药含有相同的退烧、镇痛成分（如“对乙酰氨基酚”）。同时服用两种或以上，极易导致成分过量，引发严重肝损伤！</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <div class="bg-red-100 p-4 rounded-lg">
+                                <h4 class="font-bold mb-2">❌ 危险行为</h4>
+                                <ul class="list-disc list-inside space-y-1">
+                                    <li>服用了感冒药A，感觉没好转，又吃了感冒药B。</li>
+                                    <li>吃了复方感冒药后，觉得还发烧，又单独吃了退烧药（泰诺林/芬必得）。</li>
+                                    <li>给孩子喂了小儿感冒颗粒，又喂了美林。</li>
+                                </ul>
+                            </div>
+                            <div class="bg-green-100 p-4 rounded-lg">
+                                <h4 class="font-bold mb-2 text-green-800">✅ 安全法则</h4>
+                                <ul class="list-disc list-inside space-y-1 text-green-700">
+                                    <li><strong>一次只吃一种</strong>：一个感冒周期，只坚持使用一种复方感冒药。</li>
+                                    <li><strong>看清通用名</strong>：服药前，务必阅读说明书【成分】表，避免重复。</li>
+                                    <li><strong>二者不共存</strong>：服用了复方感冒药，就不能再吃单一成分的退烧药，反之亦然。</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-card">
+                         <h3 class="text-xl font-bold mb-3">碘伏 vs. 酒精：用对了吗？</h3>
+                         <p class="text-base mb-4">这是家庭急救中最常见的错误之一，用错了可能加重伤害。</p>
+                         <div class="flex flex-col md:flex-row gap-4">
+                             <div class="flex-1 p-4 border border-green-200 rounded-lg bg-green-50">
+                                 <h4 class="font-bold text-lg text-green-700">碘伏 👍</h4>
+                                 <p class="mt-1"><strong>擦伤口</strong>。温和不刺激，是处理切割伤、擦伤等开放性伤口的首选。</p>
+                             </div>
+                             <div class="flex-1 p-4 border border-red-200 rounded-lg bg-red-50">
+                                 <h4 class="font-bold text-lg text-red-700">酒精 👎 (用于伤口)</h4>
+                                 <p class="mt-1"><strong>擦器物、擦完整皮肤</strong>。绝对不能用于破损伤口，会引起剧痛并延缓愈合。</p>
+                             </div>
+                         </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="info-card">
+                            <h3 class="text-xl font-bold mb-3">药品储存与管理</h3>
+                            <ul class="list-disc list-inside space-y-2 text-gray-700">
+                                <li><strong>集中存放</strong>：所有药品放入专用药箱。</li>
+                                <li><strong>避光避湿</strong>：远离浴室和厨房，放在阴凉干燥处。</li>
+                                <li><strong>儿童安全</strong>：必须存放在儿童无法触及的高处。</li>
+                                <li><strong>定期检查</strong>：每3-6个月盘点一次，检查有效期和药品性状。</li>
+                            </ul>
+                        </div>
+                        <div class="info-card">
+                            <h3 class="text-xl font-bold mb-3">过期药品处理</h3>
+                            <p class="mb-3 text-gray-700">过期药品是<span class="font-bold text-red-600">有害垃圾</span>，随意丢弃会污染环境。首选方案是投入社区的红色“有害垃圾”桶或药店回收点。</p>
+                            <p class="text-sm text-gray-600">若无回收点，可将药片混入厨余垃圾，液体用废报纸吸附后密封，随生活垃圾丢弃，关键是“毁形处理”。</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 本地资源 Section -->
+            <section id="resources" class="content-section">
+                 <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold">福州本地健康资源</h2>
+                    <p class="mt-2 text-gray-600 max-w-2xl mx-auto">了解本地的季节性风险，存好紧急联系方式，善用数字化医疗服务，为家庭健康多一份保障。</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="info-card">
+                        <h3 class="text-xl font-bold mb-4">福州季节性健康风险</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <span class="text-2xl mr-3">❄️</span>
+                                <div><strong class="text-gray-800">冬春季:</strong> 高发流行性感冒、诺如病毒胃肠炎。注意保暖，勤洗手。</div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-2xl mr-3">☀️</span>
+                                <div><strong class="text-gray-800">夏秋季:</strong> 警惕登革热等蚊媒传染病和细菌性肠炎。防蚊灭蚊，注意饮食卫生。</div>
+                            </li>
+                        </ul>
+                    </div>
+                     <div class="info-card">
+                        <h3 class="text-xl font-bold mb-4">紧急联系方式</h3>
+                        <div class="space-y-3">
+                             <div class="flex items-center">
+                                <span class="text-3xl mr-4">🚑</span>
+                                <div>
+                                    <div class="font-bold text-lg">全国统一急救电话</div>
+                                    <div class="text-2xl font-bold text-red-600 tracking-wider">120</div>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-600 pt-2">拨通后请清晰说明地址、病情和联系电话。</p>
+                        </div>
+                    </div>
+                </div>
+                 <div class="info-card mt-8">
+                    <h3 class="text-xl font-bold mb-4">福州主要医院及线上服务</h3>
+                    <p class="text-sm text-gray-600 mb-4">以下为部分大型医院总机，紧急情况请直接拨打120或前往急诊。各大医院均已开通线上服务（微信公众号/小程序），方便复诊和非紧急咨询。</p>
+                     <ul class="space-y-2 text-gray-700">
+                        <li><strong>福建省立医院:</strong> 0591-87557768</li>
+                        <li><strong>福建医科大学附属协和医院:</strong> 0591-83357896</li>
+                        <li><strong>福建医科大学附属第一医院:</strong> 0591-87983333</li>
+                        <li><strong>福建省儿童医院:</strong> 0591-87550658</li>
+                    </ul>
+                 </div>
+            </section>
+        </main>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const navButtons = document.querySelectorAll('.nav-button');
+            const contentSections = document.querySelectorAll('.content-section');
+            const emergencyDetailsContainer = document.getElementById('emergency-details');
+
+            // --- Data for checklists and emergency details ---
+            const emergencyDetails = {
+                'detail-cut': {
+                    title: '🔪 切割伤 / 擦伤处理步骤',
+                    steps: [
+                        { num: 1, title: '止血', desc: '用无菌纱布或干净布块直接按压伤口5-10分钟。若持续流血不止，立即就医。' },
+                        { num: 2, title: '清洁', desc: '用流动的清水或生理盐水冲洗伤口，去除污物。' },
+                        { num: 3, title: '消毒', desc: '用棉签蘸取<strong class=\"text-green-700\">碘伏</strong>，从伤口中心向外螺旋式涂抹。<strong>不要用酒精</strong>！' },
+                        { num: 4, title: '处理异物', desc: '对小木刺，可用消毒后的镊子夹出。若异物过深或过大，请就医处理。' },
+                        { num: 5, title: '保护', desc: '涂抹少量抗生素软膏（如百多邦），再用创可贴或无菌纱布覆盖。' }
+                    ]
+                },
+                'detail-sprain': {
+                    title: '🤸 扭伤 / 拉伤 (P.R.I.C.E. 原则)',
+                    steps: [
+                        { num: 'P', title: 'Protection (保护)', desc: '立即停止活动，保护受伤部位，避免再次受力。' },
+                        { num: 'R', title: 'Rest (休息)', desc: '让受伤的肢体在急性期（前48-72小时）充分休息。' },
+                        { num: 'I', title: 'Ice (冰敷)', desc: '<strong>核心步骤</strong>。立即用毛巾包裹冰袋冰敷15-20分钟，每隔2-3小时一次，持续24-48小时。' },
+                        { num: 'C', title: 'Compression (加压)', desc: '使用弹性绷带对受伤部位进行适度包扎，以限制肿胀。' },
+                        { num: 'E', title: 'Elevation (抬高)', desc: '休息时将受伤肢体抬高至心脏水平以上。' },
+                    ],
+                    warning: '<strong>48小时内严禁热敷、按摩或使用活血化瘀药！</strong>'
+                },
+                'detail-burn': {
+                    title: '🔥 轻微烧伤 / 烫伤 (冲、脱、泡、盖、送)',
+                    steps: [
+                        { num: 1, title: '冲', desc: '立即用流动的凉水冲洗伤处至少15-20分钟，迅速降温。<strong>切忌用冰块</strong>。' },
+                        { num: 2, title: '脱', desc: '在冷水下小心脱去衣物，若有粘连切勿强行撕扯，应剪开衣物。' },
+                        { num: 3, title: '泡', desc: '在冷水中持续浸泡以缓解疼痛。' },
+                        { num: 4, title: '盖', desc: '用无菌纱布或干净的布松散覆盖伤面。<strong>严禁涂抹牙膏、酱油等</strong>。' },
+                        { num: 5, title: '送', desc: '出现大水泡、烫伤面积大于手掌、或烫在关键部位时，立即送医。' }
+                    ]
+                },
+                'detail-diarrhea': {
+                    title: '💨 急性腹泻 / 呕吐',
+                    steps: [
+                        { num: 1, title: '补液是核心', desc: '腹泻最危险的是脱水。首选药店的<strong>口服补液盐Ⅲ</strong>，少量、多次饮用。' },
+                        { num: 2, title: '对症处理', desc: '可服用蒙脱石散保护肠道黏膜，但需与其他药物间隔1-2小时。' },
+                        { num: 3, title: '饮食调整', desc: '进食白粥、烂面条等易消化食物。避免油腻、辛辣、生冷。' }
+                    ]
+                },
+                 'detail-nosebleed': {
+                    title: '🩸 鼻出血正确处理',
+                    steps: [
+                        { num: 1, title: '正确姿势', desc: '坐下，身体<strong>向前微倾</strong>，头部自然下垂。<strong>切忌后仰！</strong>' },
+                        { num: 2, title: '指压止血', desc: '用拇指和食指紧捏两侧鼻翼（鼻子柔软处），持续压迫10-15分钟。' },
+                        { num: 3, title: '冷敷辅助', desc: '可在鼻根部放置冰袋或冷毛巾。' },
+                        { num: 4, title: '寻求帮助', desc: '若反复压迫后仍流血不止，或出血量大，应立即就医。' }
+                    ]
+                },
+                'detail-redflags': {
+                    title: '❗ 危险信号：何时必须就医',
+                    isRedFlag: true,
+                    content: `
+                        <ul class="list-disc list-inside space-y-3 text-red-800">
+                            <li><strong>伤口:</strong> 按压20分钟不止血、伤口过深过大、被动物或生锈金属所伤、出现严重感染迹象（红肿扩大、流脓、发热）。</li>
+                            <li><strong>烧烫伤:</strong> 任何有水泡(II度)或皮肤焦黑(III度)的烧伤、面积大于手掌、烧在关键部位。</li>
+                            <li><strong>头部受伤:</strong> 出现意识丧失、剧烈头痛、反复呕吐、一侧肢体无力。</li>
+                            <li><strong>过敏反应:</strong> 出现呼吸困难、喉咙肿胀、头晕、全身大面积皮疹（过敏性休克迹象）。</li>
+                            <li><strong>胸痛:</strong> 突发的压榨性或撕裂性胸痛，可能放射至手臂、背部。</li>
+                             <li><strong>腹泻呕吐:</strong> 出现严重脱水迹象（无尿、精神萎靡）、呕吐物带血、伴有高烧剧痛。</li>
+                        </ul>
+                    `
+                }
+            };
+
+            const checklistData = {
+                tools: [
+                    { name: '电子体温计', use: '测量体温', note: '比水银体温计更安全，儿童家庭必备。' },
+                    { name: '医用剪刀/镊子', use: '剪开敷料/清除异物', note: '保持清洁，镊子使用前后需消毒。' },
+                    { name: '一次性手套', use: '处理伤口防感染', note: '推荐无乳胶材质，防止过敏。' },
+                    { name: '创可贴', use: '覆盖小而浅的伤口', note: '多种尺寸备用。' },
+                    { name: '无菌纱布/弹性绷带', use: '覆盖大伤口/加压包扎', note: '必须是无菌包装。' },
+                    { name: '医用胶布', use: '固定纱布和绷带', note: '' },
+                    { name: '无菌棉签', use: '蘸取消毒液', note: '不建议用棉絮直接接触伤口。' },
+                    { name: '速冷冰袋', use: '急性扭伤、烫伤后冷敷', note: '无需冷冻，方便应急。' }
+                ],
+                external: [
+                    { cat: '伤口消毒', name: '碘伏', note: '<strong>伤口消毒首选</strong>，温和不刺激。' },
+                    { cat: '器械消毒', name: '75%医用酒精', note: '用于完整皮肤、体温计、镊子消毒，<strong>勿用于伤口</strong>。' },
+                    { cat: '细菌感染', name: '莫匹罗星软膏(百多邦)', note: '预防和治疗轻微创口的细菌感染。' },
+                    { cat: '扭伤挫伤', name: '云南白药气雾剂', note: '活血化瘀，<strong>伤后48小时后</strong>，肿胀稳定期使用。' },
+                    { cat: '轻微烫伤', name: '京万红软膏', note: '专用烫伤膏，止痛促愈合。' },
+                    { cat: '皮肤瘙痒', name: '炉甘石洗剂', note: '用于痱子、湿疹、蚊虫叮咬，安全温和。<span class="tag-pill bg-child">儿童</span>' },
+                    { cat: '真菌感染', name: '硝酸咪康唑乳膏(达克宁)', note: '用于脚气、体癣等。' }
+                ],
+                internal: [
+                    { cat: '退烧止痛', name: '对乙酰氨基酚 或 布洛芬', note: '<strong>二选一</strong>，切勿混用或与复方感冒药同服。<span class="tag-pill bg-child">儿童</span><span class="tag-pill bg-elderly">老人</span>' },
+                    { cat: '感冒', name: '复方感冒药', note: '选一种即可，<strong>严禁混吃</strong>，注意其中多含退烧成分。' },
+                    { cat: '腹泻', name: '<strong>口服补液盐Ⅲ</strong> / 蒙脱石散', note: '<strong>补液是核心，比止泻更重要！</strong><span class="tag-pill bg-child">儿童</span><span class="tag-pill bg-elderly">老人</span>' },
+                    { cat: '便秘', name: '开塞露 / 乳果糖', note: '开塞露仅限应急，乳果糖更温和，适合长期。<span class="tag-pill bg-child">儿童</span><span class="tag-pill bg-elderly">老人</span>' },
+                    { cat: '抗过敏', name: '氯雷他定', note: '第二代抗组胺药，无明显嗜睡副作用。<span class="tag-pill bg-child">儿童</span>' }
+                ]
+            };
+
+            function populateTables() {
+                const toolsBody = document.getElementById('table-tools');
+                checklistData.tools.forEach(item => {
+                    toolsBody.innerHTML += `<tr><td>${item.name}</td><td>${item.use}</td><td>${item.note}</td></tr>`;
+                });
+
+                const externalBody = document.getElementById('table-external');
+                checklistData.external.forEach(item => {
+                    externalBody.innerHTML += `<tr class="${item.note.includes('儿童') ? 'row-child' : ''} ${item.note.includes('老人') ? 'row-elderly' : ''}"><td>${item.cat}</td><td>${item.name}</td><td>${item.note}</td></tr>`;
+                });
+
+                const internalBody = document.getElementById('table-internal');
+                checklistData.internal.forEach(item => {
+                    internalBody.innerHTML += `<tr class="${item.note.includes('儿童') ? 'row-child' : ''} ${item.note.includes('老人') ? 'row-elderly' : ''}"><td>${item.cat}</td><td>${item.name}</td><td>${item.note}</td></tr>`;
+                });
+            }
+
+            // --- Navigation Logic ---
+            navButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetId = button.dataset.target;
+
+                    navButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+
+                    contentSections.forEach(section => {
+                        section.classList.remove('active');
+                        if (section.id === targetId) {
+                            section.classList.add('active');
+                        }
+                    });
+                    // Clear details when switching tabs
+                    emergencyDetailsContainer.innerHTML = '';
+                });
+            });
+            
+            // --- Emergency Detail Logic ---
+            window.showDetail = function(detailId) {
+                const detailData = emergencyDetails[detailId];
+                let html = `<div class="info-card ${detailData.isRedFlag ? 'bg-red-50 border-red-200' : ''}">`;
+                html += `<h3 class="text-2xl font-bold mb-6 ${detailData.isRedFlag ? 'text-red-700' : ''}">${detailData.title}</h3>`;
+
+                if (detailData.steps) {
+                    detailData.steps.forEach(step => {
+                        html += `
+                            <div class="step">
+                                <div class="step-number">${step.num}</div>
+                                <div>
+                                    <h4 class="font-bold text-lg">${step.title}</h4>
+                                    <p class="text-gray-700">${step.desc}</p>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                
+                if (detailData.content) {
+                    html += detailData.content;
+                }
+                
+                if (detailData.warning) {
+                    html += `<div class="mt-6 p-4 rounded-lg warning-banner">${detailData.warning}</div>`;
+                }
+                
+                html += '</div>';
+                emergencyDetailsContainer.innerHTML = html;
+                emergencyDetailsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            // --- Checklist Filter Logic ---
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const tables = document.querySelectorAll('.checklist-table');
+
+            filterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const filter = button.dataset.filter;
+
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+
+                    tables.forEach(table => {
+                        table.classList.remove('show-child', 'show-elderly');
+                        const rows = table.querySelectorAll('tbody tr');
+                        rows.forEach(row => {
+                            row.style.display = ''; // Reset display
+                            if (filter === 'child' && !row.classList.contains('row-child')) {
+                                row.style.display = 'none';
+                            } else if (filter === 'elderly' && !row.classList.contains('row-elderly')) {
+                                row.style.display = 'none';
+                            }
+                        });
+                        if(filter === 'child') {
+                            table.classList.add('show-child');
+                        } else if (filter === 'elderly') {
+                             table.classList.add('show-elderly');
+                        }
+                    });
+                });
+            });
+
+            // Initial population of data
+            populateTables();
+        });
+    </script>
+</body>
+</html>
