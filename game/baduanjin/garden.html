@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>八段锦禅意花园追踪器</title>
+    <title>禅意花园运动追踪器</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
@@ -124,7 +124,7 @@
             <!-- Header -->
             <div class="glass-card rounded-2xl p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-800">八段锦禅意花园</h1>
+                    <h1 class="text-3xl font-bold text-gray-800">禅意花园运动追踪器</h1>
                     <p id="zen-quote" class="mt-2 text-gray-600">每日禅语：加载中...</p>
                 </div>
                  <div class="mt-4 sm:mt-0 flex items-center gap-3">
@@ -156,10 +156,10 @@
             <!-- Practice Tracker -->
             <div class="glass-card rounded-2xl p-6">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-semibold">今日练习：八段锦</h2>
+                    <h2 class="text-xl font-semibold">今日练习</h2>
                     <button id="select-all-btn" class="text-sm btn-primary px-3 py-1 rounded-md">全选</button>
                 </div>
-                <div id="ba-duan-jin-moves" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                <div id="ba-duan-jin-moves" class="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
                     <!-- Moves will be injected here -->
                 </div>
                 <button id="complete-practice-btn" class="w-full btn-primary font-bold py-3 px-4 rounded-lg text-lg flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300">
@@ -251,7 +251,8 @@
         const CONFIG = {
             moves: [
                 "两手托天理三焦", "左右开弓似射雕", "调理脾胃须单举", "五劳七伤往后瞧",
-                "摇头摆尾去心火", "两手攀足固肾腰", "攒拳怒目增气力", "背后七颠百病消"
+                "摇头摆尾去心火", "两手攀足固肾腰", "攒拳怒目增气力", "背后七颠百病消",
+                "核心训练", "超慢跑"
             ],
             levels: [
                 { name: "初学者", xp: 0 }, { name: "入门者", xp: 100 }, { name: "修行者", xp: 300 },
@@ -266,7 +267,9 @@
                 hundred_day_mastery: { name: "百日筑基", icon: "award", desc: "总计练习100天", goal: (data) => data.totalDays >= 100 },
                 heaven_lifter: { name: "托天宗师", icon: "chevrons-up", desc: "完成“两手托天理三焦”50次", goal: (data) => (data.moveCounts?.[0] || 0) >= 50 },
                 archer_master: { name: "射雕英雄", icon: "crosshair", desc: "完成“左右开弓似射雕”50次", goal: (data) => (data.moveCounts?.[1] || 0) >= 50 },
-                grandmaster: { name: "八段锦宗师", icon: "crown", desc: "达到宗师等级", goal: (data) => data.level >= 6 },
+                core_master: { name: "核心达人", icon: "star", desc: "完成“核心训练”50次", goal: (data) => (data.moveCounts?.[8] || 0) >= 50 },
+                jogging_pro: { name: "慢跑健将", icon: "footprints", desc: "完成“超慢跑”50次", goal: (data) => (data.moveCounts?.[9] || 0) >= 50 },
+                grandmaster: { name: "运动宗师", icon: "crown", desc: "达到宗师等级", goal: (data) => data.level >= 6 },
             },
             zenQuotes: [
                 "身心合一，气贯长虹。", "流水不腐，户枢不蠹。", "动以养形，静以养神。",
@@ -701,7 +704,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `ba-duan-jin-data-${new Date().toISOString().split('T')[0]}.json`;
+            a.download = `zen-garden-tracker-data-${new Date().toISOString().split('T')[0]}.json`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
