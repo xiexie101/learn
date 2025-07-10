@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>核心完整性计划 | 3个月健身任务</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutral Harmony -->
+    <!-- Application Structure Plan: The application is designed as a single-page dashboard, deviating from the linear report structure to enhance usability. The core idea is to empower the user by giving them control over the information they see. A top navigation bar provides quick access to key sections: "任务简报" (briefing), "训练计划" (the main plan), "成就系统" (gamification), and "最终测试" (results). The main interactive element is the monthly selector in the "训练计划" section. This focuses the user on one stage at a time (e.g., Month 1), preventing information overload. Clicking on a training day reveals detailed exercises in a modal, a "detail on demand" approach that keeps the main interface clean. This task-oriented structure (select month -> view schedule -> view workout) is more intuitive for tracking progress than scrolling through a long document. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Pre-mission briefing (rules, safety, daily stretches). -> Goal: Organize static but crucial information. -> Viz/Method: Tabbed interface (HTML/CSS/JS). -> Interaction: User clicks tabs to switch content. -> Justification: Prevents a long, intimidating wall of text at the start; groups related concepts logically. -> Library: Vanilla JS.
+        - Report Info: The 3-month, multi-week training plan. -> Goal: Show clear progression and daily tasks. -> Viz/Method: Interactive schedule grid controlled by month selectors (HTML/CSS/JS). Workout details are shown in a modal. -> Interaction: User clicks month buttons to update the entire schedule view. User clicks a training day to open a modal with exercise details (including GIFs). -> Justification: This is the most critical interactive loop. It breaks the entire 3-month plan into manageable, focused chunks, mirroring a real-world training app experience. -> Library: Vanilla JS.
+        - Report Info: Gamification elements (XP, badges, side quests). -> Goal: Visualize progress and milestones. -> Viz/Method: A visual grid of achievement badges (HTML/CSS). -> Interaction: Hovering over badges could show descriptions. -> Justification: Badges are a universally understood visual for achievements, making progress feel tangible and rewarding. -> Library: N/A.
+        - Report Info: Final fitness test comparison (before vs. after). -> Goal: Compare quantitative data. -> Viz/Method: Grouped Bar Chart. -> Interaction: Tooltips on hover show exact values. -> Justification: A bar chart is the most direct and effective way to visually compare two sets of data points (initial vs. final), making the user's improvement immediately obvious and impactful. -> Library: Chart.js.
+        - Report Info: Exercise GIFs. -> Goal: Demonstrate proper form. -> Viz/Method: Standard `<img>` tags. -> Interaction: N/A. -> Justification: The source document already provides excellent animated GIFs, which are the best format for this purpose. -> Library: N/A. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Noto Sans SC', sans-serif; background-color: #f8f9fa; }
+        .tab-button.active { border-color: #3b82f6; color: #3b82f6; background-color: #eff6ff; }
+        .month-selector.active { background-color: #3b82f6; color: white; }
+        .modal { display: none; }
+        .modal.active { display: flex; }
+        .chart-container { position: relative; width: 100%; max-width: 800px; margin-left: auto; margin-right: auto; height: 350px; max-height: 450px; }
+        @media (min-width: 768px) { .chart-container { height: 400px; } }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <span class="font-bold text-xl text-blue-600">🚀 核心完整性计划</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#briefing" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">任务简报</a>
+                        <a href="#plan" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">训练计划</a>
+                        <a href="#achievements" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">成就系统</a>
+                        <a href="#final-test" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">最终测试</a>
+                        <a href="#nutrition" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">营养情报</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <section id="hero" class="text-center bg-white p-8 rounded-xl shadow-lg mb-12">
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">欢迎，代码破译者！</h1>
+            <p class="text-lg text-gray-600">你的任务：在3个月内征服“小肚子程序错误”，部署一个更强健的系统。这不仅是训练，更是一场升级之旅。</p>
+        </section>
+
+        <section id="briefing" class="mb-12 bg-white p-6 rounded-xl shadow-lg">
+            <h2 class="text-3xl font-bold mb-6 text-center text-gray-900">第一节：任务前简报</h2>
+            <p class="text-center text-gray-600 mb-8">在开始行动前，必须掌握交战规则。理解这些基本原则是确保任务成功且无损伤的关键。请仔细阅读每个标签页中的内容，它们是你的行动指南。</p>
+            <div id="tabs-container" class="border-b border-gray-200">
+                <nav class="flex space-x-4" aria-label="Tabs">
+                    <button data-tab="principles" class="tab-button active shrink-0 border-b-2 font-medium text-sm py-3 px-4 text-gray-500 hover:text-gray-700">行动准则</button>
+                    <button data-tab="safety" class="tab-button shrink-0 border-b-2 font-medium text-sm py-3 px-4 text-gray-500 hover:text-gray-700">安全协议</button>
+                    <button data-tab="debug" class="tab-button shrink-0 border-b-2 font-medium text-sm py-3 px-4 text-gray-500 hover:text-gray-700">日常"除错"</button>
+                </nav>
+            </div>
+            <div id="tab-content" class="py-6">
+                <div data-tab-content="principles" class="space-y-4">
+                    <div class="p-4 bg-blue-50 rounded-lg">
+                        <h3 class="font-bold text-lg text-blue-800">指令一：质量优于数量</h3>
+                        <p class="text-blue-700">一个姿势完美的动作，其价值远超十个草率了事的动作。我们是在构建一座坚固的堡垒，而非纸牌屋。</p>
+                    </div>
+                    <div class="p-4 bg-green-50 rounded-lg">
+                        <h3 class="font-bold text-lg text-green-800">指令二：持之以恒是你的超能力</h3>
+                        <p class="text-green-700">每周三次专注的训练，其效果远胜于七次三心二意的尝试。规律性是通往成功的唯一路径。</p>
+                    </div>
+                    <div class="p-4 bg-yellow-50 rounded-lg">
+                        <h3 class="font-bold text-lg text-yellow-800">指令三：倾听你身体的通讯信号</h3>
+                        <p class="text-yellow-700">肌肉的疲劳感是积极信号，但关节的尖锐疼痛是警告。学会区分“良性疲劳”和“恶性疼痛”至关重要。</p>
+                    </div>
+                </div>
+                <div data-tab-content="safety" class="hidden space-y-4">
+                     <ul class="list-disc list-inside space-y-2 text-gray-700">
+                        <li><span class="font-bold">循序渐进：</span>你的身体需要时间来适应新的挑战。切勿急于求成，跳级挑战高难度动作。</li>
+                        <li><span class="font-bold">量力而行：</span>如果某个动作让你感到剧烈疼痛，应立即停止。</li>
+                        <li><span class="font-bold">合适的装备：</span>穿着舒适的运动服和提供良好支撑的运动鞋。</li>
+                    </ul>
+                    <div class="p-4 bg-red-50 rounded-lg border border-red-200">
+                        <h3 class="font-bold text-lg text-red-800">P.R.I.C.E. 紧急恢复协议</h3>
+                        <p class="text-red-700">万一发生轻微拉伤或不适，请启动此协议：<br><b>P</b>rotection (保护), <b>R</b>est (休息), <b>I</b>ce (冰敷), <b>C</b>ompression (加压), <b>E</b>levation (抬高)。</p>
+                    </div>
+                </div>
+                <div data-tab-content="debug" class="hidden space-y-4">
+                    <p class="text-gray-600">作为程序员，久坐是常态。建议每工作45-60分钟，花5分钟执行以下一项或多项“除错”程序，以重置你的身体系统。</p>
+                    <ul class="list-decimal list-inside space-y-2 text-gray-700">
+                        <li><span class="font-bold">背部拉伸：</span>面向桌子站立，双臂前伸扶住桌面，双脚后退，背部下压。</li>
+                        <li><span class="font-bold">胸前屈膝：</span>坐在椅子上，将一侧膝盖抬向胸前，双手抱住大腿后侧轻拉。</li>
+                        <li><span class="font-bold">椅子转体：</span>坐在椅子上，上身挺直，向一侧扭转，手抓椅背辅助。</li>
+                        <li><span class="font-bold">扩胸运动：</span>双手在脑后相扣，双肘尽量向后打开，挤压肩胛骨。</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="plan" class="mb-12">
+            <h2 class="text-3xl font-bold mb-6 text-center text-gray-900">第二节：升级之路 - 3个月任务日志</h2>
+            <p class="text-center text-gray-600 mb-8">这里是你未来三个月的详细作战计划。选择你的当前等级（月份），查看每周的任务安排。点击具体的训练日，即可获取详细的行动指令。</p>
+            <div class="flex justify-center space-x-2 sm:space-x-4 mb-8">
+                <button data-month="1" class="month-selector active text-sm sm:text-base font-medium py-2 px-4 rounded-lg transition-colors duration-200">等级1：新手特工</button>
+                <button data-month="2" class="month-selector text-sm sm:text-base font-medium py-2 px-4 rounded-lg bg-white text-gray-700 hover:bg-gray-100 transition-colors duration-200">等级2：战地特工</button>
+                <button data-month="3" class="month-selector text-sm sm:text-base font-medium py-2 px-4 rounded-lg bg-white text-gray-700 hover:bg-gray-100 transition-colors duration-200">等级3：精英专家</button>
+            </div>
+            <div id="schedule-container" class="bg-white p-6 rounded-xl shadow-lg">
+            </div>
+        </section>
+        
+        <section id="achievements" class="mb-12 bg-white p-6 rounded-xl shadow-lg">
+            <h2 class="text-3xl font-bold mb-6 text-center text-gray-900">第三节：成就系统</h2>
+            <p class="text-center text-gray-600 mb-8">你的每一次努力都会被记录。完成特定挑战，即可解锁荣誉徽章。这些是你在这场征程中获得成长的最佳证明。</p>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 text-center" id="badges-grid">
+            </div>
+        </section>
+
+        <section id="final-test" class="mb-12 bg-white p-6 rounded-xl shadow-lg">
+            <h2 class="text-3xl font-bold mb-6 text-center text-gray-900">第四节：最终Boss战 - 体能测试</h2>
+             <p class="text-center text-gray-600 mb-8">数据是检验成果的最佳方式。此图表展示了你在任务开始（蓝色）与任务结束（绿色）时的体能对比。见证你从“新手特工”到“精英专家”的惊人蜕变！</p>
+            <div class="chart-container">
+                <canvas id="fitnessTestChart"></canvas>
+            </div>
+        </section>
+        
+        <section id="nutrition" class="mb-12 bg-white p-6 rounded-xl shadow-lg">
+            <h2 class="text-3xl font-bold mb-6 text-center text-gray-900">第五节：营养情报</h2>
+            <p class="text-center text-gray-600 mb-8">记住，减脂70%靠饮食，30%靠训练。遵循以下三个核心原则，为你的系统提供最优质的“燃料”，让你的努力事半功倍。</p>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-indigo-50 p-6 rounded-lg">
+                    <h3 class="font-bold text-xl text-indigo-800 mb-2">① 优先保证蛋白质</h3>
+                    <p class="text-indigo-700">蛋白质是修复和构建肌肉的基本材料，并能提供更强的饱腹感。多摄入鸡胸肉、鱼、虾、鸡蛋、豆腐等。</p>
+                </div>
+                <div class="bg-teal-50 p-6 rounded-lg">
+                    <h3 class="font-bold text-xl text-teal-800 mb-2">② 水是生命线</h3>
+                    <p class="text-teal-700">水参与体内几乎所有的代谢过程。保持充足水分（每日2-3升）可以提升运动表现，加速新陈代谢。</p>
+                </div>
+                <div class="bg-amber-50 p-6 rounded-lg">
+                    <h3 class="font-bold text-xl text-amber-800 mb-2">③ 拥抱完整食物</h3>
+                    <p class="text-amber-700">多选择新鲜蔬菜、水果、全谷物和瘦肉，避免高糖分、精加工食品和酒精，它们是“小肚子”的盟友。</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white text-center p-4">
+        <p>任务已部署。启动你的系统，开始执行“核心完整性计划”吧。祝你好运！</p>
+    </footer>
+
+    <div id="workout-modal" class="modal fixed inset-0 bg-black bg-opacity-75 items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div class="sticky top-0 bg-white p-4 border-b flex justify-between items-center z-10">
+                <h3 id="modal-title" class="text-2xl font-bold">训练指令</h3>
+                <button id="close-modal" class="text-gray-500 hover:text-red-600 text-3xl">&times;</button>
+            </div>
+            <div id="modal-content" class="p-6">
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const exercises = {
+            '开合跳': { reps: '30-40秒', target: '全身, 心肺', img: 'https://i.imgur.com/uGg08yQ.gif', desc: '双脚并拢站立，跳起时双脚向外打开，同时双臂举过头顶；再次跳起时恢复原位。' },
+            '自重深蹲': { reps: '12-15次', target: '股四头肌, 臀大肌', img: 'https://i.imgur.com/gY5B4gC.gif', desc: '双脚与肩同宽，臀部向后向下坐，直到大腿与地面平行。保持背部挺直，脚跟踩实。' },
+            '臀桥': { reps: '15-20次', target: '臀大肌, 核心', img: 'https://i.imgur.com/wV2e5qK.gif', desc: '仰卧屈膝，臀部发力向上抬起，直到身体从肩膀到膝盖呈一条直线。顶峰夹紧臀部。' },
+            '平板支撑': { reps: '20-60秒', target: '核心肌群', img: 'https://i.imgur.com/N7aQn4I.gif', desc: '用前臂和脚尖支撑身体，从头到脚跟呈一条直线。收紧腹部和臀部。' },
+            '鸟狗式': { reps: '每侧10次', target: '核心稳定性, 协调性', img: 'https://i.imgur.com/qL5eP7j.gif', desc: '四肢着地，同时向前伸出右臂，向后伸出左腿，保持身体稳定，缓慢收回，换侧重复。' },
+            '跪姿俯卧撑': { reps: '8-12次', target: '胸肌, 肱三头肌', img: 'https://i.imgur.com/rN5xHlH.gif', desc: '双手略宽于肩撑地，双膝跪地，身体从头到膝盖保持一条直线。屈肘下降，直到胸部接近地面。' },
+            '高抬腿': { reps: '30秒', target: '心肺, 下肢', img: 'https://i.imgur.com/r0a9e7S.gif', desc: '原地交替抬高膝盖，使其尽量靠近胸部。' },
+            '箭步蹲': { reps: '每侧10-12次', target: '股四头肌, 臀大肌', img: 'https://hips.hearstapps.com/hmg-prod/images/workouts/2016/03/bodyweightlunge-1457041212.gif', desc: '向前迈出一大步，身体垂直下蹲，直到双膝都呈约90度角。前腿膝盖不要超过脚尖。' },
+            '反向卷腹': { reps: '12-15次', target: '下腹部', img: 'https://i.imgur.com/uYg9A8d.gif', desc: '仰卧，双腿并拢抬起。用下腹部的力量将膝盖和臀部卷向胸口，使下背部短暂离地。' },
+            '标准俯卧撑': { reps: '尽力而为', target: '胸肌, 核心', img: 'https://i.imgur.com/dip41b3.gif', desc: '双手略宽于肩撑地，身体从头到脚呈一条直线。屈肘下降，直到胸部接近地面。' },
+            '深蹲跳': { reps: '40秒', target: '爆发力, 下肢', img: 'https://i.imgur.com/sWjXgQG.gif', desc: '在自重深蹲的基础上，站起时爆发性地向上跳跃。' },
+            '波比跳': { reps: '40秒', target: '全身, 燃脂', img: 'https://i.imgur.com/E5Y1A5r.gif', desc: '新手版：下蹲，双手撑地 > 双脚向后走步成平板支撑 > 双脚向前走步回到下蹲姿势 > 站立。' },
+            '登山者': { reps: '40秒', target: '核心, 心肺', img: 'https://i.imgur.com/wgtE2aH.gif', desc: '平板支撑姿势，交替将膝盖快速提向胸口，保持核心稳定。' },
+            '单腿臀桥': { reps: '每侧12-15次', target: '臀大肌, 稳定性', img: 'https://i.imgur.com/7Z4wW0p.gif', desc: '臀桥姿势，抬起一条腿，用另一条腿的臀部发力将身体顶起。' },
+            '侧平板支撑': { reps: '每侧30-45秒', target: '侧腹肌, 核心', img: 'https://i.imgur.com/qYmC7P5.gif', desc: '单手前臂支撑身体，从头到脚呈一条直线，保持身体不晃动。' },
+        };
+        
+        const warmUpCoolDown = {
+            warmUp: [
+                { name: '开合跳', desc: '双脚并拢站立，跳起时双脚向外打开，同时双臂举过头顶。', duration: '60秒', img: 'https://i.imgur.com/uGg08yQ.gif' },
+                { name: '手臂绕环', desc: '双臂向前、向后画圈，从小圈开始逐渐增大。', duration: '每方向30秒', img: 'https://i.imgur.com/8aV4mYy.gif' },
+                { name: '躯干转体', desc: '双脚与肩同宽，转动上半身，带动双臂自然摆动。', duration: '60秒', img: 'https://i.imgur.com/o1CqFkL.gif' },
+                { name: '高抬腿', desc: '原地交替抬高膝盖，使其尽量靠近胸部。', duration: '30秒', img: 'https://i.imgur.com/r0a9e7S.gif' },
+                { name: '自重深蹲', desc: '按标准姿势缓慢完成10-15次，激活下肢。', duration: '10-15次', img: 'https://i.imgur.com/gY5B4gC.gif' },
+            ],
+            coolDown: [
+                { name: '股四头肌拉伸', desc: '站立手扶墙，将一侧脚后跟拉向臀部。', duration: '每侧30秒', img: 'https://i.imgur.com/K1n5K3p.gif' },
+                { name: '腘绳肌拉伸', desc: '坐姿，一腿伸直，身体前倾靠近伸直腿的脚尖。', duration: '每侧30秒', img: 'https://i.imgur.com/p0yLz9C.gif' },
+                { name: '臀部拉伸', desc: '仰卧，将一侧脚踝放在另一侧膝盖上，抱住下方大腿拉向胸口。', duration: '每侧30秒', img: 'https://i.imgur.com/pL2f7Jv.gif' },
+                { name: '胸部拉伸', desc: '面对墙角或门框，手臂弯曲90度贴墙，身体前倾。', duration: '每侧30秒', img: 'https://i.imgur.com/f7jE3uE.gif' },
+                { name: '下背部拉伸', desc: '仰卧，双膝抱于胸前，轻轻摇晃。', duration: '60秒', img: 'https://i.imgur.com/v8g9x7h.gif' },
+            ]
+        };
+        
+        const schedules = {
+            1: {
+                title: '等级1：新手特工',
+                desc: '目标：建立规律，掌握姿势，唤醒肌肉。采用循环训练，动作间休息30-45秒，轮间休息60-90秒。',
+                workouts: {
+                    '训练日A': { name: '下肢与核心重点 (3轮循环)', items: ['自重深蹲', '臀桥', '平板支撑', '鸟狗式'] },
+                    '训练日B': { name: '上肢与核心重点 (3轮循环)', items: ['跪姿俯卧撑', '平板支撑', '鸟狗式', '臀桥'] }
+                },
+                plan: [
+                    { day: '一', task: '训练日A' }, { day: '二', task: '休息' }, { day: '三', task: '训练日B' }, { day: '四', task: '休息' }, { day: '五', task: '训练日A' }, { day: '六', task: '积极恢复' }, { day: '日', task: '休息' }
+                ],
+                sideQuest: '“旗山湖侦察”：在第4周，完成一次30-45分钟的旗山湖公园快走或慢跑。'
+            },
+            2: {
+                title: '等级2：战地特工',
+                desc: '目标：提升强度，引入HIIT，增强心肺和耐力。缩短组间休息，增加“工作”时间。',
+                workouts: {
+                    'HIIT训练A': { name: '高强度间歇 (4轮循环, 动30s休15s)', items: ['开合跳', '自重深蹲', '高抬腿', '箭步蹲'] },
+                    '力量训练B': { name: '力量与控制 (3-4轮循环)', items: ['标准俯卧撑', '臀桥', '平板支撑', '反向卷腹'] }
+                },
+                plan: [
+                    { day: '一', task: 'HIIT训练A' }, { day: '二', task: '休息' }, { day: '三', task: '力量训练B' }, { day: '四', task: 'HIIT训练A' }, { day: '五', task: '休息' }, { day: '六', task: '力量训练B' }, { day: '日', task: '休息' }
+                ],
+                sideQuest: '“福道渗透”：在第8周，完成一次5公里的福道跑/走结合挑战。'
+            },
+            3: {
+                title: '等级3：精英专家',
+                desc: '目标：最大化体能，挑战爆发力与综合能力。采用更严苛的HIIT形式，结合力量与有氧。',
+                workouts: {
+                    '全身HIIT': { name: '全身HIIT (4-5轮, 动40s休20s)', items: ['深蹲跳', '标准俯卧撑', '波比跳', '开合跳', '登山者'] },
+                    '核心&力量': { name: '核心&力量 (3-4轮循环)', items: ['标准俯卧撑', '单腿臀桥', '侧平板支撑', '反向卷腹'] }
+                },
+                plan: [
+                    { day: '一', task: '全身HIIT' }, { day: '二', task: '休息' }, { day: '三', task: '核心&力量' }, { day: '四', task: '全身HIIT' }, { day: '五', task: '积极恢复' }, { day: '六', task: '核心&力量' }, { day: '日', 'task': '休息' }
+                ],
+                sideQuest: '“鼓山之巅”：在第12周，挑战攀登鼓山，完成终极户外试炼。'
+            }
+        };
+        
+        const achievements = [
+            { name: '连续7日', icon: '📅', desc: '连续7天完成计划中的训练或恢复活动。' },
+            { name: '完美构型', icon: '📐', desc: '在第1个月结束时，熟练掌握所有基础动作。' },
+            { name: '力之初显', icon: '💪', desc: '完成你的第一个标准俯卧撑。' },
+            { name: '旗山湖侦察兵', icon: '🏞️', desc: '完成第1个月的福州支线任务。' },
+            { name: '福道探索者', icon: '🌳', desc: '完成第2个月的福州支线任务。' },
+            { name: '鼓山征服者', icon: '⛰️', desc: '完成第3个月的福州支线任务。' },
+            { name: '漏洞清除者', icon: '🏆', desc: '在完成为期3个月的计划后，授予的最高荣誉。' },
+            { name: '系统启动', icon: '🔌', desc: '完成你的第一次训练。' },
+        ];
+
+        const scheduleContainer = document.getElementById('schedule-container');
+        const monthSelectors = document.querySelectorAll('.month-selector');
+        const workoutModal = document.getElementById('workout-modal');
+        const closeModal = document.getElementById('close-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalContent = document.getElementById('modal-content');
+        
+        const tabs = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('[data-tab-content]');
+
+        function renderSchedule(month) {
+            const data = schedules[month];
+            let html = `
+                <div class="text-center mb-6">
+                    <h3 class="text-2xl font-bold">${data.title}</h3>
+                    <p class="text-gray-600 mt-2">${data.desc}</p>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 text-center">`;
+
+            data.plan.forEach(item => {
+                const isTrainDay = item.task.includes('训练');
+                const isRestDay = item.task.includes('休息');
+                const buttonClass = isTrainDay ? 'bg-blue-500 hover:bg-blue-600 text-white cursor-pointer' : 
+                                    isRestDay ? 'bg-gray-200 text-gray-500' : 'bg-green-400 text-white';
+                html += `
+                    <div class="p-2 rounded-lg ${buttonClass}" ${isTrainDay ? `data-workout="${item.task}" data-month="${month}"` : ''}>
+                        <div class="font-bold">${item.day}</div>
+                        <div class="text-sm mt-1">${item.task}</div>
+                    </div>
+                `;
+            });
+            
+            html += `</div>
+                     <div class="mt-6 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 rounded-r-lg">
+                        <h4 class="font-bold">⭐ 本月支线任务</h4>
+                        <p>${data.sideQuest}</p>
+                     </div>`;
+            scheduleContainer.innerHTML = html;
+            addWorkoutListeners();
+        }
+        
+        function renderAchievements() {
+            const grid = document.getElementById('badges-grid');
+            let html = '';
+            achievements.forEach(badge => {
+                html += `
+                <div class="bg-gray-100 p-4 rounded-lg flex flex-col items-center justify-center transform hover:scale-105 transition-transform duration-200">
+                    <div class="text-5xl mb-2">${badge.icon}</div>
+                    <h4 class="font-bold text-gray-800">${badge.name}</h4>
+                    <p class="text-xs text-gray-500 mt-1">${badge.desc}</p>
+                </div>
+                `;
+            });
+            grid.innerHTML = html;
+        }
+
+        function addWorkoutListeners() {
+            document.querySelectorAll('[data-workout]').forEach(button => {
+                button.addEventListener('click', () => {
+                    const workoutName = button.dataset.workout;
+                    const month = button.dataset.month;
+                    const workoutData = schedules[month].workouts[workoutName];
+                    showWorkoutModal(workoutData);
+                });
+            });
+        }
+        
+        function generateSectionHtml(title, items, isWarmupOrCooldown) {
+            let sectionHtml = `<div class="mb-8"><h4 class="text-xl font-bold border-b pb-2 mb-4 text-gray-700">${title}</h4><div class="grid md:grid-cols-2 gap-6">`;
+             items.forEach(item => {
+                sectionHtml += `
+                    <div class="flex items-start space-x-4 p-3 bg-gray-50 rounded-lg">
+                       <img src="${item.img}" alt="${item.name}" class="w-24 h-24 object-cover rounded-md flex-shrink-0">
+                       <div>
+                          <h5 class="font-bold text-blue-700">${item.name}</h5>
+                          <p class="text-sm text-gray-600">${item.desc}</p>
+                          <p class="text-sm font-semibold text-purple-700 mt-1">时长: ${item.duration}</p>
+                       </div>
+                    </div>
+                `;
+            });
+            sectionHtml += `</div></div>`;
+            return sectionHtml;
+        }
+
+
+        function showWorkoutModal(workoutData) {
+            modalTitle.textContent = workoutData.name;
+            
+            let contentHtml = generateSectionHtml('动态热身 (5-10分钟)', warmUpCoolDown.warmUp, true);
+            
+            contentHtml += `<div class="mb-8"><h4 class="text-xl font-bold border-b pb-2 mb-4 text-gray-700">主训练</h4><div class="grid md:grid-cols-2 gap-6">`;
+            workoutData.items.forEach(itemName => {
+                const exercise = exercises[itemName];
+                if (exercise) {
+                    contentHtml += `
+                        <div class="flex items-start space-x-4 p-3 bg-gray-50 rounded-lg">
+                           <img src="${exercise.img}" alt="${itemName}" class="w-24 h-24 object-cover rounded-md flex-shrink-0">
+                           <div>
+                              <h5 class="font-bold text-gray-800">${itemName}</h5>
+                              <p class="text-sm text-gray-600">${exercise.desc}</p>
+                              <span class="inline-block bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded-full mt-2">${exercise.reps}</span>
+                              <span class="inline-block bg-green-100 text-green-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded-full mt-2">${exercise.target}</span>
+                           </div>
+                        </div>
+                    `;
+                }
+            });
+            contentHtml += `</div></div>`;
+            
+            contentHtml += generateSectionHtml('静态冷身 (5-10分钟)', warmUpCoolDown.coolDown, true);
+
+            modalContent.innerHTML = contentHtml;
+            workoutModal.classList.add('active');
+        }
+
+        monthSelectors.forEach(selector => {
+            selector.addEventListener('click', () => {
+                monthSelectors.forEach(s => {
+                    s.classList.remove('active', 'bg-blue-600', 'text-white');
+                    s.classList.add('bg-white', 'text-gray-700', 'hover:bg-gray-100');
+                });
+                selector.classList.add('active', 'bg-blue-600', 'text-white');
+                selector.classList.remove('bg-white', 'text-gray-700', 'hover:bg-gray-100');
+                renderSchedule(selector.dataset.month);
+            });
+        });
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                const tabName = tab.dataset.tab;
+                tabContents.forEach(content => {
+                    if (content.dataset.tabContent === tabName) {
+                        content.classList.remove('hidden');
+                    } else {
+                        content.classList.add('hidden');
+                    }
+                });
+            });
+        });
+        
+        closeModal.addEventListener('click', () => workoutModal.classList.remove('active'));
+        window.addEventListener('click', (e) => {
+            if (e.target === workoutModal) {
+                workoutModal.classList.remove('active');
+            }
+        });
+
+        renderSchedule('1');
+        renderAchievements();
+
+        const ctx = document.getElementById('fitnessTestChart').getContext('2d');
+        const fitnessTestChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['俯卧撑 (次)', '自重深蹲 (次)', '平板支撑 (秒)', '2.4公里跑 (秒)'],
+                datasets: [{
+                    label: '初始数据',
+                    data: [5, 20, 30, 900], 
+                    backgroundColor: 'rgba(59, 130, 246, 0.6)',
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    borderWidth: 1
+                }, {
+                    label: '最终数据',
+                    data: [25, 50, 120, 720],
+                    backgroundColor: 'rgba(16, 185, 129, 0.6)',
+                    borderColor: 'rgba(16, 185, 129, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: '体能测试前后对比', font: { size: 16 } },
+                    tooltip: {
+                         callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) { label += ': '; }
+                                if (context.parsed.y !== null) {
+                                    if (context.label === '2.4公里跑 (秒)') {
+                                        const minutes = Math.floor(context.parsed.y / 60);
+                                        const seconds = context.parsed.y % 60;
+                                        label += `${minutes}分 ${seconds}秒`;
+                                    } else {
+                                       label += context.parsed.y;
+                                    }
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: { 
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value, index, ticks) {
+                                if (this.getLabelForValue(value).includes('跑')) {
+                                    return value + 's';
+                                }
+                                return value;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
