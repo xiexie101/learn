@@ -1,0 +1,330 @@
+import React, { useState, useEffect, useRef } from 'react';
+import ReactECharts from 'echarts-for-react';
+
+// --- 默认示例数据 ---
+// 这是根据我们之前定义的JSON结构创建的模拟数据。
+// 您可以修改或替换这些数据来更新图表。
+const initialJsonData = [
+  {
+    "metadata": {
+      "name": "上证指数",
+      "code": "000001",
+      "lastUpdated": "2025年7月9日 15:00"
+    },
+    "current_state": {
+      "currentPrice": 3347
+    },
+    "key_levels_panel": {
+      "majorSupport": 3000,
+      "atmosphereLevel": 8100,
+      "minorSupport": { "value": 3200, "type": "dashed" },
+      "minorResistance": { "value": 3500, "type": "dashed" },
+      "distanceToSupportPercent": 11.57,
+      "distanceToAtmospherePercent": -58.35,
+      "zones": {
+        "support": { "start": 2800, "end": 3000, "label": "强支撑区" },
+        "resonance": { "start": 3450, "end": 3550, "label": "价值&技术[共振区]" },
+        "normal": { "start": 3000, "end": 8100, "label": "" },
+        "outerSpace": { "start": 8100, "end": 9000, "label": "外太空" }
+      }
+    },
+    "history_panel": {
+      "high_3y": { "value": 3731.69, "date": "2021年2月18日", "drawdownPercent": -10.31 },
+      "low_3y": { "value": 2863.65, "date": "2022年4月27日", "rallyPercent": 16.88 }
+    }
+  },
+  {
+    "metadata": {
+      "name": "创业板指",
+      "code": "399006",
+      "lastUpdated": "2025年7月9日 15:00"
+    },
+    "current_state": {
+      "currentPrice": 2300
+    },
+    "key_levels_panel": {
+      "majorSupport": 1800,
+      "atmosphereLevel": 3500,
+      "minorSupport": { "value": 2100, "type": "dashed" },
+      "minorResistance": { "value": 2500, "type": "dashed" },
+      "distanceToSupportPercent": 27.78,
+      "distanceToAtmospherePercent": -34.29,
+      "zones": {
+        "support": { "start": 1750, "end": 1850, "label": "强支撑区" },
+        "resonance": { "start": 2450, "end": 2550, "label": "价值&技术[共振区]" },
+        "normal": { "start": 1800, "end": 3500, "label": "" },
+        "outerSpace": { "start": 3500, "end": 4000, "label": "外太空" }
+      }
+    },
+    "history_panel": {
+      "high_3y": { "value": 3576.12, "date": "2021年7月29日", "drawdownPercent": -35.68 },
+      "low_3y": { "value": 1776.73, "date": "2024年2月5日", "rallyPercent": 29.45 }
+    }
+  }
+];
+
+
+// --- 左侧面板：关键点位图 (ECharts) ---
+const KeyLevelsPanel = ({ data }) => {
+  const { metadata, current_state, key_levels_panel } = data;
+
+  // 动态计算X轴范围，确保所有元素可见
+  const allValues = [
+    key_levels_panel.majorSupport,
+    key_levels_panel.atmosphereLevel,
+    key_levels_panel.minorSupport.value,
+    key_levels_panel.minorResistance.value,
+    current_state.currentPrice,
+    ...Object.values(key_levels_panel.zones).flatMap(z => [z.start, z.end])
+  ].filter(v => typeof v === 'number');
+
+  const minVal = Math.min(...allValues);
+  const maxVal = Math.max(...allValues);
+  const buffer = (maxVal - minVal) * 0.15; // 增加15%的边距
+
+  // **FIX:** Correctly format data for markArea
+  // ECharts markArea expects an array of [start, end] pairs.
+  const markAreaData = Object.values(key_levels_panel.zones)
+    .filter(zone => zone && typeof zone.start === 'number' && typeof zone.end === 'number' && zone.label)
+    .map(zone => {
+      let color = 'rgba(128, 128, 128, 0.2)'; // Default color
+      if (zone.label.includes('支撑')) {
+        color = 'rgba(255, 69, 0, 0.2)';
+      } else if (zone.label.includes('共振')) {
+        color = 'rgba(0, 255, 255, 0.2)';
+      } else if (zone.label.includes('太空')) {
+          color = 'rgba(255, 215, 0, 0.2)';
+      }
+      return [
+        {
+          name: zone.label,
+          xAxis: zone.start,
+          itemStyle: { color: color },
+          label: { color: '#ddd', position: 'insideTop', distance: 5 }
+        },
+        {
+          xAxis: zone.end
+        }
+      ];
+    });
+
+
+  const getOption = () => ({
+    grid: {
+      left: '2%',
+      right: '2%',
+      top: '10%',
+      bottom: '10%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'value',
+      min: Math.floor(minVal - buffer),
+      max: Math.ceil(maxVal + buffer),
+      splitLine: { show: false },
+      axisLabel: { show: false },
+      axisLine: { show: false },
+      axisTick: { show: false },
+    },
+    yAxis: {
+      type: 'category',
+      data: [`${metadata.name}\n${metadata.code}`],
+      axisLabel: {
+        color: '#ccc',
+        fontSize: 14,
+        fontWeight: 'bold',
+        lineHeight: 20,
+      },
+      axisLine: { show: false },
+      axisTick: { show: false },
+    },
+    series: [
+      // 1. 基础系列 (透明条形图，用于布局和应用标记)
+      {
+        name: 'background',
+        type: 'bar',
+        barWidth: '60%',
+        data: [key_levels_panel.atmosphereLevel], // 使用一个值来撑开条形图
+        itemStyle: {
+          color: 'transparent'
+        },
+        markArea: {
+          silent: true,
+          data: markAreaData // Use the correctly formatted data
+        },
+        markLine: {
+          silent: true,
+          symbol: 'none',
+          data: [
+            // 渲染关键点位线
+            { name: '大支撑', xAxis: key_levels_panel.majorSupport, lineStyle: { color: '#FF4500', width: 2 }, label: { formatter: '{b}\n{c}', color: '#FF4500', position: 'insideStartTop' } },
+            { name: '大气层', xAxis: key_levels_panel.atmosphereLevel, lineStyle: { color: '#FFD700', width: 2 }, label: { formatter: '{b}\n{c}', color: '#FFD700', position: 'insideStartTop' } },
+            { name: '小支撑', xAxis: key_levels_panel.minorSupport.value, lineStyle: { type: 'dashed', color: '#00FFFF' }, label: { formatter: '{c}', color: '#00FFFF', position: 'insideStartTop' } },
+            { name: '小压力', xAxis: key_levels_panel.minorResistance.value, lineStyle: { type: 'dashed', color: '#FF69B4' }, label: { formatter: '{c}', color: '#FF69B4', position: 'insideStartTop' } },
+          ]
+        }
+      },
+      // 2. 自定义系列 (用于绘制复杂的当前价指针)
+      {
+        name: 'currentPrice',
+        type: 'custom',
+        renderItem: (params, api) => {
+          // api.value(0) is currentPrice, api.value(1) is categoryIndex
+          const currentPrice = api.value(0);
+          const categoryIndex = api.value(1);
+          
+          if (currentPrice === null || categoryIndex === null) return;
+          
+          // 将数据坐标转换为画布上的像素坐标
+          const point = api.coord([currentPrice, categoryIndex]);
+          const yPos = params.coordSys.y + params.coordSys.height * 0.5;
+
+          // 指针旁边的文本内容
+          const supportText = `距大支撑: ${key_levels_panel.distanceToSupportPercent.toFixed(2)}%`;
+          const atmosphereText = `距大气层: ${key_levels_panel.distanceToAtmospherePercent.toFixed(2)}%`;
+
+          // **FIX:** Robust positioning for the text box
+          const isLeft = point[0] > params.coordSys.width * 0.7;
+          const arrowDir = isLeft ? 1 : -1;
+          const textAlign = isLeft ? 'right' : 'left';
+          const textOffset = isLeft ? -20 : 20;
+          const boxWidth = 150;
+          const boxX = isLeft ? point[0] + textOffset - boxWidth : point[0] + textOffset;
+          const textX = isLeft ? boxX + boxWidth - 10 : boxX + 10;
+
+
+          return {
+            type: 'group',
+            children: [
+              // 垂直虚线
+              { type: 'line', shape: { x1: point[0], y1: params.coordSys.y, x2: point[0], y2: params.coordSys.y + params.coordSys.height }, style: { stroke: '#FFFFFF', lineWidth: 1, lineDash: [5, 5] } },
+              // 指针箭头 (多边形)
+              { type: 'polygon', shape: { points: [[point[0], yPos], [point[0] - 8 * arrowDir, yPos - 5], [point[0] - 8 * arrowDir, yPos + 5]] }, style: { fill: '#FFFFFF' } },
+              // 文本框背景
+              { type: 'rect', shape: { x: boxX, y: yPos - 30, width: boxWidth, height: 60, r: 5 }, style: { fill: 'rgba(0, 0, 0, 0.7)' } },
+              // 文本内容
+              { type: 'text', style: { text: `${currentPrice}`, x: textX, y: yPos - 10, fill: '#FFFFFF', font: 'bold 16px sans-serif', align: textAlign } },
+              { type: 'text', style: { text: supportText, x: textX, y: yPos + 10, fill: '#00FF00', font: '12px sans-serif', align: textAlign } },
+              { type: 'text', style: { text: atmosphereText, x: textX, y: yPos + 25, fill: '#FF4500', font: '12px sans-serif', align: textAlign } },
+            ]
+          };
+        },
+        data: [[current_state.currentPrice, 0]] // [xValue, yCategoryIndex]
+      }
+    ]
+  });
+
+  return (
+    <div className="bg-gray-800 p-2 rounded-lg h-full">
+      <ReactECharts option={getOption()} style={{ height: '120px' }} notMerge={true} lazyUpdate={true} />
+    </div>
+  );
+};
+
+// --- 右侧面板：历史高低点 ---
+const HistoryPanel = ({ data }) => {
+  const { high_3y, low_3y } = data.history_panel;
+
+  const getPerfClass = (val) => val >= 0 ? 'text-green-500' : 'text-red-500';
+  const getPerfIndicator = (val) => val >= 0 ? '▲' : '▼';
+
+  return (
+    <div className="bg-white p-4 rounded-lg h-full flex flex-col justify-center text-gray-800">
+      <div className="grid grid-cols-2 gap-4 text-sm">
+        {/* 左侧：最高点信息 */}
+        <div className="border-r pr-4">
+          <p className="text-gray-500">近三年最高点 (默认2021年起)</p>
+          <p className="font-bold text-lg">{high_3y.value.toFixed(2)}</p>
+          <p className="text-gray-500 text-xs">{high_3y.date}</p>
+          <p className={`font-semibold ${getPerfClass(high_3y.drawdownPercent)}`}>
+            {`当前距高点: ${getPerfIndicator(high_3y.drawdownPercent)} ${Math.abs(high_3y.drawdownPercent).toFixed(2)}%`}
+          </p>
+        </div>
+        {/* 右侧：最低点信息 */}
+        <div>
+          <p className="text-gray-500">近三年最低点 (默认2022年起)</p>
+          <p className="font-bold text-lg">{low_3y.value.toFixed(2)}</p>
+          <p className="text-gray-500 text-xs">{low_3y.date}</p>
+          <p className={`font-semibold ${getPerfClass(low_3y.rallyPercent)}`}>
+            {`最低点至今: ${getPerfIndicator(low_3y.rallyPercent)} ${Math.abs(low_3y.rallyPercent).toFixed(2)}%`}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
+// --- 主应用组件 ---
+export default function App() {
+  const [dashboardData, setDashboardData] = useState(initialJsonData);
+  const [jsonInput, setJsonInput] = useState(JSON.stringify(initialJsonData, null, 2));
+  const [error, setError] = useState('');
+  const textareaRef = useRef(null);
+
+  const handleGenerate = () => {
+    try {
+      const parsedData = JSON.parse(jsonInput);
+      if (Array.isArray(parsedData) && parsedData.length > 0) {
+        setDashboardData(parsedData);
+        setError('');
+      } else {
+        setError('JSON数据必须是一个非空数组。');
+      }
+    } catch (e) {
+      setError(`JSON格式无效: ${e.message}`);
+    }
+  };
+  
+  // 自动调整textarea高度
+  useEffect(() => {
+    if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto';
+        textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [jsonInput]);
+
+  return (
+    <div className="bg-gray-100 min-h-screen font-sans p-4 sm:p-8">
+      <div className="max-w-7xl mx-auto">
+        {/* 标题和控制区域 */}
+        <div className="bg-white p-6 rounded-xl shadow-md mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">基金可视化面板</h1>
+          <p className="text-gray-600 mb-4">在此处粘贴您的JSON数据，然后点击“生成面板”按钮来更新可视化图表。</p>
+          
+          <textarea
+            ref={textareaRef}
+            className="w-full p-3 border border-gray-300 rounded-lg font-mono text-sm bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all overflow-hidden resize-none"
+            value={jsonInput}
+            onChange={(e) => setJsonInput(e.target.value)}
+            rows="10"
+          />
+          
+          <div className="mt-4 flex flex-col sm:flex-row items-center">
+            <button
+              onClick={handleGenerate}
+              className="w-full sm:w-auto bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-transform transform hover:scale-105"
+            >
+              生成面板
+            </button>
+            {error && <p className="mt-2 sm:mt-0 sm:ml-4 text-red-600 font-semibold">{error}</p>}
+          </div>
+        </div>
+
+        {/* 仪表盘内容 */}
+        <div className="space-y-4">
+          {dashboardData.map((item, index) => (
+            <div key={index} className="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 bg-gray-900 rounded-xl shadow-lg">
+              <KeyLevelsPanel data={item} />
+              <HistoryPanel data={item} />
+            </div>
+          ))}
+        </div>
+         <footer className="text-center text-gray-500 mt-12 pb-4">
+            <p>技术蓝图与React实现 by Gemini</p>
+            <p>数据更新于: {dashboardData[0]?.metadata.lastUpdated}</p>
+        </footer>
+      </div>
+    </div>
+  );
+}
