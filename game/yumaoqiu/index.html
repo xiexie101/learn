@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中羽羽毛球水平分级</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .levels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .level-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .level-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #f9ca24, #f0932b);
+            background-size: 200% 100%;
+            animation: gradient 3s ease infinite;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .level-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 45px rgba(0,0,0,0.2);
+        }
+        
+        .level-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .level-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-right: 15px;
+            min-width: 60px;
+        }
+        
+        .level-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .level-subtitle {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            margin-bottom: 15px;
+        }
+        
+        .level-description {
+            color: #34495e;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+        
+        .skill-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        
+        .skill-tag {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .progression-chart {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .chart-title {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        
+        .progression-bar {
+            position: relative;
+            height: 60px;
+            background: linear-gradient(90deg, #ff6b6b 0%, #4ecdc4 20%, #45b7d1 40%, #f9ca24 60%, #f0932b 80%, #6c5ce7 100%);
+            border-radius: 30px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .level-marker {
+            position: absolute;
+            top: -10px;
+            width: 2px;
+            height: 80px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+        
+        .level-label {
+            position: absolute;
+            top: -40px;
+            transform: translateX(-50%);
+            background: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            white-space: nowrap;
+        }
+        
+        .rating-guide {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .rating-guide h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .rating-examples {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .rating-example {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏸 中羽羽毛球水平分级</h1>
+            <p>从羽外高人到天下无羽的完整进阶之路</p>
+        </div>
+        
+        <div class="rating-guide">
+            <h3>分级标示方法</h3>
+            <div class="rating-examples">
+                <div class="rating-example">弱4级：中羽4-级</div>
+                <div class="rating-example">标准4级：中羽4级</div>
+                <div class="rating-example">强4级：中羽4+级</div>
+            </div>
+        </div>
+        
+        <div class="progression-chart">
+            <div class="chart-title">羽毛球技术进阶路径图</div>
+            <div class="progression-bar">
+                <div class="level-marker" style="left: 0%;">
+                    <div class="level-label">0级</div>
+                </div>
+                <div class="level-marker" style="left: 12.5%;">
+                    <div class="level-label">1级</div>
+                </div>
+                <div class="level-marker" style="left: 25%;">
+                    <div class="level-label">3级</div>
+                </div>
+                <div class="level-marker" style="left: 50%;">
+                    <div class="level-label">5级</div>
+                </div>
+                <div class="level-marker" style="left: 75%;">
+                    <div class="level-label">7级</div>
+                </div>
+                <div class="level-marker" style="left: 87.5%;">
+                    <div class="level-label">9级</div>
+                </div>
+                <div class="level-marker" style="left: 100%;">
+                    <div class="level-label">超9级</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="levels-grid" id="levelsContainer">
+            <!-- 级别卡片将通过JavaScript动态生成 -->
+        </div>
+    </div>
+    
+    <script>
+        const levels = [
+            {
+                level: "0级",
+                title: "羽外高人",
+                subtitle: "散步式娱乐",
+                description: "不打羽毛球的人，或者虽然打羽毛球，但只把羽毛球作为一项散步式的活动身体的娱乐，只打和平球。对他们来说，羽毛球网实在是一项多余的设施。",
+                skills: ["娱乐打球", "和平球", "不重视网子"]
+            },
+            {
+                level: "1级",
+                title: "羽焉不详",
+                subtitle: "运动认知觉醒",
+                description: "已经把羽毛球当做一项运动来看待，知道了羽毛球不是要把球打到对方最好接的地方，而是恰恰相反。室内场地成为首选。",
+                skills: ["运动意识", "室内场地", "苍蝇拍握法", "基本规则"]
+            },
+            {
+                level: "2级",
+                title: "羽过拔毛",
+                subtitle: "打毛党主力",
+                description: "了解过一些羽毛球基本技术，对基本规则有一定了解。相当于零基础爱好者经过8-12节课基础技术培训后的水平。",
+                skills: ["基本握拍", "发球技术", "前场回球", "后场击球", "杀球入门"]
+            },
+            {
+                level: "3级",
+                title: "佳羽有约",
+                subtitle: "业余球会中下水平",
+                description: "参加过基础短期业余初级培训，并在业余球会中定期打球。握拍、发球基本没有问题，能够区分垫步和跨步。",
+                skills: ["步法区分", "发力概念", "后场技术", "前场小球", "基本战术"]
+            },
+            {
+                level: "4级",
+                title: "羽不自禁",
+                subtitle: "业余球会中等水平",
+                description: "参加过业余提高班培训或经常观摩教学视频，每周至少打球1-2次。能够正确完成全场步法，基本应用爆发力。",
+                skills: ["全场步法", "爆发力应用", "拉吊杀", "反手后场", "双打意识"]
+            },
+            {
+                level: "5级",
+                title: "春风化羽",
+                subtitle: "指导初级爱好者",
+                description: "参加过业余羽毛球培训高级班，能在网上给初级爱好者提出科学合理的建议。熟练应用前臂内外旋及手腕爆发力。",
+                skills: ["高级步法", "手指发力", "多种技术", "战术运用", "教学能力"]
+            },
+            {
+                level: "6级",
+                title: "羽翼丰满",
+                subtitle: "俱乐部霸主级",
+                description: "中等水平业余俱乐部或羽毛球群中的霸主，经常充当群内免费教练。步伐自然流畅，技术一致性好。",
+                skills: ["动作一致性", "反手技术", "战术意识", "防守反击", "教练水平"]
+            },
+            {
+                level: "7级",
+                title: "呼风唤羽",
+                subtitle: "业余球员上限",
+                description: "几乎是业余球员所能达到的级别上限。各种单项技术基本没有明显缺陷，必须有一两项相对突出的技术。",
+                skills: ["技术全面", "特色技术", "战术熟练", "高稳定性", "冷静头脑"]
+            },
+            {
+                level: "8级",
+                title: "羽过天晴",
+                subtitle: "省队退役选手",
+                description: "曾经有过省专业羽毛球队经历并在各种全国性专业比赛中取得过一定成绩的退役选手。任何单项技术都不再是问题。",
+                skills: ["专业技术", "全面战术", "超高稳定性", "比赛经验", "专业背景"]
+            },
+            {
+                level: "9级",
+                title: "浑然一羽",
+                subtitle: "国退选手专用",
+                description: "国退选手的专用舞台，退役后仍从事与羽毛球密切相关的职业或仍把羽毛球作为最常见的运动休闲方式。",
+                skills: ["顶级技战术", "教练水平", "传奇经验", "大师级", "羽坛名宿"]
+            },
+            {
+                level: "超9级",
+                title: "天下无羽",
+                subtitle: "现役国手水平",
+                description: "意识一流、技术趋近完美，体能无比充沛，比的只是战术运用和临场发挥。所有羽球强国现役国手均在此列。",
+                skills: ["完美技术", "一流意识", "顶级体能", "临场发挥", "世界水平"]
+            }
+        ];
+        
+        function createLevelCard(levelData) {
+            const card = document.createElement('div');
+            card.className = 'level-card';
+            
+            card.innerHTML = `
+                <div class="level-header">
+                    <div class="level-number">${levelData.level}</div>
+                    <div>
+                        <div class="level-title">${levelData.title}</div>
+                        <div class="level-subtitle">${levelData.subtitle}</div>
+                    </div>
+                </div>
+                <div class="level-description">${levelData.description}</div>
+                <div class="skill-tags">
+                    ${levelData.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        function renderLevels() {
+            const container = document.getElementById('levelsContainer');
+            levels.forEach(level => {
+                container.appendChild(createLevelCard(level));
+            });
+        }
+        
+        // 页面加载时渲染所有级别
+        document.addEventListener('DOMContentLoaded', renderLevels);
+        
+        // 添加滚动动画效果
+        function animateOnScroll() {
+            const cards = document.querySelectorAll('.level-card');
+            cards.forEach(card => {
+                const rect = card.getBoundingClientRect();
+                const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+                
+                if (isVisible) {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }
+            });
+        }
+        
+        // 初始化卡片样式
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.level-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+        
+        window.addEventListener('scroll', animateOnScroll);
+    </script>
+</body>
+</html>
