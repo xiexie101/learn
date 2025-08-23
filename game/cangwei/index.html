@@ -71,26 +71,30 @@
         </footer>
     </div>
 
-    <script>
+    <script type="module">
+        import { API_KEY } from './keyApi.js';
         // 准备您的持仓数据
         const portfolioRawData = {
-            "总览": { "value": 122000 },
-            "股票": { "value": 57000, "parent": "总览" },
-            "债券": { "value": 55000, "parent": "总览" },
-            "现金": { "value": 10000, "parent": "总览" },
-            "科技": { "value": 25000, "parent": "股票" },
-            "消费": { "value": 20000, "parent": "股票" },
-            "金融": { "value": 12000, "parent": "股票" },
-            "公司债": { "value": 30000, "parent": "债券" },
-            "国债": { "value": 25000, "parent": "债券" },
-            "现金1": { "value": 10000, "parent": "现金" },
-            "股票 A": { "value": 10000, "parent": "科技" },
-            "股票 B": { "value": 15000, "parent": "科技" },
-            "股票 C": { "value": 20000, "parent": "消费" },
-            "股票 D": { "value": 12000, "parent": "金融" },
-            "债券 A": { "value": 30000, "parent": "公司债" },
-            "债券 B": { "value": 25000, "parent": "国债" },
-            "现金2": { "value": 10000, "parent": "现金1" },
+            "总览": { "value": 509562.20 },
+            "行业": { "value": 324384.20, "parent": "总览" },
+            "货币": { "value": 150000, "parent": "总览" },
+            "其他波段": { "value": 35178, "parent": "总览" },
+            "医": { "value": 123926.60, "parent": "行业" },
+            "科技": { "value": 75989.00, "parent": "行业" },
+            "消费": { "value": 124468.60, "parent": "行业" },
+            "货币1": { "value": 150000, "parent": "货币" },
+            "其他波段1": { "value": 35178, "parent": "其他波段" },
+            "医疗ETF": { "value": 87010.00, "parent": "医" },
+            "医药": { "value": 30409.60, "parent": "医" },
+            "恒生医疗": { "value": 6507.00, "parent": "医" },
+            "恒生互联": { "value": 62462.40, "parent": "科技" },
+            "恒指科技": { "value": 13393.60, "parent": "科技" },
+            "证券ETF": { "value": 133.00, "parent": "科技" },
+            "恒生消费": { "value": 47279.20, "parent": "消费" },
+            "消费50": { "value": 31893.40, "parent": "消费" },
+            "食品饮料": { "value": 45296.00, "parent": "消费" },
+            "货币2": { "value": 150000, "parent": "货币1" },
+            "其他波段2(半导体/1000/环保)": { "value": 35178, "parent": "其他波段1" },
         };
 
         const chartData = [{
@@ -124,6 +128,32 @@
 
         analyzeBtn.addEventListener('click', getAnalysis);
 
+        // 新增：动态生成 Prompt 字符串的函数
+        function generatePortfolioStringForPrompt(data) {
+            const totalAssets = data["总览"]?.value || 0;
+            let resultString = ` - 总资产: $${totalAssets.toLocaleString()}\n`;
+
+            const topLevelCategories = Object.keys(data).filter(key => data[key].parent === "总览");
+
+            for (const category of topLevelCategories) {
+                const categoryValue = data[category]?.value || 0;
+                resultString += ` - ${category}: $${categoryValue.toLocaleString()}`;
+
+                const subCategories = Object.keys(data).filter(key => data[key].parent === category);
+
+                if (subCategories.length > 0) {
+                    const subCategoryParts = subCategories.map(subKey => {
+                        const subValue = data[subKey]?.value || 0;
+                        return `${subKey}: $${subValue.toLocaleString()}`;
+                    });
+                    resultString += ` (${subCategoryParts.join(', ')})`;
+                }
+                
+                resultString += '\n';
+            }
+            return resultString.trim();
+        }
+
         async function getAnalysis() {
             analysisResult.classList.remove('hidden');
             resultText.innerHTML = '';
@@ -131,11 +161,8 @@
             analyzeBtn.disabled = true;
             analyzeBtn.classList.add('opacity-50', 'cursor-not-allowed');
 
-            // 格式化持仓数据以用于 Prompt
-            let portfolioString = " - 总资产: $122,000\n";
-            portfolioString += " - 股票: $57,000 (科技: $25,000, 消费: $20,000, 金融: $12,000)\n";
-            portfolioString += " - 债券: $55,000 (公司债: $30,000, 国债: $25,000)\n";
-            portfolioString += " - 现金: $10,000\n";
+            // 优化：动态生成 portfolioString
+            const portfolioString = generatePortfolioStringForPrompt(portfolioRawData);
 
             const prompt = `请以专业投资顾问的口吻，对以下投资组合进行分析。评估其多元化程度、潜在风险，并提供3-4条具体的改进建议。请使用Markdown格式化您的回答，突出重点。\n\n投资组合详情：\n${portfolioString}`;
 
@@ -156,9 +183,10 @@
                 analyzeBtn.classList.remove('opacity-50', 'cursor-not-allowed');
             }
         }
+        
 
         async function callGemini(prompt) {
-            const apiKey = "AIzaSyB98nM6GigueIESvvJsqvZ187OKZWbFT_E"; // API 密钥将由环境自动提供
+            const apiKey = API_KEY; // API 密钥将由环境自动提供
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
             
             const payload = {
