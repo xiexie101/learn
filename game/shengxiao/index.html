@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>十二生肖馒头制作教程 - 福建版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', '微软雅黑', sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #fff8e7 0%, #ffe0b3 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .section {
+            background: white;
+            margin: 20px 0;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .section h2 {
+            color: #ff6b6b;
+            border-bottom: 3px solid #feca57;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        
+        .ingredients-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .ingredient-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #ff6b6b;
+        }
+        
+        .zodiac-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin: 20px 0;
+        }
+        
+        .zodiac-card {
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            border: 2px solid #e9ecef;
+        }
+        
+        .zodiac-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .zodiac-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .zodiac-emoji {
+            font-size: 2.5em;
+            margin-right: 15px;
+        }
+        
+        .zodiac-name {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .zodiac-diagram {
+            width: 100%;
+            height: 200px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            border: 2px dashed #dee2e6;
+            overflow: hidden;
+        }
+        
+        .product-photo {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            margin: 10px 0 15px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #dee2e6;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+        }
+        
+        .product-photo:hover {
+            border-color: #ff6b6b;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.2);
+        }
+        
+        .photo-placeholder {
+            width: 80px;
+            height: 80px;
+            background: #adb5bd;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        
+        .photo-icon {
+            font-size: 2em;
+            color: #6c757d;
+        }
+        
+        .photo-text {
+            color: #6c757d;
+            font-size: 0.9em;
+            text-align: center;
+            line-height: 1.3;
+        }
+        
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            text-align: center;
+            font-size: 12px;
+        }
+        
+        .body { background: #ffeaa7; border: 2px solid #fdcb6e; }
+        .head { background: #fab1a0; border: 2px solid #e17055; }
+        .ear { background: #fd79a8; border: 2px solid #e84393; }
+        .tail { background: #a29bfe; border: 2px solid #6c5ce7; }
+        .leg { background: #55efc4; border: 2px solid #00cec9; }
+        .feature { background: #ff7675; border: 2px solid #d63031; }
+        
+        .steps {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+        
+        .steps ol {
+            padding-left: 20px;
+        }
+        
+        .steps li {
+            margin: 8px 0;
+            color: #2c3e50;
+        }
+        
+        .technique-tag {
+            display: inline-block;
+            background: #74b9ff;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            margin: 2px;
+        }
+        
+        .tips-section {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+        
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .tip-card {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .color-palette {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .color-item {
+            display: flex;
+            align-items: center;
+            background: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .color-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 8px;
+            border: 2px solid #ddd;
+        }
+        
+        .steaming-process {
+            background: linear-gradient(135deg, #fd79a8, #e84393);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+        
+        .process-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .process-card {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .process-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 768px) {
+            .zodiac-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .zodiac-diagram {
+                height: 150px;
+            }
+            
+            .product-photo {
+                height: 150px;
+                
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🐭🐂🐅🐰 十二生肖馒头制作教程 🐲🐍🐴🐑</h1>
+            <p class="subtitle">福建版 - 传统手工技艺，简单易学</p>
+        </header>
+
+        <div class="section">
+            <h2>📋 基础材料准备</h2>
+            <div class="ingredients-grid">
+                <div class="ingredient-card">
+                    <h3>🌾 主要材料</h3>
+                    <ul>
+                        <li>面粉 500克</li>
+                        <li>温水 250毫升</li>
+                        <li>酵母粉 5克</li>
+                        <li>糖 15克</li>
+                        <li>盐 2克</li>
+                        <li>植物油 15毫升</li>
+                    </ul>
+                </div>
+                <div class="ingredient-card">
+                    <h3>🎨 天然着色</h3>
+                    <div class="color-palette">
+                        <div class="color-item">
+                            <div class="color-dot" style="background: #ff6b6b;"></div>
+                            <span>红薯泥</span>
+                        </div>
+                        <div class="color-item">
+                            <div class="color-dot" style="background: #feca57;"></div>
+                            <span>南瓜泥</span>
+                        </div>
+                        <div class="color-item">
+                            <div class="color-dot" style="background: #48dbfb;"></div>
+                            <span>菠菜汁</span>
+                        </div>
+                        <div class="color-item">
+                            <div class="color-dot" style="background: #2c2c54;"></div>
+                            <span>芝麻粉</span>
+                        </div>
+                        <div class="color-item">
+                            <div class="color-dot" style="background: #ff9ff3;"></div>
+                            <span>火龙果汁</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🐾 十二生肖制作详解</h2>
+            <div class="zodiac-grid">
+                <!-- 鼠 -->
+                <div class="zodiac-card">
+                    <div class="zodiac-header">
+                        <span class="zodiac-emoji">🐭</span>
+                        <span class="zodiac-name">鼠</span>
+                    </div>
+                    <div class="technique-tag">搓</div>
+                    <div class="technique-tag">贴</div>
+                    <div class="zodiac-diagram">
+                        <div class="shape body" style="width: 80px; height: 100px; border-radius: 40px 40px 20px 60px; top: 50px; left: 50px;">身体</div>
+                        <div class="shape head" style="width: 40px; height: 40px; top: 30px; left: 40px;">头</div>
+                        <div class="shape ear" style="width: 15px; height: 15px; top: 25px; left: 35px;">耳</div>
+                        <div class="shape ear" style="width: 15px; height: 15px; top: 25px; left: 70px;">耳</div>
+                        <div class="shape tail" style="width: 60px; height: 8px; border-radius: 4px; top: 120px; left: 120px; transform: rotate(45deg);">尾巴</div>
+                    </div>
+                    <div class="product-photo">
+                        <div class="photo-placeholder">
+                            <span class="photo-icon">📸</span>
+                        </div>
+                        <div class="photo-text">鼠年馒头成品图<br><small>点击添加照片</small></div>
+                    </div>
+                    <div class="steps">
+                        <ol>
+                            <li>白色面团搓成水滴形做身体</li>
+                            <li>尖端做头部，圆端做臀部</li>
+                            <li>搓两个小圆球贴作耳朵</li>
+                            <li>搓细条做尾巴，弯曲贴在身后</li>
+                            <li>用芝麻做眼睛</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- 牛 -->
+                <div class="zodiac-card">
+                    <div class="zodiac-header">
+                        <span class="zodiac-emoji">🐂</span>
+                        <span class="zodiac-name">牛</span>
+                    </div>
+                    <div class="technique-tag">揉</div>
+                    <div class="technique-tag">贴</div>
+                    <div class="technique-tag">剪</div>
+                    <div class="zodiac-diagram">
+                        <div class="shape body" style="width: 100px; height: 60px; border-radius: 30px; top: 70px; left: 40px;">身体</div>
+                        <div class="shape head" style="width: 50px; height: 50px; top: 40px; left: 65px;">头</div>
+                        <div class="shape feature" style="width: 12px; height: 20px; border-radius: 6px 6px 0 0; top: 25px; left: 70px;">角</div>
+                        <div class="shape feature" style="width: 12px; height: 20px; border-radius: 6px 6px 0 0; top: 25px; left: 85px;">角</div>
+                        <div class="shape tail" style="width: 40px; height: 6px; border-radius: 3px; top: 90px; left: 130px;">尾巴</div>
+                    </div>
+                    <div class="product-photo">
+                        <div class="photo-placeholder">
+                            <span class="photo-icon">📸</span>
+                        </div>
+                        <div class="photo-text">牛年馒头成品图<br><small>点击添加照片</small></div>
+                    </div>
+                    <div class="steps">
+                        <ol>
+                            <li>白色面团揉成椭圆形做身体</li>
+                            <li>搓小球做头部，贴在身体前端</li>
+                            <li>搓两个小锥形做牛角</li>
+                            <li>剪刀在脸部轻剪做鼻孔</li>
+                            <li>搓细条做尾巴</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- 虎 -->
+                <div class="zodiac-card">
+                    <div class="zodiac-header">
+                        <span class="zodiac-emoji">🐅</span>
+                        <span class="zodiac-name">虎</span>
+                    </div>
+                    <div class="technique-tag">揉</div>
+                    <div class="technique-tag">搓</div>
+                    <div class="technique-tag">剪</div>
+                    <div class="zodiac-diagram">
+                        <div class="shape body" style="width: 90px; height: 60px; border-radius: 30px; top: 70px; left: 45px; background: #ff7675;">身体</div>
+                        <div class="shape head" style="width: 45px; height: 45px; top: 45px; left: 67px; background: #ff7675;">头</div>
+                        <div class="shape ear" style="width: 15px; height: 15px; border-radius: 50% 50% 50% 0; top: 35px; left: 60px;">耳</div>
+                        <div class="shape ear" style="width: 15px; height: 15px; border-radius: 50% 50% 0 50%; top: 35px; left: 90px;">耳</div>
+                        <div class="shape feature" style="width: 30px; height: 4px; border-radius: 2px; top: 55px; left: 75px; background: #2d3436;">斑纹</div>
+                    </div>
+                    <div class="product-photo">
+                        <div class="photo-placeholder">
+                            <span class="photo-icon">📸</span>
+                        </div>
+                        <div class="photo-text">虎年馒头成品图<br><small>点击添加照片</small></div>
+                    </div>
+                    <div class="steps">
+                        <ol>
+                            <li>黄色面团揉成椭圆形做身体</li>
+                            <li>搓圆球做头部</li>
+                            <li>黑色小条贴作斑纹</li>
+                            <li>剪两个三角形立起做耳朵</li>
+                            <li>搓粗短条做尾巴</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- 兔 -->
+                <div class="zodiac-card">
+                    <div class="zodiac-header">
+                        <span class="zodiac-emoji">🐰</span>
+                        <span class="zodiac-name">兔</span>
+                    </div>
+                    <div class="technique-tag">搓</div>
+                    <div class="technique-tag">贴</div>
+                    <div class="technique-tag">剪</div>
+                    <div class="zodiac-diagram">
+                        <div class="shape body" style="width: 70px; height: 70px; border-radius: 35px; top: 65px; left: 55px;">身体</div>
+                        <div class="shape head" style="width: 40px; height: 40px; border-radius: 50% 50% 60% 60%; top: 35px; left: 70px;">头</div>
+                        <div class="shape ear" style="width: 12px; height: 35px; border-radius: 6px; top: 10px; left: 65px;">耳</div>
+                        <div class="shape ear" style="width: 12px; height: 35px; border-radius: 6px; top: 10px; left: 85px;">耳</div>
+                        <div class="shape tail" style="width: 20px; height: 20px; top: 120px; left: 115px;">尾</div>
+                    </div>
+                    <div class="product-photo">
+                        <div class="photo-placeholder">
+                            <span class="photo-icon">📸</span>
+                        </div>
+                        <div class="photo-text">兔年馒头成品图<br><small>点击添加照片</small></div>
+                    </div>
+                    <div class="steps">
+                        <ol>
+                            <li>白色面团搓成椭圆形做身体</li>
+                            <li>头部略尖，做兔子脸形</li>
+                            <li>搓两个长椭圆形做长耳朵</li>
+                            <li>贴一个小圆球做尾巴</li>
+                            <li>粉色小点做鼻子</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- 龙 -->
+                <div class="zodiac-card">
+                    <div class="zodiac-header">
+                        <span class="zodiac-emoji">🐲</span>
+                        <span class="zodiac-name">龙</span>
+                    </div>
+                    <div class="technique-tag">搓</div>
+                    <div class="technique-tag">弯曲</div>
+                    <div class="technique-tag">贴</div>
+                    <div class="zodiac-diagram">
+                        <div class="shape body" style="width: 120px; height: 15px; border-radius: 7px; top: 70px; left: 30px; transform: rotate(15deg); background: #feca57;">身体</div>
+                        <div class="shape head" style="width: 35px; height: 30px; border-radius: 50% 50% 30% 30%; top: 50px; left: 120px; background: #feca57;">头</div>
+                        <div class="shape leg" style="width: 15px; height: 15px; top: 90px; left: 50px;">爪</div>
+                        <div class="shape leg" style="width: 15px; height: 15px; top: 90px; left: 80px;">爪</div>
+                        <div class="shape feature" style="width: 8px; height: 8px; top: 65px; left: 70px; background: #e17055;">鳞</div>
+                    </div>
+                    <div class="product-photo">
+                        <div class="photo-placeholder">
+                            <span class="photo-icon">📸</span>
+                        </div>
+                        <div class="photo-text">龙年馒头成品图<br><small>点击添加照片</small></div>
+                    </div>
+                    <div class="steps">
+                        <ol>
+                            <li>黄色面团搓成长条做身体</li>
+                            <li>一端粗大做头部</li>
+                            <li>身体弯曲成S形</li>
+                            <li>贴小三角形做鳞片装饰</li>
+                            <li>搓四个小球做爪子</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- 蛇 -->
+                <div class="zodiac-card">
+                    <div class="zodiac-header">
+                        <span class="zodiac-emoji">🐍</span>
+                        <span class="zodiac-name">蛇</span>
+                    </div>
+                    <div class="technique-tag">搓</div>
+                    <div class="technique-tag">弯曲</div>
+                    <div class="zodiac-diagram">
+                        <div class="shape body" style="width: 100px; height: 12px; border-radius: 6px; top: 60px; left: 40px; transform: rotate(-20deg); background: #00cec9;">身体</div>
+                        <div class="shape body" style="width: 80px; height: 12px; border-radius: 6px; top: 90px; left: 60px; transform: rotate(30deg); background: #00cec9;">身体</div>
+                        <div class="shape head" style="width: 25px; height: 20px; border-radius: 50% 50% 30% 30%; top: 45px; left: 125px; background: #00cec9;">头</div>
+                    </div>
+                    <div class="product-photo">
+                        <div class="photo-placeholder">
+                            <span class="photo-icon">📸</span>
+                        </div>
+                        <div class="photo-text">蛇年馒头成品图<br><small>点击添加照片</small></div>
+                    </div>
+                    <div class="steps">
+                        <ol>
+                            <li>绿色面团搓成长条</li>
+                            <li>一端略粗做头部</li>
+                            <li>身体盘成圆形或S形</li>
+                            <li>用牙签在头部点两个小孔做鼻孔</li>
+                            <li>芝麻做眼睛</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- 马 -->
+                <div class="zodiac-card">
+                    <div class="zodiac-header">
+                        <span class="zodiac-emoji">🐴</span>
+                        <span class="zodiac-name">马</span>
+                    </div>
+                    <div class="technique-tag">揉</div>
+                    <div class="technique-tag">搓</div>
+                    <div class="technique-tag">剪</div>
+                    <div class="zodiac-diagram">
+                        <div class="shape body" style="width: 80px; height: 50px; border-radius: 25px; top: 75px; left: 50px;">身体</div>
+                        <div class="shape head" style="width: 40px; height: 30px; border-radius: 50% 50% 30% 30%; top: 35px; left: 70px;">头</div>
+                        <div class="shape feature" style="width: 25px; height: 15px; border-radius: 0 0 50% 50%; top: 25px; left: 77px; background: #6c5ce7;">鬃毛</div>
+                        <div class="shape leg" style="width: 8px; height: 25px; border-radius: 4px; top: 125px; left: 60px;">腿</div>
+                        <div class="shape leg" style="width: 8px; height: 25px; border-radius: 4px; top: 125px; left: 110px;">腿</div>
+                    </div>
+                    <div class="product-photo">
+                        <img src="./images/ma.png"/>
+                        <!-- <div class="photo-placeholder">
+                            <span class="photo-icon">📸</span>
+                        </div>
+                        <div class="photo-text">马年馒头成品图<br><small>点击添加照片</small></div> -->
+                    </div>
+                    <div class="steps">
+                        <ol>
+                            <li>白色面团揉成椭圆形做身体</li>
+                            <li>搓长椭圆形做头部和脖子</li>
+                            <li>剪刀剪出鬃毛效果</li>
+                            <li>搓四个小条做腿</li>
+                            <li>搓细条做尾巴</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- 羊 -->
+                <div class="zodiac-card">
+                    <div class="zodiac-header">
+                        <span class="zodiac-emoji">🐑</span>
+                        <span class="zodiac-name">羊</span>
+                    </div>
+                    <div class="technique-tag">搓</div>
+                    <div class="technique-tag">贴</div>
+                    <div class="technique-tag">剪</div>
+                    <div class="zodiac-diagram">
+                        <div class="shape body" style="width: 70px; height: 60px; border-radius: 35px; top: 70px; left: 55px; border: 3px dashed #74b9ff;">身体</div>
+                        <div class="shape head" style="width: 35px; height: 35px; top: 45px; left: 72px;">头</div>
+                        <div class="shape feature" style="width: 10px; height: 15px; border-radius: 50%; top: 35px; left: 70px; background: #a29bfe;">角</div>
+                        <div class="shape feature" style="width: 10px; height: 15px; border-radius: 50%; top: 35px; left: 90px; background: #a29bfe;">角</div>
+                        <div class="shape leg" style="width: 12px; height: 12px; top: 130px; left: 60px;">腿</div>
+                        <div class="shape leg" style="width: 12px; height: 12px; top: 130px; left: 105px;">腿</div>
+                    </div>
+                    <div class="product-photo">
+                        <div class="photo-placeholder">
+                            <span class="photo-icon">📸</span>
+                        </div>
+                        <div class="photo-text">羊年馒头成品图<br><small>点击添加照片</small></div>
+                    </div>
+                    <div class="steps">
+                        <ol>
+                            <li>白色面团搓成椭圆形做身体</li>
+                            <li>剪刀在表面轻剪做毛发质感</li>
+                            <li>搓小球做头部</li>
+                            <li>搓两个小螺旋形做羊角</li>
+                            <li>四个小球做腿</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- 猴 -->
+                <div class="zodiac-card">
+                    <div class="zodiac-header">
+                        <span class="zodiac-emoji">🐵</span>
+                        <span class="zodiac-name">猴</span>
+                    </div>
+                    <div class="technique-tag">揉</div>
+                    <div class="technique-tag">搓</div>
+                    <div class="technique-tag">贴</div>
+                    <div class="zodiac-diagram">
+                        <div class="shape body" style="width: 60px; height: 70px; border-radius: 30px; top: 65px; left: 60px; background: #fdcb6e;">身体</div>
+                        <div class="shape head" style="width: 40px; height: 40px; top: 35px; left: 70px; background: #fdcb6e;">头</div>
+                        <div class="shape ear" style="width: 20px; height: 20px; top: 30px; left: 50px;">耳</div>
+                        <div class="shape ear" style="width: 20px; height: 20px; top: 30px; left: 110px;">耳</div>
+                        <div class="shape tail" style="width: 50px; height: 8px; border-radius: 4px; top: 120px; left: 110px; transform: rotate(45deg);">尾巴</div>
+                    </div>
+                    <div class="product-photo">
+                        <div class="photo-placeholder">
+                            <span class="photo-icon">📸</span>
+                        </div>
+                        <div class="photo-text">猴年馒头成品图<br><small>点击添加照片</small></div>
+                    </div>
+                    <div class="steps">
+                        <ol>
+                            <li>黄色面团揉成椭圆形做身体</li>
+                            <li>搓圆球做头部</li>
+                            <li>大耳朵贴在头部两侧</li>
+                            <li>搓长条做手臂和腿</li>
+                            <li>搓细长条做尾巴</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- 鸡 -->
+                <div class="zodiac-card">
+                    <div class="zodiac-header">
+                        <span class="zodiac-emoji">🐓</span>
+                        <span class="zodiac-name">鸡</span>
+                    </div>
+                    <div class="technique-tag">搓</div>
+                    <div class="technique-tag">贴</div>
+                    <div class="technique-tag">剪</div>
+                    <div class="zodiac-diagram">
+                        <div class="shape body" style="width: 70px; height: 80px; border-radius: 35px; top: 60px; left: 55px;">身体</div>
+                        <div class="shape head" style="width: 35px; height: 35px; top: 35px; left: 72px;">头</div>
+                        <div class="shape feature" style="width: 20px; height: 15px; border-radius: 50% 50% 0 0; top: 25px; left: 77px; background: #e17055;">鸡冠</div>
+                        <div class="shape feature" style="width: 15px; height: 8px; border-radius: 0 50% 50% 0; top: 50px; left: 105px; background: #f39c12;">嘴</div>
+                    </div>
+                    <div class="product-photo">
+                        <div class="photo-placeholder">
+                            <span class="photo-icon">📸</span>
+                        </div>
+                        <div class="photo-text">鸡年馒头成品图<br><small>点击添加照片</small></div>
+                    </div>
+                    <div class="steps">
+                        <ol>
+                            <li>白色面团搓成椭圆形做身体</li>
+                            <li>小圆球做头部</li>
+                            <li>红色小锥形做鸡冠</li>
+                            <li>黄色小锥形做嘴巴</li>
+                            <li>剪刀轻剪身体做羽毛纹理</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- 狗 -->
+                <div class="zodiac-card">
+                    <div class="zodiac-header">
+                        <span class="zodiac-emoji">🐕</span>
+                        <span class="zodiac-name">狗</span>
+                    </div>
+                    <div class="technique-tag">揉</div>
+                    <div class="technique-tag">搓</div>
+                    <div class="technique-tag">贴</div>
+                    <div class="zodiac-diagram">
+                        <div class="shape body" style="width: 80px; height: 50px; border-radius: 25px; top: 75px; left: 50px; background: #fdcb6e;">身体</div>
+                        <div class="shape head" style="width: 45px; height: 30px; border-radius: 50% 50% 30% 30%; top: 45px; left: 67px; background: #fdcb6e;">头</div>
+                        <div class="shape ear" style="width: 18px; height: 25px; border-radius: 50% 50% 0 0; top: 35px; left: 55px;">耳</div>
+                        <div class="shape ear" style="width: 18px; height: 25px; border-radius: 50% 50% 0 0; top: 35px; left: 95px;">耳</div>
+                        <div class="shape leg" style="width: 10px; height: 20px; border-radius: 5px; top: 125px; left: 60px;">腿</div>
+                        <div class="shape leg" style="width: 10px; height: 20px; border-radius: 5px; top: 125px; left: 110px;">腿</div>
+                        <div class="shape tail" style="width: 35px; height: 8px; border-radius: 4px; top: 85px; left: 125px; transform: rotate(-30deg);">尾巴</div>
+                    </div>
+                    <div class="product-photo">
+                        <div class="photo-placeholder">
+                            <span class="photo-icon">📸</span>
+                        </div>
+                        <div class="photo-text">狗年馒头成品图<br><small>点击添加照片</small></div>
+                    </div>
+                    <div class="steps">
+                        <ol>
+                            <li>黄色面团揉成椭圆形做身体</li>
+                            <li>椭圆形做头部，一端略尖做嘴</li>
+                            <li>两个下垂的椭圆做耳朵</li>
+                            <li>搓四个小条做腿</li>
+                            <li>搓条做尾巴，向上弯曲</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- 猪 -->
+                <div class="zodiac-card">
+                    <div class="zodiac-header">
+                        <span class="zodiac-emoji">🐷</span>
+                        <span class="zodiac-name">猪</span>
+                    </div>
+                    <div class="technique-tag">揉</div>
+                    <div class="technique-tag">搓</div>
+                    <div class="technique-tag">贴</div>
+                    <div class="zodiac-diagram">
+                        <div class="shape body" style="width: 90px; height: 70px; border-radius: 45px; top: 65px; left: 45px; background: #fd79a8;">身体</div>
+                        <div class="shape head" style="width: 50px; height: 45px; border-radius: 50% 50% 40% 40%; top: 35px; left: 65px; background: #fd79a8;">头</div>
+                        <div class="shape ear" style="width: 15px; height: 15px; border-radius: 50% 50% 0 50%; top: 30px; left: 60px;">耳</div>
+                        <div class="shape ear" style="width: 15px; height: 15px; border-radius: 50% 50% 50% 0; top: 30px; left: 95px;">耳</div>
+                        <div class="shape feature" style="width: 20px; height: 12px; border-radius: 10px; top: 55px; left: 80px; background: #e84393;">鼻子</div>
+                        <div class="shape tail" style="width: 15px; height: 15px; border-radius: 50%; top: 75px; left: 130px; background: #fd79a8;">尾</div>
+                    </div>
+                    <div class="product-photo">
+                        <div class="photo-placeholder">
+                            <span class="photo-icon">📸</span>
+                        </div>
+                        <div class="photo-text">猪年馒头成品图<br><small>点击添加照片</small></div>
+                    </div>
+                    <div class="steps">
+                        <ol>
+                            <li>粉色面团揉成圆胖椭圆形</li>
+                            <li>小圆球做头部</li>
+                            <li>两个小三角形做耳朵</li>
+                            <li>搓小圆柱做鼻子</li>
+                            <li>搓细条做卷尾巴</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="steaming-process">
+            <h2>🔥 蒸制工艺流程</h2>
+            <div class="process-steps">
+                <div class="process-card">
+                    <div class="process-number">1</div>
+                    <h3>二次发酵</h3>
+                    <p>馒头做好后放蒸笼中，盖湿布醒发20-30分钟</p>
+                </div>
+                <div class="process-card">
+                    <div class="process-number">2</div>
+                    <h3>冷水上锅</h3>
+                    <p>冷水上锅，大火烧开后转中火</p>
+                </div>
+                <div class="process-card">
+                    <div class="process-number">3</div>
+                    <h3>蒸制15分钟</h3>
+                    <p>中火蒸15分钟，保持火力稳定</p>
+                </div>
+                <div class="process-card">
+                    <div class="process-number">4</div>
+                    <h3>关火焖5分钟</h3>
+                    <p>关火后不要立即开盖，焖5分钟再开</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="tips-section">
+            <h2>💡 福建特色制作建议</h2>
+            <div class="tips-grid">
+                <div class="tip-card">
+                    <h3>🌊 湿度控制</h3>
+                    <p>福建湿度大，发酵时间可适当缩短，注意观察面团状态</p>
+                </div>
+                <div class="tip-card">
+                    <h3>🏠 本地材料</h3>
+                    <p>可用地瓜粉增加Q弹口感，体现福建风味特色</p>
+                </div>
+                <div class="tip-card">
+                    <h3>🎨 调色天然</h3>
+                    <p>多用当地蔬果汁调色，健康美观又环保</p>
+                </div>
+                <div class="tip-card">
+                    <h3>📦 保存方法</h3>
+                    <p>做好可冷冻保存，吃前蒸热即可，方便实用</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🎭 装饰技巧</h2>
+            <div class="ingredients-grid">
+                <div class="ingredient-card">
+                    <h3>🔧 工具技巧</h3>
+                    <ul>
+                        <li>用牙签在表面划纹理</li>
+                        <li>芝麻、红枣片做装饰</li>
+                        <li>蒸好后可用食用色素笔补充细节</li>
+                        <li>摆盘时可配青菜叶增加美感</li>
+                    </ul>
+                </div>
+                <div class="ingredient-card">
+                    <h3>👨‍🍳 制作心得</h3>
+                    <ul>
+                        <li>制作时要有耐心，慢慢塑形</li>
+                        <li>每个生肖都有自己的特色</li>
+                        <li>多练习几次就能熟练掌握</li>
+                        <li>可以和家人一起制作，增加乐趣</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

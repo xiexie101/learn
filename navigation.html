@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目导航页面 - HTML文件集合</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .category {
+            margin-bottom: 40px;
+        }
+
+        .category-title {
+            font-size: 1.8em;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #3498db;
+            display: flex;
+            align-items: center;
+        }
+
+        .category-icon {
+            width: 30px;
+            height: 30px;
+            margin-right: 15px;
+            background: #3498db;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .link-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .link-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-color: #3498db;
+            background: white;
+        }
+
+        .link-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .link-path {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .link-description {
+            font-size: 0.95em;
+            color: #555;
+            line-height: 1.4;
+        }
+
+        .stats {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .stats h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .stats p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .links-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 项目导航页面</h1>
+            <p>所有HTML文件的集合导航</p>
+        </div>
+        
+        <div class="content">
+            <div class="stats">
+                <h3>📊 项目统计</h3>
+                <p>共发现 <strong>42个HTML文件</strong>，分布在 <strong>5个主要分类</strong> 中</p>
+            </div>
+
+            <div class="category">
+                <div class="category-title">
+                    <div class="category-icon">🏠</div>
+                    主页面
+                </div>
+                <div class="links-grid">
+                    <a href="index.html" class="link-card">
+                        <div class="link-title">图片合并工具</div>
+                        <div class="link-path">index.html</div>
+                        <div class="link-description">一个交互式的图片合并工具，支持拖拽、调整大小和合并多张图片</div>
+                    </a>
+                </div>
+            </div>
+
+            <div class="category">
+                <div class="category-title">
+                    <div class="category-icon">🎮</div>
+                    游戏类
+                </div>
+                <div class="links-grid">
+                    <a href="game/index.html" class="link-card">
+                        <div class="link-title">数字点击游戏</div>
+                        <div class="link-path">game/index.html</div>
+                        <div class="link-description">按顺序点击数字的益智游戏</div>
+                    </a>
+                    <a href="game/brain.html" class="link-card">
+                        <div class="link-title">网页奇思妙解</div>
+                        <div class="link-path">game/brain.html</div>
+                        <div class="link-description">大脑训练相关游戏</div>
+                    </a>
+                    <a href="game/baduanjin/index.html" class="link-card">
+                        <div class="link-title">八段锦每日运动追踪器</div>
+                        <div class="link-path">game/baduanjin/index.html</div>
+                        <div class="link-description">八段锦练习的花园环境</div>
+                    </a>
+                    <a href="game/baduanjin/garden.html" class="link-card">
+                        <div class="link-title">禅意花园运动追踪器</div>
+                        <div class="link-path">game/baduanjin/garden.html</div>
+                        <div class="link-description">八段锦的花园练习环境</div>
+                    </a>
+                    <a href="game/baduanjin/test.html" class="link-card">
+                        <div class="link-title">数字道场：每日八段锦</div>
+                        <div class="link-path">game/baduanjin/test.html</div>
+                        <div class="link-description">八段锦练习测试页面</div>
+                    </a>
+                    <a href="game/cangwei/index.html" class="link-card">
+                        <div class="link-title">仓位管理旭日图 (AI增强版)</div>
+                        <div class="link-path">game/cangwei/index.html</div>
+                        <div class="link-description">仓位管理相关的游戏</div>
+                    </a>
+                    <a href="game/car/index.html" class="link-card">
+                        <div class="link-title">帮汽车过桥</div>
+                        <div class="link-path">game/car/index.html</div>
+                        <div class="link-description">汽车过桥相关的游戏</div>
+                    </a>
+                    <a href="game/fuwocheng/index.html" class="link-card">
+                        <div class="link-title">俯卧撑进阶游戏 - 程序员健身之路</div>
+                        <div class="link-path">game/fuwocheng/index.html</div>
+                        <div class="link-description">俯卧撑进阶游戏</div>
+                    </a>
+                    <a href="game/jianduzi/index.html" class="link-card">
+                        <div class="link-title">核心完整性计划 | 3个月健身任务</div>
+                        <div class="link-path">game/jianduzi/index.html</div>
+                        <div class="link-description">核心完整性计划健身任务</div>
+                    </a>
+                    <a href="game/jijin/index.html" class="link-card">
+                        <div class="link-title">基金游戏</div>
+                        <div class="link-path">game/jijin/index.html</div>
+                        <div class="link-description">基金相关的游戏</div>
+                    </a>
+                    <a href="game/number_click_game/index.html" class="link-card">
+                        <div class="link-title">数字点击游戏</div>
+                        <div class="link-path">game/number_click_game/index.html</div>
+                        <div class="link-description">数字点击相关的游戏</div>
+                    </a>
+                    <a href="game/shengxiao/index.html" class="link-card">
+                        <div class="link-title">十二生肖馒头制作教程 - 福建版</div>
+                        <div class="link-path">game/shengxiao/index.html</div>
+                        <div class="link-description">十二生肖馒头制作教程</div>
+                    </a>
+                    <a href="game/sos/index.html" class="link-card">
+                        <div class="link-title">家庭医药箱交互指南</div>
+                        <div class="link-path">game/sos/index.html</div>
+                        <div class="link-description">家庭医药箱交互指南</div>
+                    </a>
+                    <a href="game/yumaoqiu/index.html" class="link-card">
+                        <div class="link-title">中羽羽毛球水平分级</div>
+                        <div class="link-path">game/yumaoqiu/index.html</div>
+                        <div class="link-description">中羽羽毛球水平分级</div>
+                    </a>
+                </div>
+            </div>
+
+            <div class="category">
+                <div class="category-title">
+                    <div class="category-icon">🎵</div>
+                    音乐类
+                </div>
+                <div class="links-grid">
+                    <a href="music/index.html" class="link-card">
+                        <div class="link-title">唱歌进阶游戏化学习指南</div>
+                        <div class="link-path">music/index.html</div>
+                        <div class="link-description">唱歌进阶的游戏化学习指南</div>
+                    </a>
+                    <a href="music/game.html" class="link-card">
+                        <div class="link-title">唱歌进阶游戏 - 从零到歌神</div>
+                        <div class="link-path">music/game.html</div>
+                        <div class="link-description">唱歌进阶游戏</div>
+                    </a>
+                </div>
+            </div>
+
+            <div class="category">
+                <div class="category-title">
+                    <div class="category-icon">📚</div>
+                    学习卡片
+                </div>
+                <div class="links-grid">
+                    <a href="card/english_learning.html" class="link-card">
+                        <div class="link-title">小朋友学英语</div>
+                        <div class="link-path">card/english_learning.html</div>
+                        <div class="link-description">专为小朋友设计的英语学习页面</div>
+                    </a>
+                    <a href="card/learnpicture.html" class="link-card">
+                        <div class="link-title">小朋友学画画</div>
+                        <div class="link-path">card/learnpicture.html</div>
+                        <div class="link-description">通过图片进行学习的页面</div>
+                    </a>
+                </div>
+            </div>
+
+            <div class="category">
+                <div class="category-title">
+                    <div class="category-icon">🎨</div>
+                    在线艺术
+                </div>
+                <div class="links-grid">
+                    <a href="onlineart/index.html" class="link-card">
+                        <div class="link-title">3D画廊</div>
+                        <div class="link-path">onlineart/index.html</div>
+                        <div class="link-description">3D画廊展示页面</div>
+                    </a>
+                    <a href="onlineart/baogao.html" class="link-card">
+                        <div class="link-title">2025年政府工作报告</div>
+                        <div class="link-path">onlineart/baogao.html</div>
+                        <div class="link-description">2025年政府工作报告</div>
+                    </a>
+                    <a href="onlineart/book.html" class="link-card">
+                        <div class="link-title">这世界很好，但你也不差 - 本质解读</div>
+                        <div class="link-path">onlineart/book.html</div>
+                        <div class="link-description">这世界很好，但你也不差 - 本质解读</div>
+                    </a>
+                    <a href="onlineart/dongcha.html" class="link-card">
+                        <div class="link-title">洞察需求的本质</div>
+                        <div class="link-path">onlineart/dongcha.html</div>
+                        <div class="link-description">洞察需求的本质</div>
+                    </a>
+                    <a href="onlineart/kapian.html" class="link-card">
+                        <div class="link-title">卡片页面</div>
+                        <div class="link-path">onlineart/kapian.html</div>
+                        <div class="link-description">卡片相关的页面</div>
+                    </a>
+                    <a href="onlineart/kepu.html" class="link-card">
+                        <div class="link-title">吃柿子小贴士 - 避免胃结石</div>
+                        <div class="link-path">onlineart/kepu.html</div>
+                        <div class="link-description">吃柿子小贴士 - 避免胃结石</div>
+                    </a>
+                    <a href="onlineart/librarian_day.html" class="link-card">
+                        <div class="link-title">图书管理员的一天</div>
+                        <div class="link-path">onlineart/librarian_day.html</div>
+                        <div class="link-description">图书管理员的一天</div>
+                    </a>
+                    <a href="onlineart/look.html" class="link-card">
+                        <div class="link-title">投资视角：重新观察我们的世界</div>
+                        <div class="link-path">onlineart/look.html</div>
+                        <div class="link-description">投资视角：重新观察我们的世界</div>
+                    </a>
+                    <a href="onlineart/meditation.html" class="link-card">
+                        <div class="link-title">情绪舒缓冥想指导</div>
+                        <div class="link-path">onlineart/meditation.html</div>
+                        <div class="link-description">情绪舒缓冥想指导</div>
+                    </a>
+                    <a href="onlineart/mengxian.html" class="link-card">
+                        <div class="link-title">冥想的本质</div>
+                        <div class="link-path">onlineart/mengxian.html</div>
+                        <div class="link-description">冥想的本质</div>
+                    </a>
+                    <a href="onlineart/nuoya.html" class="link-card">
+                        <div class="link-title">诺亚页面</div>
+                        <div class="link-path">onlineart/nuoya.html</div>
+                        <div class="link-description">诺亚相关的页面</div>
+                    </a>
+                    <a href="onlineart/paowu.html" class="link-card">
+                        <div class="link-title">跑酷页面</div>
+                        <div class="link-path">onlineart/paowu.html</div>
+                        <div class="link-description">跑酷相关的页面</div>
+                    </a>
+                    <a href="onlineart/pushu.html" class="link-card">
+                        <div class="link-title">朴树：音乐中的诗人</div>
+                        <div class="link-path">onlineart/pushu.html</div>
+                        <div class="link-description">朴树：音乐中的诗人</div>
+                    </a>
+                    <a href="onlineart/rili.html" class="link-card">
+                        <div class="link-title">365天灵感日历</div>
+                        <div class="link-path">onlineart/rili.html</div>
+                        <div class="link-description">365天灵感日历</div>
+                    </a>
+                    <a href="onlineart/rili2.html" class="link-card">
+                        <div class="link-title">365天灵感日历</div>
+                        <div class="link-path">onlineart/rili2.html</div>
+                        <div class="link-description">365天灵感日历第二版</div>
+                    </a>
+                    <a href="onlineart/think.html" class="link-card">
+                        <div class="link-title">思考快与慢：系统1与系统2的探索</div>
+                        <div class="link-path">onlineart/think.html</div>
+                        <div class="link-description">思考快与慢：系统1与系统2的探索</div>
+                    </a>
+                    <a href="onlineart/touzi.html" class="link-card">
+                        <div class="link-title">指数关键点位可视化</div>
+                        <div class="link-path">onlineart/touzi.html</div>
+                        <div class="link-description">指数关键点位可视化</div>
+                    </a>
+                    <a href="onlineart/wenzi.html" class="link-card">
+                        <div class="link-title">发现新解 - 清明节的本质</div>
+                        <div class="link-path">onlineart/wenzi.html</div>
+                        <div class="link-description">发现新解 - 清明节的本质</div>
+                    </a>
+                    <a href="onlineart/wether.html" class="link-card">
+                        <div class="link-title">投资视角：重新观察我们的世界</div>
+                        <div class="link-path">onlineart/wether.html</div>
+                        <div class="link-description">投资视角：重新观察我们的世界</div>
+                    </a>
+                    <a href="onlineart/zhichao2.html" class="link-card">
+                        <div class="link-title">打工人哲学：一部自嘲的生存指南</div>
+                        <div class="link-path">onlineart/zhichao2.html</div>
+                        <div class="link-description">打工人哲学：一部自嘲的生存指南</div>
+                    </a>
+                    <a href="onlineart/zichao.html" class="link-card">
+                        <div class="link-title">打工人哲学：一部自嘲的生存指南</div>
+                        <div class="link-path">onlineart/zichao.html</div>
+                        <div class="link-description">打工人哲学：一部自嘲的生存指南</div>
+                    </a>
+                    <a href="onlineart/ziti.html" class="link-card">
+                        <div class="link-title">Writing Quote</div>
+                        <div class="link-path">onlineart/ziti.html</div>
+                        <div class="link-description">Writing Quote</div>
+                    </a>
+                    <a href="onlineart/ziti2.html" class="link-card">
+                        <div class="link-title">话题卡片</div>
+                        <div class="link-path">onlineart/ziti2.html</div>
+                        <div class="link-description">话题卡片</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
