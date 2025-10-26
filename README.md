@@ -72,3 +72,7 @@ node puppeteer_version.js
 - 首次运行时需要网络连接以下载Chromium
 - 确保网络连接正常
 - 由于网站结构可能变化，程序可能需要不定期更新 
+
+###
+使用每个HTML文件中<title>标签的实际内容作为页面功能名字。让我先提取所有HTML文件的title信息，然后更新导航页面。
+find . -name "*.html" -type f | grep -v ".venv" | sort | xargs -I {} sh -c 'title=$(grep -i "<title>" "{}" | head -1 | sed "s/<[^>]*>//g" | xargs); echo "{}|$title"'

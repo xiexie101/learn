@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>美的 KZE5012 空气炸锅新手指南</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: A task-oriented single-page guide. Starts with 'Quick Start' for immediate use, followed by an interactive 'Recipe Explorer' with category filters and detail modals, and ends with 'Cleaning'. This structure guides the beginner user from setup to cooking to maintenance in a logical, linear flow, while the interactive recipes section allows for non-linear exploration. -->
+    <!-- Visualization & Content Choices: Report Info: Recipe parameters -> Goal: Compare cooking times -> Viz: Bar Chart (Chart.js/Canvas) -> Interaction: Chart updates based on recipe category filter -> Justification: Provides a quick visual comparison of effort/time required for different food types. Report Info: Step-by-step instructions -> Goal: Inform -> Presentation: Numbered lists and HTML/CSS diagram of control panel -> Interaction: None -> Justification: Clear, scannable instructions are best for beginners. Report Info: Recipe categories -> Goal: Organize -> Presentation: Filter buttons -> Interaction: Click to filter recipe cards and update chart -> Justification: Allows users to easily find relevant recipes without scrolling through an entire list. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+        }
+        .chart-container {
+            position: relative;
+            height: 350px;
+            max-height: 40vh;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .modal-overlay {
+            transition: opacity 0.3s ease;
+        }
+        .modal-content {
+            transition: transform 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-stone-800">
+
+    <header class="bg-amber-500 text-white text-center py-8 shadow-md">
+        <h1 class="text-4xl font-bold">美的 KZE5012 空气炸锅</h1>
+        <p class="mt-2 text-lg">您的厨房新宠 · 新手友好指南</p>
+    </header>
+
+    <nav class="sticky top-0 bg-white/80 backdrop-blur-md shadow-sm z-10">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-center items-center space-x-4 md:space-x-8 py-3 overflow-x-auto whitespace-nowrap">
+                <a href="#quick-start" class="text-stone-600 hover:text-amber-600 font-semibold px-3 py-2 rounded-md transition">快速上手</a>
+                <a href="#recipes" class="text-stone-600 hover:text-amber-600 font-semibold px-3 py-2 rounded-md transition">精选菜谱</a>
+                <a href="#cleaning" class="text-stone-600 hover:text-amber-600 font-semibold px-3 py-2 rounded-md transition">清洁保养</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto p-4 md:p-8">
+
+        <section id="quick-start" class="mb-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center text-amber-600 mb-8">三步快速上手</h2>
+            <div class="max-w-4xl mx-auto grid md:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+                    <div class="text-5xl mb-4">①</div>
+                    <h3 class="text-xl font-semibold mb-2">开箱与预热</h3>
+                    <p class="text-stone-600">首次使用前，请取出所有包装，用温和的洗洁精清洗炸篮和烤架。擦干后装回，选择 <strong class="text-amber-700">200°C 空烤5分钟</strong>，以去除新机异味。</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+                    <div class="text-5xl mb-4">②</div>
+                    <h3 class="text-xl font-semibold mb-2">认识控制面板</h3>
+                    <p class="text-stone-600">操作非常简单！通过触摸屏选择预设菜单，或手动调节 <strong class="text-amber-700">温度 (TEMP)</strong> 和 <strong class="text-amber-700">时间 (TIME)</strong>。点击开始/暂停键即可启动。</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+                    <div class="text-5xl mb-4">③</div>
+                    <h3 class="text-xl font-semibold mb-2">烹饪小贴士</h3>
+                    <p class="text-stone-600">食物平铺在烤架上，不要堆叠。烹饪中途可以拉出炸篮 <strong class="text-amber-700">翻面或晃动</strong>，机器会自动暂停和续接，让食物受热更均匀。</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="recipes" class="mb-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center text-amber-600 mb-2">零失败 · 精选菜谱</h2>
+            <p class="text-center text-stone-500 mb-8">点击下方分类筛选您感兴趣的菜谱，开始您的美食之旅吧！</p>
+            
+            <div id="recipe-filters" class="flex justify-center flex-wrap gap-2 mb-8">
+                <button data-category="all" class="filter-btn bg-amber-500 text-white py-2 px-5 rounded-full shadow transition hover:bg-amber-600">全部</button>
+                <button data-category="肉类" class="filter-btn bg-white text-stone-700 py-2 px-5 rounded-full shadow transition hover:bg-amber-100">肉类 🍖</button>
+                <button data-category="蔬菜" class="filter-btn bg-white text-stone-700 py-2 px-5 rounded-full shadow transition hover:bg-amber-100">蔬菜 🥦</button>
+                <button data-category="小吃" class="filter-btn bg-white text-stone-700 py-2 px-5 rounded-full shadow transition hover:bg-amber-100">小吃 🍟</button>
+            </div>
+
+            <div class="bg-white p-4 md:p-6 rounded-lg shadow-lg mb-12">
+                 <h3 class="text-xl font-semibold text-center mb-4">不同分类菜谱烹饪时间对比</h3>
+                <div class="chart-container">
+                    <canvas id="recipeTimeChart"></canvas>
+                </div>
+            </div>
+
+            <div id="recipe-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            </div>
+        </section>
+
+        <section id="cleaning" class="scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center text-amber-600 mb-8">清洁与保养</h2>
+            <div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg">
+                <ul class="space-y-4 text-stone-700">
+                    <li class="flex items-start">
+                        <span class="text-amber-500 font-bold text-xl mr-4">1.</span>
+                        <div><strong class="font-semibold">冷却为先：</strong> 烹饪结束后，务必让空气炸锅完全冷却后再进行清洁，以防烫伤。</div>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-amber-500 font-bold text-xl mr-4">2.</span>
+                        <div><strong class="font-semibold">拆卸清洗：</strong> 取出炸篮和烤架，用海绵或软布配合温和的洗洁精清洗。它们都有不粘涂层，请勿使用钢丝球等硬物。</div>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-amber-500 font-bold text-xl mr-4">3.</span>
+                        <div><strong class="font-semibold">顽固污渍：</strong> 如果有食物残渣粘在上面，可以先用热水浸泡10分钟，会更容易清洗。</div>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-amber-500 font-bold text-xl mr-4">4.</span>
+                        <div><strong class="font-semibold">机身清洁：</strong> 用湿布擦拭机器外部和内部加热元件区域即可。主机部分严禁浸水。</div>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="text-center py-6 bg-stone-200 mt-16">
+        <p class="text-stone-500">祝您烹饪愉快！</p>
+    </footer>
+
+    <div id="recipe-modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+        <div class="modal-content bg-white w-full max-w-2xl max-h-[90vh] rounded-lg shadow-2xl overflow-y-auto transform scale-95">
+            <div class="sticky top-0 bg-white p-4 border-b flex justify-between items-center">
+                <h3 id="modal-title" class="text-2xl font-bold text-amber-600">菜谱详情</h3>
+                <button id="modal-close" class="text-stone-500 hover:text-stone-800 text-3xl">&times;</button>
+            </div>
+            <div id="modal-body" class="p-6">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const recipes = [
+                {
+                    id: 1,
+                    name: "香脆炸鸡翅",
+                    category: "肉类",
+                    time: 18,
+                    temp: 180,
+                    difficulty: "★☆☆",
+                    image: "🍗",
+                    ingredients: ["鸡翅中 8个", "生抽 2勺", "老抽 1勺", "蚝油 1勺", "料酒 1勺", "蜂蜜 1勺", "蒜末、姜片适量"],
+                    steps: [
+                        "鸡翅洗净，两面划几刀方便入味。",
+                        "加入所有调料，抓匀腌制至少30分钟。",
+                        "空气炸锅180°C预热3分钟。",
+                        "将鸡翅平放入炸篮，180°C烤10分钟。",
+                        "取出翻面，再烤8分钟，直到表面金黄酥脆。"
+                    ],
+                    tips: "腌制时间越长越入味。最后几分钟可以刷一层蜂蜜水，色泽更好看。"
+                },
+                {
+                    id: 2,
+                    name: "快手炸薯条",
+                    category: "小吃",
+                    time: 15,
+                    temp: 200,
+                    difficulty: "★☆☆",
+                    image: "🍟",
+                    ingredients: ["冷冻半成品薯条 300g", "盐和番茄酱 适量", "食用油 半勺"],
+                    steps: [
+                        "取出冷冻薯条，无需解冻。",
+                        "加入半勺油，轻轻晃动均匀。",
+                        "空气炸锅200°C预热3分钟。",
+                        "将薯条倒入炸篮，200°C烤15分钟。",
+                        "期间拉出炸篮晃动2-3次，使其受热均匀。",
+                        "出锅后撒上盐，搭配番茄酱即可。"
+                    ],
+                    tips: "如果是生土豆，切条后需冲洗掉淀粉并沥干水分，再进行烹饪。"
+                },
+                {
+                    id: 3,
+                    name: "蒜香烤西兰花",
+                    category: "蔬菜",
+                    time: 10,
+                    temp: 180,
+                    difficulty: "★☆☆",
+                    image: "🥦",
+                    ingredients: ["西兰花 1颗", "蒜末 3瓣", "橄榄油 1勺", "盐、黑胡椒粉 适量"],
+                    steps: [
+                        "西兰花掰成小朵，洗净沥干水分。",
+                        "加入蒜末、橄榄油、盐和黑胡椒粉，抓匀。",
+                        "空气炸锅180°C预热3分钟。",
+                        "将西兰花平铺进炸篮，180°C烤10分钟左右。",
+                        "烤至边缘微焦即可。"
+                    ],
+                    tips: "不要烤太久，否则会失去爽脆的口感。"
+                },
+                {
+                    id: 4,
+                    name: "奥尔良烤翅根",
+                    category: "肉类",
+                    time: 20,
+                    temp: 190,
+                    difficulty: "★★☆",
+                    image: "🍖",
+                    ingredients: ["鸡翅根 6个", "奥尔良腌料 30g", "水 30g"],
+                    steps: [
+                        "鸡翅根洗净沥干，用牙签扎些小孔。",
+                        "将奥尔良腌料和水混合均匀。",
+                        "放入鸡翅根，按摩均匀，包上保鲜膜冷藏腌制4小时以上（过夜最佳）。",
+                        "空气炸锅190°C预热3分钟。",
+                        "将腌好的翅根放入，190°C烤12分钟。",
+                        "翻面，再烤8分钟即可。"
+                    ],
+                    tips: "腌制是关键！时间一定要足够长才能入味。"
+                },
+                {
+                    id: 5,
+                    name: "烤香菇",
+                    category: "蔬菜",
+                    time: 12,
+                    temp: 180,
+                    difficulty: "★☆☆",
+                    image: "🍄",
+                    ingredients: ["新鲜香菇 8朵", "生抽 1勺", "蚝油 半勺", "孜然粉、辣椒粉 适量", "食用油 1勺"],
+                    steps: [
+                        "香菇去蒂洗净，在表面划十字花刀。",
+                        "将所有调料混合，均匀刷在香菇表面和内部。",
+                        "静置腌制10分钟。",
+                        "空气炸锅180°C预热3分钟。",
+                        "将香菇放入炸篮，180°C烤12分钟左右。"
+                    ],
+                    tips: "划十字花刀不仅好看，也更容易入味和烤熟。"
+                },
+                {
+                    id: 6,
+                    name: "炸鲜奶",
+                    category: "小吃",
+                    time: 8,
+                    temp: 180,
+                    difficulty: "★★☆",
+                    image: "🥛",
+                    ingredients: ["牛奶 250ml", "玉米淀粉 30g", "白糖 20g", "鸡蛋 1个", "面包糠 适量"],
+                    steps: [
+                        "牛奶、玉米淀粉、白糖倒入锅中搅匀，小火加热至浓稠糊状，倒入容器冷藏2小时凝固。",
+                        "凝固后取出切块。",
+                        "依次裹上淀粉、蛋液、面包糠。",
+                        "空气炸锅180°C预热3分钟。",
+                        "放入奶块，表面喷一点油，180°C烤8分钟，至表面金黄。"
+                    ],
+                    tips: "这是道网红甜点，外酥里嫩，小心烫口哦！"
+                }
+            ];
+
+            const recipeGrid = document.getElementById('recipe-grid');
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const modal = document.getElementById('recipe-modal');
+            const modalClose = document.getElementById('modal-close');
+            const modalTitle = document.getElementById('modal-title');
+            const modalBody = document.getElementById('modal-body');
+
+            let chartInstance = null;
+            
+            const renderRecipes = (category = 'all') => {
+                recipeGrid.innerHTML = '';
+                const filteredRecipes = category === 'all' ? recipes : recipes.filter(r => r.category === category);
+
+                if (filteredRecipes.length === 0) {
+                    recipeGrid.innerHTML = `<p class="text-center text-stone-500 col-span-full">暂无此类菜谱。</p>`;
+                } else {
+                    filteredRecipes.forEach(recipe => {
+                        const card = document.createElement('div');
+                        card.className = `recipe-card bg-white rounded-lg shadow-lg overflow-hidden transition-transform transform hover:scale-105 cursor-pointer`;
+                        card.dataset.id = recipe.id;
+                        card.dataset.category = recipe.category;
+
+                        card.innerHTML = `
+                            <div class="text-6xl text-center py-6 bg-amber-100">${recipe.image}</div>
+                            <div class="p-4">
+                                <h3 class="text-lg font-semibold truncate">${recipe.name}</h3>
+                                <div class="flex justify-between items-center mt-2 text-sm text-stone-600">
+                                    <span>🕒 ${recipe.time} 分钟</span>
+                                    <span>🌡️ ${recipe.temp}°C</span>
+                                    <span>难度: ${recipe.difficulty}</span>
+                                </div>
+                            </div>
+                        `;
+                        card.addEventListener('click', () => showModal(recipe.id));
+                        recipeGrid.appendChild(card);
+                    });
+                }
+            };
+
+            const updateChart = (category = 'all') => {
+                const filteredRecipes = category === 'all' ? recipes : recipes.filter(r => r.category === category);
+                const chartLabels = filteredRecipes.map(r => r.name);
+                const chartData = filteredRecipes.map(r => r.time);
+
+                if (chartInstance) {
+                    chartInstance.data.labels = chartLabels;
+                    chartInstance.data.datasets[0].data = chartData;
+                    chartInstance.update();
+                } else {
+                    const ctx = document.getElementById('recipeTimeChart').getContext('2d');
+                    chartInstance = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: chartLabels,
+                            datasets: [{
+                                label: '烹饪时间 (分钟)',
+                                data: chartData,
+                                backgroundColor: 'rgba(245, 158, 11, 0.6)',
+                                borderColor: 'rgba(217, 119, 6, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            indexAxis: 'y',
+                            scales: {
+                                x: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: '分钟'
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return ` ${context.dataset.label}: ${context.raw} 分钟`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            };
+
+            const showModal = (id) => {
+                const recipe = recipes.find(r => r.id === id);
+                if (!recipe) return;
+
+                modalTitle.textContent = recipe.name;
+                modalBody.innerHTML = `
+                    <div class="mb-6">
+                        <h4 class="text-lg font-semibold text-stone-800 border-l-4 border-amber-400 pl-3 mb-3">食材清单</h4>
+                        <ul class="list-disc list-inside text-stone-700 space-y-1">
+                            ${recipe.ingredients.map(i => `<li>${i}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div class="mb-6">
+                        <h4 class="text-lg font-semibold text-stone-800 border-l-4 border-amber-400 pl-3 mb-3">制作步骤</h4>
+                        <ol class="list-decimal list-inside text-stone-700 space-y-2">
+                            ${recipe.steps.map(s => `<li>${s}</li>`).join('')}
+                        </ol>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold text-stone-800 border-l-4 border-amber-400 pl-3 mb-3">小贴士</h4>
+                        <p class="text-stone-700 bg-amber-50 p-3 rounded-md">${recipe.tips}</p>
+                    </div>
+                `;
+
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    modal.querySelector('.modal-overlay').classList.remove('opacity-0');
+                    modal.querySelector('.modal-content').classList.remove('scale-95');
+                }, 10);
+            };
+
+            const hideModal = () => {
+                modal.querySelector('.modal-overlay').classList.add('opacity-0');
+                modal.querySelector('.modal-content').classList.add('scale-95');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 300);
+            };
+
+            filterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const category = button.dataset.category;
+                    
+                    filterButtons.forEach(btn => {
+                        btn.classList.remove('bg-amber-500', 'text-white');
+                        btn.classList.add('bg-white', 'text-stone-700');
+                    });
+                    button.classList.add('bg-amber-500', 'text-white');
+                    button.classList.remove('bg-white', 'text-stone-700');
+
+                    renderRecipes(category);
+                    updateChart(category);
+                });
+            });
+
+            modalClose.addEventListener('click', hideModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    hideModal();
+                }
+            });
+
+            renderRecipes();
+            updateChart();
+
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>毛不易·唱歌修炼图鉴 — 声音RPG互动版</title>
+  <style>
+    :root{--bg:#f6f3ea;--panel:#fff;--muted:#7b7b7b;--accent:#ff8a4b;--ink:#2b2b2b;--card-shadow:0 6px 18px rgba(43,43,43,0.08);--mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;}
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial;background:linear-gradient(180deg,var(--bg),#eeeef2);color:var(--ink)}
+    .wrap{max-width:1100px;margin:22px auto;padding:18px}
+    header{display:flex;gap:14px;align-items:center}
+    .logo{width:86px;height:86px;border-radius:12px;background:linear-gradient(135deg,#fff4e6,#ffe8d0);display:flex;align-items:center;justify-content:center;box-shadow:var(--card-shadow);font-weight:700;color:var(--accent);font-size:20px}
+    h1{margin:0;font-size:22px}
+    .subtitle{color:var(--muted);font-size:13px;margin-top:6px}
+
+    .grid{display:grid;grid-template-columns:1fr 380px;gap:18px;margin-top:18px}
+    .card{background:var(--panel);padding:14px;border-radius:12px;box-shadow:var(--card-shadow)}
+    .section-title{display:flex;align-items:center;gap:10px;font-weight:700}
+    .pixel-title{font-family:var(--mono);font-size:12px;padding:6px 10px;background:#fff7f0;border-radius:8px;color:var(--accent);box-shadow:inset 0 -3px 0 rgba(0,0,0,0.03)}
+
+    .song-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+    .song-card{border-radius:10px;padding:10px;border:1px dashed #efe6dc;background:linear-gradient(180deg,#fff,#fffaf5)}
+    .song-card h3{margin:0;font-size:15px}
+    .meta{font-size:12px;color:var(--muted)}
+    .tags{display:flex;gap:6px;margin-top:8px}
+    .tag{background:#fff0ea;padding:6px 8px;border-radius:8px;font-size:12px;color:var(--accent)}
+
+    .details{margin-top:8px;padding:10px;background:#fffdf9;border-radius:8px;border:1px solid #fff0e6}
+    .details p{margin:6px 0;color:var(--muted);font-size:14px}
+
+    /* control */
+    .controls{display:flex;gap:8px;margin-top:10px}
+    button{background:var(--accent);color:white;border:none;padding:8px 10px;border-radius:8px;cursor:pointer}
+    .btn-ghost{background:#fff;border:1px solid #ffd8c0;color:var(--accent)}
+
+    /* right column */
+    form{display:flex;flex-direction:column;gap:8px}
+    input,textarea,select{padding:8px;border-radius:8px;border:1px solid #eee;font-family:var(--mono);font-size:13px}
+    .log-list{max-height:420px;overflow:auto;margin-top:8px}
+    .log-item{border-left:4px solid #ffd4b8;padding:10px;background:#fffefb;margin-bottom:8px;border-radius:6px}
+
+    table{width:100%;border-collapse:collapse;margin-top:10px}
+    th,td{padding:8px;border-bottom:1px solid #f0e7df;text-align:left}
+    th{background:#fff7f0}
+
+    footer{margin-top:18px;color:var(--muted);font-size:12px;text-align:center}
+
+    @media (max-width:980px){.grid{grid-template-columns:1fr;padding:6px}.logo{display:none}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo">RPG</div>
+      <div>
+        <h1>毛不易 · 唱歌修炼图鉴</h1>
+        <div class="subtitle">完整网页版 — 像素手绘 × 程序员日志 | 可交互练习卡与日志导出</div>
+      </div>
+    </header>
+
+    <div class="grid">
+      <main>
+        <div class="card">
+          <div class="section-title"><div class="pixel-title">进阶路线一览</div><div style="flex:1"></div><div class="meta">3个月 · 每周5×30min</div></div>
+
+          <div class="song-list" id="songList">
+            <!-- 入门级 -->
+            <div class="song-card">
+              <h3>像我这样的人 — 入门级 ★</h3>
+              <div class="meta">目标：基础呼吸与自然语气 · 建议周次：第1–2周</div>
+              <div class="tags"><div class="tag">气息练习</div><div class="tag">录音比对</div></div>
+              <div class="details" data-song="像我这样的人">
+                <p><strong>练唱重点：</strong>平稳气息、尾音不漏、说话式唱法。</p>
+                <p><strong>内容与方法：</strong>热身（5min），分句练唱（每句3遍），录音→回听→标注换气点。使用节拍器保持节奏稳定。</p>
+                <div class="controls"><button class="save-task">加入练习计划</button><button class="btn-ghost export-song">导出练习卡</button></div>
+              </div>
+            </div>
+
+            <div class="song-card">
+              <h3>平凡的一天 — 入门级 ★★</h3>
+              <div class="meta">目标：节奏感与换气控制 · 建议周次：第2–3周</div>
+              <div class="tags"><div class="tag">换气标注</div><div class="tag">节拍器练习</div></div>
+              <div class="details" data-song="平凡的一天">
+                <p><strong>练唱重点：</strong>句尾控制、气息分配、语感自然。</p>
+                <p><strong>内容与方法：</strong>分段练习→合并，使用节拍器或拍手控制节奏；每句练3次并标出换气点，录音每周至少一次。</p>
+                <div class="controls"><button class="save-task">加入练习计划</button><button class="btn-ghost export-song">导出练习卡</button></div>
+              </div>
+            </div>
+
+            <div class="song-card">
+              <h3>入海 — 入门级 ★★</h3>
+              <div class="meta">目标：低中音稳定 · 建议周次：第3–4周</div>
+              <div class="tags"><div class="tag">哼鸣热身</div><div class="tag">胸腔共鸣</div></div>
+              <div class="details" data-song="入海">
+                <p><strong>练唱重点：</strong>低音区准确、声音往前送、稳定中音。</p>
+                <p><strong>内容与方法：</strong>进行哼鸣与m音热身（5–8min），分句带词练习，录音对比并调整共鸣位置。</p>
+                <div class="controls"><button class="save-task">加入练习计划</button><button class="btn-ghost export-song">导出练习卡</button></div>
+              </div>
+            </div>
+
+            <!-- 进阶级 -->
+            <div class="song-card">
+              <h3>消愁 — 进阶 ★★★</h3>
+              <div class="meta">目标：共鸣探索与声音稳定 · 建议周次：第5–6周</div>
+              <div class="tags"><div class="tag">鼻腔/胸腔共鸣</div><div class="tag">哼唱→真唱</div></div>
+              <div class="details" data-song="消愁">
+                <p><strong>练唱重点：</strong>混声切换、共鸣位置把控、副歌情绪层次。</p>
+                <p><strong>内容与方法：</strong>先哼唱找共鸣（3–5min），再带词；用“哼→元音→连唱”三步法衔接高音；录音并对比原唱，标出强弱动态。</p>
+                <div class="controls"><button class="save-task">加入练习计划</button><button class="btn-ghost export-song">导出练习卡</button></div>
+              </div>
+            </div>
+
+            <div class="song-card">
+              <h3>一荤一素 — 进阶 ★★★★</h3>
+              <div class="meta">目标：共鸣与情感并行 · 建议周次：第7–8周</div>
+              <div class="tags"><div class="tag">胸腔共鸣</div><div class="tag">分段演唱</div></div>
+              <div class="details" data-song="一荤一素">
+                <p><strong>练唱重点：</strong>胸腔震感、声音厚度、情感沉淀。</p>
+                <p><strong>内容与方法：</strong>每段标注换气点，慢速练习句子连接；在录音中感受低频震动，尝试不同的音色并选择最自然的一种。</p>
+                <div class="controls"><button class="save-task">加入练习计划</button><button class="btn-ghost export-song">导出练习卡</button></div>
+              </div>
+            </div>
+
+            <div class="song-card">
+              <h3>无问 — 进阶 ★★★</h3>
+              <div class="meta">目标：声区融合与真假声衔接 · 建议周次：第8–9周</div>
+              <div class="tags"><div class="tag">真假声连接</div><div class="tag">滑音训练</div></div>
+              <div class="details" data-song="无问">
+                <p><strong>练唱重点：</strong>从轻声到情绪爆发的自然过渡、滑音过渡。</p>
+                <p><strong>内容与方法：</strong>练习“啊-咿-哦”滑音，慢速渐增音量并保持气息支撑；多次录音并比对连接处是否平滑。</p>
+                <div class="controls"><button class="save-task">加入练习计划</button><button class="btn-ghost export-song">导出练习卡</button></div>
+              </div>
+            </div>
+
+            <!-- 情感表现级 -->
+            <div class="song-card">
+              <h3>借 — 表现 ★★★★</h3>
+              <div class="meta">目标：情绪控制与气息协同 · 建议周次：第10–11周</div>
+              <div class="tags"><div class="tag">情绪递进</div><div class="tag">动态控制</div></div>
+              <div class="details" data-song="借">
+                <p><strong>练唱重点：</strong>在克制中表达情绪顶点，保持不喊但有力。</p>
+                <p><strong>内容与方法：</strong>先朗读歌词体会情绪→哼唱→带词情绪唱；练习弱到强的动态变化，用录音检查情绪是否传达。</p>
+                <div class="controls"><button class="save-task">加入练习计划</button><button class="btn-ghost export-song">导出练习卡</button></div>
+              </div>
+            </div>
+
+            <div class="song-card">
+              <h3>不染 — 表现 ★★★★★</h3>
+              <div class="meta">目标：高音纯净与情绪渲染 · 建议周次：第11–12周</div>
+              <div class="tags"><div class="tag">高音控制</div><div class="tag">延音练习</div></div>
+              <div class="details" data-song="不染">
+                <p><strong>练唱重点：</strong>高音支撑、音色清亮、延音连贯。</p>
+                <p><strong>内容与方法：</strong>练习气-声-音连贯（吸-嘶-唱），控制尾音延展，不憋气；多角度录音（近/远麦）分析音色。</p>
+                <div class="controls"><button class="save-task">加入练习计划</button><button class="btn-ghost export-song">导出练习卡</button></div>
+              </div>
+            </div>
+
+            <div class="song-card">
+              <h3>给你给我 — 表现 ★★★★</h3>
+              <div class="meta">目标：叙事表现与语气流动 · 建议周次：第12周</div>
+              <div class="tags"><div class="tag">轻声细节</div><div class="tag">情感克制</div></div>
+              <div class="details" data-song="给你给我">
+                <p><strong>练唱重点：</strong>语气掌控、层次感、尾音处理。</p>
+                <p><strong>内容与方法：</strong>尝试“语气版”和“情感版”两种唱法录音并比较；关注词与词之间的气息桥接，培养故事感。</p>
+                <div class="controls"><button class="save-task">加入练习计划</button><button class="btn-ghost export-song">导出练习卡</button></div>
+              </div>
+            </div>
+
+          </div>
+
+          <div style="margin-top:14px">
+            <h4 style="margin:0 0 8px 0">练习计划速览（示例周）</h4>
+            <table>
+              <thead><tr><th>周次</th><th>重点</th><th>曲目</th><th>目标</th></tr></thead>
+              <tbody>
+                <tr><td>第1周</td><td>呼吸/发声热身</td><td>像我这样的人</td><td>唱完整段不破气</td></tr>
+                <tr><td>第3周</td><td>节奏/换气</td><td>平凡的一天</td><td>找到稳定换气点</td></tr>
+                <tr><td>第6周</td><td>共鸣/混声</td><td>消愁</td><td>副歌保持稳定共鸣</td></tr>
+                <tr><td>第9周</td><td>声区衔接</td><td>无问</td><td>真假声平滑过渡</td></tr>
+                <tr><td>第12周</td><td>情感实战</td><td>借 / 不染 / 给你给我</td><td>朋友聚会完整演唱</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+
+      </main>
+
+      <aside>
+        <div class="card">
+          <div class="section-title"><div class="pixel-title">练唱日志</div><div style="flex:1"></div><div class="meta">保存练习记录并导出CSV</div></div>
+
+          <form id="logForm" onsubmit="return false;">
+            <input id="date" type="date" required />
+            <input id="song" placeholder="歌曲名（例：消愁）" required />
+            <input id="duration" type="number" placeholder="时长（分钟）" min="1" required />
+            <select id="breath">
+              <option value="1">气息 1</option>
+              <option value="2">气息 2</option>
+              <option value="3">气息 3</option>
+              <option value="4">气息 4</option>
+              <option value="5">气息 5</option>
+              <option value="6">气息 6</option>
+              <option value="7">气息 7</option>
+              <option value="8">气息 8</option>
+              <option value="9">气息 9</option>
+              <option value="10">气息 10</option>
+            </select>
+            <textarea id="note" rows="3" placeholder="今日心得（例如：尾音飘/找到胸腔共鸣）"></textarea>
+            <div style="display:flex;gap:8px">
+              <button id="saveLog">保存日志</button>
+              <button id="exportCSV" type="button" style="background:#4a90e2">导出日志 CSV</button>
+            </div>
+          </form>
+
+          <div class="log-list" id="logList"></div>
+        </div>
+
+        <div class="card" style="margin-top:14px">
+          <div class="section-title"><div class="pixel-title">工具与小贴士</div></div>
+          <ul style="margin-top:8px;color:var(--muted);padding-left:18px">
+            <li>热身：哼鸣 5–8 分钟 → 唱元音练习（啊/哦/咿）。</li>
+            <li>录音：每周至少一次，用手机多距离录制对比音色。</li>
+            <li>APP 推荐：Voloco（录音+调音）、Tuner（音高检测）、全民K歌（练唱打分）。</li>
+            <li>练习节奏：使用节拍器 App 或手机节拍器功能。</li>
+          </ul>
+          <div style="margin-top:10px;display:flex;gap:8px">
+            <button id="downloadHTML">下载此页面（.html）</button>
+            <button id="printBtn" style="background:#f6a5c0">打印/导出PDF</button>
+          </div>
+        </div>
+
+      </aside>
+    </div>
+
+    <footer>
+      小提示：把练习视为小而稳定的 daily commit —— 每天写 30 分钟的“声音代码”，三个月后你会惊讶于版本迭代。🎧
+    </footer>
+  </div>
+
+  <script>
+    // 交互：保存练习日志与导出
+    const logKey = 'sing_rpg_logs_v2';
+    function loadLogs(){ const raw = localStorage.getItem(logKey); return raw?JSON.parse(raw):[]; }
+    function saveLogs(arr){ localStorage.setItem(logKey,JSON.stringify(arr)); renderLogs(); }
+    function renderLogs(){ const list = document.getElementById('logList'); list.innerHTML=''; const arr = loadLogs(); if(!arr.length){ list.innerHTML='<div class="meta">暂无练习记录，开始你的第一天吧！</div>'; return; } arr.slice().reverse().forEach(item=>{ const div = document.createElement('div'); div.className='log-item'; div.innerHTML = `<div style="display:flex;justify-content:space-between"><strong>${item.song}</strong><span class="meta">${item.date} · ${item.duration}min · 气息${item.breath}</span></div><div style="margin-top:6px;color:#333">${escapeHtml(item.note||'')}</div>`; list.appendChild(div); }); }
+    function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    document.getElementById('saveLog').addEventListener('click', ()=>{
+      const date = document.getElementById('date').value; const song = document.getElementById('song').value.trim(); const duration = document.getElementById('duration').value; const breath = document.getElementById('breath').value; const note = document.getElementById('note').value.trim(); if(!date||!song||!duration){ alert('请填写日期、歌曲与时长'); return; } const arr = loadLogs(); arr.push({date,song,duration,breath,note}); saveLogs(arr); document.getElementById('logForm').reset(); });
+    document.getElementById('exportCSV').addEventListener('click', ()=>{
+      const arr = loadLogs(); if(!arr.length){ alert('暂无记录'); return; }
+      const header = ['日期','歌曲','时长(min)','气息评分','心得'];
+      const rows = [header.join(',')].concat(arr.map(r=>[r.date,`"${r.song.replace(/"/g,'""') }"`,r.duration,r.breath,`"${(r.note||'').replace(/"/g,'""') }"`].join(',')));
+      const csv = rows.join('\n');
+      const blob = new Blob([csv],{type:'text/csv'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'sing_logs.csv'; a.click(); URL.revokeObjectURL(url);
+    });
+
+    // 练习卡导出与加入计划
+    document.querySelectorAll('.export-song').forEach(btn=>{ btn.addEventListener('click', (e)=>{ const card = e.target.closest('.details'); const song = card.dataset.song; const txt = `练唱卡：${song}
+练唱重点：${card.querySelector('p').innerText}
+方法：${card.querySelectorAll('p')[1].innerText}
+`; const blob = new Blob([txt],{type:'text/plain'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `${song}_练唱卡.txt`; a.click(); URL.revokeObjectURL(url); }); });
+    document.querySelectorAll('.save-task').forEach(btn=>{ btn.addEventListener('click', (e)=>{ const card = e.target.closest('.details'); const song = card.dataset.song; const arr = loadLogs(); // 把任务加入为当天一条简短记录
+      const today = new Date().toISOString().slice(0,10); arr.push({date:today,song:`练习：${song}`,duration:30,breath:0,note:'任务加入练习计划'}); saveLogs(arr); alert(`已把 ${song} 加入今日练习计划（30min）`); }); });
+
+    // 下载页面与打印
+    document.getElementById('downloadHTML').addEventListener('click', ()=>{
+      const html = '<!doctype html>' + document.documentElement.outerHTML;
+      const blob = new Blob([html],{type:'text/html'}); const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='毛不易唱歌修炼图鉴.html'; a.click(); URL.revokeObjectURL(url);
+    });
+    document.getElementById('printBtn').addEventListener('click', ()=>{ window.print(); });
+
+    renderLogs();
+  </script>
+</body>
+</html>

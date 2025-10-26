@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>杂志之场 — 静态样刊</title>
+<meta name="description" content="杂志之场：空即是满，重力分层，色彩呼吸。移动优先的一屏式杂志页面示例。">
+<style>
+  /* ========== 基础重置（轻量） ========== */
+  :root{
+    /* 色彩呼吸（每种色彩都有使命）*/
+    --bg: #0f1113;            /* 全局背景（稳） */
+    --paper: #0b0c0d;         /* 页面底纸色：深，营造高雅严肃 */
+    --ink: #e7e7e7;           /* 正文默认 */
+    --muted: #9aa0a6;         /* 次级文字 */
+    --accent: #e8b86b;        /* 强调/标题之雷（谨慎使用） */
+    --acc-soft: rgba(232,184,107,0.12);
+    --glass: rgba(255,255,255,0.03);
+    --max-width: 900px;
+    --gutter: 20px;
+    --radius: 12px;
+    --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  }
+
+  /* mobile-first base */
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    background: linear-gradient(180deg, var(--bg) 0%, #050506 100%);
+    color:var(--ink);
+    font-family:var(--font-sans);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    line-height:1.35;
+    padding:24px;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+  }
+
+  /* 中心容器：一屏内尽收眼底（尽量） */
+  .canvas{
+    width:100%;
+    max-width:var(--max-width);
+    background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.0));
+    border-radius:16px;
+    padding:20px;
+    box-shadow: 0 10px 30px rgba(2,6,10,0.7);
+    overflow:hidden;
+  }
+
+  /* 网格：先骨架后血肉。主栅格 12（概念上）*/
+  .grid{
+    display:grid;
+    grid-template-columns: 1fr;
+    gap: var(--gutter);
+  }
+
+  /* 大标题区（重力分层：重要者大而稳） */
+  .hero{
+    display:flex;
+    gap:16px;
+    align-items:flex-start;
+    padding:24px;
+    border-radius:12px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00));
+    position:relative;
+    overflow:visible;
+  }
+
+  .hero .kicker{
+    font-size:0.9rem;
+    color:var(--muted);
+    letter-spacing:1px;
+    text-transform:uppercase;
+    margin-bottom:6px;
+  }
+
+  .hero h1{
+    margin:0;
+    font-size: clamp(28px, 7vw, 44px); /* 大字，移动优先 */
+    line-height:1.02;
+    letter-spacing:-0.02em;
+    color:var(--accent);
+    font-weight:700;
+    max-width: 42ch; /* 短行 */
+  }
+
+  .hero p.lead{
+    margin-top:10px;
+    color:var(--ink);
+    font-size: clamp(14px, 3.6vw, 16px);
+    max-width: 38ch; /* 短行 */
+    opacity:0.96;
+  }
+
+  /* 侧图（不抢戏，辅助情绪） */
+  .hero .hero-art{
+    margin-left:auto;
+    width:110px;
+    height:110px;
+    min-width:110px;
+    border-radius:12px;
+    background: var(--acc-soft);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+    flex-shrink:0;
+  }
+  .hero .hero-art svg{opacity:0.95}
+
+  /* 中心两栏区域：主要信息 + 侧栏碎片 */
+  .main{
+    display:grid;
+    grid-template-columns: 1fr;
+    gap: var(--gutter);
+  }
+
+  /* 文章卡 */
+  .article{
+    background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
+    padding:18px;
+    border-radius:10px;
+    display:block;
+  }
+  .article h2{
+    margin:0 0 8px 0;
+    font-size: clamp(18px, 4.6vw, 22px);
+    color: var(--ink);
+    letter-spacing:-0.01em;
+  }
+  .article p{
+    margin:0;
+    color:var(--muted);
+    font-size:14px;
+    max-width:48ch; /* 保持短行 */
+  }
+  .meta{
+    color:var(--muted);
+    font-size:12px;
+    margin-top:10px;
+  }
+
+  /* 拉页引言（pull quote）—— 情绪先行，信息随后 */
+  .pull{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    border-radius:12px;
+    background:linear-gradient(90deg, rgba(232,184,107,0.04), transparent);
+    color:var(--accent);
+    font-weight:700;
+    font-size:clamp(14px,4.2vw,18px);
+    line-height:1.1;
+    text-align:center;
+    transform: translateY(0);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+  }
+
+  /* 侧栏卡片（次要者小而轻） */
+  .aside{
+    display:grid;
+    gap:12px;
+  }
+  .chip{
+    background:var(--glass);
+    padding:12px;
+    border-radius:8px;
+    font-size:13px;
+    color:var(--muted);
+  }
+
+  /* 页脚印章 — 结晶如印章 */
+  .stamp{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    justify-content:space-between;
+    margin-top:18px;
+    padding:14px;
+    border-radius:10px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+  }
+  .stamp .seal{
+    background:linear-gradient(180deg, rgba(232,184,107,0.06), transparent);
+    color:var(--accent);
+    padding:8px 12px;
+    border-radius:8px;
+    font-weight:700;
+    font-size:13px;
+    letter-spacing:0.6px;
+  }
+  .stamp .by{
+    color:var(--muted);
+    font-size:13px;
+  }
+
+  /* 大屏增强（保持层次） */
+  @media(min-width:880px){
+    .grid{ grid-template-columns: 2fr 1fr; align-items:start; gap:28px; }
+    .main{ grid-column:1}
+    .aside{ grid-column:2; position:sticky; top:28px; align-self:start; }
+    .hero{ padding:32px; }
+    .hero .hero-art{ width:160px; height:160px; min-width:160px; }
+  }
+
+  /* 打印友好（简单） */
+  @media print{
+    body{background:white;color:black}
+    .canvas{box-shadow:none}
+  }
+
+  /* 可访问性 — 高对比度模式（示例） */
+  @media (prefers-contrast: more){
+    :root{ --ink:#ffffff; --muted:#cfcfcf }
+  }
+</style>
+</head>
+<body>
+  <main class="canvas" role="main" aria-labelledby="mag-title">
+    <section class="grid">
+
+      <!-- HERO（最重要） -->
+      <header class="hero" aria-labelledby="mag-title mag-sub">
+        <div style="max-width:58%;">
+          <div class="kicker">杂志之场 · 第一期</div>
+          <h1 id="mag-title">空即是满 —— 设计的严肃与呼吸</h1>
+          <p class="lead" id="mag-sub">
+            场的本性被提炼为三条：留白产生张力，重力决定层次，色彩以使命发声。页面像城市天际线——紧凑却有呼吸。
+          </p>
+        </div>
+
+        <!-- 侧图：情绪符号，非信息主体 -->
+        <div class="hero-art" aria-hidden="true">
+          <!-- 简洁 SVG 占位（可替换为图片）-->
+          <svg width="76" height="76" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="印章式图形">
+            <rect x="4" y="4" width="92" height="92" rx="14" fill="none" stroke="rgba(232,184,107,0.9)" stroke-width="6"/>
+            <path d="M30 62 L70 38" stroke="rgba(232,184,107,0.9)" stroke-width="6" stroke-linecap="round"/>
+            <circle cx="34" cy="38" r="3.5" fill="rgba(232,184,107,0.95)"/>
+          </svg>
+        </div>
+      </header>
+
+      <!-- 主体与侧栏 -->
+      <div class="main">
+        <!-- 文章卡：先骨架后血肉（标题-引言-元信息）-->
+        <article class="article" aria-labelledby="a1">
+          <h2 id="a1">聚焦律：让多余自动消解</h2>
+          <p>在布局中删除即是创造。若元素不能使主题更清晰，它就应当消失。短行与大字号，保证一屏内即可理解核心。</p>
+          <div class="meta">作者 · 场设计组  •  2025-10-23</div>
+        </article>
+
+        <!-- 拉句（Pull quote）—— 先情绪后信息 -->
+        <div class="pull" aria-hidden="false">
+          严肃是一种温柔：用克制与尺度，让每一处留白都说话。
+        </div>
+
+        <!-- 另一篇短文（信息层） -->
+        <article class="article" aria-labelledby="a2" style="margin-top:6px">
+          <h2 id="a2">排版之律：移动优先与短行</h2>
+          <p>移动是首位：字号要大、行要短。通过 ch 单位与最大宽度控制，使眼睛不走神，信息在第一屏被结晶。</p>
+          <div class="meta">版式笔记 · 设计实践</div>
+        </article>
+
+      </div>
+
+      <!-- 侧栏：次要元素（小而轻），碎片与行动点 -->
+      <aside class="aside" aria-label="侧栏：场的碎片">
+        <div class="chip">
+          <strong>色彩使命</strong><br>
+          每个主色都是角色：标题用雷（点亮），背景用稳（承托），辅助色作呼吸。
+        </div>
+        <div class="chip">
+          <strong>对比律</strong><br>
+          标题如雷，正文如阵。对比并非喧闹，而是让本质更清晰。
+        </div>
+        <div class="chip">
+          <strong>页面动作</strong><br>
+          先骨架——再铺陈。先放呼吸空间，再细化文字与图片。
+        </div>
+      </aside>
+
+      <!-- 印章：结晶 -->
+      <div class="stamp" style="grid-column: 1 / -1; margin-top:6px;">
+        <div class="seal">杂志之场 印章</div>
+        <div class="by">输出即是一张静态页面 · 生成于 2025-10-23</div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- 使用说明（嵌入页面底部注释 — 不展示在 UI） -->
+  <!--
+    如何使用与定制：
+    1) 替换文本：在 <h1>, .lead, .article p 等处替换为你的原始信息。
+    2) 图片替换：将 .hero-art 内的 SVG 替换为 <img src="your.jpg" alt="...">（注意：侧图须保持辅助性，不宜过大）。
+    3) 色彩策略：修改 :root 变量 (--accent, --bg, --paper) 即可改变色彩呼吸。
+    4) 保持短行：不要改变 .hero h1 / p 的 max-width（以 ch 为单位），这保证一屏短行阅读。
+    5) 若需多版面（分页），以相同网格与留白规则生成多页，保持统一律。
+  -->
+</body>
+</html>

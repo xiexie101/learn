@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>歌者修炼手册 - 3个月通关指南</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif; overflow: hidden; background: #f3f4f6; }
+        .page { display: none; height: 100%; overflow-y: auto; }
+        .page.active { display: block; }
+        #app { width: 100%; height: 100vh; display: flex; flex-direction: column; }
+        .header { background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+        .header-left { display: flex; align-items: center; gap: 0.75rem; }
+        .header-title { font-size: 1.5rem; font-weight: bold; color: #1f2937; }
+        .header-right { font-size: 0.875rem; color: #6b7280; }
+        #content { flex: 1; overflow: hidden; }
+        .footer { background: white; box-shadow: 0 -1px 3px rgba(0,0,0,0.1); padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+        .btn { padding: 0.5rem 1.5rem; border-radius: 0.5rem; font-weight: bold; border: none; cursor: pointer; transition: all 0.2s; }
+        .btn-primary { background: #9333ea; color: white; }
+        .btn-primary:hover:not(:disabled) { background: #7e22ce; }
+        .btn-disabled { background: #e5e7eb; color: #9ca3af; cursor: not-allowed; }
+        .dots-container { display: flex; gap: 0.5rem; }
+        .dot { width: 0.75rem; height: 0.75rem; border-radius: 9999px; background: #d1d5db; border: none; cursor: pointer; transition: all 0.2s; }
+        .dot:hover { background: #9ca3af; }
+        .dot.active { width: 2rem; background: #9333ea; }
+        
+        .cover-page { height: 100%; background: linear-gradient(135deg, #9333ea 0%, #ec4899 50%, #fb923c 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; padding: 2rem; text-align: center; }
+        .cover-icon { font-size: 6rem; margin-bottom: 1.5rem; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .cover-title { font-size: 3rem; font-weight: bold; margin-bottom: 1rem; }
+        .cover-card { background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border-radius: 0.5rem; padding: 1.5rem; max-width: 28rem; }
+        
+        .content-page { height: 100%; padding: 2rem; overflow-y: auto; }
+        .page-title { font-size: 2rem; font-weight: bold; margin-bottom: 1.5rem; color: #9333ea; }
+        .card { background: white; border-radius: 0.5rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1rem; }
+        .card-title { font-weight: bold; font-size: 1.125rem; margin-bottom: 0.5rem; }
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+        .badge { background: #f3e8ff; color: #7e22ce; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.875rem; display: inline-block; }
+        .progress-bar { width: 100%; height: 1rem; background: #e5e7eb; border-radius: 9999px; overflow: hidden; margin-bottom: 0.5rem; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #9333ea, #ec4899); transition: width 0.5s; }
+        .task-item { border-left: 4px solid #9333ea; padding-left: 1rem; padding-top: 0.5rem; padding-bottom: 0.5rem; background: #f9fafb; border-radius: 0.25rem; margin-bottom: 0.75rem; }
+        .list-item { margin-bottom: 0.5rem; padding-left: 0.5rem; }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="header">
+            <div class="header-left">
+                <span style="font-size: 2rem;">🎵</span>
+                <h1 class="header-title">歌者修炼手册</h1>
+            </div>
+            <div class="header-right">第 <span id="currentPageNum">1</span> / 10 页</div>
+        </div>
+
+        <div id="content"></div>
+
+        <div class="footer">
+            <button id="prevBtn" class="btn btn-disabled">← 上一页</button>
+            <div class="dots-container" id="dots"></div>
+            <button id="nextBtn" class="btn btn-primary">下一页 →</button>
+        </div>
+    </div>
+
+    <script>
+        const pages = [
+            // 页面1: 封面
+            `<div class="cover-page">
+                <div class="cover-icon">🎤</div>
+                <h1 class="cover-title">歌者修炼手册</h1>
+                <p style="font-size: 1.5rem; margin-bottom: 0.5rem;">3个月通关指南</p>
+                <p style="font-size: 1.125rem; opacity: 0.9; margin-bottom: 2rem;">从跑调小白到自信歌者</p>
+                <div class="cover-card">
+                    <p style="font-size: 0.875rem; margin-bottom: 0.5rem;">👤 专属定制: 程序员 · 35岁</p>
+                    <p style="font-size: 0.875rem; margin-bottom: 0.5rem;">🎯 核心目标: 解决跑调 + 气息不稳</p>
+                    <p style="font-size: 0.875rem; margin-bottom: 0.5rem;">⏰ 每日投入: 30分钟</p>
+                    <p style="font-size: 0.875rem;">🎵 曲风方向: 毛不易歌曲</p>
+                </div>
+            </div>`,
+
+            // 页面2: 学习地图
+            `<div class="content-page" style="background: #f9fafb;">
+                <h2 class="page-title">📚 学习地图</h2>
+                <div class="card" style="border-left: 4px solid #9333ea;">
+                    <h3 style="font-weight: bold; font-size: 1.125rem;">第1周: 新手村</h3>
+                    <p style="font-size: 0.875rem; color: #6b7280;">基础感知训练 ✅</p>
+                </div>
+                <div class="card" style="border-left: 4px solid #9333ea;">
+                    <h3 style="font-weight: bold; font-size: 1.125rem;">第2周: 气息修炼场</h3>
+                    <p style="font-size: 0.875rem; color: #6b7280;">横膈膜呼吸法 🔒</p>
+                </div>
+                <div class="card" style="border-left: 4px solid #9333ea;">
+                    <h3 style="font-weight: bold; font-size: 1.125rem;">第3周: 音准狙击手</h3>
+                    <p style="font-size: 0.875rem; color: #6b7280;">音高控制精准化 🔒</p>
+                </div>
+                <div class="card" style="border-left: 4px solid #9333ea;">
+                    <h3 style="font-weight: bold; font-size: 1.125rem;">第4-12周: 持续进阶</h3>
+                    <p style="font-size: 0.875rem; color: #6b7280;">共鸣、节奏、音域、情感、技巧等全面提升 🔒</p>
+                </div>
+            </div>`,
+
+            // 页面3: 技能树
+            `<div class="content-page" style="background: linear-gradient(135deg, #eff6ff, #f3e8ff);">
+                <h2 class="page-title">📈 四维技能树</h2>
+                <div class="grid-2" style="margin-bottom: 2rem;">
+                    <div class="card">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                            <span style="font-size: 2rem;">💨</span>
+                            <h3 style="font-size: 1.25rem; font-weight: bold;">气息控制</h3>
+                        </div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <p style="font-size: 0.875rem; color: #6b7280;">等级: 0 / 10</p>
+                    </div>
+                    <div class="card">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                            <span style="font-size: 2rem;">🎵</span>
+                            <h3 style="font-size: 1.25rem; font-weight: bold;">音准掌握</h3>
+                        </div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <p style="font-size: 0.875rem; color: #6b7280;">等级: 0 / 10</p>
+                    </div>
+                    <div class="card">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                            <span style="font-size: 2rem;">⚡</span>
+                            <h3 style="font-size: 1.25rem; font-weight: bold;">共鸣技巧</h3>
+                        </div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <p style="font-size: 0.875rem; color: #6b7280;">等级: 0 / 10</p>
+                    </div>
+                    <div class="card">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                            <span style="font-size: 2rem;">❤️</span>
+                            <h3 style="font-size: 1.25rem; font-weight: bold;">情感表达</h3>
+                        </div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <p style="font-size: 0.875rem; color: #6b7280;">等级: 0 / 10</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="card-title">🎯 技能升级路径</h3>
+                    <div style="font-size: 0.875rem; line-height: 1.8;">
+                        <p><strong>气息控制:</strong> 横膈膜呼吸 → 长音稳定 → 强弱控制 → 完美支撑</p>
+                        <p><strong>音准掌握:</strong> 音高识别 → 音程跳跃 → 旋律模唱 → 无伴奏清唱</p>
+                        <p><strong>共鸣技巧:</strong> 哼鸣感知 → 头腔共鸣 → 混声平衡 → 音色统一</p>
+                        <p><strong>情感表达:</strong> 歌词理解 → 音色变化 → 强弱对比 → 舞台表现</p>
+                    </div>
+                </div>
+            </div>`,
+
+            // 页面4: 第1周详细
+            `<div class="content-page" style="background: linear-gradient(135deg, #faf5ff, #fce7f3);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2 class="page-title" style="margin-bottom: 0;">第1周: 新手村</h2>
+                    <span class="badge" style="background: #10b981; color: white;">已解锁</span>
+                </div>
+                <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem;">认识你的声音</h3>
+                <p style="color: #374151; margin-bottom: 1rem;">🎯 本周目标: 建立音高概念,找到自己的音域</p>
+                
+                <div class="card">
+                    <h4 class="card-title">✅ 每日任务清单</h4>
+                    <div class="task-item">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                            <span style="font-weight: bold;">Day 1: 音阶听辨游戏</span>
+                            <span style="font-size: 0.875rem; color: #6b7280;">30分钟</span>
+                        </div>
+                        <p style="font-size: 0.875rem; color: #6b7280;">用钢琴App弹Do-Re-Mi,跟着哼唱,录音对比</p>
+                    </div>
+                    <div class="task-item">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                            <span style="font-weight: bold;">Day 2: 气息感知</span>
+                            <span style="font-size: 0.875rem; color: #6b7280;">30分钟</span>
+                        </div>
+                        <p style="font-size: 0.875rem; color: #6b7280;">狗喘气10次×3组,感受横膈膜运动</p>
+                    </div>
+                    <div class="task-item">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                            <span style="font-weight: bold;">Day 3: 音准模仿</span>
+                            <span style="font-size: 0.875rem; color: #6b7280;">30分钟</span>
+                        </div>
+                        <p style="font-size: 0.875rem; color: #6b7280;">跟唱单音,每个音hold 5秒,用调音器检测</p>
+                    </div>
+                    <div class="task-item">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                            <span style="font-weight: bold;">Day 4-7: 持续练习</span>
+                            <span style="font-size: 0.875rem; color: #6b7280;">每天30分钟</span>
+                        </div>
+                        <p style="font-size: 0.875rem; color: #6b7280;">舒适音区探索、简单旋律跟唱、综合练习、休息调整</p>
+                    </div>
+                </div>
+
+                <div style="background: linear-gradient(90deg, #fb923c, #ef4444); color: white; border-radius: 0.5rem; padding: 1.5rem; margin-top: 1rem;">
+                    <h4 style="font-size: 1.25rem; font-weight: bold; margin-bottom: 0.5rem;">🏆 本周BOSS挑战</h4>
+                    <p>唱准《像我这样的人》副歌第一句,误差<20音分</p>
+                </div>
+            </div>`,
+
+            // 页面5: 第2-12周概览
+            `<div class="content-page" style="background: linear-gradient(135deg, #faf5ff, #fce7f3);">
+                <h2 class="page-title">第2-12周: 系统进阶</h2>
+                <div class="card">
+                    <h3 class="card-title">📅 完整训练计划</h3>
+                    <div style="line-height: 2;">
+                        <p><strong>第2周:</strong> 气息修炼 - 横膈膜呼吸法训练</p>
+                        <p><strong>第3周:</strong> 音准狙击 - 消灭跑调,精准控制</p>
+                        <p><strong>第4周:</strong> 共鸣探索 - 头腔共鸣,高音突破</p>
+                        <p><strong>第5周:</strong> 节奏律动 - 不再抢拍慢拍</p>
+                        <p><strong>第6周:</strong> 音域拓展 - 安全扩展高低音</p>
+                        <p><strong>第7周:</strong> 情感表达 - 唱出真情实感</p>
+                        <p><strong>第8周:</strong> 技巧润腔 - 装饰音与颤音</p>
+                        <p><strong>第9周:</strong> 风格多样 - 驾驭不同曲风</p>
+                        <p><strong>第10周:</strong> 实战打磨 - 完整作品演绎</p>
+                        <p><strong>第11周:</strong> 舞台表现 - 准备面对观众</p>
+                        <p><strong>第12周:</strong> 毕业考核 - 3个月成果展示</p>
+                    </div>
+                </div>
+            </div>`,
+
+            // 页面6: 成就系统
+            `<div class="content-page" style="background: linear-gradient(135deg, #fffbeb, #fed7aa);">
+                <h2 class="page-title" style="color: #ea580c;">🏆 成就收集册</h2>
+                <div class="grid-2" style="margin-bottom: 1.5rem;">
+                    <div style="background: #e5e7eb; color: #6b7280; border-radius: 0.5rem; padding: 1.5rem; text-align: center;">
+                        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🌱</div>
+                        <h3 style="font-weight: bold; margin-bottom: 0.25rem;">初露锋芒</h3>
+                        <p style="font-size: 0.875rem;">完成第1周训练</p>
+                    </div>
+                    <div style="background: #e5e7eb; color: #6b7280; border-radius: 0.5rem; padding: 1.5rem; text-align: center;">
+                        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">💨</div>
+                        <h3 style="font-weight: bold; margin-bottom: 0.25rem;">气息大师</h3>
+                        <p style="font-size: 0.875rem;">气息技能达到10级</p>
+                    </div>
+                    <div style="background: #e5e7eb; color: #6b7280; border-radius: 0.5rem; padding: 1.5rem; text-align: center;">
+                        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🎯</div>
+                        <h3 style="font-weight: bold; margin-bottom: 0.25rem;">音准狙击手</h3>
+                        <p style="font-size: 0.875rem;">音准技能达到10级</p>
+                    </div>
+                    <div style="background: #e5e7eb; color: #6b7280; border-radius: 0.5rem; padding: 1.5rem; text-align: center;">
+                        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🎓</div>
+                        <h3 style="font-weight: bold; margin-bottom: 0.25rem;">毕业歌者</h3>
+                        <p style="font-size: 0.875rem;">完成12周全部训练</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="card-title">🎁 隐藏成就</h3>
+                    <p class="list-item">• 破茧成蝶: 唱出让自己感动落泪的歌</p>
+                    <p class="list-item">• 技惊四座: 获得陌生人称赞</p>
+                    <p class="list-item">• 完美主义: 录音一次过无需修改</p>
+                </div>
+            </div>`,
+
+            // 页面7: 毛不易歌单
+            `<div class="content-page" style="background: linear-gradient(135deg, #f0fdf4, #dbeafe);">
+                <h2 class="page-title" style="color: #059669;">🎵 毛不易歌曲进阶路径</h2>
+                <div class="card">
+                    <h3 class="card-title" style="color: #059669;">🌱 新手期 (1-4周)</h3>
+                    <p class="list-item"><strong>消愁</strong> - 旋律简单,气息适中</p>
+                    <p class="list-item"><strong>像我这样的人</strong> - 音域舒适,练音准</p>
+                    <p class="list-item"><strong>借</strong> - 温柔抒情,练气息连贯</p>
+                </div>
+                <div class="card">
+                    <h3 class="card-title" style="color: #2563eb;">🌿 成长期 (5-8周)</h3>
+                    <p class="list-item"><strong>平凡的一天</strong> - 练声音松弛感</p>
+                    <p class="list-item"><strong>二零三</strong> - 气息控制进阶</p>
+                    <p class="list-item"><strong>牧马城市</strong> - 练情绪递进</p>
+                </div>
+                <div class="card">
+                    <h3 class="card-title" style="color: #9333ea;">🌳 进阶期 (9-12周)</h3>
+                    <p class="list-item"><strong>如果有一天我变得很有钱</strong> - 音域宽,情感丰富</p>
+                    <p class="list-item"><strong>盛夏</strong> - 高音处理,真假音转换</p>
+                    <p class="list-item"><strong>无问</strong> - 综合技巧,舞台表现</p>
+                </div>
+            </div>`,
+
+            // 页面8: 常见问题
+            `<div class="content-page" style="background: linear-gradient(135deg, #fef2f2, #fed7aa);">
+                <h2 class="page-title" style="color: #dc2626;">🎯 卡关急救站</h2>
+                <div class="card">
+                    <h3 class="card-title" style="color: #dc2626;">Q: 练了一周还是跑调?</h3>
+                    <p style="margin-bottom: 0.5rem;"><strong>A:</strong> 正常!音准训练需要时间</p>
+                    <p class="list-item">• 每天用调音器练单音</p>
+                    <p class="list-item">• 放慢速度,宁慢勿快</p>
+                    <p class="list-item">• 录音对比找问题</p>
+                </div>
+                <div class="card">
+                    <h3 class="card-title" style="color: #ea580c;">Q: 气息不够用?</h3>
+                    <p style="margin-bottom: 0.5rem;"><strong>A:</strong> 改成腹式呼吸</p>
+                    <p class="list-item">• 检查是否胸式呼吸</p>
+                    <p class="list-item">• 放松肩膀,身体不紧张</p>
+                    <p class="list-item">• 提前规划换气点</p>
+                </div>
+                <div class="card">
+                    <h3 class="card-title" style="color: #ca8a04;">Q: 高音破音?</h3>
+                    <p style="margin-bottom: 0.5rem;"><strong>A:</strong> 别硬喊,用共鸣</p>
+                    <p class="list-item">• 高音用头腔共鸣</p>
+                    <p class="list-item">• 深吸气,腹部支撑</p>
+                    <p class="list-item">• 想象声音从头顶发出</p>
+                </div>
+            </div>`,
+
+            // 页面9: 工具推荐
+            `<div class="content-page" style="background: linear-gradient(135deg, #eef2ff, #f3e8ff);">
+                <h2 class="page-title" style="color: #4f46e5;">⚡ 必备工具箱</h2>
+                <div class="card">
+                    <h3 class="card-title">📱 手机App</h3>
+                    <p class="list-item"><strong>调音器:</strong> Tuner (免费)</p>
+                    <p class="list-item"><strong>节拍器:</strong> Metronome</p>
+                    <p class="list-item"><strong>练习:</strong> 唱吧/全民K歌</p>
+                </div>
+                <div class="card">
+                    <h3 class="card-title">🎹 在线工具</h3>
+                    <p class="list-item">• 在线钢琴: 搜索"online piano"</p>
+                    <p class="list-item">• YouTube慢放: 0.5倍速学习</p>
+                    <p class="list-item">• 伴奏下载: 搜索"歌名+伴奏"</p>
+                </div>
+                <div style="background: linear-gradient(90deg, #fb923c, #ef4444); color: white; border-radius: 0.5rem; padding: 1.5rem;">
+                    <h3 style="font-weight: bold; margin-bottom: 0.75rem;">⚠️ 声带保护</h3>
+                    <p class="list-item">• 练习前充分热身5-10分钟</p>
+                    <p class="list-item">• 嗓子累了立刻停止</p>
+                    <p class="list-item">• 每天练习不超过1小时</p>
+                    <p class="list-item">• 多喝温水,避免冷饮</p>
+                </div>
+            </div>`,
+
+            // 页面10: 结尾
+            `<div class="cover-page">
+                <div style="font-size: 4rem; margin-bottom: 1.5rem; animation: bounce 1s infinite;">⭐</div>
+                <h2 style="font-size: 2.5rem; font-weight: bold; margin-bottom: 1rem;">你准备好了吗?</h2>
+                <div class="cover-card" style="max-width: 42rem; margin-bottom: 2rem;">
+                    <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem;">90天后,你将掌握:</h3>
+                    <p class="list-item">• 稳定的气息控制,告别上气不接下气</p>
+                    <p class="list-item">• 精准的音高把控,彻底告别跑调</p>
+                    <p class="list-item">• 舒适的高音技巧,不再破音</p>
+                    <p class="list-item">• 丰富的情感表达,唱出自己的故事</p>
+                </div>
+                <div style="font-size: 1.5rem; font-weight: bold;">从明天开始,开启你的歌者之路!</div>
+                <p style="font-size: 1.125rem; opacity: 0.9; margin-top: 1rem;">记住:每一个伟大的歌手,都从第一个音符开始。</p>
+                <p style="font-size: 1.125rem; opacity: 0.9;">你的声音,值得被听见。🎤</p>
+            </div>`
+        ];
+
+        let currentPage = 0;
+        const totalPages = pages.length;
+
+        function showPage(pageNum) {
+            const contentDiv = document.getElementById('content');
+            contentDiv.innerHTML = `<div class="page active">${pages[pageNum]}</div>`;
+            
+            currentPage = pageNum;
+            document.getElementById('currentPageNum').textContent = pageNum + 1;
+            updateButtons();
+            updateDots();
+        }
+
+        function updateButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            if (currentPage === 0) {
+                prevBtn.className = 'btn btn-disabled';
+                prevBtn.disabled = true;
+            } else {
+                prevBtn.className = 'btn btn-primary';
+                prevBtn.disabled = false;
+            }
+            
+            if (currentPage === totalPages - 1) {
+                nextBtn.className = 'btn btn-disabled';
+                nextBtn.disabled = true;
+            } else {
+                nextBtn.className = 'btn btn-primary';
+                nextBtn.disabled = false;
+            }
+        }
+
+        function updateDots() {
+            const dotsContainer = document.getElementById('dots');
+            dotsContainer.innerHTML = '';
+            for (let i = 0; i < totalPages; i++) {
+                const dot = document.createElement('button');
+                dot.className = i === currentPage ? 'dot active' : 'dot';
+                dot.onclick = function() { showPage(i); };
+                dotsContainer.appendChild(dot);
+            }
+        }
+
+        function prevPage() {
+            if (currentPage > 0) {
+                showPage(currentPage - 1);
+            }
+        }
+
+        function nextPage() {
+            if (currentPage < totalPages - 1) {
+                showPage(currentPage + 1);
+            }
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            if (prevBtn) {
+                prevBtn.addEventListener('click', prevPage);
+            }
+            if (nextBtn) {
+                nextBtn.addEventListener('click', nextPage);
+            }
+            
+            showPage(0);
+            
+            // 键盘快捷键
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'ArrowLeft' && currentPage > 0) {
+                    showPage(currentPage - 1);
+                } else if (e.key === 'ArrowRight' && currentPage < totalPages - 1) {
+                    showPage(currentPage + 1);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

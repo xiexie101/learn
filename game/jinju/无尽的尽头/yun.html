@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>未检工作 — 一棵树摇动另一棵树</title>
+  <style>
+    :root{--bg:#fff8f2;--ink:#222;--muted:#6b6b6b;--accent:#2b7a78}
+    html,body{height:100%;margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial; background:var(--bg);color:var(--ink)}
+    .wrap{max-width:900px;margin:48px auto;padding:36px;background:linear-gradient(180deg, rgba(255,255,255,0.8), rgba(255,255,255,0.95));border-radius:16px;box-shadow:0 10px 30px rgba(30,30,30,0.06);}
+    h1{font-size:1.6rem;margin:0 0 8px;letter-spacing:0.2px}
+    .byline{color:var(--muted);font-size:0.92rem;margin-bottom:18px}
+    .quote{font-size:1.36rem;line-height:1.5;background:linear-gradient(90deg, rgba(43,122,120,0.06), transparent);padding:18px;border-radius:10px;border-left:4px solid var(--accent);margin-bottom:20px}
+    .layout{display:grid;grid-template-columns:1fr 360px;gap:28px;align-items:start}
+    .illustration{background:white;border-radius:12px;padding:18px;box-shadow:0 6px 18px rgba(0,0,0,0.04);}
+    .explain{font-size:0.98rem;color:#222;}
+    p.lead{margin-top:0;color:var(--muted);}
+    footer{margin-top:26px;color:var(--muted);font-size:0.88rem}
+
+    /* SVG sketch style */
+    .sketch path, .sketch circle, .sketch line, .sketch polyline{fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:6 4}
+    .sketch .accent{stroke:var(--accent);stroke-dasharray:2 3}
+    .sketch .soft{stroke-width:1.2;opacity:0.9}
+
+    /* small labels */
+    .label{font-size:0.84rem;color:var(--muted)}
+
+    /* animations to show "influence" */
+    @keyframes sway{0%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}100%{transform:rotate(-2deg)} }
+    .tree {transform-origin:50% 90%;animation:sway 3.6s ease-in-out infinite}
+    .arrow{stroke-dashoffset:20;animation:dash 1.6s linear infinite}
+    @keyframes dash{to{stroke-dashoffset:0}}
+
+    /* responsivity */
+    @media (max-width:880px){.layout{grid-template-columns:1fr;}.illustration{order:2}.quote{font-size:1.12rem}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>从本质出发：未检工作是一种连动</h1>
+    <div class="byline">风格：借鉴绘图讲解与简洁准确的表达</div>
+
+    <div class="quote">「未检工作是一棵树摇动另一棵树，一朵云推动另一朵云，一个灵魂唤醒另一个灵魂。」</div>
+
+    <div class="layout">
+      <section class="illustration" aria-label="示意图">
+        <svg class="sketch" viewBox="0 0 720 420" width="100%" height="auto" role="img" aria-labelledby="title desc">
+          <title id="title">连动示意</title>
+          <desc id="desc">两棵树、两朵云与两个灵魂之间的连动，用箭头表示影响方向。</desc>
+
+          <!-- ground -->
+          <path class="soft" d="M0 360 C120 340 600 340 720 360" stroke="#cfcfcf"/>
+
+          <!-- left tree group -->
+          <g transform="translate(140,200)">
+            <g class="tree">
+              <path d="M0 160 v-48 q10 -28 38 -42 q40 -20 78 -6 q28 12 44 36 q-6 -20 -20 -36 q-36 -34 -88 -20 q-42 12 -58 48 z"/>
+              <path d="M16 160 v-42" stroke-width="4"/>
+            </g>
+            <text x="-30" y="-10" class="label">一棵树</text>
+          </g>
+
+          <!-- right tree group -->
+          <g transform="translate(420,220)">
+            <g class="tree" style="animation-delay:0.4s">
+              <path d="M0 140 v-50 q12 -26 40 -34 q36 -10 72 6 q26 14 40 36 q-8 -18 -28 -30 q-36 -20 -80 -10 q-36 8 -56 44 z"/>
+              <path d="M18 140 v-38" stroke-width="4"/>
+            </g>
+            <text x="-30" y="-8" class="label">另一棵树</text>
+          </g>
+
+          <!-- arrow showing influence tree->tree -->
+          <defs>
+            <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+              <path d="M0,0 L8,3 L0,6 z" fill="var(--accent)" />
+            </marker>
+          </defs>
+          <path class="accent arrow" d="M230 210 C300 190 350 190 420 210" stroke-width="2.8" marker-end="url(#arrowhead)"/>
+
+          <!-- clouds -->
+          <g transform="translate(120,40)">
+            <path class="soft" d="M30 20 q20 -30 60 -10 q40 12 60 0 q30 20 8 42 q-42 18 -110 2 q-20 -10 -18 -34 z"/>
+            <text x="0" y="0" class="label">一朵云</text>
+          </g>
+
+          <g transform="translate(460,24)">
+            <path class="soft" d="M30 20 q20 -30 60 -10 q40 12 60 0 q30 20 8 42 q-42 18 -110 2 q-20 -10 -18 -34 z"/>
+            <text x="0" y="0" class="label">另一朵云</text>
+          </g>
+
+          <!-- arrow cloud->cloud -->
+          <path class="accent arrow" d="M190 60 C300 20 360 20 480 60" stroke-width="2.2" marker-end="url(#arrowhead)"/>
+
+          <!-- two simplified profiles (souls) -->
+          <g transform="translate(110,280)">
+            <circle cx="0" cy="0" r="14" class="soft" />
+            <path d="M-10 18 q14 -6 22 0" class="soft"/>
+            <text x="-28" y="36" class="label">一个灵魂</text>
+          </g>
+
+          <g transform="translate(520,280)">
+            <circle cx="0" cy="0" r="14" class="soft" />
+            <path d="M-10 18 q14 -6 22 0" class="soft"/>
+            <text x="-36" y="36" class="label">另一个灵魂</text>
+          </g>
+
+          <!-- arrow soul->soul -->
+          <path class="accent arrow" d="M130 280 C300 260 420 260 520 280" stroke-width="2.4" marker-end="url(#arrowhead)"/>
+
+          <!-- small captions under illustration -->
+          <text x="36" y="390" class="label">画中连动：影响通过空气、能量与行为传递。</text>
+        </svg>
+      </section>
+
+      <aside class="explain">
+        <p class="lead">快速说明（核心观点）：</p>
+        <ol>
+          <li><strong>连动不是偶然。</strong> 小的扰动在合适的媒介与结构中会被放大：树枝触动 —> 风场改变 —> 另一棵树微动。</li>
+          <li><strong>媒介决定路径。</strong> 云移动依赖气流；灵魂的唤醒依赖语言、行为和共鸣。</li>
+          <li><strong>相互性与反馈。</strong> 影响通常是双向的：受影响的一方也会改变原有场域，形成反馈回路。</li>
+        </ol>
+
+        <p>从未检工作的角度看，这句话提示我们关注那些“看不见”的传导链——制度、环境、情绪、微动作。把注意力放在"媒介"上，往往比只看单个事件更能解释和改变结果。</p>
+
+        <p style="margin-top:12px"><em>要点速览：</em></p>
+        <ul>
+          <li>小动作会引起系统级反应。</li>
+          <li>优化传播路径，比单点干预更有效。</li>
+          <li>尊重微小影响的累积 — 它们可以唤醒人，也可以沉默人。</li>
+        </ul>
+
+        <footer>© 2025 — 风格借鉴：绘图讲解与简洁准确的表达</footer>
+      </aside>
+    </div>
+  </main>
+</body>
+</html>
