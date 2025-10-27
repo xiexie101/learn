@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>头发护理科普可视化</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .tabs {
+            display: flex;
+            background: #f5f5f5;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            border: none;
+            background: transparent;
+            font-size: 1em;
+        }
+        
+        .tab:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .tab.active {
+            background: white;
+            color: #667eea;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+        
+        .comparison-item {
+            padding: 30px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-item.good {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        }
+        
+        .comparison-item h3 {
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            color: #333;
+        }
+        
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-number {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .problem-list {
+            list-style: none;
+        }
+        
+        .problem-item {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            padding: 25px;
+            margin: 15px 0;
+            border-radius: 15px;
+            border-left: 5px solid #f5576c;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .problem-item h4 {
+            color: #d63031;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+        
+        .tips-section {
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+        
+        .tips-section h3 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 1.5em;
+        }
+        
+        .tip-item {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .tip-icon {
+            font-size: 1.5em;
+            margin-right: 15px;
+        }
+        
+        .process-flow {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .process-step {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 50%;
+            width: 150px;
+            height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            margin: 10px;
+        }
+        
+        .process-step h4 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .arrow {
+            font-size: 2em;
+            color: #667eea;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+        
+        .warning-box h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+            
+            .process-flow {
+                flex-direction: column;
+            }
+            
+            .arrow {
+                transform: rotate(90deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💇 头发护理科普指南</h1>
+            <p>再这么洗，头发真要掉没了！</p>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab(0)">头皮基础知识</button>
+            <button class="tab" onclick="showTab(1)">常见问题</button>
+            <button class="tab" onclick="showTab(2)">护理技巧</button>
+            <button class="tab" onclick="showTab(3)">洗发水选择</button>
+        </div>
+        
+        <div class="content">
+            <div class="tab-content active" id="tab0">
+                <h2>头皮也是皮 —— 比脸皮更脆弱</h2>
+                
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">头皮厚度</div>
+                        <div class="stat-number">1/6</div>
+                        <div class="stat-label">仅为面部皮肤的1/6</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-label">衰老速度</div>
+                        <div class="stat-number">6×</div>
+                        <div class="stat-label">是面部的6倍</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-label">每平方厘米</div>
+                        <div class="stat-number">10万</div>
+                        <div class="stat-label">个微生物</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-label">每平方厘米</div>
+                        <div class="stat-number">100+</div>
+                        <div class="stat-label">根头发</div>
+                    </div>
+                </div>
+                
+                <div class="comparison">
+                    <div class="comparison-item">
+                        <h3>❌ 错误做法</h3>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>✗ 指甲抓挠头皮</li>
+                            <li>✗ 高温吹风</li>
+                            <li>✗ 强碱洗发水</li>
+                            <li>✗ 每天用强效控油产品</li>
+                            <li>✗ 用盐粒磨砂膏</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="comparison-item good">
+                        <h3>✓ 正确护理</h3>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>✓ 温和清洁</li>
+                            <li>✓ 充分保湿</li>
+                            <li>✓ 注意防晒</li>
+                            <li>✓ 恒温吹风</li>
+                            <li>✓ 根据肤质选产品</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="warning-box">
+                    <h4>⚠️ 重要提示</h4>
+                    <p>头皮就像头发的"土壤"，土壤不健康，头发自然枯黄稀疏。头皮护理和面部护理本质是共通的，都需要根据肤质、想要改善的点去选择合适的产品。</p>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="tab1">
+                <h2>头皮的4大求救信号</h2>
+                
+                <ul class="problem-list">
+                    <li class="problem-item">
+                        <h4>❄️ "雪花纷飞"的头屑</h4>
+                        <p>马拉色菌过度繁殖导致角质层异常脱落</p>
+                    </li>
+                    
+                    <li class="problem-item">
+                        <h4>💧 "油田爆发"的油腻感</h4>
+                        <p>雄激素刺激皮脂腺分泌失控，可能伴随脂溢性皮炎</p>
+                    </li>
+                    
+                    <li class="problem-item">
+                        <h4>🏜️ "沙漠化"干痒紧绷</h4>
+                        <p>过度清洁或环境刺激破坏头皮屏障，引发敏感</p>
+                    </li>
+                    
+                    <li class="problem-item">
+                        <h4>🌱 "寸草不生"的脱发危机</h4>
+                        <p>毛囊微循环障碍，头发提前进入休止期</p>
+                    </li>
+                </ul>
+                
+                <div class="tips-section">
+                    <h3>外界环境对头皮、头发的刺激</h3>
+                    
+                    <div class="tip-item">
+                        <span class="tip-icon">💧</span>
+                        <div>
+                            <strong>水质问题：</strong>如果所在地区水质不好，有条件可以装个净水器或净水龙头/花洒
+                        </div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <span class="tip-icon">☀️</span>
+                        <div>
+                            <strong>紫外线：</strong>夏天长时间在户外要注意防晒，戴帽子、打伞，或使用头发防晒喷雾
+                        </div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <span class="tip-icon">🌫️</span>
+                        <div>
+                            <strong>空气污染：</strong>PM2.5等有害颗粒会附着在头皮、头发上，需及时清洁
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="tab2">
+                <h2>正确的护发技巧</h2>
+                
+                <div class="process-flow">
+                    <div class="process-step">
+                        <h4>步骤1</h4>
+                        <p>毛巾按压吸水</p>
+                    </div>
+                    
+                    <span class="arrow">→</span>
+                    
+                    <div class="process-step">
+                        <h4>步骤2</h4>
+                        <p>热风吹至70%干</p>
+                    </div>
+                    
+                    <span class="arrow">→</span>
+                    
+                    <div class="process-step">
+                        <h4>步骤3</h4>
+                        <p>切换冷风</p>
+                    </div>
+                    
+                    <span class="arrow">→</span>
+                    
+                    <div class="process-step">
+                        <h4>步骤4</h4>
+                        <p>发根逆向吹</p>
+                    </div>
+                </div>
+                
+                <div class="tips-section">
+                    <h3>✨ 吹发秘诀</h3>
+                    
+                    <div class="tip-item">
+                        <span class="tip-icon">✅</span>
+                        <div>先用毛巾按压吸水（千万别来回搓！很伤发！）</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <span class="tip-icon">✅</span>
+                        <div>选择恒温吹风机，热风吹至70%干时切换冷风</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <span class="tip-icon">✅</span>
+                        <div>发根逆向吹，发尾顺毛鳞片吹</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <span class="tip-icon">✅</span>
+                        <div>戴干发帽不要超过10分钟</div>
+                    </div>
+                </div>
+                
+                <div class="warning-box">
+                    <h4>⚠️ 避免这些错误</h4>
+                    <ul>
+                        <li>❌ 用热水、强力控油洗发水每天洗头</li>
+                        <li>❌ 来回搓擦头发</li>
+                        <li>❌ 高温吹风直到完全干透</li>
+                        <li>❌ 过度清洁导致头皮屏障受损</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="tab3">
+                <h2>洗发水挑选心得</h2>
+                
+                <div class="tips-section">
+                    <h3>🧴 现代洗发水分类</h3>
+                    <p style="margin-bottom: 20px;">不止是简单的油头/干头，很多品牌都会根据发质和头皮状态去细分：</p>
+                    
+                    <div class="tip-item">
+                        <span class="tip-icon">🌿</span>
+                        <div><strong>去屑止痒</strong> - 针对头屑问题</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <span class="tip-icon">💆</span>
+                        <div><strong>敏感修护</strong> - 适合敏感头皮</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <span class="tip-icon">✨</span>
+                        <div><strong>保湿亮泽</strong> - 改善干燥发质</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <span class="tip-icon">🎈</span>
+                        <div><strong>清爽蓬松</strong> - 控油效果</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <span class="tip-icon">💪</span>
+                        <div><strong>固发防脱</strong> - 减少脱发</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <span class="tip-icon">🦁</span>
+                        <div><strong>强韧丰盈</strong> - 增加发量感</div>
+                    </div>
+                </div>
+                
+                <div class="warning-box">
+                    <h4>💡 重要建议</h4>
+                    <ul>
+                        <li>👃 对香味敏感的，建议多去线下闻，盲买很容易踩雷</li>
+                        <li>🔬 成分不代表一切，香精、植物添加、防腐体系都可能隐藏过敏源</li>
+                        <li>❌ 不要单纯因为表活不好看或含硅就直接枪毙</li>
+                        <li>🔄 多买几瓶换着用，不要盯着某一款一直用</li>
+                        <li>✅ 最好换不同配方体系的洗发水</li>
+                        <li>🧪 要找适合自己的洗发水，还是要多亲身尝试</li>
+                    </ul>
+                </div>
+                
+                <div class="comparison">
+                    <div class="comparison-item">
+                        <h3>🔍 可能的过敏源</h3>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>• 表面活性剂</li>
+                            <li>• 香精</li>
+                            <li>• 植物添加物</li>
+                            <li>• 植物精油</li>
+                            <li>• 防腐体系</li>
+                            <li>• 乳化体系</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="comparison-item good">
+                        <h3>✅ 选择建议</h3>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>• 根据自己需求选择</li>
+                            <li>• 线下试闻香味</li>
+                            <li>• 定期更换产品</li>
+                            <li>• 多尝试不同品牌</li>
+                            <li>• 关注实际效果</li>
+                            <li>• 观察头皮反应</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function showTab(index) {
+            const tabs = document.querySelectorAll('.tab');
+            const contents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach((tab, i) => {
+                if (i === index) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+            
+            contents.forEach((content, i) => {
+                if (i === index) {
+                    content.classList.add('active');
+                } else {
+                    content.classList.remove('active');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
