@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小学生汉字仿影练字板</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts for a more premium look -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=ZCOOL+KuaiLe&display=swap"
+        rel="stylesheet">
+    <!-- Hanzi Writer Library -->
+    <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>✍️ 小学生汉字仿影练字板</h1>
+        </header>
+
+        <div class="controls-card">
+            <input type="text" id="charInput" maxlength="1" value="喵" placeholder="请输入一个汉字">
+            <button id="generateBtn" class="btn primary-btn">生成练字卡</button>
+        </div>
+
+        <div class="practice-area">
+            <div class="character-card">
+                <div id="character-target-div"></div>
+                <div class="status-text" id="statusText">正在演示...</div>
+                <div class="action-buttons">
+                    <button id="animateBtn" class="btn action-btn blue-btn">演示笔画</button>
+                    <button id="quizBtn" class="btn action-btn gray-btn">开始描红</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
