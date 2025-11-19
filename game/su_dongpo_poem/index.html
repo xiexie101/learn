@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>庐山烟雨浙江潮 - 苏东坡</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div id="canvas-container">
+        <canvas id="ink-canvas"></canvas>
+    </div>
+
+    <div class="content-wrapper">
+        <div class="poem-container" id="poem-container">
+            <div class="poem-line line-1">庐山烟雨浙江潮</div>
+            <div class="poem-line line-2">未至千般恨不消</div>
+            <div class="poem-line line-3 hidden">到得还来别无事</div>
+            <div class="poem-line line-4 hidden">庐山烟雨浙江潮</div>
+        </div>
+
+        <div class="interaction-hint" id="interaction-hint">
+            <span class="hint-text">点击感悟</span>
+            <div class="ink-drop"></div>
+        </div>
+
+        <div class="reset-btn" id="reset-btn">重游</div>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>苏轼：观潮（水墨意境版）</title>
+    <style>
+        /* --- 字体引入 --- */
+        @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;500&display=swap');
+
+        :root {
+            /* 中国传统色 */
+            --paper-base: #f2f1e8;  /* 宣纸色 */
+            --ink-dark: #2b333e;    /* 浓墨 */
+            --ink-mid: #5a6775;     /* 淡墨 */
+            --ink-light: #9aaab5;   /* 水墨 */
+            --seal-red: #b33a3a;    /* 印泥红 */
+            
+            --anim-speed-fast: 4s;  /* 未至时的躁动 */
+            --anim-speed-slow: 20s; /* 到得时的平静 */
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--paper-base);
+            font-family: 'Noto Serif SC', serif;
+        }
+
+        /* --- 宣纸纹理叠加 --- */
+        .texture-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.4;
+            pointer-events: none;
+            z-index: 99;
+            background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.5'/%3E%3C/svg%3E");
+        }
+
+        /* --- 场景容器 --- */
+        .scene {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- 远山/近山 (使用SVG Path绘制更柔和的曲线) --- */
+        .mountains-container {
+            position: absolute;
+            bottom: -10%;
+            left: 0;
+            width: 100%;
+            height: 80%;
+            z-index: 1;
+            filter: url(#ink-wash); /* 关键：水墨滤镜 */
+        }
+
+        .mtn-layer {
+            position: absolute;
+            bottom: 0;
+            width: 110%;
+            left: -5%;
+            background-size: cover;
+            background-repeat: no-repeat;
+            opacity: 0.8;
+            transition: transform 3s ease-out;
+        }
+
+        /* CSS 绘制山形 (利用border-radius模拟连绵山峦) */
+        .mtn-1 {
+            height: 50vh;
+            background: radial-gradient(ellipse at bottom, var(--ink-light) 0%, transparent 70%);
+            border-radius: 50% 50% 0 0;
+            left: -20%;
+            width: 140%;
+            bottom: 10%;
+            opacity: 0.4;
+            animation: breathe 8s infinite ease-in-out;
+        }
+        
+        .mtn-2 {
+            height: 40vh;
+            background: radial-gradient(ellipse at bottom left, var(--ink-mid) 0%, transparent 60%);
+            border-radius: 60% 40% 0 0;
+            left: 30%;
+            width: 100%;
+            bottom: -5%;
+            opacity: 0.6;
+            animation: breathe 7s infinite ease-in-out reverse;
+        }
+
+        .mtn-3 {
+            height: 35vh;
+            background: radial-gradient(ellipse at center bottom, var(--ink-dark) 0%, transparent 70%);
+            border-radius: 100% 100% 0 0;
+            width: 150%;
+            left: -25%;
+            bottom: -15%;
+            opacity: 0.8;
+            filter: blur(5px); /* 增加朦胧感 */
+        }
+
+        /* --- 烟雨层 --- */
+        .fog-container {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            mix-blend-mode: soft-light;
+            pointer-events: none;
+        }
+
+        .fog {
+            position: absolute;
+            background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.9) 50%, transparent 100%);
+            height: 100%;
+            width: 200%;
+            top: 0;
+            left: -50%;
+            animation: drift var(--anim-speed-fast) linear infinite alternate;
+        }
+
+        /* --- 古籍排版诗句 --- */
+        .poem-layout {
+            position: relative;
+            z-index: 10;
+            height: 60vh;
+            display: flex;
+            flex-direction: row-reverse; /* 整体从右往左排 */
+            gap: 4rem;
+            padding-right: 10%;
+        }
+
+        .verse-group {
+            writing-mode: vertical-rl; /* 竖排文字 */
+            font-family: 'Ma Shan Zheng', cursive;
+            color: var(--ink-dark);
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .line {
+            font-size: 3.5rem;
+            letter-spacing: 0.8rem;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 2s ease, transform 2s ease, filter 2s ease;
+            text-shadow: 4px 4px 2px rgba(0,0,0,0.05);
+            filter: blur(4px); /* 初始模糊，模拟看不清 */
+        }
+
+        .meta-info {
+            writing-mode: vertical-rl;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1rem;
+            color: var(--ink-mid);
+            display: flex;
+            gap: 10px;
+            margin-right: 20px;
+            opacity: 0;
+            transition: opacity 2s 1s;
+        }
+
+        /* --- 印章按钮 --- */
+        .seal-btn {
+            position: absolute;
+            bottom: 80px;
+            left: 10%;
+            width: 80px;
+            height: 80px;
+            border: 3px solid var(--seal-red);
+            color: var(--seal-red);
+            background: rgba(255, 250, 240, 0.8);
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 1.8rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 20;
+            border-radius: 8px;
+            box-shadow: 0 0 0 4px rgba(242, 241, 232, 0.5);
+            transition: all 0.5s ease;
+            /* 模拟印章残缺感 */
+            mask-image: url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' fill='white'/%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.3'/%3E%3C/svg%3E");
+        }
+
+        .seal-btn:hover {
+            background: var(--seal-red);
+            color: var(--paper-base);
+            transform: rotate(-5deg) scale(1.1);
+        }
+
+        /* --- 状态控制 --- */
+        
+        /* 文字显现 */
+        .visible {
+            opacity: 1;
+            transform: translateY(0);
+            filter: blur(0); /* 清晰 */
+        }
+
+        /* 模糊状态 (未至) */
+        .blurred {
+            filter: blur(3px);
+            opacity: 0.6;
+        }
+
+        /* 悟道状态 (到得) */
+        body.enlightened {
+            background-color: #fff; /* 更加通透 */
+            transition: background-color 5s ease;
+        }
+
+        body.enlightened .fog {
+            animation-duration: var(--anim-speed-slow); /* 极慢 */
+            opacity: 0.2; /* 雾散 */
+        }
+
+        body.enlightened .mtn-1, 
+        body.enlightened .mtn-2, 
+        body.enlightened .mtn-3 {
+            animation-duration: 15s; /* 山的呼吸变慢 */
+            filter: blur(0px); /* 山变清晰 */
+        }
+
+        /* 关键动画 */
+        @keyframes drift {
+            0% { transform: translateX(-10%); }
+            100% { transform: translateX(10%); }
+        }
+        
+        @keyframes breathe {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(1.05); }
+        }
+
+        /* SVG 滤镜定义（隐藏） */
+        .svg-filters {
+            position: absolute;
+            width: 0;
+            height: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SVG 滤镜定义：用于制造水墨毛边效果 -->
+    <svg class="svg-filters">
+        <defs>
+            <filter id="ink-wash">
+                <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" result="noise" />
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="10" />
+                <feGaussianBlur stdDeviation="1" />
+            </filter>
+        </defs>
+    </svg>
+
+    <div class="texture-overlay"></div>
+
+    <div class="scene">
+        <!-- 柔美的山水层 -->
+        <div class="mountains-container">
+            <div class="mtn-layer mtn-1"></div>
+            <div class="mtn-layer mtn-2"></div>
+            <div class="mtn-layer mtn-3"></div>
+        </div>
+
+        <!-- 烟雨雾气 -->
+        <div class="fog-container">
+            <div class="fog"></div>
+        </div>
+
+        <!-- 诗词区域 -->
+        <div class="poem-layout">
+            <!-- 元信息 -->
+            <div class="meta-info" id="meta">
+                <span>苏轼</span>
+                <span>观潮</span>
+            </div>
+
+            <!-- 诗句组：后两句 -->
+            <div class="verse-group">
+                <div class="line" id="line4">庐山烟雨浙江潮</div>
+                <div class="line" id="line3">到得还来别无事</div>
+            </div>
+
+            <!-- 诗句组：前两句 -->
+            <div class="verse-group">
+                <div class="line" id="line2">未至千般恨不消</div>
+                <div class="line" id="line1">庐山烟雨浙江潮</div>
+            </div>
+        </div>
+
+        <!-- 交互印章 -->
+        <button class="seal-btn" id="sealBtn">观</button>
+    </div>
+
+    <script>
+        const line1 = document.getElementById('line1');
+        const line2 = document.getElementById('line2');
+        const line3 = document.getElementById('line3');
+        const line4 = document.getElementById('line4');
+        const meta = document.getElementById('meta');
+        const btn = document.getElementById('sealBtn');
+        const body = document.body;
+
+        // 初始状态
+        let isEnlightened = false;
+
+        // 开场动画
+        window.onload = () => {
+            setTimeout(() => {
+                meta.classList.add('visible');
+                // 依次显示前两句，带一点模糊感
+                setTimeout(() => { line1.classList.add('visible', 'blurred'); }, 500);
+                setTimeout(() => { line2.classList.add('visible', 'blurred'); }, 1500);
+            }, 500);
+        };
+
+        btn.addEventListener('click', () => {
+            if (!isEnlightened) {
+                // --- 进入悟道状态 ---
+                isEnlightened = true;
+                btn.innerText = "悟";
+                
+                // 1. 场景变化：背景变亮，雾气变慢
+                body.classList.add('enlightened');
+
+                // 2. 前两句变化：去除模糊，变得通透，但稍微变淡作为背景
+                line1.classList.remove('blurred');
+                line2.classList.remove('blurred');
+                line1.style.opacity = "0.3";
+                line2.style.opacity = "0.3";
+
+                // 3. 后两句浮现
+                setTimeout(() => {
+                    line3.classList.add('visible');
+                }, 1000);
+                setTimeout(() => {
+                    line4.classList.add('visible');
+                }, 2500);
+
+                // 按钮稍作隐藏后显示重置
+                setTimeout(() => {
+                    btn.innerText = "圆"; // 圆满之意，也可作重置
+                }, 4000);
+
+            } else {
+                // --- 重置状态 ---
+                isEnlightened = false;
+                btn.innerText = "观";
+                body.classList.remove('enlightened');
+                
+                // 隐藏后两句
+                line3.classList.remove('visible');
+                line4.classList.remove('visible');
+
+                // 恢复前两句
+                line1.style.opacity = "1";
+                line2.style.opacity = "1";
+                line1.classList.add('blurred');
+                line2.classList.add('blurred');
+            }
+        });
+    </script>
+</body>
+</html>
