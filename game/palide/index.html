@@ -2,29 +2,28 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <!-- 禁止缩放，保证 App 质感 -->
+    <!-- 关键：禁止缩放，保证 App 质感 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>复古拍立得</title>
+    <title>Retro Camera Mobile</title>
     <style>
         /* --- 1. 全局基础 --- */
         body {
             margin: 0;
             height: 100vh;
-            /* 复古波点背景 */
+            /* 依然保持复古波点背景 */
             background-color: #dcdcdc;
             background-image: radial-gradient(#b0b0b0 15%, transparent 16%), radial-gradient(#b0b0b0 15%, transparent 16%);
             background-size: 20px 20px;
             background-position: 0 0, 10px 10px;
-            /* 优先使用楷体或系统字体 */
-            font-family: "KaiTi", "STKaiti", "Courier New", sans-serif;
-            overflow: hidden;
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden; /* 禁止页面滚动 */
             overscroll-behavior: none;
             user-select: none;
             display: flex;
             flex-direction: column;
         }
 
-        /* --- 2. 设置面板 (移动端在顶部) --- */
+        /* --- 2. 设置面板 (默认桌面端：左上角) --- */
         .settings-panel {
             position: absolute;
             left: 20px;
@@ -37,35 +36,29 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
-            width: 240px; /* 稍微加宽一点以容纳中文 */
+            width: 220px;
             backdrop-filter: blur(5px);
         }
         .panel-section { display: flex; flex-direction: column; gap: 5px; }
-        .panel-label { font-size: 12px; font-weight: bold; color: #666; letter-spacing: 1px;}
+        .panel-label { font-size: 10px; font-weight: bold; color: #888; letter-spacing: 1px; text-transform: uppercase;}
         
         .text-input {
             padding: 8px; border: 1px solid #ccc; border-radius: 8px;
-            /* 输入框字体也用楷体 */
-            font-family: "KaiTi", "STKaiti", "Comic Sans MS", sans-serif; 
-            font-size: 16px; outline: none; width: 100%; box-sizing: border-box;
-            color: #333;
+            font-family: 'Comic Sans MS', sans-serif; font-size: 14px; outline: none; width: 100%; box-sizing: border-box;
         }
-        .color-options { display: flex; gap: 10px; }
+        .color-options { display: flex; gap: 8px; }
         .color-dot {
             width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid #eee;
-            transition: transform 0.2s;
         }
-        .color-dot:hover { transform: scale(1.1); }
-        .color-dot.active { border-color: #333; transform: scale(1.1); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .color-dot.active { border-color: #333; transform: scale(1.1); }
         
-        .filter-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .filter-options { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
         .filter-btn {
-            padding: 6px; border: 1px solid #ddd; background: #fff; border-radius: 6px; cursor: pointer; font-size: 13px;
-            font-family: inherit; /* 继承楷体 */
+            padding: 6px; border: 1px solid #ddd; background: #fff; border-radius: 6px; cursor: pointer; font-size: 12px;
         }
         .filter-btn.active { background: #333; color: white; border-color: #333; }
 
-        /* --- 3. 底部按钮组 --- */
+        /* --- 3. 顶部按钮 (默认桌面端：右上角) --- */
         .ui-buttons {
             position: absolute;
             top: 20px; right: 20px;
@@ -76,17 +69,17 @@
             padding: 10px 20px; border: 2px solid #333; background: white;
             border-radius: 30px; cursor: pointer; font-weight: bold; font-size: 14px;
             box-shadow: 2px 2px 0 rgba(0,0,0,0.1);
-            font-family: "KaiTi", "STKaiti", sans-serif; /* 按钮字体 */
         }
         .btn:active { transform: scale(0.95); }
-        .btn.disabled { opacity: 0.6; background: #eee; pointer-events: none; color: #999; border-color: #ccc;}
+        .btn.disabled { opacity: 0.5; background: #eee; pointer-events: none; }
         .btn-download { background: #333; color: white; border-color: #fff; }
 
-        /* --- 4. 主容器 --- */
+        /* --- 4. 主容器布局 --- */
         #app-container {
             display: flex;
             width: 100%;
             height: 100%;
+            /* 桌面端：左右布局 */
             flex-direction: row;
             align-items: center;
             justify-content: space-between;
@@ -100,7 +93,7 @@
             width: 400px;
             z-index: 10;
             flex-shrink: 0;
-            margin-left: 280px;
+            margin-left: 260px; /* 桌面端避开左侧面板 */
         }
         .camera-img {
             width: 100%; display: block;
@@ -156,109 +149,123 @@
         }
         .polaroid-text {
             position: absolute; bottom: 10px; left: 0; width: 100%;
-            text-align: center; font-size: 12px;
-            /* 关键：使用楷体模拟手写感 */
-            font-family: "KaiTi", "STKaiti", "Comic Sans MS", sans-serif; 
-            pointer-events: none;
+            text-align: center; font-size: 10px;
+            font-family: 'Comic Sans MS', sans-serif; pointer-events: none;
         }
 
 
         /* =========================================
-           🔥🔥🔥 移动端适配 🔥🔥🔥
+           🔥🔥🔥 移动端核心适配 (Mobile Layout) 🔥🔥🔥
            ========================================= */
         @media (max-width: 768px) {
             
+            /* 1. 全局垂直布局 */
             #app-container {
-                flex-direction: column;
+                flex-direction: column; /* 从上到下排列 */
                 padding: 0;
                 justify-content: flex-start;
             }
 
-            /* 面板 */
+            /* 2. 设置面板：移动到最顶部，横向排列 */
             .settings-panel {
-                position: relative; top: 0; left: 0; width: 100%;
-                height: auto; flex-direction: row; align-items: center;
-                overflow-x: auto; border-radius: 0 0 15px 15px;
-                padding: 12px 15px; box-sizing: border-box; gap: 15px;
+                position: relative; /* 占据文档流，不遮挡 */
+                top: 0; left: 0;
+                width: 100%;
+                height: auto; /* 高度自适应 */
+                flex-direction: row; /* 内容横向排布 */
+                align-items: center;
+                overflow-x: auto; /* 允许横向滑动 */
+                border-radius: 0 0 15px 15px;
+                padding: 10px 15px;
+                box-sizing: border-box;
+                gap: 15px;
                 box-shadow: 0 5px 10px rgba(0,0,0,0.05);
             }
-            /* 隐藏滚动条 */
-            .settings-panel::-webkit-scrollbar { display: none; }
-
+            /* 调整面板内部元素大小以适应手机 */
             .panel-section { min-width: 80px; justify-content: center; }
-            .text-input { width: 140px; font-size: 14px; padding: 6px;}
-            .filter-options { display: flex; gap: 5px; }
-            .filter-btn { padding: 6px 10px; white-space: nowrap; }
+            .text-input { width: 120px; font-size: 12px; padding: 5px;}
+            .filter-options { display: flex; gap: 5px; } /* 滤镜横着排 */
+            .filter-btn { padding: 4px 8px; white-space: nowrap; }
 
-            /* 照片墙 */
-            #gallery-area { width: 100%; flex: 1; margin: 0; z-index: 5; }
+            /* 3. 照片墙：占据中间剩余区域 */
+            #gallery-area {
+                width: 100%;
+                flex: 1; /* 撑满中间 */
+                margin: 0;
+                z-index: 5; /* 保证照片在相机后面一点，或者前面，看需求 */
+            }
+            /* 手机上照片小一点 */
             .polaroid { width: 130px; }
 
-            /* 相机 */
+            /* 4. 相机：固定在底部 */
             .camera-wrapper {
-                width: 85%; max-width: 340px; margin: 0 auto;
+                width: 85%; /* 宽度自适应 */
+                max-width: 340px;
+                margin: 0 auto; /* 居中 */
+                /* 留出底部按钮的空间 */
                 margin-bottom: 80px; 
             }
 
-            /* 按钮 */
+            /* 5. 按钮：固定在屏幕最底端 */
             .ui-buttons {
-                position: fixed; top: auto; bottom: 20px;
-                right: 50%; transform: translateX(50%);
-                width: 90%; justify-content: center;
-                background: rgba(255,255,255,0.85);
-                padding: 12px; border-radius: 40px;
+                position: fixed; /* 固定定位 */
+                top: auto; 
+                bottom: 20px;
+                right: 50%;
+                transform: translateX(50%); /* 水平居中 */
+                width: 90%;
+                justify-content: center;
+                background: rgba(255,255,255,0.8); /* 加个背景防止看不清 */
+                padding: 10px;
+                border-radius: 40px;
                 backdrop-filter: blur(5px);
                 box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
             }
-            .btn { flex: 1; text-align: center; padding: 12px 0; }
+            .btn { flex: 1; text-align: center; font-size: 12px; padding: 12px 0; }
         }
     </style>
 </head>
 <body>
 
-    <!-- 顶部设置面板 -->
+    <!-- 顶部设置面板 (手机端会在最上面) -->
     <div class="settings-panel">
         <div class="panel-section">
-            <div class="panel-label">文字留言</div>
-            <input type="text" class="text-input" id="customText" value="遇见美好 2025" maxlength="15">
+            <div class="panel-label">TEXT</div>
+            <input type="text" class="text-input" id="customText" value="HELLO 2025" maxlength="15">
         </div>
         <div class="panel-section">
-            <div class="panel-label">滤镜风格</div>
+            <div class="panel-label">FILTERS</div>
             <div class="filter-options">
-                <button class="filter-btn active" onclick="setFilter('none', this)">原片</button>
-                <button class="filter-btn" onclick="setFilter('grayscale(1) contrast(1.2)', this)">黑白</button>
-                <button class="filter-btn" onclick="setFilter('sepia(0.5) contrast(1.1)', this)">复古</button>
-                <button class="filter-btn" onclick="setFilter('hue-rotate(180deg)', this)">冷调</button>
+                <button class="filter-btn active" onclick="setFilter('none', this)">Nor</button>
+                <button class="filter-btn" onclick="setFilter('grayscale(1) contrast(1.2)', this)">B&W</button>
+                <button class="filter-btn" onclick="setFilter('sepia(0.5) contrast(1.1)', this)">Retro</button>
+                <button class="filter-btn" onclick="setFilter('hue-rotate(180deg)', this)">Cool</button>
             </div>
         </div>
         <div class="panel-section">
-            <div class="panel-label">相纸背景</div>
+            <div class="panel-label">COLOR</div>
             <div class="color-options">
-                <!-- 白色 -->
                 <div class="color-dot active" style="background:#fff" onclick="setFrameColor('#fff','#222',this)"></div>
-                <!-- 黑色 -->
                 <div class="color-dot" style="background:#222" onclick="setFrameColor('#222','#fff',this)"></div>
-                <!-- 粉色 -->
                 <div class="color-dot" style="background:#ffc0cb" onclick="setFrameColor('#ffc0cb','#222',this)"></div>
             </div>
         </div>
     </div>
 
-    <!-- 底部按钮组 -->
+    <!-- 底部按钮组 (手机端固定在最底下) -->
     <div class="ui-buttons">
-        <button class="btn" onclick="resetGallery()">清空相册</button>
-        <button class="btn btn-download disabled" id="downloadBtn" onclick="downloadSelectedPhoto()">下载图片</button>
+        <button class="btn" onclick="resetGallery()">RESET</button>
+        <button class="btn btn-download disabled" id="downloadBtn" onclick="downloadSelectedPhoto()">DOWNLOAD</button>
     </div>
 
     <div id="app-container">
         
-        <!-- 照片墙 (手机端在上) -->
+        <!-- 手机端：照片墙 (在上) -->
         <div id="gallery-area"></div>
 
-        <!-- 相机 (手机端在下) -->
+        <!-- 手机端：相机 (在下) -->
         <div class="camera-wrapper">
-            <!-- 请确保 camera_bg.png 是透明背景图片 -->
-            <img src="camera_bg.png" class="camera-img" alt="相机背景" onerror="this.style.background='#fdf3d5'">
+            <img src="camera_bg.png" class="camera-img" alt="Camera" onerror="this.style.background='#fdf3d5'">
             <div class="lens-container">
                 <video id="viewfinder" autoplay playsinline></video>
                 <div class="lens-glare"></div>
@@ -294,7 +301,7 @@
                     video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 1280 }, aspectRatio: 1 } 
                 });
                 video.srcObject = stream;
-            } catch (err) { console.error(err); alert("请允许浏览器访问摄像头权限"); }
+            } catch (err) { console.error(err); alert("请允许摄像头权限"); }
         }
 
         window.setFilter = function(f, btn) {
@@ -315,7 +322,7 @@
             flashOverlay.style.opacity = 1;
             setTimeout(() => flashOverlay.style.opacity = 0, 100);
 
-            const text = customTextInput.value || " ";
+            const text = customTextInput.value || "";
             const now = new Date();
             const dateStr = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`;
 
@@ -333,7 +340,7 @@
             setTimeout(() => playSound('motor'), 200);
         });
 
-        // 3. 创建照片
+        // 3. 创建照片 (关键：调整飞出坐标)
         function createPolaroid(imgSrc, date, text, filter, bg, txtColor) {
             const div = document.createElement('div');
             div.className = 'polaroid';
@@ -343,19 +350,18 @@
             div.dataset.text = text; div.dataset.filter = filter;
             div.dataset.bgColor = bg; div.dataset.textColor = txtColor;
 
-            // 使用楷体显示 DOM 文字
-            div.innerHTML = `
-                <img src="${imgSrc}" draggable="false" style="filter:brightness(0.2) grayscale(1) contrast(1.2)">
-                <div class="polaroid-text" style="color:${txtColor}">${text}<br><span style="font-size:9px;opacity:0.6;font-family:'Courier New'">${date}</span></div>
-            `;
+            div.innerHTML = `<img src="${imgSrc}" draggable="false" style="filter:brightness(0.2) grayscale(1) contrast(1.2)"><div class="polaroid-text" style="color:${txtColor}">${text}<br><span style="font-size:9px;opacity:0.6">${date}</span></div>`;
             
             gallery.appendChild(div);
 
+            // --- 动画坐标计算 ---
             const isMobile = window.innerWidth <= 768;
             
-            // 初始位置
+            // 初始位置：
+            // 手机：从下方相机位置出来 (bottom: 0, left: 50%)
+            // 桌面：从左侧相机位置出来 (top: 50%, left: 200px)
             if(isMobile) {
-                div.style.top = '100%'; 
+                div.style.top = '100%'; // 屏幕底部
                 div.style.left = '50%'; 
                 div.style.transform = 'translate(-50%, 0) scale(0.2)';
             } else {
@@ -364,19 +370,24 @@
                 div.style.transform = 'scale(0.2)';
             }
             div.style.zIndex = zIndexCounter++;
-            div.offsetHeight; // 强制重绘
 
-            // 飞出动画
+            // 强制重绘
+            div.offsetHeight;
+
+            // 飞出目标位置：
+            // 手机：飞到上方区域 (gallery-area)
+            // 桌面：飞到右侧
             requestAnimationFrame(() => {
                 div.style.opacity = 1;
                 const rRot = (Math.random() * 20 - 10);
                 
                 if(isMobile) {
+                    // 手机端：随机分布在屏幕上半部分 (10% - 40% 高度)
                     const rTop = Math.random() * 30 + 5; 
-                    const rLeft = Math.random() * 60 + 10; 
+                    const rLeft = Math.random() * 60 + 10; // 10% - 70% 宽度
                     div.style.top = rTop + '%';
                     div.style.left = rLeft + '%';
-                    div.style.transform = `rotate(${rRot}deg) scale(0.8)`; 
+                    div.style.transform = `rotate(${rRot}deg) scale(0.8)`; // 手机上照片小一点
                 } else {
                     const rTop = Math.random() * 50 + 10;
                     const rLeft = Math.random() * 30 + 40;
@@ -393,7 +404,7 @@
             setupInteraction(div);
         }
 
-        // 4. 交互
+        // 4. 交互 (拖拽)
         function setupInteraction(el) {
             let isDown = false, startX, startY, initL, initT;
             const start = (e) => {
@@ -405,6 +416,7 @@
                 const t = e.touches ? e.touches[0] : e;
                 startX = t.clientX; startY = t.clientY;
                 const rect = el.getBoundingClientRect();
+                // 获取相对于父容器的坐标
                 const pRect = gallery.getBoundingClientRect();
                 initL = rect.left - pRect.left;
                 initT = rect.top - pRect.top;
@@ -439,10 +451,10 @@
             if(audioContext?.state === 'suspended') audioContext.resume();
         });
 
-        // 5. 下载
+        // 5. 下载与音效
         async function downloadSelectedPhoto() {
             if(!selectedPhotoElement) return;
-            downloadBtn.innerText = "保存中...";
+            downloadBtn.innerText = "...";
             const d = selectedPhotoElement.dataset;
             const cvs = document.createElement('canvas'); cvs.width=800; cvs.height=960;
             const ctx = cvs.getContext('2d');
@@ -452,19 +464,12 @@
                 ctx.save(); if(d.filter!=='none') ctx.filter=d.filter;
                 ctx.drawImage(img, 40, 40, 720, 720); ctx.restore();
                 ctx.strokeStyle='rgba(0,0,0,0.1)'; ctx.strokeRect(40,40,720,720);
-                
                 ctx.fillStyle = d.textColor; ctx.textAlign='center';
-                // 在下载合成图片时，也指定中文字体
-                ctx.font = 'bold 32px "KaiTi", "STKaiti", "Comic Sans MS", sans-serif'; 
-                ctx.fillText(d.text, 400, 890);
-                
-                ctx.font = '20px Courier New'; ctx.globalAlpha=0.7; 
-                ctx.fillText(d.date, 400, 930);
-                
-                const a = document.createElement('a'); 
-                a.download = '复古拍立得_'+Date.now()+'.jpg';
+                ctx.font = 'bold 30px "Comic Sans MS", sans-serif'; ctx.fillText(d.text, 400, 890);
+                ctx.font = '20px Courier New'; ctx.globalAlpha=0.7; ctx.fillText(d.date, 400, 930);
+                const a = document.createElement('a'); a.download = 'polaroid_'+Date.now()+'.jpg';
                 a.href = cvs.toDataURL('image/jpeg', 0.9); a.click();
-                downloadBtn.innerText = "下载图片";
+                downloadBtn.innerText = "DOWNLOAD";
             };
             img.src = d.fullImg;
         }
