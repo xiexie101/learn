@@ -126,6 +126,9 @@ class PinwheelMode {
     }
 
     update(windForce, deltaTime) {
+        // Cache time calculation
+        const time = Date.now() * 0.001;
+
         // Calculate target rotation speed based on wind force
         this.targetSpeed = (windForce / 100) * 12; // Max 12 rad/s
 
@@ -148,7 +151,7 @@ class PinwheelMode {
 
         // Add slight wobble at high speeds
         if (this.rotationSpeed > 5) {
-            const wobble = Math.sin(Date.now() * 0.01) * 0.12;
+            const wobble = Math.sin(time * 10) * 0.12;
             this.pinwheel.rotation.x = wobble;
             this.pinwheel.rotation.y = wobble * 0.5;
         } else {
@@ -158,6 +161,13 @@ class PinwheelMode {
 
         // Update blade colors based on speed (motion blur effect simulation)
         const speedRatio = this.rotationSpeed / 12;
+
+        // Reusable color objects (performance optimization)
+        if (!this._tempBaseColor) {
+            this._tempBaseColor = new THREE.Color();
+            this._tempLightColor = new THREE.Color();
+        }
+
         this.blades.forEach((blade, index) => {
             const emissiveIntensity = speedRatio * 0.3;
             blade.material.emissiveIntensity = emissiveIntensity;
@@ -165,18 +175,17 @@ class PinwheelMode {
             // Slight color shift when spinning fast
             if (speedRatio > 0.5) {
                 const t = speedRatio;
-                const baseColor = new THREE.Color(blade.userData.baseColor);
-                const lightColor = new THREE.Color(blade.userData.lightColor);
-                blade.material.color.lerpColors(baseColor, lightColor, t * 0.5);
+                this._tempBaseColor.set(blade.userData.baseColor);
+                this._tempLightColor.set(blade.userData.lightColor);
+                blade.material.color.lerpColors(this._tempBaseColor, this._tempLightColor, t * 0.5);
             }
         });
 
         // Add glow effect when spinning fast
         this.spinLight.intensity = speedRatio * 2;
-        this.spinLight.color.setHSL((Date.now() * 0.001) % 1, 0.8, 0.6);
+        this.spinLight.color.setHSL((time) % 1, 0.8, 0.6);
 
         // Gentle floating animation
-        const time = Date.now() * 0.001;
         this.pinwheel.position.y = Math.sin(time * 0.5) * 0.05;
     }
 

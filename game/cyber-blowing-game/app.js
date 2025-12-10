@@ -10,6 +10,8 @@ class CyberBlowingGame {
         this.modes = {};
         this.activeModeName = 'candle';
         this.lastTime = 0;
+        this.isSwitchingMode = false; // Flag to pause wind detection during switch
+        this.switchTransitionTime = 0; // Transition timer
     }
 
     async init() {
@@ -91,6 +93,13 @@ class CyberBlowingGame {
         modeButtons.forEach(btn => {
             btn.addEventListener('click', () => {
                 const mode = btn.dataset.mode;
+
+                // Prevent switching if already switching
+                if (this.isSwitchingMode) return;
+
+                // Don't switch if already in this mode
+                if (mode === this.activeModeName) return;
+
                 this.switchMode(mode);
 
                 // Update active state
@@ -111,8 +120,20 @@ class CyberBlowingGame {
     }
 
     switchMode(modeName) {
-        // Dispose current mode
+        // Set switching flag to pause wind detection
+        this.isSwitchingMode = true;
+        this.switchTransitionTime = 0.3; // 300ms transition
+
+        // Reset wind meter to 0
+        this.windMeter.reset();
+
+        // Reset and dispose current mode properly
         if (this.currentMode) {
+            // Call reset first to stop ongoing animations
+            if (this.currentMode.reset) {
+                this.currentMode.reset();
+            }
+            // Then dispose to clean up
             this.currentMode.dispose();
         }
 
@@ -140,8 +161,16 @@ class CyberBlowingGame {
         const deltaTime = (currentTime - this.lastTime) / 1000;
         this.lastTime = currentTime;
 
-        // Get wind force from microphone
-        const windForce = this.audioProcessor.getWindForce();
+        // Handle mode switching transition
+        if (this.isSwitchingMode) {
+            this.switchTransitionTime -= deltaTime;
+            if (this.switchTransitionTime <= 0) {
+                this.isSwitchingMode = false;
+            }
+        }
+
+        // Get wind force from microphone (pause during mode switch)
+        const windForce = this.isSwitchingMode ? 0 : this.audioProcessor.getWindForce();
 
         // Update wind meter
         this.windMeter.update(windForce);

@@ -93,6 +93,10 @@ class BubbleMode {
             this.bubbleSpawnTimer = 0;
         }
 
+        // Reusable color objects (performance optimization)
+        const tempColor = new THREE.Color();
+        const tempInnerColor = new THREE.Color();
+
         // Update existing bubbles
         for (let i = this.bubbles.length - 1; i >= 0; i--) {
             const bubble = this.bubbles[i];
@@ -113,7 +117,7 @@ class BubbleMode {
             bubble.velocity.y += deltaTime * 0.5;
 
             // Add wobble effect
-            const wobbleTime = Date.now() * 0.003 + bubble.userData.wobbleOffset;
+            const wobbleTime = time + bubble.userData.wobbleOffset;
             bubble.position.x += Math.sin(wobbleTime * 2) * deltaTime * 0.1;
             bubble.position.z += Math.cos(wobbleTime * 2) * deltaTime * 0.1;
 
@@ -125,20 +129,20 @@ class BubbleMode {
             const pulsation = 1 + Math.sin(wobbleTime) * 0.05;
             bubble.scale.setScalar(growthScale * pulsation);
 
-            // Rainbow color cycling for more vibrant effect
+            // Rainbow color cycling for more vibrant effect - reuse color objects
             const hueShift = (time * 0.2 + bubble.userData.hueOffset) % 1;
-            const newColor = new THREE.Color().setHSL(hueShift, 0.8, 0.7);
-            bubble.children[0].material.color = newColor;
+            tempColor.setHSL(hueShift, 0.8, 0.7);
+            bubble.children[0].material.color.copy(tempColor);
 
             // Update inner layer with complementary color
-            const innerColor = new THREE.Color().setHSL((hueShift + 0.3) % 1, 0.7, 0.8);
+            tempInnerColor.setHSL((hueShift + 0.3) % 1, 0.7, 0.8);
             if (bubble.children[1]) {
-                bubble.children[1].material.color = innerColor;
+                bubble.children[1].material.color.copy(tempInnerColor);
             }
 
             // Update point light color
             if (bubble.userData.light) {
-                bubble.userData.light.color = newColor;
+                bubble.userData.light.color.copy(tempColor);
             }
 
             // Fade out as it gets farther
@@ -156,9 +160,9 @@ class BubbleMode {
             const shouldPop = distance > 10 || opacity <= 0 || (Math.random() < 0.001 && bubble.userData.age > 2);
 
             if (shouldPop) {
-                // Create pop effect
+                // Create pop effect - pass color value, not object
                 if (opacity > 0.1) {
-                    this.createPopEffect(bubble.position, newColor);
+                    this.createPopEffect(bubble.position, tempColor.getHex());
                 }
                 this.scene.remove(bubble);
                 this.bubbles.splice(i, 1);
@@ -186,13 +190,13 @@ class BubbleMode {
         }
     }
 
-    createPopEffect(position, color) {
+    createPopEffect(position, colorHex) {
         // Create small sparkle particles when bubble pops
         const particleCount = 8;
         for (let i = 0; i < particleCount; i++) {
             const geometry = new THREE.SphereGeometry(0.02, 8, 8);
             const material = new THREE.MeshBasicMaterial({
-                color: color,
+                color: colorHex,
                 transparent: true,
                 opacity: 0.6
             });
