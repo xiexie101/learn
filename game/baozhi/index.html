@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>榕城旧闻录 - 时光生成器</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Serif SC', serif;
+            background-color: #f4e4bc; /* 米黄色背景 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        h1 {
+            color: #5a3d31;
+            margin-bottom: 10px;
+        }
+
+        .controls {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            border: 1px solid #8b5a2b;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 0.9em;
+            margin-bottom: 5px;
+            color: #8b5a2b;
+            font-weight: bold;
+        }
+
+        input[type="text"], input[type="date"] {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 16px;
+        }
+
+        input[type="file"] {
+            padding: 5px;
+        }
+
+        button {
+            background-color: #8b5a2b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background-color: #5a3d31;
+        }
+
+        #preview-container {
+            position: relative;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            max-width: 100%;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .download-tip {
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>《榕城旧闻录》生成器</h1>
+
+    <div class="controls">
+        <div class="input-group">
+            <label>游客姓名</label>
+            <input type="text" id="visitorName" value="李慕白" placeholder="输入姓名">
+        </div>
+        <div class="input-group">
+            <label>打卡日期</label>
+            <input type="date" id="visitDate">
+        </div>
+        <div class="input-group">
+            <label>上传照片 (建议竖屏自拍)</label>
+            <input type="file" id="photoInput" accept="image/*">
+        </div>
+        <button onclick="generateImage()">生成报纸</button>
+        <button onclick="downloadImage()" style="background-color: #444;">下载图片</button>
+    </div>
+
+    <div id="preview-container">
+        <canvas id="canvas"></canvas>
+    </div>
+    <p class="download-tip">电脑端右键另存为，手机端长按保存</p>
+
+    <script>
+        // ================= 配置区域 =================
+        // 这里需要替换成你实际做好的“挖空”PNG底图路径
+        // 现在的链接只是一个示例占位图，实际使用必须替换！
+        const TEMPLATE_SRC = './template_newspaper.png'; // 假设你把底图放在同级目录
+        
+        // 如果没有本地图片，我这里用代码生成一个简单的占位底图逻辑供测试
+        // 实际部署时，请把下面的 usePlaceholder 设为 false，并上传真实的 template_newspaper.png
+        const usePlaceholder = true; 
+        
+        // 坐标配置 (需要根据你的实际底图像素进行微调)
+        const CONFIG = {
+            templateWidth: 800,  // 底图宽度
+            templateHeight: 1131, // 底图高度 (A4比例)
+            
+            // 照片区域 (底图中窗户的位置)
+            photo: { x: 50, y: 300, w: 700, h: 400 },
+            
+            // 姓名文字位置 (图片说明下方)
+            textName: { x: 235, y: 725, maxWidth: 100 },
+            
+            // 日期文字位置 (右上角)
+            textDate: { x: 600, y: 180 }
+        };
+
+        // ================= 核心逻辑 =================
+        
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const dateInput = document.getElementById('visitDate');
+
+        // 设置默认日期为今天
+        dateInput.valueAsDate = new Date();
+
+        // 预加载底图
+        let templateImg = new Image();
+        
+        if (usePlaceholder) {
+            // 生成一个模拟的底图 (仅供演示，实际请删掉这段逻辑)
+            templateImg.src = createPlaceholderTemplate(); 
+        } else {
+            templateImg.src = TEMPLATE_SRC;
+        }
+
+        templateImg.onload = () => {
+            canvas.width = CONFIG.templateWidth;
+            canvas.height = CONFIG.templateHeight;
+            generateImage(); // 初始渲染
+        };
+
+        function generateImage() {
+            const name = document.getElementById('visitorName').value;
+            const dateStr = document.getElementById('visitDate').value;
+            const fileInput = document.getElementById('photoInput');
+            
+            // 1. 绘制用户照片 (在底层)
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const userImg = new Image();
+                    userImg.onload = function() {
+                        drawComposition(userImg, name, dateStr);
+                    }
+                    userImg.src = e.target.result;
+                }
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                // 如果没上传照片，用灰色占位
+                drawComposition(null, name, dateStr);
+            }
+        }
+
+        function drawComposition(userImg, name, dateStr) {
+            // 清空画布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // --- A. 绘制用户照片 (模拟玻璃反射效果) ---
+            if (userImg) {
+                ctx.save();
+                
+                // 1. 裁剪区域：限制照片只显示在窗户区域
+                ctx.beginPath();
+                ctx.rect(CONFIG.photo.x, CONFIG.photo.y, CONFIG.photo.w, CONFIG.photo.h);
+                ctx.clip();
+
+                // 2. 计算居中填充 (object-fit: cover)
+                const ratio = Math.max(CONFIG.photo.w / userImg.width, CONFIG.photo.h / userImg.height);
+                const centerShift_x = (CONFIG.photo.w - userImg.width * ratio) / 2;
+                const centerShift_y = (CONFIG.photo.h - userImg.height * ratio) / 2;
+
+                // 3. 应用滤镜：去色 + 泛黄 + 降低透明度 = 鬼影效果
+                ctx.filter = 'sepia(1) contrast(1.2) brightness(0.9) grayscale(0.2)'; 
+                ctx.globalAlpha = 0.6; // 透明度，让背景的“油灯”透出来（如果底图窗户不是全透明的话）
+                
+                ctx.drawImage(userImg, 
+                    0, 0, userImg.width, userImg.height,
+                    CONFIG.photo.x + centerShift_x, CONFIG.photo.y + centerShift_y, 
+                    userImg.width * ratio, userImg.height * ratio);
+                
+                ctx.restore();
+            } else {
+                // 没图时的默认底色
+                ctx.fillStyle = "#333";
+                ctx.fillRect(CONFIG.photo.x, CONFIG.photo.y, CONFIG.photo.w, CONFIG.photo.h);
+            }
+
+            // --- B. 绘制报纸底板 (顶层) ---
+            // 确保底图是PNG，中间窗户是透明的，这样才能盖住刚才画的照片边缘
+            ctx.drawImage(templateImg, 0, 0, CONFIG.templateWidth, CONFIG.templateHeight);
+
+            // --- C. 绘制文字 (动态替换) ---
+            ctx.fillStyle = '#1a1a1a'; // 墨色
+            ctx.textBaseline = 'bottom';
+            
+            // 1. 绘制姓名
+            // 字体样式要匹配报纸
+            ctx.font = 'bold 24px "Noto Serif SC", serif'; 
+            // 这一步很重要：我们需要在指定位置填入名字
+            // 假设底图上的文字是：“图为今日访客[    ]于杨桥巷...”
+            // 我们只画名字，底图上需要留好空白
+            ctx.fillText(name, CONFIG.textName.x, CONFIG.textName.y);
+
+            // 2. 绘制日期 (格式化为中文)
+            const dateObj = new Date(dateStr);
+            const cnDate = `公历 二零二四年${dateObj.getMonth()+1}月${dateObj.getDate()}日`; // 简易转换，可优化
+            
+            ctx.font = '16px "Noto Serif SC", serif';
+            ctx.fillText(cnDate, CONFIG.textDate.x, CONFIG.textDate.y);
+        }
+
+        function downloadImage() {
+            const link = document.createElement('a');
+            link.download = '榕城旧闻录_留念.jpg';
+            link.href = canvas.toDataURL('image/jpeg', 0.8);
+            link.click();
+        }
+
+        // --- 辅助函数：生成一个测试用的底板 (你有了真实PNG后可以删除此函数) ---
+        function createPlaceholderTemplate() {
+            const c = document.createElement('canvas');
+            c.width = 800; c.height = 1131;
+            const x = c.getContext('2d');
+            
+            // 背景纸色
+            x.fillStyle = '#f0e6d2'; 
+            x.fillRect(0,0,800,1131);
+            
+            // 标题
+            x.fillStyle = '#000';
+            x.font = 'bold 80px "Noto Serif SC"';
+            x.textAlign = 'center';
+            x.fillText('榕城旧闻录', 400, 120);
+            
+            // 横线
+            x.fillRect(50, 150, 700, 3);
+            
+            // 窗户框 (透明区域示意，实际PNG这里应该是透明像素)
+            // 为了演示叠加，我这里不画透明，而是画一个边框
+            x.strokeStyle = '#5c4033';
+            x.lineWidth = 10;
+            x.strokeRect(50, 300, 700, 400); 
+            // 模拟窗格
+            x.beginPath(); x.moveTo(400, 300); x.lineTo(400, 700); x.stroke();
+            
+            // 静态文字
+            x.font = '24px "Noto Serif SC"';
+            x.textAlign = 'left';
+            x.fillText('图为今日访客           于杨桥巷林宅窗前驻足。', 50, 725);
+            
+            return c.toDataURL();
+        }
+    </script>
+</body>
+</html>

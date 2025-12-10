@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="3D赛博吹气小游戏 - 通过麦克风控制的互动体验">
+    <title>赛博吹气游戏 | Cyber Blowing Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Permission Modal -->
+    <div id="permission-modal" class="modal">
+        <div class="modal-content">
+            <h2>🎤 麦克风权限</h2>
+            <p>此游戏需要访问您的麦克风来检测吹气强度</p>
+            <button id="grant-permission" class="btn-primary">授权麦克风</button>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div id="app" class="hidden">
+        <!-- Header -->
+        <header>
+            <h1 class="game-title">
+                <span class="cyber-text">赛博吹气游戏</span>
+                <span class="subtitle">Cyber Blowing Game</span>
+            </h1>
+        </header>
+
+        <!-- 3D Canvas -->
+        <div id="canvas-container">
+            <canvas id="game-canvas"></canvas>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <!-- Wind Force Meter -->
+            <div class="meter-container">
+                <h3>风力测量</h3>
+                <div class="wind-meter">
+                    <svg viewBox="0 0 200 120" class="meter-svg">
+                        <!-- Background Arc -->
+                        <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="rgba(255,255,255,0.1)"
+                            stroke-width="20" />
+                        <!-- Active Arc -->
+                        <path id="meter-arc" d="M 20 100 A 80 80 0 0 1 180 100" fill="none"
+                            stroke="url(#meter-gradient)" stroke-width="20" stroke-dasharray="251.2"
+                            stroke-dashoffset="251.2" stroke-linecap="round" />
+                        <!-- Gradient Definition -->
+                        <defs>
+                            <linearGradient id="meter-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" style="stop-color:#00f5ff;stop-opacity:1" />
+                                <stop offset="50%" style="stop-color:#ff00ff;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#ff0080;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <!-- Center Text -->
+                        <text x="100" y="85" text-anchor="middle" class="meter-value" id="meter-value">0</text>
+                        <text x="100" y="105" text-anchor="middle" class="meter-label">风力</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Sensitivity Control -->
+            <div class="control-group">
+                <label for="sensitivity">
+                    <span>灵敏度</span>
+                    <span id="sensitivity-value">1.0x</span>
+                </label>
+                <input type="range" id="sensitivity" min="0.5" max="2.0" step="0.1" value="1.0" class="slider">
+            </div>
+
+            <!-- Mode Selection -->
+            <div class="mode-selection">
+                <h3>游戏模式</h3>
+                <div class="mode-grid">
+                    <button class="mode-btn active" data-mode="candle">
+                        <span class="mode-icon">🕯️</span>
+                        <span class="mode-name">吹灭蜡烛</span>
+                    </button>
+                    <button class="mode-btn" data-mode="bubble">
+                        <span class="mode-icon">🫧</span>
+                        <span class="mode-name">吹泡泡</span>
+                    </button>
+                    <button class="mode-btn" data-mode="pinwheel">
+                        <span class="mode-icon">🎡</span>
+                        <span class="mode-name">吹风车</span>
+                    </button>
+                    <button class="mode-btn" data-mode="dandelion">
+                        <span class="mode-icon">🌼</span>
+                        <span class="mode-name">吹蒲公英</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="instructions">
+            <p id="mode-instruction">对着麦克风吹气来熄灭蜡烛！</p>
+        </div>
+    </div>
+
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- Game Modules -->
+    <script src="utils/audio.js"></script>
+    <script src="utils/windMeter.js"></script>
+    <script src="modes/candle.js"></script>
+    <script src="modes/bubble.js"></script>
+    <script src="modes/pinwheel.js"></script>
+    <script src="modes/dandelion.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
