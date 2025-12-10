@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="生成赛博吹气游戏的二维码，方便分享给朋友">
+    <title>二维码生成器 - 赛博吹气游戏</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cyber-primary: #00f5ff;
+            --cyber-secondary: #ff00ff;
+            --cyber-accent: #ff0080;
+            --cyber-bg: #0a0e27;
+            --cyber-bg-light: #1a1f3a;
+            --cyber-text: #ffffff;
+            --cyber-text-dim: #a0a0ff;
+            --glass-bg: rgba(26, 31, 58, 0.7);
+            --glass-border: rgba(0, 245, 255, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1428 100%);
+            color: var(--cyber-text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 50%, rgba(0, 245, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 0, 255, 0.1) 0%, transparent 50%);
+            animation: bgPulse 8s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes bgPulse {
+
+            0%,
+            100% {
+                opacity: 0.5;
+            }
+
+            50% {
+                opacity: 0.8;
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .qr-card {
+            background: var(--glass-bg);
+            border: 2px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 3rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--cyber-primary);
+            text-decoration: none;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            transform: translateX(-5px);
+            color: var(--cyber-secondary);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--cyber-primary), var(--cyber-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .description {
+            color: var(--cyber-text-dim);
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+        }
+
+        .url-input-group {
+            margin-bottom: 2rem;
+        }
+
+        .url-input-group label {
+            display: block;
+            color: var(--cyber-primary);
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            text-align: left;
+        }
+
+        .url-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid var(--glass-border);
+            border-radius: 15px;
+            color: var(--cyber-text);
+            font-size: 1rem;
+            font-family: 'Monaco', 'Courier New', monospace;
+            transition: all 0.3s ease;
+        }
+
+        .url-input:focus {
+            outline: none;
+            border-color: var(--cyber-primary);
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+        }
+
+        .qr-display {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            margin: 2rem 0;
+            display: inline-block;
+            box-shadow: 0 10px 40px rgba(0, 245, 255, 0.2);
+        }
+
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 256px;
+        }
+
+        #qrcode img {
+            border-radius: 10px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--cyber-primary), var(--cyber-secondary));
+            color: var(--cyber-text);
+            box-shadow: 0 4px 20px rgba(0, 245, 255, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0, 245, 255, 0.6);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--cyber-primary);
+            border: 2px solid var(--cyber-primary);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 245, 255, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .share-tips {
+            background: rgba(255, 215, 0, 0.1);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            text-align: left;
+        }
+
+        .share-tips h3 {
+            color: #ffd700;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .share-tips ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .share-tips li {
+            color: var(--cyber-text-dim);
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .share-tips li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #ffd700;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: linear-gradient(135deg, var(--cyber-primary), var(--cyber-secondary));
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            box-shadow: 0 10px 40px rgba(0, 245, 255, 0.5);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .qr-card {
+                padding: 2rem 1.5rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="qr-card">
+            <a href="landing.html" class="back-link">
+                ← 返回主页
+            </a>
+
+            <h1>📷 二维码生成器</h1>
+            <p class="description">
+                生成游戏二维码，让朋友扫码即玩！
+            </p>
+
+            <div class="url-input-group">
+                <label for="game-url">游戏链接</label>
+                <input type="text" id="game-url" class="url-input" placeholder="输入游戏链接或使用当前地址" value="">
+            </div>
+
+            <div class="qr-display">
+                <div id="qrcode"></div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="generateQR()">
+                    <span>🔄</span>
+                    <span>生成二维码</span>
+                </button>
+                <button class="btn btn-secondary" onclick="downloadQR()">
+                    <span>💾</span>
+                    <span>下载二维码</span>
+                </button>
+                <button class="btn btn-secondary" onclick="copyURL()">
+                    <span>📋</span>
+                    <span>复制链接</span>
+                </button>
+            </div>
+
+            <div class="share-tips">
+                <h3>💡 分享小贴士</h3>
+                <ul>
+                    <li>将二维码保存为图片，发送给朋友</li>
+                    <li>朋友扫码后可直接在手机上玩游戏</li>
+                    <li>也可以直接复制链接分享</li>
+                    <li>建议在WiFi环境下游玩，体验更流畅</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <!-- QRCode.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <script>
+        let qrcode = null;
+
+        // Get the game URL
+        function getGameURL() {
+            const currentURL = window.location.href;
+            const baseURL = currentURL.substring(0, currentURL.lastIndexOf('/'));
+            return baseURL + '/index.html';
+        }
+
+        // Initialize with current game URL
+        window.addEventListener('DOMContentLoaded', () => {
+            const gameURL = getGameURL();
+            document.getElementById('game-url').value = gameURL;
+            generateQR();
+        });
+
+        // Generate QR Code
+        function generateQR() {
+            const url = document.getElementById('game-url').value || getGameURL();
+
+            // Clear existing QR code
+            const qrcodeContainer = document.getElementById('qrcode');
+            qrcodeContainer.innerHTML = '';
+
+            // Generate new QR code
+            qrcode = new QRCode(qrcodeContainer, {
+                text: url,
+                width: 256,
+                height: 256,
+                colorDark: '#0a0e27',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            showToast('二维码生成成功！');
+        }
+
+        // Download QR Code
+        function downloadQR() {
+            const canvas = document.querySelector('#qrcode canvas');
+            if (!canvas) {
+                showToast('请先生成二维码');
+                return;
+            }
+
+            // Convert canvas to blob and download
+            canvas.toBlob((blob) => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'cyber-blowing-game-qrcode.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast('二维码已下载！');
+            });
+        }
+
+        // Copy URL to clipboard
+        function copyURL() {
+            const url = document.getElementById('game-url').value;
+            navigator.clipboard.writeText(url).then(() => {
+                showToast('链接已复制到剪贴板！');
+            }).catch(err => {
+                console.error('复制失败:', err);
+                showToast('复制失败，请手动复制');
+            });
+        }
+
+        // Show toast notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Regenerate QR when URL changes
+        document.getElementById('game-url').addEventListener('change', generateQR);
+    </script>
+</body>
+
+</html>
