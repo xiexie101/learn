@@ -68,3 +68,6 @@ const CONFIG = {
 ---
 
 Made with ❤️ for a 6-year-old hero's birthday party
+
+同步
+./sync-to-game.sh

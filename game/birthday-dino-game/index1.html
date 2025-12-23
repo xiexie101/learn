@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🦖 恐龙大作战 - 小小英雄的冒险</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 30%, #0a1a3e 70%, #0a2a4e 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            color: white;
+        }
+
+        /* ==================== 动态星空背景 ==================== */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s infinite ease-in-out;
+            will-change: opacity, transform;
+            /* GPU加速 */
+        }
+
+        @keyframes twinkle {
+
+            0%,
+            100% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.5);
+            }
+        }
+
+        /* 流星效果 */
+        .meteor {
+            position: absolute;
+            width: 2px;
+            height: 80px;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%);
+            animation: meteor 3s linear infinite;
+            opacity: 0;
+        }
+
+        @keyframes meteor {
+            0% {
+                transform: translateY(-100px) translateX(0) rotate(45deg);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(100vh) translateX(200px) rotate(45deg);
+                opacity: 0;
+            }
+        }
+
+        /* ==================== 开始界面 ==================== */
+        #start-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            background: radial-gradient(ellipse at center, rgba(26, 10, 46, 0.8) 0%, rgba(10, 10, 26, 0.95) 100%);
+        }
+
+        /* 浮动恐龙装饰 */
+        .floating-dino {
+            position: absolute;
+            font-size: 4rem;
+            opacity: 0.6;
+            animation: float-around 20s infinite ease-in-out;
+            filter: blur(1px);
+        }
+
+        .floating-dino:nth-child(1) {
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .floating-dino:nth-child(2) {
+            top: 20%;
+            right: 15%;
+            animation-delay: -5s;
+            font-size: 3rem;
+        }
+
+        .floating-dino:nth-child(3) {
+            bottom: 20%;
+            left: 20%;
+            animation-delay: -10s;
+            font-size: 5rem;
+        }
+
+        .floating-dino:nth-child(4) {
+            bottom: 15%;
+            right: 10%;
+            animation-delay: -15s;
+        }
+
+        @keyframes float-around {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(-5deg);
+            }
+
+            25% {
+                transform: translateY(-30px) rotate(5deg);
+            }
+
+            50% {
+                transform: translateY(-10px) rotate(-3deg);
+            }
+
+            75% {
+                transform: translateY(-40px) rotate(8deg);
+            }
+        }
+
+        #start-screen h1 {
+            font-size: 4.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff6b35 0%, #ffd700 50%, #ff6b35 100%);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient-shift 3s ease infinite, title-glow 2s ease-in-out infinite;
+            margin-bottom: 15px;
+            text-shadow: none;
+            filter: drop-shadow(0 0 30px rgba(255, 107, 53, 0.5));
+        }
+
+        @keyframes gradient-shift {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        @keyframes title-glow {
+
+            0%,
+            100% {
+                filter: drop-shadow(0 0 30px rgba(255, 107, 53, 0.5));
+            }
+
+            50% {
+                filter: drop-shadow(0 0 50px rgba(255, 215, 0, 0.8));
+            }
+        }
+
+        #start-screen .subtitle {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: transparent;
+            background: linear-gradient(90deg, #00ff88, #00ccff, #00ff88);
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: gradient-shift 4s ease infinite;
+            margin-bottom: 50px;
+            letter-spacing: 2px;
+        }
+
+        .start-btn {
+            padding: 25px 80px;
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(145deg, #ff6b35, #f7c331, #ff6b35);
+            background-size: 200% 200%;
+            border: none;
+            border-radius: 60px;
+            color: white;
+            cursor: pointer;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            box-shadow:
+                0 10px 40px rgba(255, 107, 53, 0.6),
+                0 0 60px rgba(255, 107, 53, 0.3),
+                inset 0 -5px 20px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            animation: btn-pulse 2s ease-in-out infinite, gradient-shift 3s ease infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .start-btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg,
+                    transparent 30%,
+                    rgba(255, 255, 255, 0.3) 50%,
+                    transparent 70%);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% {
+                transform: translateX(-100%) rotate(45deg);
+            }
+
+            100% {
+                transform: translateX(100%) rotate(45deg);
+            }
+        }
+
+        @keyframes btn-pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .start-btn:hover {
+            transform: scale(1.15) !important;
+            box-shadow:
+                0 20px 60px rgba(255, 107, 53, 0.8),
+                0 0 100px rgba(255, 215, 0, 0.5);
+        }
+
+        .start-hint {
+            margin-top: 40px;
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.6);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .start-hint .fist-icon {
+            font-size: 2rem;
+            animation: punch-demo 1s infinite;
+        }
+
+        @keyframes punch-demo {
+
+            0%,
+            100% {
+                transform: translateX(0) rotate(0deg);
+            }
+
+            50% {
+                transform: translateX(20px) rotate(-10deg);
+            }
+        }
+
+        /* ==================== 游戏容器 ==================== */
+        #game-container {
+            display: none;
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(ellipse at center, rgba(26, 10, 46, 0.3) 0%, rgba(10, 10, 26, 0.8) 100%);
+        }
+
+        /* 摄像头视频 */
+        #video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+            opacity: 0.25;
+            filter: saturate(1.2) contrast(1.1);
+        }
+
+        /* 游戏画布 */
+        #game-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        /* ==================== 玻璃拟态UI ==================== */
+        #score-board {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            z-index: 50;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 20px 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        #score-board .score {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ffd700, #ff6b35);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
+        }
+
+        #score-board .target {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 5px;
+        }
+
+        /* 进度条 */
+        #progress-bar {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            width: 250px;
+            height: 35px;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            overflow: hidden;
+            z-index: 50;
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        #progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #00ff88, #00ccff, #00ff88);
+            background-size: 200% 100%;
+            animation: progress-glow 2s linear infinite;
+            transition: width 0.3s ease;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+
+        @keyframes progress-glow {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        /* ==================== 手部指示器 ==================== */
+        .hand-indicator {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 107, 53, 0.6) 0%, rgba(255, 107, 53, 0) 70%);
+            border: 4px solid rgba(255, 107, 53, 0.8);
+            pointer-events: none;
+            z-index: 40;
+            transform: translate(-50%, -50%);
+            display: none;
+            will-change: left, top, transform;
+            /* GPU加速 */
+        }
+
+        .hand-indicator.punching {
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.9) 0%, rgba(255, 107, 53, 0) 70%);
+            border-color: #ffd700;
+            animation: punch-effect 0.3s ease-out;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.6);
+            /* 简化阴影 */
+        }
+
+        @keyframes punch-effect {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            50% {
+                transform: translate(-50%, -50%) scale(2.5);
+            }
+
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        /* ==================== 恐龙样式 ==================== */
+        .dinosaur {
+            position: absolute;
+            font-size: 6rem;
+            cursor: pointer;
+            z-index: 30;
+            filter: drop-shadow(0 0 20px rgba(255, 50, 50, 0.5));
+            /* 简化阴影 */
+            animation: dino-idle 1.5s infinite ease-in-out;
+            will-change: transform, opacity;
+            /* GPU加速 */
+        }
+
+        @keyframes dino-idle {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(-8deg) scale(1);
+            }
+
+            25% {
+                transform: translateY(-15px) rotate(0deg) scale(1.05);
+            }
+
+            50% {
+                transform: translateY(-5px) rotate(8deg) scale(1);
+            }
+
+            75% {
+                transform: translateY(-20px) rotate(-3deg) scale(1.03);
+            }
+        }
+
+        .dinosaur.hit {
+            animation: dino-hit 0.6s ease-out forwards;
+        }
+
+        @keyframes dino-hit {
+            0% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+                filter: brightness(1) drop-shadow(0 0 0 rgba(255, 0, 0, 0));
+            }
+
+            20% {
+                transform: scale(1.4) rotate(-20deg) translate(0, -50px);
+                opacity: 1;
+                filter: brightness(2) drop-shadow(0 0 50px rgba(255, 0, 0, 0.8));
+            }
+
+            100% {
+                transform: scale(0) rotate(720deg) translate(200px, -500px);
+                opacity: 0;
+                filter: brightness(0);
+            }
+        }
+
+        /* ==================== 击中特效 ==================== */
+        .hit-effect {
+            position: absolute;
+            font-size: 4rem;
+            pointer-events: none;
+            z-index: 35;
+            animation: hit-burst 0.8s ease-out forwards;
+            filter: drop-shadow(0 0 20px currentColor);
+        }
+
+        @keyframes hit-burst {
+            0% {
+                transform: scale(0.3) rotate(0deg);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(2) rotate(180deg);
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: scale(3) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* 粒子爆炸效果 */
+        .particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 36;
+            animation: particle-explode 0.8s ease-out forwards;
+        }
+
+        @keyframes particle-explode {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(0);
+                opacity: 0;
+            }
+        }
+
+        /* ==================== 连击提示 ==================== */
+        .combo-text {
+            position: absolute;
+            font-size: 5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ffd700, #ff6b35, #ff0088);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            pointer-events: none;
+            z-index: 60;
+            animation: combo-pop 1.2s ease-out forwards;
+            filter: drop-shadow(0 0 30px rgba(255, 107, 53, 0.8));
+        }
+
+        @keyframes combo-pop {
+            0% {
+                transform: scale(0) rotate(-20deg);
+                opacity: 1;
+            }
+
+            30% {
+                transform: scale(1.8) rotate(10deg);
+                opacity: 1;
+            }
+
+            60% {
+                transform: scale(1.3) rotate(-5deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1) translateY(-80px) rotate(0deg);
+                opacity: 0;
+            }
+        }
+
+        /* ==================== 胜利画面 ==================== */
+        #victory-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, rgba(26, 10, 46, 0.95) 0%, rgba(0, 0, 0, 0.98) 100%);
+            z-index: 200;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #victory-screen h1 {
+            font-size: 6rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ffd700 0%, #ff6b35 25%, #ffd700 50%, #00ff88 75%, #ffd700 100%);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: victory-rainbow 2s linear infinite;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 40px rgba(255, 215, 0, 0.6));
+        }
+
+        @keyframes victory-rainbow {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            100% {
+                background-position: 300% 50%;
+            }
+        }
+
+        #victory-screen .stats {
+            font-size: 2.5rem;
+            margin: 25px 0;
+            color: #00ff88;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
+        }
+
+        #victory-screen .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #ff6b35, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 35px 0;
+            animation: pulse 2s infinite;
+            filter: drop-shadow(0 0 20px rgba(255, 107, 53, 0.5));
+        }
+
+        .firework {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: firework-burst 1.5s ease-out forwards;
+            box-shadow: 0 0 20px currentColor;
+        }
+
+        @keyframes firework-burst {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(30);
+                opacity: 0;
+            }
+        }
+
+        /* ==================== 提示文字 ==================== */
+        #hint {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.5);
+            text-align: center;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #hint .fist-emoji {
+            font-size: 2rem;
+            animation: punch-demo 1s infinite;
+        }
+
+        /* ==================== 倒计时 ==================== */
+        #countdown {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 150;
+            justify-content: center;
+            align-items: center;
+            font-size: 20rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff6b35, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 80px rgba(255, 107, 53, 0.8));
+            animation: countdown-pulse 1s ease-in-out infinite;
+        }
+
+        #countdown.background-dark {
+            background: rgba(0, 0, 0, 0.9);
+            -webkit-background-clip: unset;
+            -webkit-text-fill-color: unset;
+            background-clip: unset;
+        }
+
+        @keyframes countdown-pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        /* ==================== 通用动画 ==================== */
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        /* ==================== 屏幕震动 ==================== */
+        @keyframes shake {
+            0% {
+                transform: translate(1px, 1px) rotate(0deg);
+            }
+
+            10% {
+                transform: translate(-1px, -2px) rotate(-1deg);
+            }
+
+            20% {
+                transform: translate(-3px, 0px) rotate(1deg);
+            }
+
+            30% {
+                transform: translate(3px, 2px) rotate(0deg);
+            }
+
+            40% {
+                transform: translate(1px, -1px) rotate(1deg);
+            }
+
+            50% {
+                transform: translate(-1px, 2px) rotate(-1deg);
+            }
+
+            60% {
+                transform: translate(-3px, 1px) rotate(0deg);
+            }
+
+            70% {
+                transform: translate(3px, 1px) rotate(-1deg);
+            }
+
+            80% {
+                transform: translate(-1px, -1px) rotate(1deg);
+            }
+
+            90% {
+                transform: translate(1px, 2px) rotate(0deg);
+            }
+
+            100% {
+                transform: translate(1px, -2px) rotate(-1deg);
+            }
+        }
+
+        .shake {
+            animation: shake 0.5s;
+            animation-iteration-count: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 星空背景 -->
+    <div class="stars" id="stars"></div>
+
+    <!-- 开始界面 -->
+    <div id="start-screen">
+        <!-- 浮动恐龙装饰 -->
+        <div class="floating-dino">🦖</div>
+        <div class="floating-dino">🦕</div>
+        <div class="floating-dino">🐉</div>
+        <div class="floating-dino">🐊</div>
+
+        <h1>🦖 恐龙大作战 🦕</h1>
+        <p class="subtitle">✨ 小小英雄的冒险任务 ✨</p>
+        <button class="start-btn" onclick="startGame()">👊 开始战斗！</button>
+        <p class="start-hint">
+            <span class="fist-icon">👊</span>
+            举起你的拳头，打败所有恐龙！
+        </p>
+    </div>
+
+    <!-- 倒计时 -->
+    <div id="countdown" class="background-dark"></div>
+
+    <!-- 游戏容器 -->
+    <div id="game-container">
+        <video id="video" autoplay playsinline></video>
+        <canvas id="game-canvas"></canvas>
+
+        <!-- 分数板 -->
+        <div id="score-board">
+            <div class="score">🦖 <span id="score">0</span></div>
+            <div class="target">目标: <span id="target-score">10</span> 只恐龙</div>
+        </div>
+
+        <!-- 进度条 -->
+        <div id="progress-bar">
+            <div id="progress-fill"></div>
+        </div>
+
+        <!-- 手部指示器 -->
+        <div class="hand-indicator" id="left-hand"></div>
+        <div class="hand-indicator" id="right-hand"></div>
+
+        <!-- 提示 -->
+        <div id="hint">
+            <span class="fist-emoji">👊</span>
+            挥动你的拳头打败恐龙！
+        </div>
+    </div>
+
+    <!-- 胜利画面 -->
+    <div id="victory-screen">
+        <h1>🏆 胜利！🏆</h1>
+        <div class="hero-title">🦸 恐龙守护者 🦸</div>
+        <div class="stats">你打败了 <span id="final-score">0</span> 只恐龙！</div>
+        <button class="start-btn" onclick="restartGame()">🔄 再玩一次</button>
+    </div>
+
+    <!-- MediaPipe Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+
+    <script>
+        // ==================== 游戏配置 ====================
+        const CONFIG = {
+            targetScore: 10,           // 目标击败数量
+            spawnInterval: 2000,       // 恐龙生成间隔(ms)
+            dinoLifetime: 4000,        // 恐龙存活时间(ms)
+            punchThreshold: 0.15,      // 出拳速度阈值
+            hitDistance: 150,          // 击中判定距离
+        };
+
+        // ==================== 游戏状态 ====================
+        let gameState = {
+            score: 0,
+            isPlaying: false,
+            dinosaurs: [],
+            handPositions: {
+                left: { x: 0, y: 0, prevX: 0, prevY: 0, isPunching: false, visible: false },
+                right: { x: 0, y: 0, prevX: 0, prevY: 0, isPunching: false, visible: false }
+            },
+            combo: 0,
+            lastHitTime: 0,
+            particles: [] // Canvas 粒子系统
+        };
+
+        // 恐龙表情列表
+        const DINO_EMOJIS = ['🦖', '🦕', '🐉', '🐊'];
+
+        // ==================== DOM元素 ====================
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        const scoreEl = document.getElementById('score');
+        const progressFill = document.getElementById('progress-fill');
+        const leftHand = document.getElementById('left-hand');
+        const rightHand = document.getElementById('right-hand');
+
+        // ==================== 性能优化：复用AudioContext ====================
+        let audioCtx = null;
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            // Chrome 需要用户交互后才能播放音频
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        // 预初始化音效（在用户点击开始按钮时调用）
+        function initAudio() {
+            const ctx = getAudioContext();
+            // 播放一个无声的缓冲来解锁音频
+            const buffer = ctx.createBuffer(1, 1, 22050);
+            const source = ctx.createBufferSource();
+            source.buffer = buffer;
+            source.connect(ctx.destination);
+            source.start(0);
+            console.log('Audio initialized');
+        }
+
+        // ==================== 性能优化：击中冷却 ====================
+        let lastHitCheck = 0;
+        const HIT_COOLDOWN = 100; // 100ms 冷却时间
+
+        // ==================== 定时器管理 ====================
+        let spawnTimer = null;
+        let meteorInterval = null;  // 流星定时器
+
+        // DOM 缓存
+        const gameContainer = document.getElementById('game-container');
+        const starsContainer = document.getElementById('stars');
+        const startScreen = document.getElementById('start-screen');
+        const victoryScreen = document.getElementById('victory-screen');
+        const countdownEl = document.getElementById('countdown');
+        const finalScoreEl = document.getElementById('final-score');
+
+        // ==================== 初始化 ====================
+        function init() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+
+            // 创建星空背景
+            createStars();
+            // 创建流星
+            createMeteors();
+
+            // 启动渲染循环
+            requestAnimationFrame(renderLoop);
+        }
+
+        // ==================== 创建星空背景 ====================
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const starCount = 40;  // 减少星星数量提升性能
+
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 2 + 's';
+                star.style.width = (1 + Math.random() * 3) + 'px';
+                star.style.height = star.style.width;
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // ==================== 创建流星 ====================
+        function createMeteors() {
+            // 清理旧的定时器
+            if (meteorInterval) {
+                clearInterval(meteorInterval);
+            }
+
+            meteorInterval = setInterval(() => {
+                const meteor = document.createElement('div');
+                meteor.className = 'meteor';
+                meteor.style.left = Math.random() * 100 + '%';
+                meteor.style.top = '-100px';
+                meteor.style.animationDuration = (2 + Math.random() * 2) + 's';
+                starsContainer.appendChild(meteor);
+
+                setTimeout(() => meteor.remove(), 4000);
+            }, 3000);
+        }
+
+        // ==================== 创建粒子爆炸效果（Canvas版）====================
+        const MAX_PARTICLES = 100;  // 限制最大粒子数
+
+        function createParticleExplosion(x, y) {
+            // 防止粒子过多
+            if (gameState.particles.length > MAX_PARTICLES) {
+                gameState.particles.splice(0, 20);  // 移除最旧的20个
+            }
+
+            const colors = ['#ff6b35', '#ffd700', '#00ff88', '#ff0088', '#00ccff'];
+            const particleCount = 12;
+
+            for (let i = 0; i < particleCount; i++) {
+                const angle = (Math.PI * 2 * i) / particleCount;
+                const speed = 2 + Math.random() * 3;
+
+                gameState.particles.push({
+                    x: x,
+                    y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    life: 1.0,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    size: 5 + Math.random() * 5,
+                    type: 'circle'
+                });
+            }
+        }
+
+        // ==================== 渲染循环 ====================
+        function renderLoop() {
+            // 清除画布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (gameState.isPlaying) {
+                // 绘制手部轨迹
+                drawHands();
+
+                // 更新和绘制粒子
+                updateParticles();
+            }
+
+            requestAnimationFrame(renderLoop);
+        }
+
+        function updateParticles() {
+            for (let i = gameState.particles.length - 1; i >= 0; i--) {
+                const p = gameState.particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.02;
+
+                if (p.type === 'text') {
+                    p.y -= 1; // 文字向上飘
+                } else {
+                    p.size *= 0.95; // 圆形粒子变小
+                }
+
+                if (p.life <= 0 || (p.type !== 'text' && p.size < 0.5)) {
+                    gameState.particles.splice(i, 1);
+                    continue;
+                }
+
+                ctx.globalAlpha = p.life;
+
+                if (p.type === 'text') {
+                    ctx.font = `bold ${p.size}px Arial`;
+                    ctx.fillStyle = p.color;
+                    ctx.fillText(p.text, p.x, p.y);
+                } else {
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                ctx.globalAlpha = 1.0;
+            }
+        }
+
+        function drawHands() {
+            ['left', 'right'].forEach(hand => {
+                const pos = gameState.handPositions[hand];
+                if (pos.visible) {
+                    drawHandTrail(pos.x, pos.y, pos.isPunching);
+                }
+            });
+        }
+
+        // ==================== 开始游戏 ====================
+        async function startGame() {
+            // 初始化音频（必须在用户点击后调用）
+            initAudio();
+
+            document.getElementById('start-screen').style.display = 'none';
+            gameContainer.style.display = 'block';
+
+            // 倒计时
+            await showCountdown();
+
+            // 初始化摄像头和手势识别
+            await initCamera();
+            await initHandTracking();
+
+            // 开始游戏
+            gameState.isPlaying = true;
+            gameState.score = 0;
+            updateScore();
+
+            // 开始生成恐龙
+            spawnDinosaurs();
+        }
+
+        // ==================== 倒计时 ====================
+        function showCountdown() {
+            return new Promise(resolve => {
+                const countdownEl = document.getElementById('countdown');
+                countdownEl.style.display = 'flex';
+
+                let count = 3;
+                countdownEl.textContent = count;
+
+                const interval = setInterval(() => {
+                    count--;
+                    if (count > 0) {
+                        countdownEl.textContent = count;
+                    } else if (count === 0) {
+                        countdownEl.textContent = '开始!';
+                    } else {
+                        clearInterval(interval);
+                        countdownEl.style.display = 'none';
+                        resolve();
+                    }
+                }, 1000);
+            });
+        }
+
+        // ==================== 摄像头初始化 ====================
+        async function initCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: 1280, height: 720, facingMode: 'user' }
+                });
+                video.srcObject = stream;
+                await video.play();
+            } catch (err) {
+                console.error('无法访问摄像头:', err);
+                alert('需要摄像头权限才能玩游戏！');
+            }
+        }
+
+        // ==================== 手势识别初始化 ====================
+        async function initHandTracking() {
+            const hands = new Hands({
+                locateFile: (file) => {
+                    return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+                }
+            });
+
+            hands.setOptions({
+                maxNumHands: 2,
+                modelComplexity: 0, // 性能优化：使用 Lite 模型
+                minDetectionConfidence: 0.7,
+                minTrackingConfidence: 0.5
+            });
+
+            hands.onResults(onHandResults);
+
+            const camera = new Camera(video, {
+                onFrame: async () => {
+                    await hands.send({ image: video });
+                },
+                width: 1280,
+                height: 720
+            });
+
+            camera.start();
+        }
+
+        // ==================== 手势识别回调 ====================
+        function onHandResults(results) {
+            if (!gameState.isPlaying) return;
+
+            // 重置可见性
+            gameState.handPositions.left.visible = false;
+            gameState.handPositions.right.visible = false;
+
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                for (let i = 0; i < results.multiHandLandmarks.length; i++) {
+                    const landmarks = results.multiHandLandmarks[i];
+                    const handedness = results.multiHandedness[i].label;
+
+                    // 获取拳头位置（中指根部）
+                    const fist = landmarks[9];
+                    const fistX = (1 - fist.x) * canvas.width;
+                    const fistY = fist.y * canvas.height;
+
+                    // 判断是左手还是右手
+                    const hand = handedness === 'Left' ? 'right' : 'left';  // 镜像翻转
+                    const handEl = hand === 'left' ? leftHand : rightHand;
+                    const handData = gameState.handPositions[hand];
+
+                    // 更新状态
+                    handData.visible = true;
+                    handData.prevX = handData.x;
+                    handData.prevY = handData.y;
+                    handData.x = fistX;
+                    handData.y = fistY;
+
+                    // 计算移动速度
+                    const dx = fistX - handData.prevX;
+                    const dy = fistY - handData.prevY;
+                    const speed = Math.sqrt(dx * dx + dy * dy) / canvas.width;
+
+                    // 检测是否是握拳状态
+                    const isFist = detectFist(landmarks);
+
+                    // 检测出拳动作
+                    const isPunching = speed > CONFIG.punchThreshold && isFist;
+                    handData.isPunching = isPunching;
+
+                    // 更新DOM指示器位置（仅更新位置，绘制在 Canvas 中处理）
+                    handEl.style.display = 'block';
+                    handEl.style.left = fistX + 'px';
+                    handEl.style.top = fistY + 'px';
+
+                    if (isPunching) {
+                        handEl.classList.add('punching');
+                        // 检查是否击中恐龙
+                        checkHit(fistX, fistY);
+                    } else {
+                        handEl.classList.remove('punching');
+                    }
+                }
+            } else {
+                leftHand.style.display = 'none';
+                rightHand.style.display = 'none';
+            }
+        }
+
+        // ==================== 检测握拳 ====================
+        function detectFist(landmarks) {
+            // 简单的握拳检测：检查手指是否弯曲
+            const fingerTips = [8, 12, 16, 20];  // 食指、中指、无名指、小指尖端
+            const fingerMids = [6, 10, 14, 18];  // 对应的中间关节
+
+            let closedFingers = 0;
+            for (let i = 0; i < fingerTips.length; i++) {
+                const tip = landmarks[fingerTips[i]];
+                const mid = landmarks[fingerMids[i]];
+                // 如果指尖比中间关节低（弯曲），算作弯曲
+                if (tip.y > mid.y) {
+                    closedFingers++;
+                }
+            }
+
+            return closedFingers >= 3;  // 至少3根手指弯曲
+        }
+
+        // ==================== 绘制手部轨迹 ====================
+        function drawHandTrail(x, y, isPunching) {
+            ctx.beginPath();
+            ctx.arc(x, y, isPunching ? 40 : 20, 0, Math.PI * 2);
+            ctx.fillStyle = isPunching
+                ? 'rgba(255, 215, 0, 0.6)'
+                : 'rgba(255, 107, 53, 0.3)';
+            ctx.fill();
+
+            if (isPunching) {
+                // 出拳时的额外光效
+                ctx.beginPath();
+                ctx.arc(x, y, 60, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(255, 215, 0, 0.5)';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+            }
+        }
+
+        // ==================== 生成恐龙 ====================
+        function spawnDinosaurs() {
+            if (!gameState.isPlaying) return;
+
+            const dino = createDinosaur();
+            gameState.dinosaurs.push(dino);
+            document.getElementById('game-container').appendChild(dino.element);
+
+            // 自动移除恐龙（保存定时器引用以便清理）
+            dino.removeTimer = setTimeout(() => {
+                if (dino.element.parentNode && !dino.hit) {
+                    dino.element.remove();
+                    gameState.dinosaurs = gameState.dinosaurs.filter(d => d !== dino);
+                }
+            }, CONFIG.dinoLifetime);
+
+            // 继续生成
+            if (gameState.score < CONFIG.targetScore && gameState.isPlaying) {
+                spawnTimer = setTimeout(spawnDinosaurs, CONFIG.spawnInterval);
+            }
+        }
+
+        // ==================== 创建恐龙 ====================
+        function createDinosaur() {
+            const element = document.createElement('div');
+            element.className = 'dinosaur';
+            element.textContent = DINO_EMOJIS[Math.floor(Math.random() * DINO_EMOJIS.length)];
+
+            // 随机位置（避开边缘）
+            const margin = 100;
+            const x = margin + Math.random() * (window.innerWidth - 2 * margin);
+            const y = margin + Math.random() * (window.innerHeight - 2 * margin);
+
+            element.style.left = x + 'px';
+            element.style.top = y + 'px';
+
+            // 随机大小
+            const scale = 0.8 + Math.random() * 0.6;
+            element.style.fontSize = (5 * scale) + 'rem';
+
+            return {
+                element,
+                x,
+                y,
+                hit: false
+            };
+        }
+
+        // ==================== 检查击中（带节流）====================
+        function checkHit(handX, handY) {
+            // 性能优化：节流检测
+            const now = Date.now();
+            if (now - lastHitCheck < HIT_COOLDOWN) return;
+            lastHitCheck = now;
+
+            for (const dino of gameState.dinosaurs) {
+                if (dino.hit) continue;
+
+                const dinoRect = dino.element.getBoundingClientRect();
+                const dinoCenterX = dinoRect.left + dinoRect.width / 2;
+                const dinoCenterY = dinoRect.top + dinoRect.height / 2;
+
+                const distance = Math.sqrt(
+                    Math.pow(handX - dinoCenterX, 2) +
+                    Math.pow(handY - dinoCenterY, 2)
+                );
+
+                if (distance < CONFIG.hitDistance) {
+                    hitDinosaur(dino, handX, handY);
+                    break;  // 一次只击中一只
+                }
+            }
+        }
+
+        // ==================== 击中恐龙 ====================
+        function hitDinosaur(dino, x, y) {
+            dino.hit = true;
+            dino.element.classList.add('hit');
+
+            // 更新分数
+            gameState.score++;
+            updateScore();
+
+            // 显示击中特效
+            showHitEffect(x, y);
+
+            // 粒子爆炸效果
+            createParticleExplosion(x, y);
+
+            // 连击检测
+            const now = Date.now();
+            if (now - gameState.lastHitTime < 1500) {
+                gameState.combo++;
+                if (gameState.combo >= 2) {
+                    showComboText(x, y, gameState.combo);
+                }
+            } else {
+                gameState.combo = 1;
+            }
+            gameState.lastHitTime = now;
+
+            // 播放音效（带连击音调提升）
+            playHitSound(gameState.combo);
+
+            // 屏幕震动
+            const container = document.getElementById('game-container');
+            container.classList.remove('shake');
+            void container.offsetWidth; // 触发重绘
+            container.classList.add('shake');
+
+            // 移除恐龙
+            setTimeout(() => {
+                if (dino.element.parentNode) {
+                    dino.element.remove();
+                }
+                gameState.dinosaurs = gameState.dinosaurs.filter(d => d !== dino);
+            }, 600);
+
+            // 检查胜利
+            if (gameState.score >= CONFIG.targetScore) {
+                victory();
+            }
+        }
+
+        // ==================== 更新分数 ====================
+        function updateScore() {
+            scoreEl.textContent = gameState.score;
+            const progress = (gameState.score / CONFIG.targetScore) * 100;
+            progressFill.style.width = progress + '%';
+        }
+
+        // ==================== 击中特效 ====================
+        // ==================== 击中特效 (Canvas版) ====================
+        function showHitEffect(x, y) {
+            const effects = ['💥', '⭐', '✨', '🔥', '💫'];
+            const text = effects[Math.floor(Math.random() * effects.length)];
+
+            gameState.particles.push({
+                x: x,
+                y: y,
+                vx: (Math.random() - 0.5) * 2,
+                vy: -2 - Math.random() * 2,
+                life: 1.0,
+                color: '#fff', // Emoji 颜色由自身决定，这里 color 不太影响
+                size: 60,
+                type: 'text',
+                text: text
+            });
+        }
+
+        // ==================== 连击文字 ====================
+        // ==================== 连击文字 (Canvas版) ====================
+        function showComboText(x, y, combo) {
+            gameState.particles.push({
+                x: x,
+                y: y - 50,
+                vx: 0,
+                vy: -3,
+                life: 1.2, // 存活久一点
+                color: '#ffd700',
+                size: 80,
+                type: 'text',
+                text: combo + ' 连击!'
+            });
+        }
+
+        // ==================== 音效（改进版：连击音调）====================
+        function playHitSound(combo = 1) {
+            try {
+                const ctx = getAudioContext();
+
+                // 根据连击数提高音调 (限制最大10连击的音调变化)
+                const pitchDetune = Math.min(combo, 10) * 100;
+
+                // 主音调 - 打击感
+                const osc1 = ctx.createOscillator();
+                const gain1 = ctx.createGain();
+                osc1.connect(gain1);
+                gain1.connect(ctx.destination);
+                osc1.frequency.value = 150;
+                osc1.detune.value = pitchDetune; // 升调
+                osc1.type = 'triangle';
+                gain1.gain.setValueAtTime(0.5, ctx.currentTime);
+                gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+                osc1.start(ctx.currentTime);
+                osc1.stop(ctx.currentTime + 0.15);
+
+                // 高音调 - 清脆感
+                const osc2 = ctx.createOscillator();
+                const gain2 = ctx.createGain();
+                osc2.connect(gain2);
+                gain2.connect(ctx.destination);
+                osc2.frequency.value = 800 + Math.random() * 200;
+                osc2.detune.value = pitchDetune; // 升调
+                osc2.type = 'sine';
+                gain2.gain.setValueAtTime(0.3, ctx.currentTime);
+                gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+                osc2.start(ctx.currentTime);
+                osc2.stop(ctx.currentTime + 0.1);
+
+            } catch (e) {
+                console.log('Audio error:', e);
+            }
+        }
+
+        // ==================== 胜利 ====================
+        function victory() {
+            gameState.isPlaying = false;
+
+            finalScoreEl.textContent = gameState.score;
+            victoryScreen.style.display = 'flex';
+
+            // 烟花效果
+            createFireworks();
+
+            // 胜利音效
+            playVictorySound();
+        }
+
+        // ==================== 烟花效果 ====================
+        function createFireworks() {
+            const colors = ['#ff6b35', '#ffd700', '#00ff88', '#00ccff', '#ff44ff'];
+
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const firework = document.createElement('div');
+                    firework.className = 'firework';
+                    firework.style.left = Math.random() * 100 + '%';
+                    firework.style.top = Math.random() * 100 + '%';
+                    firework.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    document.getElementById('victory-screen').appendChild(firework);
+
+                    setTimeout(() => firework.remove(), 1000);
+                }, i * 200);
+            }
+        }
+
+        // ==================== 胜利音效（复用AudioContext）====================
+        function playVictorySound() {
+            try {
+                const ctx = getAudioContext();
+                const notes = [523.25, 659.25, 783.99, 1046.50];  // C5, E5, G5, C6
+
+                notes.forEach((freq, i) => {
+                    const oscillator = ctx.createOscillator();
+                    const gainNode = ctx.createGain();
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(ctx.destination);
+
+                    oscillator.frequency.value = freq;
+                    oscillator.type = 'triangle';
+
+                    const startTime = ctx.currentTime + i * 0.15;
+                    gainNode.gain.setValueAtTime(0.3, startTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.3);
+
+                    oscillator.start(startTime);
+                    oscillator.stop(startTime + 0.3);
+                });
+            } catch (e) {
+                // 音效不支持
+            }
+        }
+
+        // ==================== 重新开始 ====================
+        function restartGame() {
+            // 清理定时器
+            if (spawnTimer) {
+                clearTimeout(spawnTimer);
+                spawnTimer = null;
+            }
+
+            // 清理恐龙及其定时器
+            gameState.dinosaurs.forEach(d => {
+                if (d.removeTimer) clearTimeout(d.removeTimer);
+                d.element.remove();
+            });
+            gameState.dinosaurs = [];
+            gameState.score = 0;
+            gameState.combo = 0;
+            gameState.particles = [];  // 清理粒子
+
+            victoryScreen.style.display = 'none';
+
+            // 重新开始
+            showCountdown().then(() => {
+                gameState.isPlaying = true;
+                updateScore();
+                spawnDinosaurs();
+            });
+        }
+
+        // ==================== 初始化 ====================
+        init();
+    </script>
+</body>
+
+</html>
