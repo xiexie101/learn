@@ -210,13 +210,67 @@
             return new THREE.Vector3(x, y, z);
         }
 
+        // 🦖 霸王龙 T-Rex - 优化版侧面轮廓
+        function getTRexPoint() {
+            const scale = 4.5;
+
+            // 分区域采样，让恐龙更立体更像
+            const region = Math.random();
+            let x, y;
+
+            if (region < 0.25) {
+                // 头部 - 大而方，霸王龙特征
+                const headX = 0.7 + Math.random() * 0.3;
+                const headY = 0.5 + Math.random() * 0.4;
+                // 头部略方形
+                x = headX;
+                y = headY;
+            } else if (region < 0.35) {
+                // 嘴巴 - 张开的大嘴
+                x = 0.85 + Math.random() * 0.15;
+                y = 0.35 + Math.random() * 0.15;
+            } else if (region < 0.45) {
+                // 脖子 - 粗壮
+                const t = Math.random();
+                x = 0.45 + t * 0.25;
+                y = 0.4 + t * 0.3;
+            } else if (region < 0.6) {
+                // 身体 - 椭圆形躯干
+                const angle = Math.random() * Math.PI * 2;
+                const rx = 0.35, ry = 0.25;
+                x = 0.1 + rx * Math.cos(angle) * (0.7 + Math.random() * 0.3);
+                y = 0.35 + ry * Math.sin(angle) * (0.7 + Math.random() * 0.3);
+            } else if (region < 0.75) {
+                // 尾巴 - 长而渐细
+                const t = Math.random();
+                x = -0.2 - t * 0.6;
+                y = 0.3 + t * 0.1 + (Math.random() - 0.5) * 0.15 * (1 - t);
+            } else if (region < 0.9) {
+                // 后腿 - 粗壮有力
+                const t = Math.random();
+                x = -0.1 + (Math.random() - 0.5) * 0.2;
+                y = 0.1 - t * 0.5;
+                // 腿部加粗
+                x += (Math.random() - 0.5) * 0.1;
+            } else {
+                // 小前爪 - 霸王龙标志性小手
+                x = 0.4 + (Math.random() - 0.5) * 0.1;
+                y = 0.15 + (Math.random() - 0.5) * 0.15;
+            }
+
+            const z = (Math.random() - 0.5) * 1.5;
+
+            return new THREE.Vector3(x * scale, y * scale, z);
+        }
+
         // ==========================================
         // 3. 主粒子系统 (Main System)
         // ==========================================
         class MainParticleSystem {
             constructor(scene) {
                 this.count = 3000;
-                this.shapes = ['SPHERE', 'RING', 'HEART', 'STAR', 'SPIRAL', 'DNA', 'CUBE'];
+                // todo 改变这里可以改变形状
+                this.shapes = ['SPHERE', 'RING', 'HEART', 'STAR', 'SPIRAL', 'DNA', 'CUBE', 'TREX'];
                 this.currentShapeIdx = 0;
                 this.isPalmUpLocked = false; // 用于去抖动
 
@@ -271,6 +325,7 @@
                     case 'SPIRAL': return getSpiralPoint();
                     case 'DNA': return getDNAPoint();
                     case 'CUBE': return getCubePoint();
+                    case 'TREX': return getTRexPoint();
                     default: return getSpherePoint();
                 }
             }
@@ -525,9 +580,15 @@
             }
         });
 
+        // 自动检测设备：电脑用前置，移动端用后置
+        const isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const CAMERA_FACING = isMobile ? 'environment' : 'user';
+
         const cameraUtils = new Camera(videoEl, {
             onFrame: async () => await hands.send({ image: videoEl }),
-            width: 1280, height: 720
+            width: 1280,
+            height: 720,
+            facingMode: CAMERA_FACING
         });
         cameraUtils.start();
 
