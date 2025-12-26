@@ -138,17 +138,76 @@
 
         function getHeartPoint() {
             // 3D Heart Formula
-            let x, y, z;
-            // 拒绝采样法或参数方程
             const t = Math.random() * Math.PI * 2;
-            // 缩放系数
             const s = 0.25;
-            x = 16 * Math.pow(Math.sin(t), 3);
-            y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
-            // Z轴给一定厚度
-            z = (Math.random() - 0.5) * 6;
-
+            const x = 16 * Math.pow(Math.sin(t), 3);
+            const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+            const z = (Math.random() - 0.5) * 6;
             return new THREE.Vector3(x * s, y * s, z);
+        }
+
+        // ⭐ 星形 - 五角星立体化
+        function getStarPoint() {
+            const points = 5;
+            const outerR = 4.0;
+            const innerR = 1.8;
+            const t = Math.random() * Math.PI * 2;
+            const isOuter = Math.floor(t / (Math.PI / points)) % 2 === 0;
+            const r = (isOuter ? outerR : innerR) * (0.8 + Math.random() * 0.4);
+            const x = r * Math.cos(t);
+            const y = r * Math.sin(t);
+            const z = (Math.random() - 0.5) * 3;
+            return new THREE.Vector3(x, y, z);
+        }
+
+        // 🌀 螺旋 - 上升螺旋线
+        function getSpiralPoint() {
+            const t = Math.random() * Math.PI * 6; // 3圈
+            const r = 2.0 + t * 0.3; // 逐渐扩大
+            const x = r * Math.cos(t);
+            const z = r * Math.sin(t);
+            const y = (t - Math.PI * 3) * 0.8; // 垂直分布
+            // 加点随机抖动
+            return new THREE.Vector3(
+                x + (Math.random() - 0.5) * 0.5,
+                y + (Math.random() - 0.5) * 0.5,
+                z + (Math.random() - 0.5) * 0.5
+            );
+        }
+
+        // 🧬 DNA双螺旋
+        function getDNAPoint() {
+            const t = Math.random() * Math.PI * 8; // 4圈
+            const strand = Math.random() > 0.5 ? 0 : Math.PI; // 双链偏移
+            const r = 2.5;
+            const x = r * Math.cos(t + strand);
+            const z = r * Math.sin(t + strand);
+            const y = (t - Math.PI * 4) * 0.6;
+            // 连接桥（横杠）
+            if (Math.random() < 0.15) {
+                const bridgeT = Math.floor(t / 0.5) * 0.5;
+                const bx = (Math.random() - 0.5) * r * 2;
+                return new THREE.Vector3(bx, (bridgeT - Math.PI * 4) * 0.6, 0);
+            }
+            return new THREE.Vector3(x, y, z);
+        }
+
+        // 📦 立方体 - 粒子分布在表面
+        function getCubePoint() {
+            const size = 3.5;
+            const face = Math.floor(Math.random() * 6);
+            let x, y, z;
+            const u = (Math.random() - 0.5) * 2 * size;
+            const v = (Math.random() - 0.5) * 2 * size;
+            switch (face) {
+                case 0: x = size; y = u; z = v; break;  // +X
+                case 1: x = -size; y = u; z = v; break; // -X
+                case 2: y = size; x = u; z = v; break;  // +Y
+                case 3: y = -size; x = u; z = v; break; // -Y
+                case 4: z = size; x = u; y = v; break;  // +Z
+                case 5: z = -size; x = u; y = v; break; // -Z
+            }
+            return new THREE.Vector3(x, y, z);
         }
 
         // ==========================================
@@ -157,7 +216,7 @@
         class MainParticleSystem {
             constructor(scene) {
                 this.count = 3000;
-                this.shapes = ['SPHERE', 'RING', 'HEART'];
+                this.shapes = ['SPHERE', 'RING', 'HEART', 'STAR', 'SPIRAL', 'DNA', 'CUBE'];
                 this.currentShapeIdx = 0;
                 this.isPalmUpLocked = false; // 用于去抖动
 
@@ -202,6 +261,20 @@
                 this.geometry = geometry;
             }
 
+            // 形状生成器映射表
+            getShapePoint(shapeName) {
+                switch (shapeName) {
+                    case 'SPHERE': return getSpherePoint();
+                    case 'RING': return getRingPoint();
+                    case 'HEART': return getHeartPoint();
+                    case 'STAR': return getStarPoint();
+                    case 'SPIRAL': return getSpiralPoint();
+                    case 'DNA': return getDNAPoint();
+                    case 'CUBE': return getCubePoint();
+                    default: return getSpherePoint();
+                }
+            }
+
             // 切换形状逻辑
             cycleShape() {
                 this.currentShapeIdx = (this.currentShapeIdx + 1) % this.shapes.length;
@@ -210,11 +283,7 @@
 
                 // 重新计算目标位置
                 for (let i = 0; i < this.count; i++) {
-                    let p;
-                    if (shapeName === 'SPHERE') p = getSpherePoint();
-                    else if (shapeName === 'RING') p = getRingPoint();
-                    else if (shapeName === 'HEART') p = getHeartPoint();
-
+                    const p = this.getShapePoint(shapeName);
                     this.targetPositions[i * 3] = p.x;
                     this.targetPositions[i * 3 + 1] = p.y;
                     this.targetPositions[i * 3 + 2] = p.z;
