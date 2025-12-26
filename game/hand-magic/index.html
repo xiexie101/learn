@@ -1,110 +1,519 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hand Magic - 粒子魔法</title>
+    <title>Ethereal Touch: Ultimate Edition</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
+            margin: 0;
+            background-color: #000;
             overflow: hidden;
-            background: #000;
-            font-family: system-ui, sans-serif;
+            font-family: 'Courier New', monospace;
         }
 
-        #video {
-            position: fixed;
-            top: 0;
-            left: 0;
+        #container {
+            position: relative;
             width: 100vw;
             height: 100vh;
+        }
+
+        /* 摄像头：底层，镜像，低透明度 */
+        #input_video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             object-fit: cover;
             transform: scaleX(-1);
-            opacity: 0.3;
+            opacity: 0.15;
             z-index: 1;
+            filter: grayscale(100%) contrast(1.2);
         }
 
-        #canvas {
-            position: fixed;
+        /* 画布：顶层，镜像，GPU加速 */
+        canvas {
+            position: absolute;
             top: 0;
             left: 0;
-            width: 100vw;
-            height: 100vh;
+            width: 100%;
+            height: 100%;
             z-index: 2;
+            transform: scaleX(-1);
+            pointer-events: none;
+            will-change: transform;
         }
 
-        #loading {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: #000;
-            z-index: 100;
-            color: #fff;
-            font-size: 1.2rem;
-        }
-
-        #loading.hidden {
-            display: none;
-        }
-
-        .loader {
-            width: 50px;
-            height: 50px;
-            border: 3px solid transparent;
-            border-top-color: #00FFFF;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        #info {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9rem;
-            text-align: center;
+        /* UI */
+        #ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
             z-index: 10;
+            color: #00ffcc;
+            background: rgba(0, 20, 20, 0.7);
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 3px solid #00ffcc;
+            pointer-events: none;
+        }
+
+        .row {
+            margin-bottom: 5px;
+            font-size: 13px;
+            text-shadow: 0 0 5px rgba(0, 255, 200, 0.5);
+        }
+
+        .highlight {
+            color: #ffaa00;
+            font-weight: bold;
         }
     </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <script type="importmap">
+        { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+    </script>
 </head>
 
 <body>
-    <video id="video" autoplay playsinline></video>
-    <canvas id="canvas"></canvas>
 
-    <div id="loading">
-        <div class="loader"></div>
-        <p>正在初始化...</p>
+    <div id="container">
+        <video id="input_video" playsinline></video>
+        <div id="ui">
+            <div class="row" id="status">SYSTEM: INITIALIZING...</div>
+            <div class="row" id="shape">SHAPE: SPHERE</div>
+            <div class="row" id="gesture">GESTURE: SEARCHING</div>
+            <div class="row" id="snap">SNAP: READY</div>
+        </div>
     </div>
 
-    <div id="info">
-        🖐️ 张开手掌 → 球体 &nbsp;|&nbsp; ✊ 握拳 → 爱心
-    </div>
+    <script type="module">
+        import * as THREE from 'three';
 
-    <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.min.js"></script>
-    <script src="main.js"></script>
+        // ==========================================
+        // 1. 初始化场景 (Scene Setup)
+        // ==========================================
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x000000, 0.03); // 增加深邃感
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.z = 25;
+
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        document.body.appendChild(renderer.domElement);
+
+        // ==========================================
+        // 2. 形状生成器 (Shape Generators)
+        // ==========================================
+        function getSpherePoint() {
+            const r = 3.5 * Math.cbrt(Math.random());
+            const theta = Math.random() * 2 * Math.PI;
+            const phi = Math.acos(2 * Math.random() - 1);
+            return new THREE.Vector3(
+                r * Math.sin(phi) * Math.cos(theta),
+                r * Math.sin(phi) * Math.sin(theta),
+                r * Math.cos(phi)
+            );
+        }
+
+        function getRingPoint() {
+            const u = Math.random() * Math.PI * 2;
+            const v = Math.random() * Math.PI * 2;
+            const R = 4.0; // 大半径
+            const r = 1.0 * Math.random(); // 管径随机，制造弥散感
+            return new THREE.Vector3(
+                (R + r * Math.cos(v)) * Math.cos(u),
+                (R + r * Math.cos(v)) * Math.sin(u),
+                r * Math.sin(v) * 0.5 // 压扁一点
+            );
+        }
+
+        function getHeartPoint() {
+            // 3D Heart Formula
+            let x, y, z;
+            // 拒绝采样法或参数方程
+            const t = Math.random() * Math.PI * 2;
+            // 缩放系数
+            const s = 0.25;
+            x = 16 * Math.pow(Math.sin(t), 3);
+            y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+            // Z轴给一定厚度
+            z = (Math.random() - 0.5) * 6;
+
+            return new THREE.Vector3(x * s, y * s, z);
+        }
+
+        // ==========================================
+        // 3. 主粒子系统 (Main System)
+        // ==========================================
+        class MainParticleSystem {
+            constructor(scene) {
+                this.count = 3000;
+                this.shapes = ['SPHERE', 'RING', 'HEART'];
+                this.currentShapeIdx = 0;
+                this.isPalmUpLocked = false; // 用于去抖动
+
+                // 数据数组
+                const geometry = new THREE.BufferGeometry();
+                this.positions = new Float32Array(this.count * 3);
+                this.targetPositions = new Float32Array(this.count * 3); // 当前目标形状
+                const colors = new Float32Array(this.count * 3);
+                const sizes = new Float32Array(this.count);
+
+                const colorBase = new THREE.Color(0x00ffff);
+
+                for (let i = 0; i < this.count; i++) {
+                    // 初始形态
+                    const p = getSpherePoint();
+                    this.positions[i * 3] = p.x;
+                    this.positions[i * 3 + 1] = p.y;
+                    this.positions[i * 3 + 2] = p.z;
+
+                    // 存入目标
+                    this.targetPositions[i * 3] = p.x;
+                    this.targetPositions[i * 3 + 1] = p.y;
+                    this.targetPositions[i * 3 + 2] = p.z;
+
+                    colors[i * 3] = colorBase.r;
+                    colors[i * 3 + 1] = colorBase.g;
+                    colors[i * 3 + 2] = colorBase.b;
+                    sizes[i] = Math.random() * 0.2;
+                }
+
+                geometry.setAttribute('position', new THREE.BufferAttribute(this.positions, 3));
+                geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+                geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+                this.material = new THREE.PointsMaterial({
+                    size: 0.2, vertexColors: true, blending: THREE.AdditiveBlending,
+                    depthWrite: false, transparent: true, opacity: 0.8
+                });
+
+                this.mesh = new THREE.Points(geometry, this.material);
+                scene.add(this.mesh);
+                this.geometry = geometry;
+            }
+
+            // 切换形状逻辑
+            cycleShape() {
+                this.currentShapeIdx = (this.currentShapeIdx + 1) % this.shapes.length;
+                const shapeName = this.shapes[this.currentShapeIdx];
+                document.getElementById('shape').innerText = `SHAPE: ${shapeName}`;
+
+                // 重新计算目标位置
+                for (let i = 0; i < this.count; i++) {
+                    let p;
+                    if (shapeName === 'SPHERE') p = getSpherePoint();
+                    else if (shapeName === 'RING') p = getRingPoint();
+                    else if (shapeName === 'HEART') p = getHeartPoint();
+
+                    this.targetPositions[i * 3] = p.x;
+                    this.targetPositions[i * 3 + 1] = p.y;
+                    this.targetPositions[i * 3 + 2] = p.z;
+                }
+            }
+
+            update(handData, time) {
+                const positions = this.geometry.attributes.position.array;
+                const targetPos = this.targetPositions;
+
+                // 1. 处理手势状态机
+                // 如果手掌平摊 (SideFactor < 0.4) 且之前没锁 -> 切换形状
+                if (handData.verticalFactor < 0.4) {
+                    if (!this.isPalmUpLocked) {
+                        this.cycleShape(); // 触发切换
+                        this.isPalmUpLocked = true;
+                    }
+                } else if (handData.verticalFactor > 0.6) {
+                    // 如果明显侧立，解锁，允许下次变回平摊时再次切换
+                    this.isPalmUpLocked = false;
+                }
+
+                // 2. 粒子运动循环
+                // SideFactor 越大，扩散越厉害
+                const spread = 1.0 + (handData.verticalFactor * 4.0);
+
+                for (let i = 0; i < this.count; i++) {
+                    const i3 = i * 3;
+
+                    // 取出形状目标
+                    const tx = targetPos[i3];
+                    const ty = targetPos[i3 + 1];
+                    const tz = targetPos[i3 + 2];
+
+                    // 噪点 (侧立时抖动大)
+                    const noiseAmp = handData.verticalFactor * 0.5 + 0.05;
+                    const nx = Math.sin(time * 3 + i) * noiseAmp;
+                    const ny = Math.cos(time * 2 + i) * noiseAmp;
+                    const nz = Math.sin(time * 5 + i) * noiseAmp;
+
+                    // 最终位置 = 手部悬浮位 + (形状位 * 扩散) + 噪点
+                    // 使用 Lerp 平滑过渡
+                    positions[i3] += ((tx * spread + handData.hoverPos.x + nx) - positions[i3]) * 0.1;
+                    positions[i3 + 1] += ((ty * spread + handData.hoverPos.y + ny) - positions[i3 + 1]) * 0.1;
+                    positions[i3 + 2] += ((tz * spread + handData.hoverPos.z + nz) - positions[i3 + 2]) * 0.1;
+                }
+                this.geometry.attributes.position.needsUpdate = true;
+                this.mesh.rotation.y = time * 0.2; // 自转
+            }
+        }
+
+        // ==========================================
+        // 4. 响指特效系统 (Snap System)
+        // ==========================================
+        class SnapSystem {
+            constructor(scene) {
+                this.count = 60;
+                this.mode = 'IDLE'; // IDLE, CHARGING, EXPLODING
+                this.timer = 0;
+
+                const geometry = new THREE.BufferGeometry();
+                const positions = new Float32Array(this.count * 3);
+                const sizes = new Float32Array(this.count);
+                // 初始隐藏
+                for (let i = 0; i < this.count * 3; i++) positions[i] = 0;
+
+                geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+                this.material = new THREE.PointsMaterial({
+                    color: 0xffaa00, // 金色
+                    size: 0.15, transparent: true, opacity: 0,
+                    blending: THREE.AdditiveBlending, depthTest: false
+                });
+
+                this.mesh = new THREE.Points(geometry, this.material);
+                scene.add(this.mesh);
+                this.geometry = geometry;
+            }
+
+            update(fingersCenter, isTouching, time) {
+                // 目标位置：指尖上方 5cm (World Y + 3.0)
+                // 复用向量避免每帧clone
+                this._target = this._target || new THREE.Vector3();
+                const target = this._target.copy(fingersCenter);
+                target.y += 3.0;
+
+                if (isTouching) {
+                    // --- 摩擦/蓄力阶段 ---
+                    this.mode = 'CHARGING';
+                    this.material.opacity = 1.0;
+                    this.material.color.setHex(0xaaffff); // 青白亮光
+                    this.material.size = 0.1;
+
+                    const pos = this.geometry.attributes.position.array;
+                    for (let i = 0; i < this.count; i++) {
+                        // 极度紧缩的高频抖动点
+                        pos[i * 3] = target.x + (Math.random() - 0.5) * 0.2;
+                        pos[i * 3 + 1] = target.y + (Math.random() - 0.5) * 0.2;
+                        pos[i * 3 + 2] = target.z + (Math.random() - 0.5) * 0.2;
+                    }
+                    this.geometry.attributes.position.needsUpdate = true;
+                    document.getElementById('snap').innerText = "SNAP: CHARGING...";
+                    document.getElementById('snap').style.color = "#00ffff";
+
+                } else {
+                    // --- 释放/爆发阶段 ---
+                    if (this.mode === 'CHARGING') {
+                        // 刚松手，触发爆炸
+                        this.mode = 'EXPLODING';
+                        this.timer = 1.0; // 动画倒计时
+                        // 生成迷你球形状作为初速度方向
+                        // 这里简化，直接在 Update 里算扩散
+                    }
+
+                    if (this.mode === 'EXPLODING') {
+                        this.timer -= 0.04;
+                        if (this.timer <= 0) {
+                            this.mode = 'IDLE';
+                            this.material.opacity = 0;
+                        } else {
+                            // 爆炸动画
+                            this.material.opacity = this.timer;
+                            this.material.color.setHex(0xffaa00); // 金黄
+                            this.material.size = 0.2;
+
+                            // 形成一个指头大小的球 (半径 0.8) 并微微扩散
+                            const pos = this.geometry.attributes.position.array;
+                            const radius = 0.8 + (1.0 - this.timer) * 2.0; // 随时间变大
+
+                            for (let i = 0; i < this.count; i++) {
+                                // 简单的伪随机球分布
+                                const idx = i * 137.5; // 黄金角分布
+                                const theta = idx;
+                                const phi = Math.acos(2 * (i / this.count) - 1);
+
+                                // 加上旋转
+                                const rot = time * 10;
+
+                                pos[i * 3] = target.x + radius * Math.sin(phi) * Math.cos(theta + rot);
+                                pos[i * 3 + 1] = target.y + radius * Math.sin(phi) * Math.sin(theta + rot);
+                                pos[i * 3 + 2] = target.z + radius * Math.cos(phi);
+                            }
+                            this.geometry.attributes.position.needsUpdate = true;
+                            document.getElementById('snap').innerText = "SNAP: BANG!";
+                            document.getElementById('snap').style.color = "#ffaa00";
+                        }
+                    } else {
+                        document.getElementById('snap').innerText = "SNAP: READY";
+                        document.getElementById('snap').style.color = "#555";
+                        this.material.opacity = 0;
+                    }
+                }
+            }
+        }
+
+        // ==========================================
+        // 5. 核心逻辑整合
+        // ==========================================
+        const mainSystem = new MainParticleSystem(scene);
+        const snapSystem = new SnapSystem(scene);
+
+        // 全局手势数据
+        const handState = {
+            detected: false,
+            hoverPos: new THREE.Vector3(0, 0, 0),
+            verticalFactor: 0, // 0=Flat, 1=Side
+            smoothVertical: 0,
+            snapTouching: false, // 拇指中指是否捏合
+            fingersCenter: new THREE.Vector3(0, 0, 0) // 拇指中指中心
+        };
+
+        // 辅助向量 - 预分配复用
+        const _v1 = new THREE.Vector3(), _v2 = new THREE.Vector3(), _normal = new THREE.Vector3();
+        const _palmCenter = new THREE.Vector3(), _normalScaled = new THREE.Vector3();
+        const _zeroVec = new THREE.Vector3(0, 0, 0); // 复用零向量
+        const _tempVec = new THREE.Vector3(); // 通用临时向量
+
+        // 预分配的手势数据对象 - 避免每帧创建
+        const smoothHandData = { hoverPos: null, verticalFactor: 0 };
+
+        const map = (lm) => _tempVec.set((lm.x - 0.5) * 30, -(lm.y - 0.5) * 20, -lm.z * 30).clone();
+
+        function processHand(landmarks) {
+            // 1. 获取关键点
+            const wrist = map(landmarks[0]);
+            const indexMCP = map(landmarks[5]);
+            const pinkyMCP = map(landmarks[17]);
+            const thumbTip = map(landmarks[4]);
+            const middleTip = map(landmarks[12]);
+
+            // 2. 计算法向量 (用于主粒子悬浮)
+            _v1.subVectors(indexMCP, wrist);
+            _v2.subVectors(pinkyMCP, wrist);
+            _normal.crossVectors(_v1, _v2).normalize();
+
+            // *方向修正*: 确保法向指向手心外 (根据左手/右手可能需要 negate)
+            // 简单 Hack: 如果法向 Y < 0 (指向下), 翻转它，确保粒子总是在上方
+            // if (_normal.y < 0) _normal.negate(); 
+
+            // 3. 计算侧立系数
+            // 法向 X 分量大 = 侧立
+            const vRaw = Math.abs(_normal.x);
+            handState.verticalFactor = THREE.MathUtils.smoothstep(vRaw, 0.3, 0.8);
+
+            // 4. 计算主粒子悬浮坐标
+            // 中心点 + 法向 * 距离 (基础 4.0 + 侧立额外距离)
+            // 使用预分配向量避免clone
+            _palmCenter.copy(wrist).add(indexMCP).add(pinkyMCP).divideScalar(3);
+            const hoverDist = 4.0 + (handState.smoothVertical * 3.0);
+            _normalScaled.copy(_normal).multiplyScalar(hoverDist);
+            handState.hoverPos.copy(_palmCenter).add(_normalScaled);
+
+            // 5. 计算响指数据
+            const dist = thumbTip.distanceTo(middleTip);
+            handState.snapTouching = dist < 2.5; // 阈值
+            handState.fingersCenter.addVectors(thumbTip, middleTip).multiplyScalar(0.5);
+
+            // UI Debug - 存储用于节流更新
+            handState._gestureText = `VERT: ${handState.verticalFactor.toFixed(2)} | SNAP_DIST: ${dist.toFixed(1)}`;
+        }
+
+        // MediaPipe Setup
+        const videoEl = document.getElementById('input_video');
+        const hands = new Hands({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}` });
+        hands.setOptions({ maxNumHands: 1, modelComplexity: 1, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
+
+        hands.onResults(results => {
+            if (results.multiHandLandmarks.length > 0) {
+                handState.detected = true;
+                processHand(results.multiHandLandmarks[0]);
+                document.getElementById('status').innerText = "SYSTEM: LOCKED";
+                document.getElementById('status').style.color = "#00ffcc";
+            } else {
+                handState.detected = false;
+                handState.snapTouching = false;
+                document.getElementById('status').innerText = "SYSTEM: SEARCHING...";
+                document.getElementById('status').style.color = "#ff0055";
+            }
+        });
+
+        const cameraUtils = new Camera(videoEl, {
+            onFrame: async () => await hands.send({ image: videoEl }),
+            width: 1280, height: 720
+        });
+        cameraUtils.start();
+
+        // ==========================================
+        // 6. 渲染循环
+        // ==========================================
+        const clock = new THREE.Clock();
+        let frameCount = 0; // 帧计数器用于节流
+
+        // 缓存 DOM 引用
+        const gestureEl = document.getElementById('gesture');
+        const snapEl = document.getElementById('snap');
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = clock.getElapsedTime();
+            frameCount++;
+
+            // 平滑数据 - 使用预分配零向量
+            if (!handState.detected) {
+                handState.hoverPos.lerp(_zeroVec, 0.05);
+                handState.verticalFactor = 0;
+            }
+            handState.smoothVertical = THREE.MathUtils.lerp(handState.smoothVertical, handState.verticalFactor, 0.1);
+
+            // 复用预分配对象
+            smoothHandData.hoverPos = handState.hoverPos;
+            smoothHandData.verticalFactor = handState.smoothVertical;
+
+            mainSystem.update(smoothHandData, time);
+            snapSystem.update(handState.fingersCenter, handState.snapTouching, time);
+
+            // DOM 更新节流：每 5 帧更新一次 UI
+            if (frameCount % 5 === 0) {
+                if (handState._gestureText) {
+                    gestureEl.textContent = handState._gestureText;
+                }
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // resize 防抖优化
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }, 150);
+        });
+    </script>
 </body>
 
 </html>
