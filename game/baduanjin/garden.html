@@ -1,114 +1,273 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>禅意花园运动追踪器</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'rice-paper': '#F7F4ED',
+                        'ink-black': '#1A1A1A',
+                        'ink-dark': '#333333',
+                        'ink-light': '#666666',
+                        'bamboo': '#4A7050',
+                        'bamboo-light': '#6B8E23',
+                        'vermilion': '#BC412B', // For seals/stamps
+                    },
+                    fontFamily: {
+                        'serif': ['"KaiTi"', '"STKaiti"', '"Noto Serif SC"', 'serif'],
+                        'sans': ['"Noto Sans SC"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
     <style>
         :root {
-            --bg-start: #d4e5ff;
-            --bg-end: #f3e7e9;
-            --glass-bg: rgba(255, 255, 255, 0.45);
-            --border-color: rgba(255, 255, 255, 0.6);
-            --text-color: #374151;
-            --primary-color: #4f46e5;
-            --primary-hover: #4338ca;
-            --level-color: #f59e0b;
+            /* Rice Paper Texture - Subtle noise */
+            --bg-texture: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            --primary-color: #4A7050;
+            /* Bamboo Green */
+            --ink-spread-color: rgba(74, 112, 80, 0.2);
         }
+
         body {
-            font-family: 'Noto Sans SC', sans-serif;
-            background: linear-gradient(135deg, var(--bg-start), var(--bg-end));
-            color: var(--text-color);
+            font-family: 'Noto Serif SC', serif;
+            background-color: #F7F4ED;
+            background-image: var(--bg-texture);
+            color: #333333;
             overflow-x: hidden;
         }
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--border-color);
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-        }
-        .glass-card:hover {
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-            transform: translateY(-2px);
-        }
-        .btn-primary {
-            background-color: var(--primary-color);
-            color: white;
-            transition: all 0.3s ease;
-        }
-        .btn-primary:hover {
-            background-color: var(--primary-hover);
-            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
-        }
-        .progress-bar-inner {
-            transition: width 0.5s ease-in-out;
-        }
-        .calendar-day.practiced {
-            background-color: rgba(79, 70, 229, 0.7);
-            color: white;
-            border-radius: 50%;
+
+        /* Ink Card Style - Replaces Glassmorphism */
+        .ink-card {
+            background-color: rgba(255, 255, 255, 0.4);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 4px;
+            /* Slightly rounded, almost square */
+            box-shadow:
+                0 4px 6px -1px rgba(0, 0, 0, 0.02),
+                0 2px 4px -1px rgba(0, 0, 0, 0.02),
+                inset 0 0 20px rgba(247, 244, 237, 0.5);
+            /* Inner glow blending with bg */
             position: relative;
+            transition: all 0.3s ease;
         }
+
+        /* Handwritten-like border effect for some cards */
+        .ink-border {
+            border: 2px solid transparent;
+            border-image: url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cstyle%3Epath%7Bfill:none;stroke:%23333;stroke-width:1;vector-effect:non-scaling-stroke;stroke-dasharray:200 10;%7D%3C/style%3E%3Crect x='2' y='2' width='96' height='96' rx='2' ry='2' opacity='0.2'/%3E%3C/svg%3E") 5 stretch;
+        }
+
+        .ink-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+            transform: translateY(-1px);
+            border-color: rgba(74, 112, 80, 0.3);
+            /* Subtle bamboo tint on hover */
+        }
+
+        /* Button Styles */
+        .btn-ink {
+            background-color: var(--primary-color);
+            color: #F7F4ED;
+            border: none;
+            border-radius: 2px;
+            font-family: 'KaiTi', 'STKaiti', 'Noto Serif SC', serif;
+            letter-spacing: 0.1em;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-ink::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease-out, height 0.6s ease-out;
+        }
+
+        .btn-ink:hover {
+            background-color: #3D5C42;
+            /* Darker bamboo */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-ink:hover::after {
+            width: 200%;
+            height: 200%;
+        }
+
+        .btn-ghost {
+            color: #666666;
+            background: transparent;
+            border: 1px solid transparent;
+        }
+
+        .btn-ghost:hover {
+            color: #1A1A1A;
+            background-color: rgba(0, 0, 0, 0.05);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Typography Override */
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: 'KaiTi', 'STKaiti', 'Noto Serif SC', serif;
+            font-weight: bold;
+            color: #1A1A1A;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #F7F4ED;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #D1D1C6;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #999;
+        }
+
+        /* Move Item Checkbox Style */
+        .move-item-label {
+            display: block;
+            padding: 0.75rem 1rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.6);
+            font-family: 'Noto Serif SC', serif;
+            color: #333;
+        }
+
+        .move-item-label:hover {
+            border-color: var(--primary-color);
+            background-color: #fff;
+        }
+
+        .move-item-input:checked+.move-item-label {
+            background-color: var(--primary-color);
+            color: #F7F4ED;
+            border-color: var(--primary-color);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Progress Bar */
+        .ink-progress-bg {
+            background-color: rgba(0, 0, 0, 0.05);
+            border-radius: 99px;
+            /* Pill shape */
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .progress-bar-inner {
+            background-image: linear-gradient(90deg, #4A7050, #6B8E23);
+            border-radius: 99px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Calendar Styles */
+        .calendar-day.practiced {
+            background-color: var(--primary-color);
+            color: #fff;
+            border-radius: 50%;
+            /* Make it look like a stamp/seal roughly */
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
         .calendar-day.today {
-            border: 2px solid var(--primary-color);
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
             border-radius: 50%;
         }
-        .achievement-icon.unlocked {
-            filter: none;
-            opacity: 1;
-        }
-        .achievement-icon.locked {
+
+        /* Achievement Seals */
+        .achievement-seal {
+            border: 2px solid #BC412B;
+            /* Vermilion */
+            color: #BC412B;
+            border-radius: 4px;
+            padding: 2px;
+            opacity: 0.3;
             filter: grayscale(100%);
-            opacity: 0.4;
+            transition: all 0.5s ease;
         }
+
+        .achievement-seal.unlocked {
+            opacity: 1;
+            filter: none;
+            transform: rotate(-2deg);
+            /* Slightly skewed like a manual stamp */
+            box-shadow: 0 2px 4px rgba(188, 65, 43, 0.1);
+        }
+
+        /* Animations */
+        @keyframes inkSpread {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .fade-in {
+            animation: inkSpread 0.8s ease-out forwards;
+        }
+
         .zen-garden-element {
             position: absolute;
-            transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+            transition: opacity 1.5s ease-in-out, transform 1.5s ease-in-out;
             opacity: 0;
-            transform: scale(0.5);
+            transform: scale(0.9);
+            filter: contrast(0.9) sepia(0.2);
+            /* Blend into paper */
         }
+
         .zen-garden-element.visible {
             opacity: 1;
             transform: scale(1);
         }
-        .fade-in {
-            animation: fadeIn 0.5s ease-in-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        /* New styles for move selection */
-        .move-item-label {
-            display: block;
-            padding: 0.5rem 0.75rem;
-            border: 1px solid rgba(0,0,0,0.1);
-            border-radius: 0.5rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-align: center;
-            background-color: rgba(255,255,255,0.4);
-        }
-        .move-item-label:hover {
-            background-color: rgba(255, 255, 255, 0.8);
-            border-color: var(--primary-color);
-        }
-        .move-item-input:checked + .move-item-label {
-            background-color: var(--primary-color);
-            color: white;
-            border-color: var(--primary-hover);
-            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.2);
-        }
     </style>
 </head>
+
 <body class="min-h-screen p-4 sm:p-6 lg:p-8">
 
     <div id="loading-overlay" class="fixed inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center z-50">
@@ -118,51 +277,112 @@
         </div>
     </div>
 
-    <main id="app-container" class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 opacity-0 transition-opacity duration-500">
+    <main id="app-container"
+        class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 opacity-0 transition-opacity duration-500">
         <!-- Left Column: Main Controls & Garden -->
+        <svg style="display: none;">
+            <defs>
+                <!-- Global Ink Filters -->
+                <filter id="ink-wash" x="-20%" y="-20%" width="140%" height="140%">
+                    <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" result="noise" />
+                    <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R"
+                        yChannelSelector="G" />
+                    <feGaussianBlur stdDeviation="0.5" result="blur" />
+                    <feComposite operator="in" in="blur" in2="SourceGraphic" result="composite" />
+                    <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" in="composite" />
+                </filter>
+                <filter id="ink-bleed" x="-50%" y="-50%" width="200%" height="200%">
+                    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" result="noise" />
+                    <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" />
+                    <feGaussianBlur stdDeviation="2" />
+                </filter>
+                <filter id="paper-roughness">
+                    <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" result="noise" />
+                    <feDiffuseLighting in="noise" lighting-color="#fff" surfaceScale="1">
+                        <feDistantLight azimuth="45" elevation="60" />
+                    </feDiffuseLighting>
+                    <feComposite operator="in" in2="SourceGraphic" />
+                </filter>
+            </defs>
+        </svg>
         <div class="lg:col-span-2 space-y-6">
             <!-- Header -->
-            <div class="glass-card rounded-2xl p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+            <div
+                class="ink-card rounded-md p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center ink-border">
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-800">禅意花园运动追踪器</h1>
-                    <p id="zen-quote" class="mt-2 text-gray-600">每日禅语：加载中...</p>
+                    <h1 class="text-3xl font-bold text-ink-black">禅意花园运动追踪器</h1>
+                    <p id="zen-quote" class="mt-2 text-ink-light font-serif italic">每日禅语：加载中...</p>
                 </div>
-                 <div class="mt-4 sm:mt-0 flex items-center gap-3">
+                <div class="mt-4 sm:mt-0 flex items-center gap-3">
                     <div id="user-level" class="text-center">
-                        <div class="font-bold text-lg text-amber-600">--</div>
-                        <div class="text-sm text-gray-500">等级</div>
+                        <div class="font-bold text-lg text-bamboo">--</div>
+                        <div class="text-sm text-ink-light">等级</div>
                     </div>
-                     <button id="export-btn" class="p-2 text-gray-500 hover:bg-gray-200/50 rounded-full transition-colors" title="导出数据 (Ctrl+E)">
+                    <button id="export-btn"
+                        class="p-2 text-ink-light hover:bg-ink-dark/5 rounded-full transition-colors"
+                        title="导出数据 (Ctrl+E)">
                         <i data-lucide="download"></i>
                     </button>
-                    <button id="import-btn" class="p-2 text-gray-500 hover:bg-gray-200/50 rounded-full transition-colors" title="导入数据">
+                    <button id="import-btn"
+                        class="p-2 text-ink-light hover:bg-ink-dark/5 rounded-full transition-colors" title="导入数据">
                         <i data-lucide="upload"></i>
                     </button>
-                    <button id="reset-btn" class="p-2 text-gray-500 hover:bg-red-200/50 rounded-full transition-colors" title="重置数据 (Ctrl+R)">
-                        <i data-lucide="trash-2" class="text-gray-500 hover:text-red-500"></i>
+                    <button id="reset-btn"
+                        class="p-2 text-ink-light hover:bg-vermilion/10 hover:text-vermilion rounded-full transition-colors"
+                        title="重置数据 (Ctrl+R)">
+                        <i data-lucide="trash-2"></i>
                     </button>
                     <input type="file" id="import-file-input" class="hidden" accept=".json">
                 </div>
             </div>
 
             <!-- Zen Garden -->
-            <div class="glass-card rounded-2xl p-6 h-96">
-                <div id="zen-garden" class="relative w-full h-full bg-gradient-to-br from-green-50 to-blue-100 rounded-lg overflow-hidden">
+            <div class="ink-card rounded-md p-6 h-96 relative">
+                <div id="zen-garden"
+                    class="relative w-full h-full bg-[#fcfbf8] rounded border border-ink-light/20 overflow-hidden">
+                    <!-- Static Background: Ground & Path -->
+                    <svg class="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="none">
+                        <defs>
+                            <radialGradient id="groundGrad" cx="50%" cy="80%" r="80%">
+                                <stop offset="0%" stop-color="#EFEBE2" stop-opacity="1" />
+                                <stop offset="100%" stop-color="#E6E2D8" stop-opacity="1" />
+                            </radialGradient>
+                            <filter id="bg-grain">
+                                <feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="3" result="noise" />
+                                <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.1 0" />
+                                <feComposite operator="in" in2="SourceGraphic" result="composite" />
+                                <feBlend mode="multiply" in="composite" in2="SourceGraphic" />
+                            </filter>
+                        </defs>
+                        <!-- Ground Wash -->
+                        <rect width="100%" height="100%" fill="url(#groundGrad)" filter="url(#bg-grain)" />
+
+                        <!-- Winding Path (Negative Space/Lighter) -->
+                        <path d="M-10,150 Q100,100 150,180 T350,250" stroke="#fff" stroke-width="60" fill="none"
+                            opacity="0.4" filter="url(#ink-wash)" transform="scale(1, 0.5)" />
+
+                        <!-- Distant Mountains/Hills (Atmospheric) -->
+                        <path d="M0,80 Q50,60 100,80 T200,70 T300,90 V150 H0 Z" fill="#ccc" fill-opacity="0.1"
+                            filter="url(#ink-wash)" transform="translate(0, -20) scale(4, 1)" />
+                    </svg>
                     <!-- Garden elements will be injected here -->
-                    <div id="garden-msg" class="absolute top-4 left-4 text-sm text-gray-500 bg-white/50 px-3 py-1 rounded-full">您的花园正在等待灌溉...</div>
+                    <div id="garden-msg"
+                        class="absolute top-4 left-4 text-sm text-ink-dark bg-rice-paper/80 px-4 py-2 rounded-sm border border-ink-light/20 shadow-sm font-serif">
+                        您的花园空灵宁静...</div>
                 </div>
             </div>
 
             <!-- Practice Tracker -->
-            <div class="glass-card rounded-2xl p-6">
+            <div class="ink-card rounded-md p-6">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-semibold">今日练习</h2>
-                    <button id="select-all-btn" class="text-sm btn-primary px-3 py-1 rounded-md">全选</button>
+                    <h2 class="text-xl font-semibold text-ink-black">今日练习</h2>
+                    <button id="select-all-btn" class="text-sm btn-ghost px-3 py-1 rounded-sm">全选</button>
                 </div>
                 <div id="ba-duan-jin-moves" class="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
                     <!-- Moves will be injected here -->
                 </div>
-                <button id="complete-practice-btn" class="w-full btn-primary font-bold py-3 px-4 rounded-lg text-lg flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300">
+                <button id="complete-practice-btn"
+                    class="w-full btn-ink font-bold py-3 px-4 rounded-sm text-lg flex items-center justify-center gap-2">
                     <i data-lucide="check-circle"></i>
                     <span>完成今日练习</span>
                 </button>
@@ -172,72 +392,79 @@
         <!-- Right Column: Stats & History -->
         <div class="space-y-6">
             <!-- Stats Dashboard -->
-            <div class="glass-card rounded-2xl p-6">
-                <h2 class="text-xl font-semibold mb-4">修行总览</h2>
+            <div class="ink-card rounded-md p-6">
+                <h2 class="text-xl font-semibold mb-4 text-ink-black">修行总览</h2>
                 <div class="space-y-4">
                     <div>
                         <div class="flex justify-between items-center mb-1">
-                            <span class="text-sm font-medium">当前等级: <span id="level-name">--</span></span>
-                            <span class="text-sm font-medium"><span id="xp-current">0</span> / <span id="xp-next">100</span> XP</span>
+                            <span class="text-sm font-medium text-ink-dark">当前等级: <span id="level-name"
+                                    class="font-bold">--</span></span>
+                            <span class="text-sm font-medium text-ink-light"><span id="xp-current">0</span> / <span
+                                    id="xp-next">100</span> XP</span>
                         </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2.5">
-                            <div id="xp-bar" class="bg-amber-500 h-2.5 rounded-full progress-bar-inner" style="width: 0%"></div>
+                        <div class="w-full bg-ink-light/10 rounded-full h-2.5 ink-progress-bg">
+                            <div id="xp-bar" class="bg-bamboo h-2.5 rounded-full progress-bar-inner" style="width: 0%">
+                            </div>
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-4 text-center">
-                        <div class="bg-white/50 rounded-lg p-3">
-                            <p class="text-2xl font-bold" id="streak-days">0</p>
-                            <p class="text-sm text-gray-600">连续练习</p>
+                        <div class="bg-white/40 rounded-sm p-3 border border-ink-light/10">
+                            <p class="text-2xl font-bold text-ink-black" id="streak-days">0</p>
+                            <p class="text-sm text-ink-light">连续练习</p>
                         </div>
-                        <div class="bg-white/50 rounded-lg p-3">
-                            <p class="text-2xl font-bold" id="total-days">0</p>
-                            <p class="text-sm text-gray-600">总练习天数</p>
+                        <div class="bg-white/40 rounded-sm p-3 border border-ink-light/10">
+                            <p class="text-2xl font-bold text-ink-black" id="total-days">0</p>
+                            <p class="text-sm text-ink-light">总练习天数</p>
                         </div>
-                        <div class="bg-white/50 rounded-lg p-3">
-                            <p class="text-2xl font-bold" id="days-since-start">0</p>
-                            <p class="text-sm text-gray-600">已修行(天)</p>
+                        <div class="bg-white/40 rounded-sm p-3 border border-ink-light/10">
+                            <p class="text-2xl font-bold text-ink-black" id="days-since-start">0</p>
+                            <p class="text-sm text-ink-light">已修行(天)</p>
                         </div>
-                        <div class="bg-white/50 rounded-lg p-3">
-                            <p class="text-lg font-bold" id="start-date">--</p>
-                            <p class="text-sm text-gray-600">开始时间</p>
+                        <div class="bg-white/40 rounded-sm p-3 border border-ink-light/10">
+                            <p class="text-lg font-bold text-ink-black" id="start-date">--</p>
+                            <p class="text-sm text-ink-light">开始时间</p>
                         </div>
                     </div>
                 </div>
             </div>
-            
+
             <!-- Achievements -->
-            <div class="glass-card rounded-2xl p-6">
-                <h2 class="text-xl font-semibold mb-4">成就徽章</h2>
+            <div class="ink-card rounded-md p-6">
+                <h2 class="text-xl font-semibold mb-4 text-ink-black">成就印章</h2>
                 <div id="achievements-grid" class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-3 gap-4">
                     <!-- Achievements will be injected here -->
                 </div>
             </div>
 
             <!-- Calendar -->
-            <div class="glass-card rounded-2xl p-6">
+            <div class="ink-card rounded-md p-6">
                 <div class="flex justify-between items-center mb-4">
-                    <button id="prev-month-btn" class="p-2 rounded-full hover:bg-gray-200/50"><i data-lucide="chevron-left"></i></button>
-                    <h2 id="calendar-header" class="text-lg font-semibold"></h2>
-                    <button id="next-month-btn" class="p-2 rounded-full hover:bg-gray-200/50"><i data-lucide="chevron-right"></i></button>
+                    <button id="prev-month-btn" class="p-2 rounded-full hover:bg-ink-dark/5 text-ink-light"><i
+                            data-lucide="chevron-left"></i></button>
+                    <h2 id="calendar-header" class="text-lg font-semibold text-ink-black"></h2>
+                    <button id="next-month-btn" class="p-2 rounded-full hover:bg-ink-dark/5 text-ink-light"><i
+                            data-lucide="chevron-right"></i></button>
                 </div>
-                <div class="grid grid-cols-7 text-center text-xs text-gray-500 mb-2">
+                <div class="grid grid-cols-7 text-center text-xs text-ink-light mb-2 font-serif">
                     <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
                 </div>
-                <div id="calendar-grid" class="grid grid-cols-7 text-center gap-1">
+                <div id="calendar-grid" class="grid grid-cols-7 text-center gap-1 font-serif">
                     <!-- Calendar days will be injected here -->
                 </div>
             </div>
         </div>
     </main>
-    
+
     <!-- Modal for reset confirmation -->
     <div id="reset-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
         <div class="bg-white rounded-2xl p-8 shadow-xl max-w-sm w-full mx-4">
             <h3 class="text-xl font-bold text-gray-800 mb-4">确认重置</h3>
             <p class="text-gray-600 mb-6">您确定要重置所有数据吗？此操作不可撤销，您的禅意花园和所有进度都将消失。</p>
             <div class="flex justify-end gap-4">
-                <button id="cancel-reset-btn" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors">取消</button>
-                <button id="confirm-reset-btn" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">确认重置</button>
+                <button id="cancel-reset-btn"
+                    class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors">取消</button>
+                <button id="confirm-reset-btn"
+                    class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">确认重置</button>
             </div>
         </div>
     </div>
@@ -246,7 +473,7 @@
     <script type="module">
         // Firebase is not used in this version for simplicity and to ensure it runs anywhere.
         // All data is stored in localStorage.
-        
+
         // --- CONFIGURATION ---
         const CONFIG = {
             moves: [
@@ -277,23 +504,233 @@
                 "气血通畅，百病不生。"
             ],
             gardenStages: [
-                { level: 0, msg: "您的花园空灵宁静，等待第一颗石头的落下。", elements: [{ type: 'stone', x: '50%', y: '50%' }] },
-                { level: 1, msg: "青苔悄然生长，为花园增添一抹绿意。", elements: [{ type: 'moss', x: '45%', y: '55%' }] },
-                { level: 2, msg: "一株小草破土而出，充满生命力。", elements: [{ type: 'grass', x: '60%', y: '40%' }] },
-                { level: 3, msg: "一朵莲花在池中绽放，清净无染。", elements: [{ type: 'pond', x: '30%', y: '70%' }, { type: 'lotus', x: '30%', y: '70%' }] },
-                { level: 4, msg: "锦鲤在池中嬉戏，花园更添生机。", elements: [{ type: 'koi', x: '35%', y: '75%' }] },
-                { level: 5, msg: "一棵小树茁壮成长，象征着您的坚持。", elements: [{ type: 'tree', x: '75%', y: '30%' }] },
-                { level: 6, msg: "石灯笼点亮，照亮您的修行之路。花园已然圆满。", elements: [{ type: 'lantern', x: '15%', y: '25%' }] },
+                { level: 0, msg: "您的花园空灵宁静，等待第一颗石头的落下。", elements: [{ type: 'stone', x: '50%', y: '50%' }, { type: 'grass', x: '10%', y: '80%' }] },
+                { level: 1, msg: "青苔悄然生长，为花园增添一抹绿意。", elements: [{ type: 'moss', x: '45%', y: '55%' }, { type: 'grass', x: '80%', y: '75%' }] },
+                { level: 2, msg: "一株小草破土而出，充满生命力。", elements: [{ type: 'grass', x: '60%', y: '40%' }, { type: 'grass', x: '20%', y: '45%' }] },
+                // Level 3: Pond enters. Needs to be large and central.
+                { level: 3, msg: "一朵莲花在池中绽放，清净无染。", elements: [{ type: 'pond', x: '5%', y: '45%' }, { type: 'lotus', x: '25%', y: '60%' }] },
+                // Level 4: Koi enters, swimming in the pond area.
+                { level: 4, msg: "锦鲤在池中嬉戏，花园更添生机。", elements: [{ type: 'koi', x: '45%', y: '70%' }, { type: 'grass', x: '90%', y: '60%' }] },
+                { level: 5, msg: "一棵小树茁壮成长，象征着您的坚持。", elements: [{ type: 'tree', x: '70%', y: '20%' }, { type: 'grass', x: '65%', y: '45%' }] },
+                { level: 6, msg: "石灯笼点亮，照亮您的修行之路。花园已然圆满。", elements: [{ type: 'lantern', x: '10%', y: '15%' }, { type: 'grass', x: '5%', y: '30%' }] },
             ],
             gardenElementSVG: {
-                stone:`<svg viewBox="0 0 120 100" width="64" height="64"><defs><radialGradient id="stoneGrad" cx="30%" cy="30%" r="70%"><stop offset="0%" style="stop-color:#E5E5E5"/><stop offset="50%" style="stop-color:#CCCCCC"/><stop offset="100%" style="stop-color:#999999"/></radialGradient><filter id="stoneShadow"><feDropShadow dx="2" dy="3" stdDeviation="2" flood-opacity="0.3"/></filter></defs><g transform="translate(5,5)"><ellipse cx="50" cy="70" rx="45" ry="20" fill="rgba(0,0,0,0.1)"/><path d="M50,75Q15,85 20,55Q25,25 55,30Q85,35 80,65Q75,90 50,75Z" fill="url(#stoneGrad)" stroke="#777" stroke-width="1" filter="url(#stoneShadow)"/><path d="M70,70Q55,80 60,60Q65,40 80,45Q95,50 90,65Q85,80 70,70Z" fill="url(#stoneGrad)" stroke="#777" stroke-width="1" transform="translate(-35,0)" filter="url(#stoneShadow)"/><path d="M35,50Q40,45 45,50" stroke="#888" stroke-width="1" fill="none" opacity="0.6"/><path d="M55,60Q60,55 65,60" stroke="#888" stroke-width="1" fill="none" opacity="0.6"/></g></svg>`,
-                moss: `<svg viewBox="0 0 100 100" width="48" height="48"><defs><radialGradient id="mossGrad" cx="50%" cy="40%" r="60%"><stop offset="0%" style="stop-color:#9ACD32" /><stop offset="50%" style="stop-color:#6B8E23" /><stop offset="100%" style="stop-color:#556B2F" /></radialGradient><filter id="mossTexture"><feTurbulence baseFrequency="0.9" numOctaves="4" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="1.5"/></filter></defs><g><path d="M 25,75 C 5,75 5,55 25,55 C 35,35 65,35 75,55 C 95,55 95,75 75,75 Z" fill="url(#mossGrad)" filter="url(#mossTexture)"/><path d="M 45,85 C 35,85 35,70 45,70 C 50,60 70,60 75,70 C 85,70 85,85 75,85 Z" fill="url(#mossGrad)" filter="url(#mossTexture)"/><circle cx="35" cy="62" r="2" fill="#228B22" opacity="0.6"/><circle cx="65" cy="58" r="1.5" fill="#32CD32" opacity="0.7"/></g></svg>`,
-                grass: `<svg viewBox="0 0 100 100" width="40" height="40"><defs><linearGradient id="grassGrad1" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" style="stop-color:#6B8E23" /><stop offset="50%" style="stop-color:#9ACD32" /><stop offset="100%" style="stop-color:#ADFF2F" /></linearGradient><linearGradient id="grassGrad2" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" style="stop-color:#556B2F" /><stop offset="70%" style="stop-color:#6B8E23" /></linearGradient></defs><g><path d="M 50,95 C 45,75 47,55 52,30 Q 54,25 52,20" stroke="url(#grassGrad1)" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M 38,95 C 33,80 36,60 40,40 Q 42,35 40,30" stroke="url(#grassGrad2)" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M 62,95 C 57,80 60,60 64,40 Q 66,35 64,30" stroke="url(#grassGrad1)" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M 28,95 C 25,85 27,70 30,55" stroke="#9ACD32" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M 72,95 C 69,85 71,70 74,55" stroke="#6B8E23" stroke-width="3" fill="none" stroke-linecap="round"/></g></svg>`,
-                pond: `<svg viewBox="0 0 150 100" width="192" height="128"><defs><radialGradient id="pondGrad" cx="50%" cy="30%" r="70%"><stop offset="0%" style="stop-color:#B0E0E6" /><stop offset="40%" style="stop-color:#87CEEB" /><stop offset="80%" style="stop-color:#4682B4" /><stop offset="100%" style="stop-color:#2F4F4F" /></radialGradient><filter id="waterRipple"><feTurbulence baseFrequency="0.02" numOctaves="3" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="2"/></filter></defs><ellipse cx="75" cy="50" rx="70" ry="45" fill="url(#pondGrad)" filter="url(#waterRipple)"/><ellipse cx="75" cy="45" rx="55" ry="32" stroke="rgba(255,255,255,0.4)" stroke-width="1" fill="none"/><ellipse cx="75" cy="40" rx="35" ry="20" stroke="rgba(255,255,255,0.3)" stroke-width="1" fill="none"/><ellipse cx="60" cy="35" rx="15" ry="8" fill="rgba(255,255,255,0.2)"/></svg>`,
-                lotus: `<svg viewBox="0 0 100 100" width="64" height="64"><defs><radialGradient id="lotusGrad" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#FFE4E1" /><stop offset="60%" stop-color="#FFC0CB" /><stop offset="100%" stop-color="#FF69B4" /></radialGradient><radialGradient id="leafGrad" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color:#3CB371" /><stop offset="100%" stop-color:#2E8B57" /></radialGradient><filter id="petalShadow"><feDropShadow dx="1" dy="1" stdDeviation="1" flood-opacity="0.3"/></filter></defs><ellipse cx="30" cy="85" rx="18" ry="12" fill="url(#leafGrad)" stroke="#228B22" stroke-width="1.5" transform="rotate(15 30 85)"/><ellipse cx="70" cy="90" rx="15" ry="10" fill="url(#leafGrad)" stroke="#228B22" stroke-width="1.5" transform="rotate(-25 70 90)"/><g transform="translate(50, 45)"><path d="M0 -20 Q -12 -5 0 5 Q 12 -5 0 -20" fill="url(#lotusGrad)" filter="url(#petalShadow)" transform="rotate(0)"/><path d="M0 -20 Q -12 -5 0 5 Q 12 -5 0 -20" fill="url(#lotusGrad)" filter="url(#petalShadow)" transform="rotate(45)"/><path d="M0 -20 Q -12 -5 0 5 Q 12 -5 0 -20" fill="url(#lotusGrad)" filter="url(#petalShadow)" transform="rotate(90)"/><path d="M0 -20 Q -12 -5 0 5 Q 12 -5 0 -20" fill="url(#lotusGrad)" filter="url(#petalShadow)" transform="rotate(135)"/><path d="M0 -20 Q -12 -5 0 5 Q 12 -5 0 -20" fill="url(#lotusGrad)" filter="url(#petalShadow)" transform="rotate(180)"/><path d="M0 -20 Q -12 -5 0 5 Q 12 -5 0 -20" fill="url(#lotusGrad)" filter="url(#petalShadow)" transform="rotate(225)"/><path d="M0 -20 Q -12 -5 0 5 Q 12 -5 0 -20" fill="url(#lotusGrad)" filter="url(#petalShadow)" transform="rotate(270)"/><path d="M0 -20 Q -12 -5 0 5 Q 12 -5 0 -20" fill="url(#lotusGrad)" filter="url(#petalShadow)" transform="rotate(315)"/><circle cx="0" cy="0" r="6" fill="#FFD700"/><circle cx="0" cy="0" r="3" fill="#FFA500"/></g></svg>`,
-                koi: `<svg viewBox="0 0 100 80" width="48" height="38.4"><defs><linearGradient id="koiGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#FF6347" /><stop offset="50%" stop-color="#FFA500" /><stop offset="100%" stop-color="#FFD700" /></linearGradient><filter id="koiShadow"><feDropShadow dx="1" dy="2" stdDeviation="1" flood-opacity="0.3"/></filter></defs><g transform="rotate(20 50 40) translate(10, 10)"><ellipse cx="30" cy="30" rx="25" ry="12" fill="url(#koiGrad)" filter="url(#koiShadow)"/><path d="M 5,30 Q -5,20 0,30 Q -5,40 5,30" fill="url(#koiGrad)"/><path d="M 15,18 Q 25,15 35,18" stroke="#FF4500" stroke-width="2" fill="none"/><circle cx="45" cy="25" r="6" fill="white"/><circle cx="47" cy="23" r="2" fill="black"/><ellipse cx="20" cy="35" rx="4" ry="6" fill="#FF0000" opacity="0.8"/></g></svg>`,
-                tree: `<svg viewBox="0 0 150 150" width="160" height="160"><defs><linearGradient id="trunkGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#8B4513" /><stop offset="30%" stop-color="#A0522D" /><stop offset="70%" stop-color="#8B4513" /><stop offset="100%" stop-color="#654321" /></linearGradient><radialGradient id="leavesGrad1" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#90EE90" /><stop offset="70%" stop-color="#228B22" /><stop offset="100%" stop-color="#006400" /></radialGradient><radialGradient id="leavesGrad2" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ADFF2F" /><stop offset="50%" stop-color="#32CD32" /><stop offset="100%" stop-color:#228B22" /></radialGradient><filter id="treeShadow"><feDropShadow dx="2" dy="3" stdDeviation="2" flood-opacity="0.2"/></filter></defs><path d="M 68 145 L 82 145 L 87 75 L 63 75 Z" fill="url(#trunkGrad)" filter="url(#treeShadow)"/><line x1="70" y1="100" x2="60" y2="95" stroke="#A0522D" stroke-width="2"/><line x1="80" y1="110" x2="90" y2="105" stroke="#A0522D" stroke-width="2"/><g filter="url(#treeShadow)"><circle cx="75" cy="55" r="38" fill="url(#leavesGrad1)"/><circle cx="105" cy="70" r="24" fill="url(#leavesGrad2)"/><circle cx="45" cy="70" r="24" fill="url(#leavesGrad2)"/><circle cx="75" cy="28" r="18" fill="url(#leavesGrad2)"/><circle cx="95" cy="45" r="15" fill="url(#leavesGrad1)"/><circle cx="55" cy="45" r="15" fill="url(#leavesGrad1)"/></g></svg>`,
-                lantern: `<svg viewBox="0 0 100 100" width="80" height="80"><defs><linearGradient id="lanternGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#4A4A4A"/><stop offset="50%" stop-color="#2F2F2F"/><stop offset="100%" stop-color="#1A1A1A"/></linearGradient><radialGradient id="lightGrad" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(255,255,150,0.9)"/><stop offset="70%" stop-color="rgba(255,215,100,0.5)"/><stop offset="100%" stop-color="rgba(255,215,100,0)"/></radialGradient><filter id="lanternShadow"><feDropShadow dx="2" dy="3" stdDeviation="2" flood-opacity="0.4"/></filter></defs><rect x="15" y="85" width="70" height="12" rx="2" fill="url(#lanternGrad)" filter="url(#lanternShadow)"/><path d="M 25 85 L 75 85 L 73 38 L 27 38 Z" fill="url(#lanternGrad)" filter="url(#lanternShadow)"/><path d="M 15 38 L 85 38 L 78 18 L 22 18 Z" fill="url(#lanternGrad)" filter="url(#lanternShadow)"/><path d="M 25 18 L 75 18 L 70 8 L 30 8 Z" fill="#5A5A5A"/><rect x="32" y="42" width="36" height="38" rx="2" fill="#FFF8DC" opacity="0.9"/><line x1="32" y1="57" x2="68" y2="57" stroke="#8B4513" stroke-width="1.2"/><line x1="50" y1="42" x2="50" y2="80" stroke="#8B4513" stroke-width="1.2"/><circle cx="50" cy="61" r="28" fill="url(#lightGrad)"/><circle cx="50" cy="61" r="12" fill="rgba(255,255,200,0.8)"/></svg>`,
+                // Stone: Heavy wash base, dry brush overlay
+                stone: `<svg viewBox="0 0 200 150" width="100" height="75">
+    <g filter="url(#ink-wash)">
+        <!-- Wash Layer (Mogu) -->
+        <path d="M40,100 Q30,70 60,50 Q120,20 160,60 Q180,110 140,130 Q80,140 40,100 Z" fill="#e0e0e0" fill-opacity="0.8" />
+        <path d="M50,110 Q45,80 70,65 Q110,40 140,70" fill="none" stroke="#a0a0a0" stroke-width="15" stroke-linecap="round" opacity="0.4" />
+    </g>
+    <!-- Skeleton Layer (Gugfa) -->
+    <path d="M40,100 Q30,70 60,50 Q120,20 160,60 Q180,110 140,130 Q80,140 40,100" fill="none" stroke="#2c2c2c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter: url(#ink-bleed);" />
+    <path d="M60,90 Q55,75 80,60 M120,70 Q140,90 130,110" fill="none" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round" />
+    <!-- Moss Accents -->
+    <circle cx="50" cy="110" r="3" fill="#4A7050" opacity="0.6" filter="url(#ink-bleed)" />
+    <circle cx="130" cy="120" r="4" fill="#4A7050" opacity="0.5" filter="url(#ink-bleed)" />
+</svg>`,
+
+                // Moss: Clustered dots with bleed
+                moss: `<svg viewBox="0 0 100 100" width="60" height="60">
+    <g filter="url(#ink-bleed)">
+        <circle cx="30" cy="50" r="10" fill="#4A7050" opacity="0.6" />
+        <circle cx="45" cy="45" r="8" fill="#556B2F" opacity="0.7" />
+        <circle cx="40" cy="60" r="9" fill="#4A7050" opacity="0.5" />
+        <circle cx="55" cy="55" r="7" fill="#6B8E23" opacity="0.6" />
+    </g>
+    <!-- Dry brush texture -->
+    <path d="M30,50 L32,48 M45,45 L47,43 M40,60 L42,58" stroke="#1a1a1a" stroke-width="0.5" opacity="0.3" />
+</svg>`,
+
+                // Grass: Lush, wild ink grass cluster
+                grass: `<svg viewBox="0 0 100 100" width="60" height="60">
+    <g transform="translate(10,10)">
+        <!-- Wash background for volume -->
+        <path d="M10,80 Q30,60 50,80 Q70,50 90,80" fill="#4A7050" opacity="0.2" filter="url(#ink-wash)" />
+        <!-- Structural Blades -->
+        <g stroke="#2c2c2c" stroke-width="1" fill="none" stroke-linecap="round">
+             <path d="M20,85 Q15,40 5,30" opacity="0.6" />
+             <path d="M25,85 Q30,35 40,20" opacity="0.8" />
+             <path d="M30,85 Q40,50 55,40" opacity="0.7" />
+             <path d="M40,85 Q35,60 30,50" opacity="0.5" />
+        </g>
+        <!-- Accent Blades (Bamboo Green) -->
+        <g stroke="#4A7050" stroke-width="1.5" fill="none" stroke-linecap="round" filter="url(#ink-bleed)">
+            <path d="M15,85 Q20,50 10,40" />
+            <path d="M35,85 Q45,45 60,30" />
+            <path d="M50,85 Q60,60 70,50" />
+        </g>
+    </g>
+</svg>`,
+
+
+                // Pond: Large environment with shoreline and water depth
+                pond: `<svg viewBox="0 0 500 300" width="400" height="240">
+    <defs>
+        <radialGradient id="pondWaterGrad" cx="50%" cy="40%" r="60%" fx="50%" fy="40%">
+            <stop offset="0%" stop-color="#E6F3F7" stop-opacity="0.9" />
+            <stop offset="70%" stop-color="#D0E8F0" stop-opacity="0.6" />
+            <stop offset="100%" stop-color="#E6F3F7" stop-opacity="0" />
+        </radialGradient>
+        <filter id="shore-blur">
+             <feGaussianBlur stdDeviation="1.5" />
+        </filter>
+    </defs>
+    
+    <!-- Water Body (Expanded) -->
+    <path d="M20,150 Q60,80 200,90 Q350,100 450,150 Q480,200 380,250 Q250,280 100,260 Q10,230 20,150 Z" fill="url(#pondWaterGrad)" filter="url(#ink-wash)" />
+    
+    <!-- Shoreline / Banks (Ink Strokes) -->
+    <g transform="translate(0, 0)" opacity="0.8">
+        <!-- Left Bank -->
+        <path d="M10,160 Q30,120 80,100" stroke="#2c2c2c" stroke-width="3" fill="none" stroke-linecap="round" filter="url(#paper-roughness)" opacity="0.6" />
+        
+        <!-- Right Bank (Distant) -->
+        <path d="M350,140 Q420,160 460,200" stroke="#2c2c2c" stroke-width="2" fill="none" stroke-linecap="round" filter="url(#paper-roughness)" opacity="0.5" />
+        
+        <!-- Bottom Edge (Fade out) -->
+        <path d="M120,270 Q250,290 350,250" stroke="#88B0C3" stroke-width="4" fill="none" stroke-linecap="round" filter="url(#shore-blur)" opacity="0.4" />
+    </g>
+
+    <!-- Water Ripples (Scattered) -->
+    <g stroke="#88B0C3" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.5">
+        <path d="M150,120 Q200,115 250,120" />
+        <path d="M300,200 Q350,205 380,195" />
+        <path d="M80,210 Q120,215 150,205" />
+    </g>
+
+    <!-- Floating Pads (Background elements) -->
+    <g fill="#4A7050" opacity="0.4" filter="url(#ink-wash)">
+        <ellipse cx="380" cy="180" rx="20" ry="7" />
+        <ellipse cx="60" cy="220" rx="15" ry="5" />
+    </g>
+    
+    <!-- Reeds (Background) -->
+    <g stroke="#1a1a1a" stroke-width="0.8" fill="none" opacity="0.4">
+        <path d="M40,110 Q45,90 40,70" />
+        <path d="M45,115 Q55,95 60,80" />
+        <path d="M35,115 Q30,100 25,85" />
+    </g>
+</svg>`,
+
+                // Lotus: Anchored with large leaf
+                lotus: `<svg viewBox="0 0 140 160" width="100" height="115">
+    <g transform="translate(70, 130)">
+        <!-- Large Base Leaf (Pad) - The anchor -->
+        <path d="M-40,-10 Q-60,-20 -50,-40 Q-20,-60 10,-40 Q40,-20 30,-10 Q0,10 -40,-10 Z" fill="#2E8B57" opacity="0.6" filter="url(#ink-wash)" stroke="#1a1a1a" stroke-width="0.5" />
+        <path d="M-10,-30 L-30,-20 M-10,-30 L10,-20" stroke="#1a1a1a" stroke-width="0.5" opacity="0.3" />
+        
+        <!-- Stem (Rising from center of leaf) -->
+        <path d="M-10,-30 Q-5,-60 0,-90" stroke="#1a1a1a" stroke-width="2" fill="none" filter="url(#paper-roughness)" />
+        
+        <!-- Flower Head -->
+        <g transform="translate(0, -95)">
+            <!-- Back Petals -->
+            <ellipse cx="0" cy="-5" rx="18" ry="30" fill="#FFE4E1" opacity="0.8" filter="url(#ink-wash)" transform="rotate(-20)" />
+            <ellipse cx="0" cy="-5" rx="18" ry="30" fill="#FFE4E1" opacity="0.8" filter="url(#ink-wash)" transform="rotate(20)" />
+            <!-- Front Petal layer -->
+            <ellipse cx="0" cy="0" rx="15" ry="25" fill="#FFC0CB" opacity="0.85" filter="url(#ink-wash)" />
+            
+            <!-- Veins & Outline -->
+            <g stroke="#BC412B" stroke-width="0.8" fill="none" opacity="0.7">
+                <path d="M0,0 Q-10,-10 0,-25" />
+                <path d="M0,0 Q10,-10 0,-25" />
+            </g>
+            
+            <!-- Pod -->
+            <circle cx="0" cy="-5" r="4" fill="#FFD700" />
+        </g>
+    </g>
+</svg>`,
+
+                // Koi: Realistic Swimming Form
+                koi: `<svg viewBox="0 0 120 70" width="70" height="40">
+    <g transform="rotate(5, 60, 35)">
+        <!-- Tail Flow -->
+        <path d="M20,35 Q10,20 0,25 Q5,35 0,45 Q10,50 20,35" fill="#BC412B" opacity="0.6" filter="url(#ink-wash)" />
+        <path d="M20,35 L5,28 M20,35 L5,42" stroke="#BC412B" stroke-width="1" opacity="0.5" />
+
+        <!-- Body Main Mass -->
+        <path d="M20,35 Q40,15 80,30 Q95,35 85,45 Q50,55 20,35" fill="#BC412B" opacity="0.9" filter="url(#ink-wash)" />
+        
+        <!-- Scales Hint (Cross-hatch style) -->
+        <g stroke="#8B0000" stroke-width="0.5" opacity="0.3">
+            <path d="M40,30 Q45,25 50,30" />
+            <path d="M50,30 Q55,25 60,30" />
+            <path d="M45,35 Q50,30 55,35" />
+            <path d="M55,35 Q60,30 65,35" />
+        </g>
+
+        <!-- Fins -->
+        <path d="M60,25 Q50,10 65,15" fill="#BC412B" opacity="0.7" />
+        <path d="M60,45 Q50,60 65,55" fill="#BC412B" opacity="0.7" />
+
+        <!-- Head & Features -->
+        <circle cx="85" cy="38" r="2" fill="#1a1a1a" /> <!-- Eye -->
+        <path d="M90,40 Q95,42 90,44" stroke="#8B0000" stroke-width="1" fill="none" /> <!-- Mouth/Whiskers -->
+    </g>
+</svg>`,
+
+                // Tree: Distinct Pine Needles and Gnarled Trunk
+                tree: `<svg viewBox="0 0 250 300" width="180" height="220">
+    <!-- Trunk (Gnarled, distinct strokes) -->
+    <g filter="url(#paper-roughness)">
+        <path d="M120,280 Q100,200 130,150 Q160,100 120,50" stroke="#2c2c2c" stroke-width="8" fill="none" stroke-linecap="round" />
+        <path d="M130,150 L180,130" stroke="#2c2c2c" stroke-width="5" fill="none" stroke-linecap="round" />
+        <path d="M110,180 L70,190" stroke="#2c2c2c" stroke-width="4" fill="none" stroke-linecap="round" />
+        <!-- Bark Texture -->
+        <path d="M120,260 L125,240 M115,220 L120,200 M135,140 L140,120" stroke="#1a1a1a" stroke-width="2" opacity="0.6" />
+    </g>
+    
+    <!-- Pine Needles (Clusters of radiating lines) -->
+    <g stroke="#4A7050" stroke-width="1.5" stroke-linecap="round" >
+        <!-- Cluster 1 (Top) -->
+        <g transform="translate(120, 50)">
+            <line x1="0" y1="0" x2="-10" y2="-15" /> <line x1="0" y1="0" x2="0" y2="-20" /> <line x1="0" y1="0" x2="10" y2="-15" />
+            <line x1="0" y1="0" x2="-15" y2="-5" /> <line x1="0" y1="0" x2="15" y2="-5" />
+            <circle cx="0" cy="0" r="15" fill="#4A7050" opacity="0.2" filter="url(#ink-wash)" />
+        </g>
+        <!-- Cluster 2 (Right Branch) -->
+        <g transform="translate(180, 130)">
+            <line x1="0" y1="0" x2="-5" y2="-15" /> <line x1="0" y1="0" x2="10" y2="-10" /> <line x1="0" y1="0" x2="15" y2="5" />
+            <circle cx="0" cy="0" r="12" fill="#4A7050" opacity="0.2" filter="url(#ink-wash)" />
+        </g>
+         <!-- Cluster 3 (Left Branch) -->
+        <g transform="translate(70, 190)">
+             <line x1="0" y1="0" x2="-10" y2="-10" /> <line x1="0" y1="0" x2="-15" y2="5" /> <line x1="0" y1="0" x2="-5" y2="15" />
+             <circle cx="0" cy="0" r="12" fill="#4A7050" opacity="0.2" filter="url(#ink-wash)" />
+        </g>
+    </g>
+</svg>`,
+
+                // Lantern: Detailed Stone Structure + Warm Glow
+                lantern: `<svg viewBox="0 0 100 140" width="70" height="100">
+    <!-- Structure (Ink Outline) -->
+    <g stroke="#2c2c2c" stroke-width="2" fill="none" stroke-linejoin="round" stroke-linecap="round" filter="url(#paper-roughness)">
+        <!-- Roof -->
+        <path d="M20,50 Q50,20 80,50 L75,60 L25,60 Z" fill="#e0e0e0" fill-opacity="0.5" />
+        <circle cx="50" cy="25" r="4" fill="#2c2c2c" />
+        <!-- Light Box -->
+        <rect x="35" y="60" width="30" height="35" />
+        <line x1="42" y1="60" x2="42" y2="95" stroke-width="1" />
+        <line x1="58" y1="60" x2="58" y2="95" stroke-width="1" />
+        <line x1="35" y1="70" x2="65" y2="70" stroke-width="1" />
+        <line x1="35" y1="85" x2="65" y2="85" stroke-width="1" />
+        <!-- Base -->
+        <path d="M40,95 L60,95 L65,110 L35,110 Z" />
+        <path d="M30,110 L70,110 L70,125 L30,125 Z" fill="#ccc" fill-opacity="0.3" />
+    </g>
+    <!-- Warm Glow (Inner) -->
+    <rect x="36" y="61" width="28" height="33" fill="#FFD700" opacity="0.3" filter="url(#ink-wash)" />
+    <!-- Radiating Light -->
+    <circle cx="50" cy="77" r="15" fill="url(#lanternGlow)" opacity="0.6" filter="url(#ink-bleed)" />
+    <defs>
+        <radialGradient id="lanternGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#FFD700" stop-opacity="0.8" />
+            <stop offset="100%" stop-color="#FFD700" stop-opacity="0" />
+        </radialGradient>
+    </defs>
+</svg>`,
             }
         };
 
@@ -330,7 +767,7 @@
                 state.startDate = state.practiceHistory[0];
             }
         }
-        
+
         // --- AUDIO ---
         let audioContext;
         function initAudio() {
@@ -342,23 +779,23 @@
                 }
             }
         }
-        
+
         function playSuccessSound() {
             if (!audioContext) return;
             const oscillator = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
             oscillator.connect(gainNode);
             gainNode.connect(audioContext.destination);
-            
+
             oscillator.type = 'sine';
             gainNode.gain.setValueAtTime(0, audioContext.currentTime);
             gainNode.gain.linearRampToValueAtTime(0.5, audioContext.currentTime + 0.05);
-            
+
             oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // A4
             oscillator.frequency.exponentialRampToValueAtTime(880, audioContext.currentTime + 0.2);
-            
+
             gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.5);
-            
+
             oscillator.start(audioContext.currentTime);
             oscillator.stop(audioContext.currentTime + 0.5);
         }
@@ -372,7 +809,7 @@
             renderZenGarden();
             updateCompleteButton();
         }
-        
+
         function renderPracticeMoves() {
             const container = document.getElementById('ba-duan-jin-moves');
             container.innerHTML = CONFIG.moves.map((move, index) => `
@@ -386,14 +823,14 @@
         function renderDashboard() {
             const currentLevel = CONFIG.levels[state.level];
             const nextLevel = CONFIG.levels[state.level + 1];
-            
+
             document.getElementById('user-level').innerHTML = `
-                <div class="font-bold text-lg text-amber-600">${state.level + 1}</div>
-                <div class="text-sm text-gray-500">等级</div>`;
+                <div class="font-bold text-lg text-bamboo">${state.level + 1}</div>
+                <div class="text-sm text-ink-light">等级</div>`;
 
             document.getElementById('level-name').textContent = currentLevel.name;
             document.getElementById('xp-current').textContent = state.xp;
-            
+
             if (nextLevel) {
                 document.getElementById('xp-next').textContent = nextLevel.xp;
                 const progress = Math.min(100, ((state.xp - currentLevel.xp) / (nextLevel.xp - currentLevel.xp)) * 100);
@@ -430,11 +867,11 @@
             container.innerHTML = Object.entries(CONFIG.achievements).map(([key, ach]) => {
                 const unlocked = state.achievements.includes(key);
                 return `
-                    <div class="text-center p-2 rounded-lg ${unlocked ? 'bg-amber-100' : ''}" title="${ach.desc}">
-                        <div class="achievement-icon ${unlocked ? 'unlocked' : 'locked'} w-12 h-12 mx-auto flex items-center justify-center ${unlocked ? 'text-amber-500' : 'text-gray-400'}">
-                            <i data-lucide="${ach.icon}" class="w-10 h-10"></i>
+                    <div class="text-center p-2 rounded-sm achievement-seal ${unlocked ? 'unlocked' : ''} transition-all duration-500" title="${ach.desc}">
+                        <div class="w-10 h-10 mx-auto flex items-center justify-center">
+                            <i data-lucide="${ach.icon}" class="w-8 h-8"></i>
                         </div>
-                        <p class="text-xs mt-1 font-medium ${unlocked ? 'text-amber-800' : 'text-gray-500'}">${ach.name}</p>
+                        <p class="text-xs mt-1 font-bold font-serif">${ach.name}</p>
                     </div>
                 `;
             }).join('');
@@ -446,13 +883,13 @@
         function renderCalendar() {
             const header = document.getElementById('calendar-header');
             const grid = document.getElementById('calendar-grid');
-            
+
             header.textContent = `${calendarDate.getFullYear()}年 ${calendarDate.getMonth() + 1}月`;
             grid.innerHTML = '';
 
             const year = calendarDate.getFullYear();
             const month = calendarDate.getMonth();
-            
+
             const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             const today = new Date();
@@ -466,8 +903,8 @@
                 const dayStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
                 const isPracticed = state.practiceHistory.includes(dayStr);
                 const isToday = dayStr === todayStr;
-                
-                
+
+
                 grid.innerHTML += `
                     <div class="calendar-day w-8 h-8 flex items-center justify-center text-sm
                         ${isPracticed ? 'practiced' : ''}
@@ -478,11 +915,11 @@
                 `;
             }
         }
-        
+
         function renderZenGarden() {
             const garden = document.getElementById('zen-garden');
             const gardenMsg = document.getElementById('garden-msg');
-            
+
             let stage = CONFIG.gardenStages[0];
             for (let i = CONFIG.gardenStages.length - 1; i >= 0; i--) {
                 if (state.level >= CONFIG.gardenStages[i].level) {
@@ -495,8 +932,8 @@
             garden.querySelectorAll('.zen-garden-element').forEach(el => el.remove());
 
             let cumulativeElements = [];
-            for(let i = 0; i <= state.level && i < CONFIG.gardenStages.length; i++) {
-                if(CONFIG.gardenStages[i].elements) {
+            for (let i = 0; i <= state.level && i < CONFIG.gardenStages.length; i++) {
+                if (CONFIG.gardenStages[i].elements) {
                     cumulativeElements.push(...CONFIG.gardenStages[i].elements);
                 }
             }
@@ -508,7 +945,7 @@
                 elementDiv.style.top = el.y;
                 elementDiv.innerHTML = CONFIG.gardenElementSVG[el.type];
                 garden.appendChild(elementDiv);
-                
+
                 setTimeout(() => {
                     elementDiv.classList.add('visible');
                 }, 100 * (index + 1));
@@ -520,20 +957,20 @@
             const btn = document.getElementById('complete-practice-btn');
             if (state.practiceHistory.includes(todayStr)) {
                 btn.disabled = true;
-                btn.classList.add('bg-green-500', 'cursor-not-allowed');
-                btn.classList.remove('btn-primary');
+                btn.classList.add('bg-bamboo/50', 'cursor-not-allowed', 'opacity-80');
+                btn.classList.remove('btn-ink');
                 btn.innerHTML = `<i data-lucide="check-check"></i><span>今日已完成</span>`;
             } else {
                 btn.disabled = false;
-                btn.classList.remove('bg-green-500', 'cursor-not-allowed');
-                btn.classList.add('btn-primary');
+                btn.classList.remove('bg-bamboo/50', 'cursor-not-allowed', 'opacity-80');
+                btn.classList.add('btn-ink');
                 btn.innerHTML = `<i data-lucide="check-circle"></i><span>完成今日练习</span>`;
             }
-            if(window.lucide) {
+            if (window.lucide) {
                 window.lucide.createIcons();
             }
         }
-        
+
         function showCelebration() {
             if (typeof window.confetti !== 'function') {
                 console.error('Confetti function not found!');
@@ -542,16 +979,17 @@
 
             const duration = 3 * 1000;
             const animationEnd = Date.now() + duration;
-            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 100 };
+            // Use softer colors for confetti
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 100, colors: ['#4A7050', '#BC412B', '#000000', '#F7F4ED'] };
 
             function randomInRange(min, max) {
                 return Math.random() * (max - min) + min;
             }
 
-            const interval = setInterval(function() {
+            const interval = setInterval(function () {
                 const timeLeft = animationEnd - Date.now();
                 if (timeLeft <= 0) return clearInterval(interval);
-                
+
                 const particleCount = 50 * (timeLeft / duration);
                 // Use window.confetti to ensure it's called from the global scope
                 window.confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
@@ -572,7 +1010,7 @@
                 console.log("Already practiced today.");
                 return;
             }
-            
+
             // NEW: Set start date on first practice
             if (!state.startDate) {
                 state.startDate = todayStr;
@@ -629,26 +1067,26 @@
             // 6. Save and update UI
             saveData();
             updateUI();
-            
+
             // 7. Feedback
             showCelebration();
             playSuccessSound();
-            
+
             // Show summary
             let summary = `练习完成！获得 ${xpGained} XP.`;
-            if(leveledUp) summary += `\n🎉 等级提升至 ${CONFIG.levels[state.level].name}!`;
-            if(newAchievements.length > 0) summary += `\n🏅 获得新成就: ${newAchievements.join(', ')}`;
+            if (leveledUp) summary += `\n🎉 等级提升至 ${CONFIG.levels[state.level].name}!`;
+            if (newAchievements.length > 0) summary += `\n🏅 获得新成就: ${newAchievements.join(', ')}`;
             setTimeout(() => alert(summary), 100); // Use alert as a simple notification
         }
 
         // --- EVENT LISTENERS ---
         function setupEventListeners() {
             document.getElementById('complete-practice-btn').addEventListener('click', completePractice);
-            
+
             document.getElementById('select-all-btn').addEventListener('click', (e) => {
                 const checkboxes = document.querySelectorAll('#ba-duan-jin-moves .move-item-input');
                 const allSelected = Array.from(checkboxes).every(cb => cb.checked);
-                
+
                 checkboxes.forEach(cb => {
                     cb.checked = !allSelected;
                 });
@@ -664,7 +1102,7 @@
                 calendarDate.setMonth(calendarDate.getMonth() + 1);
                 renderCalendar();
             });
-            
+
             // Import / Export / Reset
             const importBtn = document.getElementById('import-btn');
             const importInput = document.getElementById('import-file-input');
@@ -683,7 +1121,7 @@
                 resetModal.classList.add('hidden');
                 resetData();
             });
-            
+
             // Keyboard shortcuts
             window.addEventListener('keydown', (e) => {
                 if (e.ctrlKey && e.key.toLowerCase() === 'e') {
@@ -696,11 +1134,11 @@
                 }
             });
         }
-        
+
         // --- DATA ACTIONS ---
         function exportData() {
             const dataStr = JSON.stringify(state, null, 2);
-            const blob = new Blob([dataStr], {type: "application/json"});
+            const blob = new Blob([dataStr], { type: "application/json" });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -754,19 +1192,19 @@
         // --- INITIALIZATION ---
         function init() {
             document.getElementById('loading-overlay').style.display = 'flex';
-            
+
             // Set random zen quote
             const quote = CONFIG.zenQuotes[Math.floor(Math.random() * CONFIG.zenQuotes.length)];
             document.getElementById('zen-quote').textContent = `每日禅语：${quote}`;
-            
+
             if (window.lucide) {
                 window.lucide.createIcons();
             }
-            
+
             loadData();
             setupEventListeners();
             updateUI();
-            
+
             // Fade in app
             setTimeout(() => {
                 document.getElementById('loading-overlay').style.display = 'none';
@@ -779,4 +1217,5 @@
 
     </script>
 </body>
+
 </html>
