@@ -476,6 +476,8 @@
 
         // --- CONFIGURATION ---
         const CONFIG = {
+            // Feature flag for low performance devices
+            lowPerformanceMode: false, // Set to true to disable heavy filters
             moves: [
                 "两手托天理三焦", "左右开弓似射雕", "调理脾胃须单举", "五劳七伤往后瞧",
                 "摇头摆尾去心火", "两手攀足固肾腰", "攒拳怒目增气力", "背后七颠百病消",
@@ -754,7 +756,15 @@
 
         // --- DATA PERSISTENCE (localStorage) ---
         function saveData() {
-            localStorage.setItem('baDuanJinTrackerData', JSON.stringify(state));
+            try {
+                localStorage.setItem('baDuanJinTrackerData', JSON.stringify(state));
+            } catch (e) {
+                console.error("Failed to save data:", e);
+                // Optional: Alert user if quota exceeded, but don't crash
+                if (e.name === 'QuotaExceededError') {
+                    alert("警告：存储空间已满，本次进度可能未保存。建议导出数据清理空间。");
+                }
+            }
         }
 
         function loadData() {
@@ -895,13 +905,17 @@
             const today = new Date();
             const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
+            // Optimization for large data: Use Set for O(1) lookup
+            const historySet = new Set(state.practiceHistory);
+
             for (let i = 0; i < firstDay; i++) {
                 grid.innerHTML += `<div></div>`;
             }
 
             for (let i = 1; i <= daysInMonth; i++) {
                 const dayStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-                const isPracticed = state.practiceHistory.includes(dayStr);
+                // Use Set.has instead of Array.includes
+                const isPracticed = historySet.has(dayStr);
                 const isToday = dayStr === todayStr;
 
 
@@ -916,6 +930,9 @@
             }
         }
 
+        // Track rendered state to avoid full re-renders
+        let renderedElementsCount = 0;
+
         function renderZenGarden() {
             const garden = document.getElementById('zen-garden');
             const gardenMsg = document.getElementById('garden-msg');
@@ -929,27 +946,56 @@
             }
 
             gardenMsg.textContent = stage.msg;
-            garden.querySelectorAll('.zen-garden-element').forEach(el => el.remove());
 
-            let cumulativeElements = [];
+            // correct filter usage based on perf mode
+            if (CONFIG.lowPerformanceMode) {
+                garden.style.filter = 'none';
+            }
+
+            // Calculate target elements
+            let targetElements = [];
             for (let i = 0; i <= state.level && i < CONFIG.gardenStages.length; i++) {
                 if (CONFIG.gardenStages[i].elements) {
-                    cumulativeElements.push(...CONFIG.gardenStages[i].elements);
+                    targetElements.push(...CONFIG.gardenStages[i].elements);
                 }
             }
 
-            cumulativeElements.forEach((el, index) => {
-                const elementDiv = document.createElement('div');
-                elementDiv.className = 'zen-garden-element';
-                elementDiv.style.left = el.x;
-                elementDiv.style.top = el.y;
-                elementDiv.innerHTML = CONFIG.gardenElementSVG[el.type];
-                garden.appendChild(elementDiv);
+            // If we have fewer elements than target (or 0), decision time.
+            // Case 1: Reset or downgrade -> Clear all
+            if (targetElements.length < renderedElementsCount) {
+                garden.querySelectorAll('.zen-garden-element').forEach(el => el.remove());
+                renderedElementsCount = 0;
+            }
 
-                setTimeout(() => {
-                    elementDiv.classList.add('visible');
-                }, 100 * (index + 1));
-            });
+            // Case 2: New elements to add
+            if (targetElements.length > renderedElementsCount) {
+                const newElements = targetElements.slice(renderedElementsCount);
+
+                newElements.forEach((el, index) => {
+                    const elementDiv = document.createElement('div');
+                    elementDiv.className = 'zen-garden-element';
+                    elementDiv.style.left = el.x;
+                    elementDiv.style.top = el.y;
+
+                    // Optimization: Remove filters in SVG string if low perf
+                    let svgContent = CONFIG.gardenElementSVG[el.type];
+                    if (CONFIG.lowPerformanceMode) {
+                        // Strip filter attributes regex-style for simplicity in this MVP
+                        svgContent = svgContent.replace(/filter="url\(#.*?\)"/g, '');
+                    }
+
+                    elementDiv.innerHTML = svgContent;
+                    garden.appendChild(elementDiv);
+
+                    // Stagger animation
+                    setTimeout(() => {
+                        elementDiv.classList.add('visible');
+                    }, 100 * (index + 1));
+                });
+
+                renderedElementsCount = targetElements.length;
+            }
+            // Case 3: key === count -> Do nothing (Stable)
         }
 
         function updateCompleteButton() {
@@ -986,11 +1032,14 @@
                 return Math.random() * (max - min) + min;
             }
 
+            // Reduce particles if low performance
+            let pCountBase = CONFIG.lowPerformanceMode ? 20 : 50;
+
             const interval = setInterval(function () {
                 const timeLeft = animationEnd - Date.now();
                 if (timeLeft <= 0) return clearInterval(interval);
 
-                const particleCount = 50 * (timeLeft / duration);
+                const particleCount = pCountBase * (timeLeft / duration);
                 // Use window.confetti to ensure it's called from the global scope
                 window.confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
                 window.confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
@@ -1157,20 +1206,37 @@
             reader.onload = (e) => {
                 try {
                     const importedData = JSON.parse(e.target.result);
-                    // Basic validation
-                    if (importedData && typeof importedData.xp === 'number') {
+
+                    // Strick Schema Validation
+                    const isValid = importedData
+                        && typeof importedData.xp === 'number'
+                        && typeof importedData.level === 'number'
+                        && Array.isArray(importedData.practiceHistory)
+                        && Array.isArray(importedData.achievements)
+                        && Array.isArray(importedData.moveCounts)
+                        && (importedData.totalDays === undefined || typeof importedData.totalDays === 'number'); // Optional support
+
+                    if (isValid) {
                         if (confirm("您确定要用导入的数据覆盖当前进度吗？")) {
                             state = { ...getDefaultState(), ...importedData };
                             // Add backward compatibility for imported data without startDate
                             if (!state.startDate && state.practiceHistory.length > 0) {
                                 state.startDate = state.practiceHistory[0];
                             }
+                            // Reset render count to force full redraw logic if needed (or let renderZenGarden handle the drop count)
+                            // We don't manually reset renderedElementsCount here because updateUI calls renderZenGarden
+                            // and our Case 1 logic (target < current) might not trigger if level is same but data strictly different? 
+                            // Actually, importing data implies a full state reset.
+                            // Let's force a DOM clear to be safe.
+                            document.getElementById('zen-garden').querySelectorAll('.zen-garden-element').forEach(el => el.remove());
+                            renderedElementsCount = 0;
+
                             saveData();
                             updateUI();
                             alert("数据导入成功！");
                         }
                     } else {
-                        throw new Error("Invalid data format");
+                        throw new Error("Invalid data format: Missing required fields (xp, level, practiceHistory, achievements)");
                     }
                 } catch (error) {
                     alert("导入失败。请确保文件格式正确。");
