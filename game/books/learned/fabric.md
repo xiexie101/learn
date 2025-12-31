@@ -127,6 +127,20 @@ Fabric 的核心在于它的 **Patterns（模式/提示词库）**。虽然官�
 
 ---
 
+
+### 企业核心 Pattern:
+
+create_design_doc: 根据简短描述生成详细的技术设计文档（PRD/RFC）。
+
+explain_code: 用极其清晰的逻辑解释复杂的代码段（适合接手屎山代码）。
+
+improve_prompt: 优化你的原始 Prompt，这是“元 Prompting”。
+
+write_pull_request: 自动生成规范、清晰的 PR 描述，提升 Code Review 效率。
+
+create_swagger: 从代码或描述生成 Swagger/OpenAPI 文档。
+### 
+
 ### 💡 如何查看你当前的所有 Patterns？
 
 安装 Fabric 后，你可以在命令行输入以下命令查看你本地可用的所有 Pattern：
