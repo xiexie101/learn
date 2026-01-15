@@ -1,3 +1,10 @@
+---
+title: Fabric Patterns Guide
+date: 2025-12-28
+category: Documentation
+tags: [AI, Tool, Prompt Engineering, Fabric]
+---
+
 Fabric 的核心在于它的 **Patterns（模式/提示词库）**。虽然官方没有发布实时的“全球使用量排行榜”，但根据社区活跃度、Github 讨论以及 Daniel Miessler 本人的推荐，以下是 **20 个最常用且功能最强大的 Patterns**，按应用场景分类：
 
 ### 👑 绝对核心 (The MVPs)
@@ -37,6 +44,7 @@ Fabric 的核心在于它的 **Patterns（模式/提示词库）**。虽然官�
 6. **`improve_writing`**
 * **功能**：优化你的粗糙草稿，提升清晰度、语气和语法，但保留原意。
 * **适用**：邮件润色、文档修改。
+* https://github.com/danielmiessler/Fabric/blob/main/data/patterns/improve_prompt/system.md 
 
 
 7. **`create_social_media_post`** (或 `tweet`)
@@ -141,6 +149,12 @@ write_pull_request: 自动生成规范、清晰的 PR 描述，提升 Code Revie
 create_swagger: 从代码或描述生成 Swagger/OpenAPI 文档。
 ### 
 
+analyze_prose
+提取你的“灵魂”（风格分析）
+
+一键调用（开始分身）
+write_like_me
+
 ### 💡 如何查看你当前的所有 Patterns？
 
 安装 Fabric 后，你可以在命令行输入以下命令查看你本地可用的所有 Pattern：
@@ -155,6 +169,73 @@ fabric -l
 **建议：** 初学者先死磕 **`extract_wisdom`**，它是 Fabric 哲学的最佳体现——不是为了读得更少，而是为了理解得更深。
 
 https://github.com/danielmiessler/Fabric/blob/main/data/patterns/extract_wisdom/system.md
+
+Fabric 的 Pattern 库目前非常庞大（超过 100 个），如果一个个看会很晕。为了方便你作为程序员快速索引，我把它们按照 **“数据流向”** 和 **“应用场景”** 进行了逻辑分类总结。
+
+你可以把这些 Pattern 想象成 Unix 系统里的不同 `bin` 工具。
+
+### 1. 📥 提取与洞察 (Extraction & Insight)
+
+**核心逻辑：Input > Output。** 用于快速消化海量信息，把“长内容”变“短精华”。
+
+* **`extract_wisdom`** (⭐⭐⭐): **旗舰功能**。提取核心观点、名言、事实、参考资料。比单纯摘要更深刻。
+* **`summarize`**: 标准摘要，适合快速浏览。
+* **`extract_main_idea`**: 只要一句话的主旨，适合极速筛选。
+* **`analyze_claims`**: 提取文章中的主张，并分析其真实性。
+* **`extract_book_ideas`**: 专门针对书籍内容的提取。
+* **`extract_poc`**: 从安全文章中提取概念验证 (PoC) 代码。
+
+### 2. ✍️ 创作与转化 (Creation & Transformation)
+
+**核心逻辑：Idea > Content。** 用于输出内容，或者改变内容的载体/语气。
+
+* **`write_essay`**: 根据一个短语写出一篇完整的文章。
+* **`improve_writing`**: 润色你的草稿，修正语法，提升专业度。
+* **`create_social_media_post`** / **`tweet`**: 把长文转成适合发推/朋友圈的短文案。
+* **`create_video_script`**: 生成视频脚本。
+* **`create_art_prompt`**: 将自然语言转化为 Midjourney/Stable Diffusion 的提示词。
+* **`translate`**: 翻译功能（虽然简单，但结合管道很好用）。
+
+### 3. 💻 编程与工程 (Dev & Engineering)
+
+**核心逻辑：Code Context > Analysis/Docs。** 程序员的生产力工具。
+
+* **`explain_code`**: 解释代码逻辑（读源码神器）。
+* **`write_documentation`**: 为代码自动生成文档。
+* **`create_design_document`**: 生成技术设计文档 (Tech Spec)。
+* **`summarize_git_changes`**: 配合 `git diff` 自动写 Commit Message。
+* **`clean_text`**: 清理文本格式（去除多余换行、乱码等）。
+* **`create_command`**: 根据自然语言需求生成 Linux 命令。
+
+### 4. 🧠 批判性思维与逻辑 (Thinking & Logic)
+
+**核心逻辑：Content > Analysis。** 帮你动脑子，充当“第二大脑”进行审核。
+
+* **`find_logical_fallacies`**: 寻找文本中的逻辑谬误（如稻草人谬误）。
+* **`find_hidden_message`**: 分析潜台词和作者意图。
+* **`rate_content`**: 给文章质量打分。
+* **`analyze_paper`**: 学术论文分析，关注方法论和偏差。
+* **`compare_and_contrast`**: 对比两个概念或文本的异同。
+
+### 5. 🛡️ 网络安全 (Cybersecurity)
+
+**核心逻辑：Security Ops。** 作者 Daniel Miessler 的老本行，也是 Fabric 最独特的地方。
+
+* **`analyze_threat_report`**: 分析威胁情报报告。
+* **`create_threat_model`**: 为系统生成威胁模型。
+* **`analyze_malware`**: 分析恶意软件报告。
+* **`explain_project_structure`**: 快速理解一个陌生项目的目录结构安全隐患。
+
+### 6. 🧘 个人成长与生活 (Self-Improvement)
+
+**核心逻辑：Life Context > Advice。** 结合你对“自我提升”的兴趣。
+
+* **`extract_predictions`**: 提取文章中关于未来的预测。
+* **`create_quiz`**: 把学习材料变成测验题（费曼学习法辅助）。
+* **`find_actionable_advice`**: 专门提取“具体能做的事”，过滤掉鸡汤。
+* **`create_visualization`**: 建议如何将文本数据可视化。
+
+---
 
 💡 极简记忆法 (Cheat Sheet)
 如果你记不住这么多，只需要记住这 "三板斧"，能覆盖 80% 的日常需求：

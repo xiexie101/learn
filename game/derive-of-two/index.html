@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>福清行 | Fuqing Walk</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="app">
+        <!-- Section 1: Landing -->
+        <section id="landing" class="screen visible">
+            <h1 class="title">福清行</h1>
+            <p class="subtitle">Fuqing Walk</p>
+            <p class="description">把城市当成迷宫去探索</p>
+            <button id="start-btn" class="btn">开始探索</button>
+            <div class="footer-actions">
+                <button id="reset-btn" class="btn-text">重置今日记录</button>
+            </div>
+        </section>
+
+        <!-- Section 2: The Spin -->
+        <section id="spin-screen" class="screen hidden">
+            <div class="wheel-container">
+                <div class="wheel" id="wheel">
+                    <div class="sector" style="--i:0; --clr:#0047AB;" data-label="共振"></div>
+                    <div class="sector" style="--i:1; --clr:#B22222;" data-label="异化"></div>
+                    <div class="sector" style="--i:2; --clr:#228B22;" data-label="共谋"></div>
+                    <div class="sector" style="--i:3; --clr:#800080;" data-label="祈梦"></div>
+                    <div class="center-point"></div>
+                </div>
+                <div class="indicator"></div>
+            </div>
+            <button id="spin-btn" class="btn secondary">SPIN</button>
+        </section>
+
+        <!-- Section 3: Task Card -->
+        <section id="task-screen" class="screen hidden">
+            <div class="card" id="task-card">
+                <div class="card-header">
+                    <span class="task-id">#00</span>
+                    <span class="task-category">CATEGORY</span>
+                </div>
+                <h2 class="task-title">Task Title</h2>
+                <p class="task-desc">Task description goes here.</p>
+            </div>
+            <div class="actions">
+                <button id="accept-btn" class="btn">接受挑战</button>
+                <button id="veto-btn" class="btn outline">使用否决权</button>
+            </div>
+        </section>
+
+        <!-- Section 4: Veto / Truth -->
+        <section id="veto-screen" class="screen hidden warning-mode">
+            <h2 class="warning-title">VETOED</h2>
+            <p class="warning-desc">跳过任务的代价：<br>必须诚实回答这个问题。</p>
+            <div class="truth-card">
+                <p id="truth-question">Question goes here?</p>
+            </div>
+            <button id="truth-done-btn" class="btn inverse">以此换取自由</button>
+        </section>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+
+</html>

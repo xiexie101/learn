@@ -1,3 +1,10 @@
+---
+title: Google Photos 2025 Recap
+date: 2025-12-29
+category: Article
+tags: [Google Photos, AI, Recap, Product]
+---
+
 # Google Photos 2025 Recap
 
 ## 摘要
