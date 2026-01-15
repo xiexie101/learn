@@ -5,7 +5,8 @@ export const tasks = [
         color: "#0047AB", // Cobalt Blue / Klein Blue-ish
         title: "颜色狩猎（进阶版）",
         description: "寻找一种属于“利桥古街”特有的红色（红砖色），然后比一比，看谁能在对方身上或随身物品上找到最接近的颜色。",
-        categoryLabel: "共振"
+        categoryLabelOri: "共振",
+        categoryLabel: "观察"
     },
     {
         id: 2,
@@ -13,7 +14,8 @@ export const tasks = [
         color: "#0047AB",
         title: "听觉切片",
         description: "闭上眼睛停在原地30秒。睁眼后，轮流描述刚才听到的声音中最远的一种和最近的一种。",
-        categoryLabel: "共振"
+        categoryLabelOri: "共振",
+        categoryLabel: "观察"
     },
     {
         id: 3,
@@ -21,7 +23,8 @@ export const tasks = [
         color: "#0047AB",
         title: "气味导航",
         description: "现在的方向由鼻子决定。寻找一种食物的香气或陈旧木头的气味，顺着气味走，直到味道消失为止。",
-        categoryLabel: "共振"
+        categoryLabelOri: "共振",
+        categoryLabel: "观察"
     },
     {
         id: 4,
@@ -29,7 +32,8 @@ export const tasks = [
         color: "#0047AB",
         title: "材质配对",
         description: "寻找一块粗糙的石头或墙面，摸一摸。然后要求对方找出另一个触感完全相反（极其光滑/柔软）的物体。",
-        categoryLabel: "共振"
+        categoryLabelOri: "共振",
+        categoryLabel: "观察"
     },
     {
         id: 5,
@@ -37,7 +41,8 @@ export const tasks = [
         color: "#0047AB",
         title: "光影捕捉",
         description: "寻找一个影子的形状，它看起来像一种动物。站在那里，用手机拍下影子，不要拍到实物。",
-        categoryLabel: "共振"
+        categoryLabelOri: "共振",
+        categoryLabel: "观察"
     },
     {
         id: 6,
@@ -45,7 +50,8 @@ export const tasks = [
         color: "#B22222", // Firebrick
         title: "逆流而上",
         description: "找一个正在向你们走来的陌生路人，猜测他/她此刻的心情（是急躁、快乐还是疲惫），并编造一个他/她为什么来这里的故事，两人轮流接龙补充。",
-        categoryLabel: "异化"
+        categoryLabelOri: "异化",
+        categoryLabel: "非常规"
     },
     {
         id: 7,
@@ -53,7 +59,8 @@ export const tasks = [
         color: "#B22222",
         title: "垂直视角",
         description: "这里的红砖古厝屋顶很美。现在的任务是：必须仰着头走完这50米，如果谁低头了，就要真心夸赞对方一个具体的细节。",
-        categoryLabel: "异化"
+        categoryLabelOri: "异化",
+        categoryLabel: "非常规"
     },
     {
         id: 8,
@@ -61,7 +68,8 @@ export const tasks = [
         color: "#B22222",
         title: "重新命名",
         description: "走到一座桥（利桥）或一棵大榕树下。现在它不叫原来的名字了。根据你们当下的感受，给它起个新名字（例如“被风吹乱头发之桥”）。",
-        categoryLabel: "异化"
+        categoryLabelOri: "异化",
+        categoryLabel: "非常规"
     },
     {
         id: 9,
@@ -69,7 +77,8 @@ export const tasks = [
         color: "#B22222",
         title: "水泥缝隙的森林",
         description: "蹲下来，寻找墙角或砖缝里的一株植物。给这株植物拍一张“微距大片”，假装你们是缩小了100倍的探险家，正在探索原始森林。",
-        categoryLabel: "异化"
+        categoryLabelOri: "异化",
+        categoryLabel: "非常规"
     },
     {
         id: 10,
@@ -77,7 +86,8 @@ export const tasks = [
         color: "#B22222",
         title: "时间旅行者",
         description: "站在瑞云塔下，想象现在是100年前。轮流描述：如果你们生活在那个时代，你们现在站在这里是在等谁？或者在交换什么情报？",
-        categoryLabel: "异化"
+        categoryLabelOri: "异化",
+        categoryLabel: "非常规"
     },
     {
         id: 11,
@@ -85,7 +95,8 @@ export const tasks = [
         color: "#228B22", // Forest Green
         title: "步伐镜像",
         description: "在接下来的两分钟里，不要说话，走在Ta的身后一步远，完全模仿Ta的步伐节奏和走路姿势（摆臂幅度、快慢）。",
-        categoryLabel: "共谋"
+        categoryLabelOri: "共谋",
+        categoryLabel: "互动"
     },
     {
         id: 12,
@@ -93,7 +104,8 @@ export const tasks = [
         color: "#228B22",
         title: "借景祝福",
         description: "在古街的招牌、对联或指示牌上，每人找三个字，凑成一句送给对方的话（可以无厘头，也可以深情）。",
-        categoryLabel: "共谋"
+        categoryLabelOri: "共谋",
+        categoryLabel: "互动"
     },
     {
         id: 13,
@@ -101,7 +113,8 @@ export const tasks = [
         color: "#228B22",
         title: "避风港",
         description: "福清的风很大。寻找一个此刻绝对没有风的角落（墙角或巷弄深处）。在那里躲1分钟，分享一个关于“童年”的秘密。",
-        categoryLabel: "共谋"
+        categoryLabelOri: "共谋",
+        categoryLabel: "互动"
     },
     {
         id: 14,
@@ -109,7 +122,8 @@ export const tasks = [
         color: "#228B22",
         title: "人造相框",
         description: "不用手机拍照。用双手拇指和食指比出一个相框，透过这个“框”看对方，告诉Ta，你在这个框里看到了什么背景（是灯笼、人群还是蓝天）。",
-        categoryLabel: "共谋"
+        categoryLabelOri: "共谋",
+        categoryLabel: "互动"
     },
     {
         id: 15,
@@ -117,7 +131,8 @@ export const tasks = [
         color: "#228B22",
         title: "安全距离测试",
         description: "两人并排走，尽可能靠近但不能发生身体接触（衣服摩擦可以）。保持这个状态走过这三家店面。",
-        categoryLabel: "共谋"
+        categoryLabelOri: "共谋",
+        categoryLabel: "互动"
     },
     {
         id: 16,
@@ -125,7 +140,8 @@ export const tasks = [
         color: "#800080", // Purple
         title: "梦的解析",
         description: "坐在石阶上，互相描述最近做过的一个奇怪的梦。对方的任务不是解梦，而是要给这个梦起一个像电影一样的标题。",
-        categoryLabel: "祈梦"
+        categoryLabelOri: "祈梦",
+        categoryLabel: "探索"
     },
     {
         id: 17,
@@ -133,7 +149,8 @@ export const tasks = [
         color: "#800080",
         title: "九仙君的骰子",
         description: "在分岔路口，不要看地图。拿出一枚硬币（或者石头剪刀布），赢的人决定向左还是向右。既然在祈梦胜地，就把路线交给“天意”。",
-        categoryLabel: "祈梦"
+        categoryLabelOri: "祈梦",
+        categoryLabel: "探索"
     },
     {
         id: 18,
@@ -141,7 +158,8 @@ export const tasks = [
         color: "#800080",
         title: "沉默的十分钟",
         description: "就像你提到的“随意走10分钟”，但增加规则：这10分钟绝对禁止说话，只能用手指物、眼神交流或拉扯衣袖来沟通。体验沉默中的张力。",
-        categoryLabel: "祈梦"
+        categoryLabelOri: "祈梦",
+        categoryLabel: "探索"
     },
     {
         id: 19,
@@ -149,7 +167,8 @@ export const tasks = [
         color: "#800080",
         title: "登高回望",
         description: "（如果在石竹山或利桥的高处）背对风景，互相描述对方瞳孔里反射出的景色是什么。",
-        categoryLabel: "祈梦"
+        categoryLabelOri: "祈梦",
+        categoryLabel: "探索"
     },
     {
         id: 20,
@@ -157,7 +176,8 @@ export const tasks = [
         color: "#800080",
         title: "未发生的怀念",
         description: "假设这一刻已经是十年前的记忆。如果让你带走这场景里的一个东西（一块瓦片、一片叶子、一种声音）作为纪念，你会选什么？为什么？",
-        categoryLabel: "祈梦"
+        categoryLabelOri: "祈梦",
+        categoryLabel: "探索"
     }
 ];
 
