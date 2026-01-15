@@ -42,6 +42,7 @@ let history = JSON.parse(localStorage.getItem(storageKey) || '[]');
 // 2: Conspiracy (Green) - 180-270 deg
 // 3: Dream (Purple) - 270-360 deg
 const categories = ['Attunement', 'Detournement', 'Conspiracy', 'Dream'];
+const categoriesLabel = ['观察', '非常规', '互动', '探索'];
 
 // Helpers
 function showScreen(screenName) {
@@ -121,17 +122,19 @@ btnSpin.addEventListener('click', () => {
     // Sector 3 (270-360)
 
     let sectorIndex = Math.floor(finalAngle / 90);
-    // Adjust based on the wheel layout logic if needed. 
-    // CSS layout: Sector 0 starts at 0 deg (12 o'clock) and goes to 90.
-    // The indicator is at top. 
-    // If we rotate -45 deg, Sector 0 is still under indicator.
-    // If we rotate -100 deg, Sector 1 (90-180) is under indicator.
-    // So logic `Math.floor(finalAngle / 90)` is correct for this layout.
+    // Adjust based on the wheel layout logic.
+    // S0 (Top-Left, 9-12), S1 (Top-Right, 12-3), etc.
+    // Rotating CCW (Negative):
+    // 0-90 deg rotation brings S1 under the needle.
+    // 90-180 deg rotation brings S2 under the needle.
+    // So mapped index needs to be shifted by +1.
+    // 0 -> S1, 1 -> S2, 2 -> S3, 3 -> S0
 
-    if (sectorIndex > 3) sectorIndex = 0; // Just safety
+    const adjustedIndex = (sectorIndex + 1) % 4;
 
-    const selectedCategory = categories[sectorIndex];
-    console.log("Selected:", selectedCategory, "Angle:", finalAngle);
+    const selectedCategory = categories[adjustedIndex];
+    const selectedCategoryLabel = categoriesLabel[adjustedIndex];
+    console.log("Selected:", selectedCategory, "Angle:", finalAngle, "Index:", adjustedIndex);
 
     // Wait for animation end (4s)
     setTimeout(() => {
@@ -146,17 +149,30 @@ btnSpin.addEventListener('click', () => {
             addToHistory(currentTask.id);
             showTask(currentTask);
         } else {
-            alert(`【${selectedCategory}】类别的今日任务已全部完成！\n请尝试重置记录或休息一下。`);
+            alert(`【${selectedCategoryLabel}】类别的今日任务已全部完成！\n请尝试重置记录或休息一下。`);
         }
 
     }, 4000);
 });
+
+// 0: Attunement (Blue) -> Spades
+// 1: Detournement (Red) -> Hearts
+// 2: Conspiracy (Green) -> Clubs
+// 3: Dream (Purple) -> Diamonds
+const categorySuitMap = {
+    'Attunement': '#icon-spades',
+    'Detournement': '#icon-hearts',
+    'Conspiracy': '#icon-clubs',
+    'Dream': '#icon-diamonds'
+};
 
 function showTask(task) {
     const elId = taskCard.querySelector('.task-id');
     const elCat = taskCard.querySelector('.task-category');
     const elTitle = taskCard.querySelector('.task-title');
     const elDesc = taskCard.querySelector('.task-desc');
+    const elBgIconUse = taskCard.querySelector('.card-bg-icon use');
+    const elBgIconSvg = taskCard.querySelector('.card-bg-icon svg');
 
     elId.textContent = `#${task.id.toString().padStart(2, '0')}`;
     elCat.textContent = task.categoryLabel;
@@ -166,6 +182,13 @@ function showTask(task) {
     // Apply accent color
     elCat.style.color = task.color;
     // elTitle.style.color = task.color; 
+
+    // Apply Suit Icon
+    const suitId = categorySuitMap[task.category];
+    if (suitId) {
+        elBgIconUse.setAttribute('href', suitId);
+        elBgIconSvg.style.color = task.color;
+    }
 
     showScreen('task');
 }

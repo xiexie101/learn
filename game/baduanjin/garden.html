@@ -265,6 +265,105 @@
             opacity: 1;
             transform: scale(1);
         }
+
+        /* Year of the Horse Special */
+        .horse-wrapper {
+            transition: all 1s ease-in-out;
+            transform-origin: center bottom;
+            /* New: Image specific styles */
+            width: 120px;
+            height: auto;
+            display: block;
+            /* Ensure it takes up space */
+            /* Blend mode for Ink Wash effect on paper background */
+            mix-blend-mode: multiply;
+            filter: contrast(1.1) brightness(0.95);
+        }
+
+        /* Idle Animation: Grazing / Looking around */
+        @keyframes horseIdle {
+
+            0%,
+            100% {
+                transform: rotate(0deg) translateY(0);
+            }
+
+            50% {
+                transform: rotate(1deg) translateY(2px);
+            }
+        }
+
+        .horse-idle {
+            animation: horseIdle 6s ease-in-out infinite;
+        }
+
+        /* Run Animation: Gallop across screen */
+        @keyframes horseGallop {
+            0% {
+                transform: translateX(0) scaleX(1);
+            }
+
+            45% {
+                transform: translateX(300px) scaleX(1);
+            }
+
+            /* Run right */
+            50% {
+                transform: translateX(300px) scaleX(-1);
+            }
+
+            /* Turn */
+            95% {
+                transform: translateX(0) scaleX(-1);
+            }
+
+            /* Run left */
+            100% {
+                transform: translateX(0) scaleX(1);
+            }
+
+            /* Turn back */
+        }
+
+        .horse-run {
+            animation: horseGallop 8s ease-in-out forwards;
+            z-index: 50;
+            /* Bring to front while running */
+        }
+
+        /* Seal Style */
+        .year-seal {
+            width: 32px;
+            height: 32px;
+            background-color: #BC412B;
+            /* Vermilion */
+            color: #F7F4ED;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: "Noto Serif SC", serif;
+            font-weight: bold;
+            font-size: 14px;
+            line-height: 1;
+            box-shadow: 0 2px 4px rgba(188, 65, 43, 0.3);
+            border: 2px solid #a32e1a;
+            position: relative;
+            transform: rotate(-5deg);
+        }
+
+        .year-seal::after {
+            content: '';
+            position: absolute;
+            inset: 2px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 2px;
+        }
+
+        .year-seal:hover {
+            transform: rotate(0deg) scale(1.1);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
     </style>
 </head>
 
@@ -310,7 +409,11 @@
             <div
                 class="ink-card rounded-md p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center ink-border">
                 <div>
-                    <h1 class="text-3xl font-bold text-ink-black">禅意花园运动追踪器</h1>
+                    <div class="flex items-center gap-3">
+                        <h1 class="text-3xl font-bold text-ink-black">禅意花园运动追踪器</h1>
+                        <!-- Year of the Horse Seal -->
+                        <div class="year-seal" title="丙午马年">丙午</div>
+                    </div>
                     <p id="zen-quote" class="mt-2 text-ink-light font-serif italic">每日禅语：加载中...</p>
                 </div>
                 <div class="mt-4 sm:mt-0 flex items-center gap-3">
@@ -506,7 +609,7 @@
                 "气血通畅，百病不生。"
             ],
             gardenStages: [
-                { level: 0, msg: "您的花园空灵宁静，等待第一颗石头的落下。", elements: [{ type: 'stone', x: '50%', y: '50%' }, { type: 'grass', x: '10%', y: '80%' }] },
+                { level: 0, msg: "您的花园空灵宁静，等待第一颗石头的落下。", elements: [{ type: 'stone', x: '50%', y: '50%' }, { type: 'grass', x: '10%', y: '80%' }, { type: 'horse', x: '20%', y: '65%' }] },
                 { level: 1, msg: "青苔悄然生长，为花园增添一抹绿意。", elements: [{ type: 'moss', x: '45%', y: '55%' }, { type: 'grass', x: '80%', y: '75%' }] },
                 { level: 2, msg: "一株小草破土而出，充满生命力。", elements: [{ type: 'grass', x: '60%', y: '40%' }, { type: 'grass', x: '20%', y: '45%' }] },
                 // Level 3: Pond enters. Needs to be large and central.
@@ -733,6 +836,9 @@
         </radialGradient>
     </defs>
 </svg>`,
+
+                // Horse: Replaced by Image Asset
+                horse: ``, // Empty as we handle it specially in JS now
             }
         };
 
@@ -977,14 +1083,25 @@
                     elementDiv.style.left = el.x;
                     elementDiv.style.top = el.y;
 
-                    // Optimization: Remove filters in SVG string if low perf
-                    let svgContent = CONFIG.gardenElementSVG[el.type];
-                    if (CONFIG.lowPerformanceMode) {
-                        // Strip filter attributes regex-style for simplicity in this MVP
-                        svgContent = svgContent.replace(/filter="url\(#.*?\)"/g, '');
+                    // Modification: Special handling for image assets (horse)
+                    if (el.type === 'horse') {
+                        // Use Image tag instead of SVG string
+                        const img = document.createElement('img');
+                        img.src = 'horse_ink.png';
+                        img.className = 'horse-wrapper horse-idle';
+                        // Adjust position slightly to center the image if needed, or rely on CSS
+                        img.style.marginTop = '-50px'; // Offset to align feet with "ground"
+                        elementDiv.appendChild(img);
+                    } else {
+                        // Optimization: Remove filters in SVG string if low perf
+                        let svgContent = CONFIG.gardenElementSVG[el.type];
+                        if (CONFIG.lowPerformanceMode) {
+                            // Strip filter attributes regex-style for simplicity in this MVP
+                            svgContent = svgContent.replace(/filter="url\(#.*?\)"/g, '');
+                        }
+                        elementDiv.innerHTML = svgContent;
                     }
 
-                    elementDiv.innerHTML = svgContent;
                     garden.appendChild(elementDiv);
 
                     // Stagger animation
@@ -1121,6 +1238,20 @@
             showCelebration();
             playSuccessSound();
 
+            // 8. Trigger Horse Animation (New for Year of the Horse)
+            const horseSvg = document.querySelector('.horse-wrapper');
+            if (horseSvg) {
+                horseSvg.classList.remove('horse-idle');
+                void horseSvg.offsetWidth; // Trigger reflow to restart animation if needed
+                horseSvg.classList.add('horse-run');
+
+                // Reset after animation ends (8s)
+                setTimeout(() => {
+                    horseSvg.classList.remove('horse-run');
+                    horseSvg.classList.add('horse-idle');
+                }, 8000);
+            }
+
             // Show summary
             let summary = `练习完成！获得 ${xpGained} XP.`;
             if (leveledUp) summary += `\n🎉 等级提升至 ${CONFIG.levels[state.level].name}!`;
@@ -1248,11 +1379,9 @@
         }
 
         function resetData() {
-            if (confirm("最后一次确认：真的要重置所有数据吗？")) {
-                state = getDefaultState();
-                saveData();
-                location.reload(); // Reload to ensure clean state
-            }
+            state = getDefaultState();
+            saveData();
+            location.reload(); // Reload to ensure clean state
         }
 
         // --- INITIALIZATION ---

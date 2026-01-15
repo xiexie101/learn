@@ -21,14 +21,49 @@
             </div>
         </section>
 
+        <!-- SVG Assets -->
+        <svg style="display: none;">
+            <symbol id="icon-spades" viewBox="0 0 24 24">
+                <path fill="currentColor"
+                    d="M12,2C9,2 7,3.5 7,6C7,7.5 8,9 9,10C5,10 2,13 2,16C2,19.5 6,22 12,22C18,22 22,19.5 22,16C22,13 19,10 15,10C16,9 17,7.5 17,6C17,3.5 15,2 12,2Z" />
+            </symbol>
+            <symbol id="icon-hearts" viewBox="0 0 24 24">
+                <path fill="currentColor"
+                    d="M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5C2,5.41 4.42,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.03L12,21.35Z" />
+            </symbol>
+            <symbol id="icon-clubs" viewBox="0 0 24 24">
+                <path fill="currentColor"
+                    d="M19.78,11.53C19.78,9.45 18.1,7.77 16.02,7.77C15.65,7.77 15.29,7.82 14.95,7.93C15.93,5.65 15.54,2.94 13.56,1.4C11.58,-0.14 8.76,0.25 7.23,2.23C6.7,2.91 6.36,3.72 6.27,4.55C4.24,4.95 2.62,6.58 2.22,8.61C1.82,10.64 2.87,12.67 4.75,13.73C5.17,13.97 5.61,14.15 6.07,14.28C4.54,16.26 4.93,18.97 6.91,20.51C8.89,22.05 11.71,21.66 13.24,19.68C13.4,19.47 13.53,19.25 13.65,19.03C15.26,19.16 16.5,20.5 16.5,22H19.5C19.5,19.6 18,17.5 15.8,16.7C18.12,16.42 19.78,14.23 19.78,11.53Z" />
+            </symbol>
+            <symbol id="icon-diamonds" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M19,12L12,22L5,12L12,2Z" />
+            </symbol>
+        </svg>
+
         <!-- Section 2: The Spin -->
         <section id="spin-screen" class="screen hidden">
             <div class="wheel-container">
                 <div class="wheel" id="wheel">
-                    <div class="sector" style="--i:0; --clr:#0047AB;" data-label="共振"></div>
-                    <div class="sector" style="--i:1; --clr:#B22222;" data-label="异化"></div>
-                    <div class="sector" style="--i:2; --clr:#228B22;" data-label="共谋"></div>
-                    <div class="sector" style="--i:3; --clr:#800080;" data-label="祈梦"></div>
+                    <div class="sector" style="--i:0; --clr:#0047AB;" data-label="观察">
+                        <svg class="sector-icon">
+                            <use href="#icon-spades"></use>
+                        </svg>
+                    </div>
+                    <div class="sector" style="--i:1; --clr:#B22222;" data-label="非常规">
+                        <svg class="sector-icon">
+                            <use href="#icon-hearts"></use>
+                        </svg>
+                    </div>
+                    <div class="sector" style="--i:2; --clr:#228B22;" data-label="互动">
+                        <svg class="sector-icon">
+                            <use href="#icon-clubs"></use>
+                        </svg>
+                    </div>
+                    <div class="sector" style="--i:3; --clr:#800080;" data-label="探索">
+                        <svg class="sector-icon">
+                            <use href="#icon-diamonds"></use>
+                        </svg>
+                    </div>
                     <div class="center-point"></div>
                 </div>
                 <div class="indicator"></div>
@@ -39,6 +74,11 @@
         <!-- Section 3: Task Card -->
         <section id="task-screen" class="screen hidden">
             <div class="card" id="task-card">
+                <div class="card-bg-icon">
+                    <svg>
+                        <use href="#icon-spades"></use>
+                    </svg>
+                </div>
                 <div class="card-header">
                     <span class="task-id">#00</span>
                     <span class="task-category">CATEGORY</span>
