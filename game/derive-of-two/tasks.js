@@ -157,7 +157,7 @@ export const tasks = [
         category: "Dream",
         color: "#800080",
         title: "沉默的十分钟",
-        description: "就像你提到的“随意走10分钟”，但增加规则：这10分钟绝对禁止说话，只能用手指物、眼神交流或拉扯衣袖来沟通。体验沉默中的张力。",
+        description: "随意走10分钟，这10分钟绝对禁止说话，只能用手指物、眼神交流或拉扯衣袖来沟通。体验沉默中的张力。",
         categoryLabelOri: "祈梦",
         categoryLabel: "探索"
     },
