@@ -189,7 +189,7 @@
 }
 
 .card-face.front .card-mini-title {
-    font-size: 1.8rem;
+    font-size: 1.7rem;
     font-weight: bold;
     margin-bottom: 0.5rem;
     line-height: 1.2;
@@ -197,7 +197,7 @@
 }
 
 .card-face.front .card-mini-desc {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     color: #666;
     line-height: 1.4;
     overflow: hidden;
