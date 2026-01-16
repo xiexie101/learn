@@ -142,6 +142,26 @@ body {
     opacity: 0.6;
 }
 
+.btn-small {
+    padding: 0.6rem 1.5rem;
+    font-size: 0.9rem;
+    background: transparent;
+    border: 1px solid #ccc;
+    border-radius: 50px;
+    color: var(--secondary-color);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: normal;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.btn-small:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    background: rgba(0, 0, 0, 0.02);
+}
+
 .footer-actions {
     margin-top: 2rem;
     display: flex;
