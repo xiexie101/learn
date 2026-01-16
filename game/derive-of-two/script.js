@@ -207,3 +207,86 @@ btnVeto.addEventListener('click', () => {
 btnTruthDone.addEventListener('click', () => {
     showScreen('spin');
 });
+
+
+// --- Gallery Logic ---
+
+const galleryGrid = document.getElementById('gallery-grid');
+const galleryBackBtn = document.getElementById('gallery-back-btn');
+const galleryEntryBtn = document.getElementById('gallery-entry-btn');
+const filterBtns = document.querySelectorAll('.filter-btn');
+
+// Add gallery screen to screens object
+screens.gallery = document.getElementById('gallery-screen');
+
+galleryEntryBtn.addEventListener('click', () => {
+    renderGallery();
+    showScreen('gallery');
+});
+
+galleryBackBtn.addEventListener('click', () => {
+    showScreen('landing');
+});
+
+filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        // Remove active from all
+        filterBtns.forEach(b => b.classList.remove('active'));
+        // Add active to clicked
+        btn.classList.add('active');
+
+        const category = btn.getAttribute('data-category');
+        filterGallery(category);
+    });
+});
+
+function renderGallery() {
+    galleryGrid.innerHTML = '';
+
+    tasks.forEach(task => {
+        const card = document.createElement('div');
+        card.className = `gallery-card task-cat-${task.category}`;
+        card.dataset.category = task.category;
+
+        // CSS Variables for color
+        card.style.setProperty('--card-color', task.color);
+
+        const suitId = categorySuitMap[task.category];
+
+        card.innerHTML = `
+            <div class="card-inner">
+                <div class="card-face back">
+                    <span class="card-id">#${task.id.toString().padStart(2, '0')}</span>
+                    <div class="card-watermark">
+                        <svg viewBox="0 0 24 24">
+                            <use href="${suitId}"></use>
+                        </svg>
+                    </div>
+                </div>
+                <div class="card-face front">
+                    <div class="card-cat-label">${task.categoryLabel}</div>
+                    <div class="card-mini-title">${task.title}</div>
+                    <div class="card-mini-desc">${task.description}</div>
+                </div>
+            </div>
+        `;
+
+        // Flip Interaction
+        card.addEventListener('click', () => {
+            card.classList.toggle('flipped');
+        });
+
+        galleryGrid.appendChild(card);
+    });
+}
+
+function filterGallery(category) {
+    const cards = document.querySelectorAll('.gallery-card');
+    cards.forEach(card => {
+        if (category === 'all' || card.dataset.category === category) {
+            card.classList.remove('hidden');
+        } else {
+            card.classList.add('hidden');
+        }
+    });
+}

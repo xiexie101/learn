@@ -17,6 +17,7 @@
             <p class="description">把城市当成迷宫去探索</p>
             <button id="start-btn" class="btn">开始探索</button>
             <div class="footer-actions">
+                <button id="gallery-entry-btn" class="btn outline" style="margin-right: 10px;">任务图鉴</button>
                 <button id="reset-btn" class="btn-text">重置今日记录</button>
             </div>
         </section>
@@ -100,6 +101,47 @@
                 <p id="truth-question">Question goes here?</p>
             </div>
             <button id="truth-done-btn" class="btn inverse">以此换取自由</button>
+        </section>
+
+        <!-- Section 5: Task Gallery -->
+        <section id="gallery-screen" class="screen hidden gallery-mode">
+            <div class="gallery-header">
+                <button id="gallery-back-btn" class="icon-btn">
+                    <svg viewBox="0 0 24 24" width="24" height="24">
+                        <path fill="currentColor"
+                            d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" />
+                    </svg>
+                </button>
+                <div class="filter-bar">
+                    <button class="filter-btn active" data-category="all">ALL</button>
+                    <button class="filter-btn" data-category="Attunement" style="--btn-color: #0047AB;">
+                        <svg>
+                            <use href="#icon-spades"></use>
+                        </svg>
+                    </button>
+                    <button class="filter-btn" data-category="Detournement" style="--btn-color: #B22222;">
+                        <svg>
+                            <use href="#icon-hearts"></use>
+                        </svg>
+                    </button>
+                    <button class="filter-btn" data-category="Conspiracy" style="--btn-color: #228B22;">
+                        <svg>
+                            <use href="#icon-clubs"></use>
+                        </svg>
+                    </button>
+                    <button class="filter-btn" data-category="Dream" style="--btn-color: #800080;">
+                        <svg>
+                            <use href="#icon-diamonds"></use>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="gallery-scroll-area">
+                <div class="gallery-grid" id="gallery-grid">
+                    <!-- Cards will be injected here -->
+                </div>
+            </div>
         </section>
     </div>
 
