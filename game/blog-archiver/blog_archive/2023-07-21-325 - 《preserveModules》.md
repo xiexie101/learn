@@ -1,0 +1,39 @@
+---
+title: "325 - 《preserveModules》"
+date: 2023-07-21
+url: https://sorrycc.com/preserve-modules
+---
+
+发布于 2023年7月21日
+
+# 325 - 《preserveModules》
+
+最近才发现这个来自 rollup 的功能，很小众，但在特定的场景下还是挺有用的。大家可以了解下，万一你有场景合适呢。
+
+1、是什么？
+
+比如。
+
+![](https://img.alicdn.com/imgextra/i2/O1CN01fCKrFp1QexmhOQRNX_!!6000000002002-2-tps-3786-1766.png)
+
+开启 preserveModules 之后，输出时会保留 main.js 和 maths.js，即不会做 Bundle，而是把所有文件输出到 dist 目录。但是，他会做几件事，1）rollup 本身针对文件做的 transform，比如把 typescript 编译成 js，2）tree shaking，不会产出没有用到的文件，以及文件内没有用到的 exports 等语句。
+
+2、只有 rollup 支持吗？
+
+目前看来的是。[esbuild](https://github.com/evanw/esbuild/issues/944#issuecomment-800781665) 和 [webpack](https://github.com/webpack/webpack/issues/5866) 有相关的 feature request，但没有被处理，可能是场景实在太小众吧。
+
+3、什么场景会需要用到？
+
+比如。
+
+1）服务端打包。打包文件给 node 用时需要 Bundle 吗？其实并不需要，不 Bundle 可能运行速度更快，现在 Bundle 只是为了不需要重新安装一份 node\_modules 。preserveModules 看起来是刚好能解这个问题的。
+
+2）有些分两步构建的场景，蚂蚁内部有。以微信小程序为例，官方构建只支持简单的文件类型和功能，那想要实现高级的功能，就需要先把项目文件转一份成官网支持的文件和格式，然后再用官网工具做一次构建。这前一步的操作，用 rollup + preserveModules 是比较合适的。不了解小程序社区，不清楚社区有没有框架是基于这种操作的。
+
+4、怎么实现？
+
+从 Bundle 工具的角度，脑暴了下思路。其实是做减法，在有 module graph 的基础上，做完 tree shaking 之后，不要做 generate、code splitting、minify 等事情，直接把每个 module 输出到 dist 目录即可。
+
+参考：  
+[https://rollupjs.org/repl/](https://rollupjs.org/repl/?version=3.26.3&shareable=JTdCJTIyZXhhbXBsZSUyMiUzQSUyMjAwJTIyJTJDJTIybW9kdWxlcyUyMiUzQSU1QiU3QiUyMmNvZGUlMjIlM0ElMjIlMkYlMkYlMjBUUkVFLVNIQUtJTkclNUNuaW1wb3J0JTIwJTdCJTIwY3ViZSUyMCU3RCUyMGZyb20lMjAnLiUyRm1hdGhzLmpzJyUzQiU1Q24lNUNuY29uc29sZS5sb2coY3ViZSg1KSklM0IlMjAlMkYlMkYlMjAxMjUlMjIlMkMlMjJpc0VudHJ5JTIyJTNBdHJ1ZSUyQyUyMm5hbWUlMjIlM0ElMjJtYWluLmpzJTIyJTdEJTJDJTdCJTIyY29kZSUyMiUzQSUyMiUyRiUyRiUyMG1hdGhzLmpzJTVDbiU1Q24lMkYlMkYlMjBUaGlzJTIwZnVuY3Rpb24lMjBpc24ndCUyMHVzZWQlMjBhbnl3aGVyZSUyQyUyMHNvJTVDbiUyRiUyRiUyMFJvbGx1cCUyMGV4Y2x1ZGVzJTIwaXQlMjBmcm9tJTIwdGhlJTIwYnVuZGxlLi4uJTVDbmV4cG9ydCUyMGNvbnN0JTIwc3F1YXJlJTIwJTNEJTIweCUyMCUzRCUzRSUyMHglMjAqJTIweCUzQiU1Q24lNUNuJTJGJTJGJTIwVGhpcyUyMGZ1bmN0aW9uJTIwZ2V0cyUyMGluY2x1ZGVkJTVDbiUyRiUyRiUyMHJld3JpdGUlMjB0aGlzJTIwYXMlMjAlNjBzcXVhcmUoeCklMjAqJTIweCU2MCU1Q24lMkYlMkYlMjBhbmQlMjBzZWUlMjB3aGF0JTIwaGFwcGVucyElNUNuZXhwb3J0JTIwY29uc3QlMjBjdWJlJTIwJTNEJTIweCUyMCUzRCUzRSUyMHglMjAqJTIweCUyMColMjB4JTNCJTVDbiU1Q24lMkYlMkYlMjBUaGlzJTIwJTVDJTIyc2lkZSUyMGVmZmVjdCU1QyUyMiUyMGNyZWF0ZXMlMjBhJTIwZ2xvYmFsJTVDbiUyRiUyRiUyMHZhcmlhYmxlJTIwYW5kJTIwd2lsbCUyMG5vdCUyMGJlJTIwcmVtb3ZlZC4lNUNud2luZG93LmVmZmVjdDElMjAlM0QlMjAnY3JlYXRlZCclM0IlNUNuJTVDbmNvbnN0JTIwaW5jbHVkZUVmZmVjdCUyMCUzRCUyMGZhbHNlJTNCJTVDbmlmJTIwKGluY2x1ZGVFZmZlY3QpJTIwJTdCJTVDbiU1Q3QlMkYlMkYlMjBPbiUyMHRoZSUyMG90aGVyJTIwaGFuZCUyQyUyMHRoaXMlMjBpcyUyMG5ldmVyJTVDbiU1Q3QlMkYlMkYlMjBleGVjdXRlZCUyMGFuZCUyMHRodXMlMjByZW1vdmVkLiU1Q24lNUN0d2luZG93LmVmZmVjdDElMjAlM0QlMjAnbm90JTIwY3JlYXRlZCclM0IlNUNuJTdEJTIyJTJDJTIyaXNFbnRyeSUyMiUzQWZhbHNlJTJDJTIybmFtZSUyMiUzQSUyMm1hdGhzLmpzJTIyJTdEJTVEJTJDJTIyb3B0aW9ucyUyMiUzQSU3QiUyMm91dHB1dCUyMiUzQSU3QiUyMmZvcm1hdCUyMiUzQSUyMmVzJTIyJTJDJTIycHJlc2VydmVNb2R1bGVzJTIyJTNBdHJ1ZSU3RCUyQyUyMnRyZWVzaGFrZSUyMiUzQSUyMnNhZmVzdCUyMiU3RCU3RA%3D%3D)  
+[Why does the `preserveModules` option generate `node_modules` folder · Issue #3684 · rollup/rollup · GitHub](https://github.com/rollup/rollup/issues/3684)
