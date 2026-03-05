@@ -527,6 +527,12 @@
                             <p class="text-lg font-bold text-ink-black" id="start-date">--</p>
                             <p class="text-sm text-ink-light">开始时间</p>
                         </div>
+                        <div
+                            class="col-span-2 bg-gradient-to-r from-bamboo/10 to-bamboo-light/10 rounded-sm p-3 border border-bamboo/20">
+                            <p class="text-2xl font-bold text-bamboo" id="year-practice-days">0</p>
+                            <p class="text-sm text-ink-light">今年 <span class="font-bold text-bamboo"
+                                    id="current-year">--</span>修行天数</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -976,6 +982,13 @@
                 document.getElementById('days-since-start').textContent = 0;
                 document.getElementById('start-date').textContent = '尚未开始';
             }
+
+            // 今年修行天数
+            const currentYear = new Date().getFullYear();
+            const yearPrefix = `${currentYear}-`;
+            const yearPracticeDays = state.practiceHistory.filter(d => d.startsWith(yearPrefix)).length;
+            document.getElementById('year-practice-days').textContent = yearPracticeDays;
+            document.getElementById('current-year').textContent = currentYear;
         }
 
         function renderAchievements() {
