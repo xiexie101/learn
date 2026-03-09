@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>喵喵机 · 手势分解</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #fff;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      user-select: none;
+    }
+
+    /* 主产品图 */
+    #product-frame {
+      max-width: 90vw;
+      max-height: 85vh;
+      object-fit: contain;
+      transition: opacity 0.1s ease;
+    }
+
+    /* 加载状态 */
+    #loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      transition: opacity 0.5s ease;
+    }
+
+    #loading-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loading-ring {
+      width: 48px;
+      height: 48px;
+      border: 2.5px solid #e5e5e5;
+      border-top-color: #333;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .loading-text {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #999;
+      font-weight: 300;
+      letter-spacing: 0.5px;
+    }
+
+    #loading-progress {
+      margin-top: 8px;
+      font-size: 13px;
+      color: #bbb;
+      font-weight: 300;
+    }
+
+    /* 初始提示 - 手势引导 */
+    #gesture-hint {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 50;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+      pointer-events: none;
+      /* 给整体加个发光呼吸感 */
+      animation: hintBreathing 3s ease-in-out infinite;
+    }
+
+    @keyframes hintBreathing {
+
+      0%,
+      100% {
+        filter: drop-shadow(0 0 10px rgba(138, 43, 226, 0.4));
+        transform: translate(-50%, -50%) scale(1);
+      }
+
+      50% {
+        filter: drop-shadow(0 0 25px rgba(65, 105, 225, 0.7));
+        transform: translate(-50%, -50%) scale(1.05);
+      }
+    }
+
+    #gesture-hint.visible {
+      opacity: 1;
+    }
+
+    #gesture-hint.fade-out {
+      opacity: 0;
+    }
+
+    .hint-icon {
+      font-size: 64px;
+      /* 调大一点 */
+      margin-bottom: 16px;
+    }
+
+    .hint-text {
+      font-size: 18px;
+      /* 调大一点 */
+      font-weight: 600;
+      /* 加粗 */
+      letter-spacing: 2px;
+      /* 科技感蓝紫渐变 */
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 50%, #8a2be2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* 摄像头小窗 */
+    #camera-container {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      width: 160px;
+      height: 120px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1.5px solid rgba(0, 0, 0, 0.08);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+      z-index: 10;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    #camera-container.visible {
+      opacity: 1;
+    }
+
+    #webcam {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1);
+    }
+
+    /* 手势状态指示点 */
+    #gesture-dot {
+      position: fixed;
+      bottom: 152px;
+      left: 80px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ddd;
+      transform: translateX(-50%);
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+      z-index: 11;
+    }
+
+    #gesture-dot.active {
+      background: #4ade80;
+      box-shadow: 0 0 8px rgba(74, 222, 128, 0.4);
+    }
+
+    /* Canvas for MediaPipe (hidden) */
+    #canvas {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- 加载遮罩 -->
+  <div id="loading-overlay">
+    <div class="loading-ring"></div>
+    <div class="loading-text">正在加载帧序列</div>
+    <div id="loading-progress">0 / 74</div>
+  </div>
+
+  <!-- 手势引导提示 -->
+  <div id="gesture-hint">
+    <div class="hint-icon">✊ ➜ 🖐️</div>
+    <div class="hint-text">握拳组装 · 张开分解</div>
+  </div>
+
+  <!-- 主产品图 -->
+  <img id="product-frame" alt="product exploded view" />
+
+  <!-- 摄像头小窗 -->
+  <div id="camera-container">
+    <video id="webcam" autoplay playsinline></video>
+  </div>
+  <div id="gesture-dot"></div>
+
+  <!-- MediaPipe hidden canvas -->
+  <canvas id="canvas"></canvas>
+
+  <script type="module">
+    import { HandLandmarker, FilesetResolver } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.18/vision_bundle.mjs';
+
+    // ── Config ──
+    const TOTAL_FRAMES = 74;
+    const FRAME_PATH = (i) => `frames/frame_${String(i).padStart(4, '0')}.png`;
+
+    // ── DOM ──
+    const productImg = document.getElementById('product-frame');
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const loadingProgress = document.getElementById('loading-progress');
+    const gestureHint = document.getElementById('gesture-hint');
+    const cameraContainer = document.getElementById('camera-container');
+    const webcamEl = document.getElementById('webcam');
+    const gestureDot = document.getElementById('gesture-dot');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    // ── State ──
+    let frames = [];
+    let currentFrame = 0;
+    let handLandmarker = null;
+    let handDetected = false;
+    let hintShown = false;
+    let smoothedOpenness = 0;
+
+    // ── 1. Preload all frames ──
+    async function preloadFrames() {
+      const promises = [];
+      for (let i = 1; i <= TOTAL_FRAMES; i++) {
+        promises.push(new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => {
+            loadingProgress.textContent = `${frames.filter(f => f).length + 1} / ${TOTAL_FRAMES}`;
+            resolve(img);
+          };
+          img.onerror = reject;
+          img.src = FRAME_PATH(i);
+        }));
+      }
+      frames = await Promise.all(promises);
+      productImg.src = frames[0].src;
+
+      // Fade out loading
+      loadingOverlay.classList.add('hidden');
+      setTimeout(() => loadingOverlay.remove(), 600);
+
+      // Show gesture hint
+      setTimeout(() => {
+        gestureHint.classList.add('visible');
+        hintShown = true;
+      }, 300);
+    }
+
+    // ── 2. Initialize MediaPipe Hand Landmarker ──
+    async function initHandLandmarker() {
+      const vision = await FilesetResolver.forVisionTasks(
+        'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.18/wasm'
+      );
+
+      handLandmarker = await HandLandmarker.createFromOptions(vision, {
+        baseOptions: {
+          modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
+          delegate: 'GPU'
+        },
+        runningMode: 'VIDEO',
+        numHands: 1,
+        minHandDetectionConfidence: 0.5,
+        minHandPresenceConfidence: 0.5,
+        minTrackingConfidence: 0.5
+      });
+    }
+
+    // ── 3. Start camera ──
+    async function startCamera() {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { width: 320, height: 240, facingMode: 'user' }
+      });
+      webcamEl.srcObject = stream;
+      await new Promise(r => webcamEl.onloadeddata = r);
+
+      canvas.width = webcamEl.videoWidth;
+      canvas.height = webcamEl.videoHeight;
+
+      cameraContainer.classList.add('visible');
+    }
+
+    // ── 4. Calculate hand openness ──
+    // We measure the average distance of fingertips from palm center
+    // Fist → small distances → low openness
+    // Open palm → large distances → high openness
+    function calcHandOpenness(landmarks) {
+      // Palm center (wrist landmark 0)
+      const wrist = landmarks[0];
+      // Middle finger MCP as palm reference (landmark 9)
+      const palmCenter = landmarks[9];
+
+      // Fingertip landmarks: thumb=4, index=8, middle=12, ring=16, pinky=20
+      const fingertips = [4, 8, 12, 16, 20];
+
+      // Calculate average distance from each fingertip to palm center
+      let totalDist = 0;
+      for (const tip of fingertips) {
+        const ft = landmarks[tip];
+        const dx = ft.x - palmCenter.x;
+        const dy = ft.y - palmCenter.y;
+        const dz = ft.z - palmCenter.z;
+        totalDist += Math.sqrt(dx * dx + dy * dy + dz * dz);
+      }
+      const avgDist = totalDist / fingertips.length;
+
+      // Also measure the curl: distance of fingertips to their MCP joints
+      // MCP landmarks: index=5, middle=9, ring=13, pinky=17
+      const mcps = [5, 9, 13, 17];
+      const tips = [8, 12, 16, 20];
+      let curlScore = 0;
+      for (let i = 0; i < 4; i++) {
+        const mcp = landmarks[mcps[i]];
+        const tip = landmarks[tips[i]];
+        const dx = tip.x - mcp.x;
+        const dy = tip.y - mcp.y;
+        const dz = tip.z - mcp.z;
+        curlScore += Math.sqrt(dx * dx + dy * dy + dz * dz);
+      }
+      curlScore /= 4;
+
+      // Combine: use a weighted blend
+      const combined = avgDist * 0.5 + curlScore * 0.5;
+
+      // Normalize: fist ~0.05-0.08, open ~0.18-0.28
+      // Map to 0-1 range
+      const minVal = 0.06;
+      const maxVal = 0.22;
+      const normalized = Math.max(0, Math.min(1, (combined - minVal) / (maxVal - minVal)));
+
+      return normalized;
+    }
+
+    // ── 5. Detection loop ──
+    function detectLoop() {
+      if (!handLandmarker) {
+        requestAnimationFrame(detectLoop);
+        return;
+      }
+
+      const now = performance.now();
+      const results = handLandmarker.detectForVideo(webcamEl, now);
+
+      if (results.landmarks && results.landmarks.length > 0) {
+        const landmarks = results.landmarks[0];
+        const openness = calcHandOpenness(landmarks);
+
+        // Smooth the value to avoid jitter
+        smoothedOpenness += (openness - smoothedOpenness) * 0.25;
+
+        // Map to frame index
+        const targetFrame = Math.round(smoothedOpenness * (TOTAL_FRAMES - 1));
+        const clampedFrame = Math.max(0, Math.min(TOTAL_FRAMES - 1, targetFrame));
+
+        if (clampedFrame !== currentFrame) {
+          currentFrame = clampedFrame;
+          productImg.src = frames[currentFrame].src;
+        }
+
+        // Hand detected
+        if (!handDetected) {
+          handDetected = true;
+          gestureDot.classList.add('active');
+
+          // Hide hint after first detection
+          if (hintShown) {
+            gestureHint.classList.add('fade-out');
+            setTimeout(() => {
+              gestureHint.remove();
+              hintShown = false;
+            }, 600);
+          }
+        }
+      } else {
+        if (handDetected) {
+          handDetected = false;
+          gestureDot.classList.remove('active');
+        }
+      }
+
+      requestAnimationFrame(detectLoop);
+    }
+
+    // ── Init ──
+    async function init() {
+      await preloadFrames();
+      await initHandLandmarker();
+      await startCamera();
+      detectLoop();
+    }
+
+    init();
+  </script>
+</body>
+
+</html>
