@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>LoveDoor - 为TA定制表白</title>
+  <meta name="description" content="为TA定制一个专属的表白迷宫小游戏">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="card">
+    <h1>为TA定制表白</h1>
+    <hr class="divider">
+
+    <div class="illustration">
+      <div class="stick-figure">
+        <div class="head"></div>
+        <div class="body-line"></div>
+        <div class="legs">
+          <div class="leg"></div>
+          <div class="leg"></div>
+        </div>
+      </div>
+      <div class="arrow">----➜</div>
+      <div class="door-icon"></div>
+    </div>
+
+    <p class="label">输入TA的名字缩写（如猫学长对应的是mxz）：</p>
+    <div class="input-wrapper">
+      <span class="prefix">例如：</span>
+      <input type="text" id="nameInput" placeholder="mxz" maxlength="10" autocomplete="off">
+    </div>
+
+    <button class="btn-generate" id="btnGenerate">生成表白链接</button>
+
+    <div class="result" id="resultArea">
+      <p class="result-label">🔗 专属表白链接已生成：</p>
+      <div class="result-link">
+        <span class="link-text" id="linkText"></span>
+        <button class="btn-copy" id="btnCopy">复制</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="footer">Made with ❤️ | <a href="game/index.html?name=demo">预览效果</a></p>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const nameInput = document.getElementById('nameInput');
+    const btnGenerate = document.getElementById('btnGenerate');
+    const resultArea = document.getElementById('resultArea');
+    const linkText = document.getElementById('linkText');
+    const btnCopy = document.getElementById('btnCopy');
+    const toast = document.getElementById('toast');
+
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+
+    btnGenerate.addEventListener('click', () => {
+      const name = nameInput.value.trim();
+      if (!name) {
+        showToast('请输入TA的名字缩写 ✏️');
+        nameInput.focus();
+        return;
+      }
+      const base = window.location.href.replace(/index\.html.*$/, '').replace(/\/$/, '');
+      const link = `${base}/game/index.html?name=${encodeURIComponent(name)}`;
+      linkText.textContent = link;
+      resultArea.classList.add('show');
+    });
+
+    btnCopy.addEventListener('click', () => {
+      const text = linkText.textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('链接已复制 ✅');
+      }).catch(() => {
+        // fallback
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast('链接已复制 ✅');
+      });
+    });
+
+    nameInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') btnGenerate.click();
+    });
+  </script>
+</body>
+</html>
