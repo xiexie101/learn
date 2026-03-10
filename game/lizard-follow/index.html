@@ -287,11 +287,32 @@
         }
 
         // ============================================================
-        //  手指红点
+        //  领航红点 (在头部正前方)
         // ============================================================
         function drawFingerDot() {
+            let hx = spine[0].x;
+            let hy = spine[0].y;
+
+            // 因为去掉了延迟反馈，targetX 和 hx 几乎是完全重合的
+            // 所以我们不能用 targetX - hx 算方向，直接用骨骼朝向！
+            // 骨骼 1 指向 骨骼 0 的向量就是头部的朝向
+            let dx = spine[0].x - spine[1].x;
+            let dy = spine[0].y - spine[1].y;
+            let dirLen = sqrt(dx * dx + dy * dy);
+
             let fx = targetX;
             let fy = targetY;
+
+            // 如果蜥蜴正在爬行且有明确朝向
+            if (dirLen > 0.1) {
+                let dirX = dx / dirLen;
+                let dirY = dy / dirLen;
+
+                // 强制将红点向正前方推出 55 像素，形成“逗猫棒”领航感
+                let extendDist = 55;
+                fx = hx + dirX * extendDist;
+                fy = hy + dirY * extendDist;
+            }
 
             // 脉冲发光效果
             let pulse = sin(frameCount * 0.15) * 0.3 + 0.7;
@@ -299,21 +320,19 @@
 
             // 外层光晕
             noStroke();
-            for (let i = 3; i >= 0; i--) {
-                let alpha = (3 - i) * 15 + 10;
-                fill(255, 60, 60, alpha);
-                ellipse(fx, fy, glowSize + i * 8, glowSize + i * 8);
-            }
+            fill(255, 50, 50, 50 * pulse);
+            ellipse(fx, fy, glowSize, glowSize);
+            fill(255, 50, 50, 100 * pulse);
+            ellipse(fx, fy, glowSize * 0.6, glowSize * 0.6);
 
-            // 内层实心圆
-            fill(255, 70, 70, 230);
-            ellipse(fx, fy, 10, 10);
+            // 核心红点
+            fill(255, 60, 60);
+            ellipse(fx, fy, 8, 8);
 
-            // 高光点
-            fill(255, 180, 180, 200);
-            ellipse(fx - 1.5, fy - 1.5, 4, 4);
+            // 高光
+            fill(255);
+            ellipse(fx - 1, fy - 1, 3, 3);
         }
-
         // ============================================================
         //  地面
         // ============================================================
