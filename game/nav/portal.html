@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 创意实验室 | 项目导览</title>
+    <meta name="description" content="AI 创意实验室项目导览页 — 汇集互动游戏、体感交互、健康运动、文化创意等多类实验项目">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0f0f13;
+            --bg-card: #1a1a24;
+            --bg-card-hover: #22223a;
+            --text-primary: #e8e8f0;
+            --text-secondary: #9898b0;
+            --text-dim: #6a6a80;
+            --border: rgba(255, 255, 255, 0.06);
+
+            /* Category accent colors */
+            --color-game: #f472b6;
+            --color-gesture: #818cf8;
+            --color-health: #34d399;
+            --color-culture: #fbbf24;
+            --color-tool: #60a5fa;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* ============ Header ============ */
+        .header {
+            text-align: center;
+            padding: 60px 20px 40px;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--text-dim), transparent);
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            background: linear-gradient(135deg, #e0e0ff 0%, #a0a0e0 50%, #7070c0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header .subtitle {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            font-weight: 300;
+            margin-top: 10px;
+            letter-spacing: 0.15em;
+        }
+
+        /* ============ Quick Nav ============ */
+        .quick-nav {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 24px 20px 10px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .quick-nav a {
+            text-decoration: none;
+            font-size: 0.82rem;
+            padding: 6px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            background: var(--bg-card);
+            transition: all 0.25s ease;
+        }
+
+        .quick-nav a:hover {
+            background: var(--bg-card-hover);
+            color: var(--text-primary);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        /* ============ Layout ============ */
+        .container {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 30px 20px 80px;
+        }
+
+        /* ============ Category Section ============ */
+        .category {
+            margin-bottom: 44px;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .category-icon {
+            font-size: 1.3rem;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            flex-shrink: 0;
+        }
+
+        .category-title {
+            font-size: 1.05rem;
+            font-weight: 500;
+            letter-spacing: 0.04em;
+        }
+
+        .category-count {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-left: auto;
+        }
+
+        /* accent colors per category */
+        .category--game .category-icon {
+            background: rgba(244, 114, 182, 0.12);
+        }
+
+        .category--game .category-title {
+            color: var(--color-game);
+        }
+
+        .category--gesture .category-icon {
+            background: rgba(129, 140, 248, 0.12);
+        }
+
+        .category--gesture .category-title {
+            color: var(--color-gesture);
+        }
+
+        .category--health .category-icon {
+            background: rgba(52, 211, 153, 0.12);
+        }
+
+        .category--health .category-title {
+            color: var(--color-health);
+        }
+
+        .category--culture .category-icon {
+            background: rgba(251, 191, 36, 0.12);
+        }
+
+        .category--culture .category-title {
+            color: var(--color-culture);
+        }
+
+        .category--tool .category-icon {
+            background: rgba(96, 165, 250, 0.12);
+        }
+
+        .category--tool .category-title {
+            color: var(--color-tool);
+        }
+
+        /* ============ Project Item ============ */
+        .project-list {
+            list-style: none;
+        }
+
+        .project-item {
+            position: relative;
+        }
+
+        .project-link {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            margin-bottom: 4px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.25s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .project-link:hover {
+            background: var(--bg-card);
+            border-left-color: var(--accent-color);
+            transform: translateX(4px);
+        }
+
+        .project-link:active {
+            transform: translateX(2px);
+        }
+
+        .project-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            opacity: 0.6;
+            transition: opacity 0.25s ease;
+        }
+
+        .project-link:hover .project-dot {
+            opacity: 1;
+        }
+
+        .category--game .project-dot {
+            background: var(--color-game);
+        }
+
+        .category--game .project-link {
+            --accent-color: var(--color-game);
+        }
+
+        .category--gesture .project-dot {
+            background: var(--color-gesture);
+        }
+
+        .category--gesture .project-link {
+            --accent-color: var(--color-gesture);
+        }
+
+        .category--health .project-dot {
+            background: var(--color-health);
+        }
+
+        .category--health .project-link {
+            --accent-color: var(--color-health);
+        }
+
+        .category--culture .project-dot {
+            background: var(--color-culture);
+        }
+
+        .category--culture .project-link {
+            --accent-color: var(--color-culture);
+        }
+
+        .category--tool .project-dot {
+            background: var(--color-tool);
+        }
+
+        .category--tool .project-link {
+            --accent-color: var(--color-tool);
+        }
+
+        .project-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .project-name {
+            font-size: 0.95rem;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .project-desc {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .project-arrow {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            opacity: 0;
+            transform: translateX(-6px);
+            transition: all 0.25s ease;
+            flex-shrink: 0;
+        }
+
+        .project-link:hover .project-arrow {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* ============ Footer ============ */
+        .footer {
+            text-align: center;
+            padding: 30px 20px;
+            color: var(--text-dim);
+            font-size: 0.78rem;
+            border-top: 1px solid var(--border);
+            max-width: 760px;
+            margin: 0 auto;
+        }
+
+        /* ============ Animation ============ */
+        .category {
+            opacity: 0;
+            transform: translateY(16px);
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .category:nth-child(1) {
+            animation-delay: 0.05s;
+        }
+
+        .category:nth-child(2) {
+            animation-delay: 0.12s;
+        }
+
+        .category:nth-child(3) {
+            animation-delay: 0.19s;
+        }
+
+        .category:nth-child(4) {
+            animation-delay: 0.26s;
+        }
+
+        .category:nth-child(5) {
+            animation-delay: 0.33s;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ============ Responsive ============ */
+        @media (max-width: 600px) {
+            .header {
+                padding: 40px 16px 30px;
+            }
+
+            .header h1 {
+                font-size: 1.6rem;
+            }
+
+            .container {
+                padding: 20px 12px 60px;
+            }
+
+            .project-link {
+                padding: 12px 12px;
+            }
+
+            .project-arrow {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <h1>AI 创意实验室</h1>
+        <p class="subtitle">CREATIVE AI LAB — 实验项目导览</p>
+    </header>
+
+    <!-- Quick Navigation -->
+    <nav class="quick-nav">
+        <a href="#game">🎮 互动游戏</a>
+        <a href="#gesture">✋ 体感交互</a>
+        <a href="#health">🧘 健康运动</a>
+        <a href="#culture">✍️ 文化创意</a>
+        <a href="#tool">🔧 工具</a>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container">
+
+        <!-- 🎮 互动游戏 -->
+        <section class="category category--game" id="game">
+            <div class="category-header">
+                <div class="category-icon">🎮</div>
+                <h2 class="category-title">互动游戏</h2>
+                <span class="category-count">4 个项目</span>
+            </div>
+            <ul class="project-list">
+                <li class="project-item">
+                    <a class="project-link" href="../cyber-blowing-game/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">赛博吹气游戏</div>
+                            <div class="project-desc">通过麦克风吹气互动的体感游戏</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../birthday-dino-game/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">生日恐龙游戏</div>
+                            <div class="project-desc">生日主题恐龙跑酷游戏</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../love-door/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">LoveDoor 表白</div>
+                            <div class="project-desc">为TA定制的表白迷宫小游戏</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../gushan-adventure/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">鼓山漫步奇遇记</div>
+                            <div class="project-desc">鼓山探索冒险互动游戏</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+            </ul>
+        </section>
+
+        <!-- ✋ 手势/体感交互 -->
+        <section class="category category--gesture" id="gesture">
+            <div class="category-header">
+                <div class="category-icon">✋</div>
+                <h2 class="category-title">手势 / 体感交互</h2>
+                <span class="category-count">4 个项目</span>
+            </div>
+            <ul class="project-list">
+                <li class="project-item">
+                    <a class="project-link" href="../hand-magic/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">Ethereal Touch</div>
+                            <div class="project-desc">手势驱动的视觉粒子特效</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../bird-magic/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">Bird Magic</div>
+                            <div class="project-desc">手势控制的飞鸟魔法互动</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../gesture-explode/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">手势分解</div>
+                            <div class="project-desc">喵喵机 · 手势视频分解打印工具</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../living-painting/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">活的画</div>
+                            <div class="project-desc">手势驱动的动态绘画体验</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+            </ul>
+        </section>
+
+        <!-- 🧘 健康/运动 -->
+        <section class="category category--health" id="health">
+            <div class="category-header">
+                <div class="category-icon">🧘</div>
+                <h2 class="category-title">健康 / 运动</h2>
+                <span class="category-count">3 个项目</span>
+            </div>
+            <ul class="project-list">
+                <li class="project-item">
+                    <a class="project-link" href="../baduanjin/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">八段锦</div>
+                            <div class="project-desc">AI 八段锦动作识别与教学</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../baduanjin-tracker/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">八段锦追踪</div>
+                            <div class="project-desc">八段锦每日练习打卡追踪</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../bdj/garden.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">禅意花园</div>
+                            <div class="project-desc">禅意花园运动追踪器</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+            </ul>
+        </section>
+
+        <!-- ✍️ 文化/创意 -->
+        <section class="category category--culture" id="culture">
+            <div class="category-header">
+                <div class="category-icon">✍️</div>
+                <h2 class="category-title">文化 / 创意</h2>
+                <span class="category-count">4 个项目</span>
+            </div>
+            <ul class="project-list">
+                <li class="project-item">
+                    <a class="project-link" href="../su_dongpo_poem/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">苏东坡诗词</div>
+                            <div class="project-desc">苏东坡诗词互动体验</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../handwriting-practice/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">汉字练字板</div>
+                            <div class="project-desc">小学生汉字仿影练字工具</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../inspiration_calendar/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">灵感日历</div>
+                            <div class="project-desc">每日灵感与宜忌日历</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../derive-of-two/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">福清行</div>
+                            <div class="project-desc">城市探索 · 漂移行走</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+            </ul>
+        </section>
+
+        <!-- 🔧 工具/其他 -->
+        <section class="category category--tool" id="tool">
+            <div class="category-header">
+                <div class="category-icon">🔧</div>
+                <h2 class="category-title">工具 / 其他</h2>
+                <span class="category-count">3 个项目</span>
+            </div>
+            <ul class="project-list">
+                <li class="project-item">
+                    <a class="project-link" href="../newspaper/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">榕城旧闻录</div>
+                            <div class="project-desc">复古报纸风格的新闻呈现</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../cloudroam/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">云游 · 不老松</div>
+                            <div class="project-desc">AI 体感姿态识别互动</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../particle-system/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">粒子系统</div>
+                            <div class="project-desc">粒子系统视觉效果演示</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+            </ul>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        共 18 个项目 · AI 创意实验室
+    </footer>
+</body>
+
+</html>
