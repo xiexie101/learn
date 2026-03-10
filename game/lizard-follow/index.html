@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>跟随手指的卡通蜥蜴</title>
+    <meta name="description" content="一只可爱的卡通蜥蜴，跟随你的鼠标或手指运动">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            background: #1a1a2e;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        #mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #mode-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        #mode-toggle .icon {
+            font-size: 18px;
+        }
+
+        #camera-view {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 200px;
+            height: 150px;
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            object-fit: cover;
+            display: none;
+            z-index: 100;
+            transform: scaleX(-1);
+        }
+
+        #hint {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 14px;
+            z-index: 100;
+            transition: opacity 0.5s;
+        }
+    </style>
+</head>
+
+<body>
+    <button id="mode-toggle" onclick="toggleMode()">
+        <span class="icon">🖱️</span>
+        <span id="mode-label">鼠标模式</span>
+    </button>
+    <video id="camera-view" autoplay playsinline></video>
+    <div id="hint">移动鼠标，蜥蜴会跟随你 🦎</div>
+
+    <!-- MediaPipe Hands -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+
+    <script>
+        // ============================================================
+        //  全局状态
+        // ============================================================
+        let mode = 'mouse'; // 'mouse' | 'camera'
+        let targetX, targetY;
+        let smoothTargetX, smoothTargetY;
+        let handDetected = false;
+        let mouseInside = true;
+        let idleTimer = 0;
+        let handLostFrames = 0;       // 手指丢失计帧器
+        let rawHandX = 0, rawHandY = 0; // 原始手指坐标
+        let mpHands, videoStream;
+        let isProcessingFrame = false; // 防止帧堆积
+
+        // ============================================================
+        //  脊柱系统
+        // ============================================================
+        const SPINE_COUNT = 22;
+        const SPINE_SPACING = 14;
+        let spine = [];
+
+        // ============================================================
+        //  腿部系统
+        // ============================================================
+        const LEG_CONFIGS = [
+            { spineIndex: 4, side: 1, label: 'FL' }, // 左前
+            { spineIndex: 4, side: -1, label: 'FR' }, // 右前
+            { spineIndex: 14, side: 1, label: 'BL' }, // 左后
+            { spineIndex: 14, side: -1, label: 'BR' }, // 右后
+        ];
+
+        const UPPER_LEG = 30;
+        const LOWER_LEG = 35;
+        const STEP_THRESHOLD = 50;
+        const STEP_HEIGHT = 15;
+
+        let legs = [];
+
+        // ============================================================
+        //  p5.js 生命周期
+        // ============================================================
+        function setup() {
+            // 开启高分屏和硬件加速提示，降低绘图延迟
+            pixelDensity(1);
+            let canvas = createCanvas(windowWidth, windowHeight);
+            canvas.style('will-change', 'transform');
+            targetX = width / 2;
+            targetY = height / 2;
+            smoothTargetX = targetX;
+            smoothTargetY = targetY;
+
+            // 初始化脊柱
+            for (let i = 0; i < SPINE_COUNT; i++) {
+                spine.push({ x: width / 2, y: height / 2 + i * SPINE_SPACING });
+            }
+
+            // 初始化腿
+            for (let cfg of LEG_CONFIGS) {
+                legs.push({
+                    ...cfg,
+                    footX: spine[cfg.spineIndex].x + cfg.side * 40,
+                    footY: spine[cfg.spineIndex].y + 30,
+                    targetFootX: 0,
+                    targetFootY: 0,
+                    stepping: false,
+                    stepProgress: 0,
+                    oldFootX: 0,
+                    oldFootY: 0,
+                    newFootX: 0,
+                    newFootY: 0,
+                });
+            }
+
+            // 监听鼠标进出页面
+            document.addEventListener('mouseleave', () => {
+                mouseInside = false;
+            });
+            document.addEventListener('mouseenter', () => {
+                mouseInside = true;
+                idleTimer = 0;
+            });
+        }
+
+        function draw() {
+            // ====== 背景绘制 ======
+            if (mode === 'camera') {
+                // 摄像头模式：全屏摄像头画面作为背景
+                let videoEl = document.getElementById('camera-view');
+                if (videoEl && videoEl.readyState >= 2) {
+                    push();
+                    translate(width, 0);
+                    scale(-1, 1); // 镜像
+                    drawingContext.drawImage(videoEl, 0, 0, width, height);
+                    pop();
+                } else {
+                    background(26, 26, 46);
+                }
+            } else {
+                background(26, 26, 46);
+                drawGround();
+            }
+
+            // ====== 目标跟踪逻辑 ======
+            if (mode === 'mouse') {
+                if (mouseInside) {
+                    targetX = mouseX;
+                    targetY = mouseY;
+                } else {
+                    idleTimer++;
+                    let restX = width / 2;
+                    let restY = height * 0.55;
+                    targetX = lerp(targetX, restX, 0.02);
+                    targetY = lerp(targetY, restY, 0.02);
+                    if (idleTimer > 60) {
+                        let wanderPhase = (idleTimer - 60) * 0.015;
+                        targetX += sin(wanderPhase) * 30;
+                        targetY += cos(wanderPhase * 0.7) * 15;
+                    }
+                }
+            } else if (mode === 'camera') {
+                if (!handDetected) {
+                    handLostFrames++;
+                    if (handLostFrames > 90) {
+                        let restX = width / 2;
+                        let restY = height * 0.55;
+                        targetX = lerp(targetX, restX, 0.02);
+                        targetY = lerp(targetY, restY, 0.02);
+                        if (handLostFrames > 150) {
+                            let wanderPhase = (handLostFrames - 150) * 0.015;
+                            targetX += sin(wanderPhase) * 30;
+                            targetY += cos(wanderPhase * 0.7) * 15;
+                        }
+                    }
+                } else {
+                    handLostFrames = 0;
+                }
+            }
+
+            // ====== 跟随速度 (彻底移除延迟) ======
+            if (mode === 'mouse') {
+                let followSpeed = mouseInside ? 0.25 : 0.05;
+                smoothTargetX = lerp(smoothTargetX, targetX, followSpeed);
+                smoothTargetY = lerp(smoothTargetY, targetY, followSpeed);
+            } else {
+                // ✨ 摄像头模式：拒绝任何中间件延迟，直接将目标坐标赋给蜥蜴
+                smoothTargetX = targetX;
+                smoothTargetY = targetY;
+            }
+
+            // ====== 更新逻辑 ======
+            updateSpine();
+            updateLegs();
+
+            // ====== 绘制蜥蜴 ======
+            drawTail();
+            drawBody();
+            drawLegs();
+            drawHead();
+
+            // ====== 摄像头模式：手指红点 ======
+            if (mode === 'camera' && handDetected) {
+                drawFingerDot();
+            }
+
+            // ====== 提示 ======
+            let hintEl = document.getElementById('hint');
+            if (hintEl) {
+                if (mode === 'mouse' && !mouseInside && idleTimer > 120) {
+                    hintEl.textContent = '回来吧，蜥蜴在等你 🦎';
+                    hintEl.style.opacity = '0.6';
+                } else if (mode === 'camera' && !handDetected && handLostFrames > 90) {
+                    hintEl.textContent = '伸出食指，蜥蜴会跟随你 ☝️';
+                    hintEl.style.opacity = '0.6';
+                } else if (frameCount > 180) {
+                    hintEl.style.opacity = '0';
+                }
+            }
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+        }
+
+        // ============================================================
+        //  手指红点
+        // ============================================================
+        function drawFingerDot() {
+            let fx = targetX;
+            let fy = targetY;
+
+            // 脉冲发光效果
+            let pulse = sin(frameCount * 0.15) * 0.3 + 0.7;
+            let glowSize = 20 * pulse;
+
+            // 外层光晕
+            noStroke();
+            for (let i = 3; i >= 0; i--) {
+                let alpha = (3 - i) * 15 + 10;
+                fill(255, 60, 60, alpha);
+                ellipse(fx, fy, glowSize + i * 8, glowSize + i * 8);
+            }
+
+            // 内层实心圆
+            fill(255, 70, 70, 230);
+            ellipse(fx, fy, 10, 10);
+
+            // 高光点
+            fill(255, 180, 180, 200);
+            ellipse(fx - 1.5, fy - 1.5, 4, 4);
+        }
+
+        // ============================================================
+        //  地面
+        // ============================================================
+        function drawGround() {
+            // 微妙的地面纹理线
+            stroke(40, 40, 70, 80);
+            strokeWeight(1);
+            for (let y = 100; y < height; y += 60) {
+                let offset = sin(y * 0.01 + frameCount * 0.005) * 20;
+                line(0, y + offset, width, y + offset);
+            }
+        }
+
+        // ============================================================
+        //  脊柱更新
+        // ============================================================
+        function updateSpine() {
+            spine[0].x = smoothTargetX;
+            spine[0].y = smoothTargetY;
+
+            for (let i = 1; i < SPINE_COUNT; i++) {
+                let dx = spine[i].x - spine[i - 1].x;
+                let dy = spine[i].y - spine[i - 1].y;
+                let dist = sqrt(dx * dx + dy * dy);
+                if (dist > 0) {
+                    let nx = dx / dist;
+                    let ny = dy / dist;
+                    spine[i].x = spine[i - 1].x + nx * SPINE_SPACING;
+                    spine[i].y = spine[i - 1].y + ny * SPINE_SPACING;
+                }
+            }
+        }
+
+        // ============================================================
+        //  身体绘制
+        // ============================================================
+        function drawBody() {
+            noStroke();
+
+            // 身体宽度沿脊柱变化：头部较大 → 中间最宽 → 尾部变窄
+            let widths = [];
+            for (let i = 0; i < SPINE_COUNT; i++) {
+                let t = i / (SPINE_COUNT - 1);
+                let w;
+                if (t < 0.15) {
+                    w = lerp(12, 18, t / 0.15); // 脖子到肩膀
+                } else if (t < 0.55) {
+                    w = lerp(18, 16, (t - 0.15) / 0.4); // 躯干
+                } else {
+                    w = lerp(16, 2, (t - 0.55) / 0.45); // 尾部
+                }
+                widths.push(w);
+            }
+
+            // 绘制身体轮廓 (用椭圆连成的粗线条)
+            for (let i = 0; i < SPINE_COUNT - 1; i++) {
+                let t = i / (SPINE_COUNT - 1);
+                // 颜色渐变：头部亮绿 → 尾部深绿
+                let r = lerp(60, 30, t);
+                let g = lerp(180, 100, t);
+                let b = lerp(75, 50, t);
+                fill(r, g, b);
+
+                // ✨ 性能优化：将原本 3 步补间插值降为 1 步，减少 60% 绘图调用
+                let steps = 1;
+                for (let s = 0; s <= steps; s++) {
+                    let frac = s / steps;
+                    let px = lerp(spine[i].x, spine[i + 1].x, frac);
+                    let py = lerp(spine[i].y, spine[i + 1].y, frac);
+                    let pw = lerp(widths[i], widths[i + 1], frac) * 2;
+                    ellipse(px, py, pw, pw * 0.85);
+                }
+            }
+
+            // 背部花纹 — 菱形斑点
+            for (let i = 2; i < SPINE_COUNT - 4; i += 2) {
+                let t = i / (SPINE_COUNT - 1);
+                let alpha = map(t, 0, 1, 200, 50);
+                fill(80, 210, 100, alpha);
+                let sz = widths[i] * 0.9;
+                let angle = atan2(
+                    spine[i].y - spine[i - 1].y,
+                    spine[i].x - spine[i - 1].x
+                );
+                push();
+                translate(spine[i].x, spine[i].y);
+                rotate(angle);
+                beginShape();
+                vertex(0, -sz * 0.4);
+                vertex(sz * 0.5, 0);
+                vertex(0, sz * 0.4);
+                vertex(-sz * 0.5, 0);
+                endShape(CLOSE);
+                pop();
+            }
+
+            // 腹部淡色条纹
+            for (let i = 1; i < SPINE_COUNT - 3; i++) {
+                let t = i / (SPINE_COUNT - 1);
+                fill(120, 220, 130, 40);
+                let w = widths[i] * 1.2;
+                ellipse(spine[i].x, spine[i].y + widths[i] * 0.2, w, w * 0.3);
+            }
+        }
+
+        // ============================================================
+        //  头部绘制
+        // ============================================================
+        function drawHead() {
+            let hx = spine[0].x;
+            let hy = spine[0].y;
+            let angle = atan2(spine[0].y - spine[1].y, spine[0].x - spine[1].x);
+
+            push();
+            translate(hx, hy);
+            rotate(angle);
+
+            // 头部形状
+            noStroke();
+            fill(65, 190, 80);
+            ellipse(8, 0, 36, 26); // 主头部
+            ellipse(18, 0, 20, 18); // 鼻子
+
+            // 鼻孔
+            fill(40, 120, 50);
+            ellipse(25, -3, 3, 3);
+            ellipse(25, 3, 3, 3);
+
+            // 眼眶
+            fill(50, 60, 50);
+            ellipse(4, -11, 14, 14);
+            ellipse(4, 11, 14, 14);
+
+            // 眼白
+            fill(220, 240, 220);
+            ellipse(4, -11, 12, 12);
+            ellipse(4, 11, 12, 12);
+
+            // 瞳孔 — 跟随运动方向
+            let pupilOffsetX = 2;
+            let pupilOffsetY = 0;
+            fill(20, 20, 20);
+            ellipse(4 + pupilOffsetX, -11 + pupilOffsetY, 6, 7);
+            ellipse(4 + pupilOffsetX, 11 + pupilOffsetY, 6, 7);
+
+            // 瞳孔高光
+            fill(255, 255, 255, 200);
+            ellipse(6 + pupilOffsetX, -12 + pupilOffsetY, 2.5, 2.5);
+            ellipse(6 + pupilOffsetX, 10 + pupilOffsetY, 2.5, 2.5);
+
+            // 嘴巴线条
+            stroke(40, 120, 50);
+            strokeWeight(1.5);
+            noFill();
+            arc(16, 0, 14, 6, -0.3, 0.3);
+
+            pop();
+
+            // 舌头 — 移动快时伸出
+            let spd = dist(spine[0].x, spine[0].y, spine[1].x, spine[1].y);
+            if (spd > SPINE_SPACING * 1.1) {
+                push();
+                translate(hx, hy);
+                rotate(angle);
+                stroke(220, 60, 80);
+                strokeWeight(2.5);
+                noFill();
+                let tongueLen = map(spd, SPINE_SPACING, SPINE_SPACING * 3, 10, 40, true);
+                let flickY = sin(frameCount * 0.8) * 4;
+                beginShape();
+                vertex(26, 0);
+                quadraticVertex(30 + tongueLen * 0.5, flickY, 26 + tongueLen, flickY * 1.5);
+                endShape();
+                // 分叉
+                let endX = 26 + tongueLen;
+                line(endX, flickY * 1.5, endX + 4, flickY * 1.5 - 4);
+                line(endX, flickY * 1.5, endX + 4, flickY * 1.5 + 4);
+                pop();
+            }
+        }
+
+        // ============================================================
+        //  尾巴绘制
+        // ============================================================
+        function drawTail() {
+            let last = spine[SPINE_COUNT - 1];
+            let prev = spine[SPINE_COUNT - 2];
+            let angle = atan2(last.y - prev.y, last.x - prev.x);
+
+            // 尾巴末端加一点摆动
+            let waggle = sin(frameCount * 0.08) * 15;
+
+            push();
+            translate(last.x, last.y);
+            rotate(angle);
+
+            stroke(50, 140, 70);
+            strokeWeight(3);
+            noFill();
+            beginShape();
+            vertex(0, 0);
+            quadraticVertex(15, waggle * 0.5, 30, waggle);
+            endShape();
+
+            // 尾尖
+            strokeWeight(2);
+            stroke(40, 120, 60);
+            line(30, waggle, 38, waggle + waggle * 0.3);
+            pop();
+        }
+
+        // ============================================================
+        //  腿部 IK + 步态
+        // ============================================================
+        function updateLegs() {
+            const MAX_FOOT_DIST = UPPER_LEG + LOWER_LEG - 5; // 腿的最大可达距离
+            const SNAP_DIST = MAX_FOOT_DIST * 1.5; // 超过此距离直接跳到新位置
+
+            for (let i = 0; i < legs.length; i++) {
+                let leg = legs[i];
+                let anchor = spine[leg.spineIndex];
+                let prevSpine = spine[leg.spineIndex - 1] || spine[leg.spineIndex];
+                let bodyAngle = atan2(
+                    anchor.y - prevSpine.y,
+                    anchor.x - prevSpine.x
+                );
+
+                // 肩膀/臀部连接点（与 drawLegs 保持一致）
+                let shoulderX = anchor.x + (-sin(bodyAngle)) * leg.side * 14;
+                let shoulderY = anchor.y + cos(bodyAngle) * leg.side * 14;
+
+                // 自然站立时脚的目标位置
+                let perpX = -sin(bodyAngle) * leg.side * 45;
+                let perpY = cos(bodyAngle) * leg.side * 45;
+                let idealFootX = anchor.x + perpX + cos(bodyAngle) * 5;
+                let idealFootY = anchor.y + perpY + sin(bodyAngle) * 5;
+
+                // 当前脚到肩膀的距离
+                let footToShoulder = dist(leg.footX, leg.footY, shoulderX, shoulderY);
+
+                // 🔑 关键修复：如果脚离肩膀太远，强制拉回
+                if (footToShoulder > MAX_FOOT_DIST) {
+                    let dx = leg.footX - shoulderX;
+                    let dy = leg.footY - shoulderY;
+                    let d = sqrt(dx * dx + dy * dy);
+                    if (d > 0) {
+                        leg.footX = shoulderX + (dx / d) * MAX_FOOT_DIST;
+                        leg.footY = shoulderY + (dy / d) * MAX_FOOT_DIST;
+                    }
+                }
+
+                // 脚到理想位置的距离
+                let footDist = dist(leg.footX, leg.footY, idealFootX, idealFootY);
+
+                // 🔑 超远距离时直接跳到新位置（不做动画）
+                if (footToShoulder > SNAP_DIST) {
+                    leg.footX = idealFootX;
+                    leg.footY = idealFootY;
+                    leg.stepping = false;
+                    continue;
+                }
+
+                // 对角线步态：FL+BR 一组, FR+BL 一组
+                let partner = (i + 2) % 4;
+                let canStep = !legs[partner].stepping;
+
+                if (footDist > STEP_THRESHOLD && !leg.stepping && canStep) {
+                    leg.stepping = true;
+                    leg.stepProgress = 0;
+                    leg.oldFootX = leg.footX;
+                    leg.oldFootY = leg.footY;
+                    leg.newFootX = idealFootX;
+                    leg.newFootY = idealFootY;
+                }
+
+                // 🔑 如果脚太远且伙伴也在迈步，强制开始迈步（忽略对角线约束）
+                if (footDist > STEP_THRESHOLD * 1.5 && !leg.stepping) {
+                    leg.stepping = true;
+                    leg.stepProgress = 0;
+                    leg.oldFootX = leg.footX;
+                    leg.oldFootY = leg.footY;
+                    leg.newFootX = idealFootX;
+                    leg.newFootY = idealFootY;
+                }
+
+                if (leg.stepping) {
+                    // 🔑 步速根据距离动态调整：距离越远步速越快
+                    let stepSpeed = map(footDist, STEP_THRESHOLD, STEP_THRESHOLD * 3, 0.12, 0.35, true);
+                    leg.stepProgress += stepSpeed;
+                    if (leg.stepProgress >= 1) {
+                        leg.stepProgress = 1;
+                        leg.stepping = false;
+                    }
+                    // 平滑插值 + 抬脚弧线
+                    let t = leg.stepProgress;
+                    let ease = t < 0.5 ? 2 * t * t : 1 - pow(-2 * t + 2, 2) / 2;
+                    leg.footX = lerp(leg.oldFootX, leg.newFootX, ease);
+                    leg.footY = lerp(leg.oldFootY, leg.newFootY, ease);
+                    // 抬起高度
+                    let lift = sin(t * PI) * STEP_HEIGHT;
+                    leg.footY -= lift;
+                }
+            }
+        }
+
+        function drawLegs() {
+            for (let leg of legs) {
+                let anchor = spine[leg.spineIndex];
+                let prevSpine = spine[leg.spineIndex - 1] || spine[leg.spineIndex];
+                let bodyAngle = atan2(
+                    anchor.y - prevSpine.y,
+                    anchor.x - prevSpine.x
+                );
+
+                // 肩膀/臀部连接点
+                let shoulderX = anchor.x + (-sin(bodyAngle)) * leg.side * 14;
+                let shoulderY = anchor.y + cos(bodyAngle) * leg.side * 14;
+
+                // IK 两关节求解
+                let ik = solveTwoJointIK(
+                    shoulderX, shoulderY,
+                    leg.footX, leg.footY,
+                    UPPER_LEG, LOWER_LEG, leg.side
+                );
+
+                if (ik) {
+                    // 大腿
+                    stroke(50, 155, 65);
+                    strokeWeight(7);
+                    strokeCap(ROUND);
+                    line(shoulderX, shoulderY, ik.elbowX, ik.elbowY);
+
+                    // 小腿
+                    stroke(45, 140, 60);
+                    strokeWeight(5);
+                    line(ik.elbowX, ik.elbowY, leg.footX, leg.footY);
+
+                    // 脚掌
+                    noStroke();
+                    fill(60, 170, 75);
+                    ellipse(leg.footX, leg.footY, 10, 7);
+
+                    // 脚趾
+                    let footAngle = atan2(leg.footY - ik.elbowY, leg.footX - ik.elbowX);
+                    for (let t = -1; t <= 1; t++) {
+                        let toeAngle = footAngle + t * 0.4;
+                        let toeX = leg.footX + cos(toeAngle) * 6;
+                        let toeY = leg.footY + sin(toeAngle) * 6;
+                        fill(55, 160, 70);
+                        ellipse(toeX, toeY, 5, 4);
+                    }
+                }
+            }
+        }
+
+        // ============================================================
+        //  两关节 IK 求解器
+        // ============================================================
+        function solveTwoJointIK(sx, sy, tx, ty, lenA, lenB, side) {
+            let dx = tx - sx;
+            let dy = ty - sy;
+            let dist_ = sqrt(dx * dx + dy * dy);
+
+            // 钳位距离
+            let maxReach = lenA + lenB - 1;
+            let minReach = abs(lenA - lenB) + 1;
+            dist_ = constrain(dist_, minReach, maxReach);
+
+            // 余弦定理求解肘关节角
+            let cosAngle = (lenA * lenA + dist_ * dist_ - lenB * lenB) / (2 * lenA * dist_);
+            cosAngle = constrain(cosAngle, -1, 1);
+            let angleA = acos(cosAngle);
+
+            let baseAngle = atan2(dy, dx);
+            let elbowAngle = baseAngle + angleA * side;
+
+            let elbowX = sx + cos(elbowAngle) * lenA;
+            let elbowY = sy + sin(elbowAngle) * lenA;
+
+            return { elbowX, elbowY };
+        }
+
+        // ============================================================
+        //  模式切换
+        // ============================================================
+        function toggleMode() {
+            if (mode === 'mouse') {
+                mode = 'camera';
+                document.getElementById('mode-label').textContent = '摄像头模式';
+                document.querySelector('#mode-toggle .icon').textContent = '📷';
+                document.getElementById('hint').textContent = '伸出食指，蜥蜴会跟随你的手指 ☝️';
+                document.getElementById('hint').style.opacity = '1';
+                startCamera();
+            } else {
+                mode = 'mouse';
+                document.getElementById('mode-label').textContent = '鼠标模式';
+                document.querySelector('#mode-toggle .icon').textContent = '🖱️';
+                document.getElementById('hint').textContent = '移动鼠标，蜥蜴会跟随你 🦎';
+                document.getElementById('hint').style.opacity = '1';
+                stopCamera();
+            }
+        }
+
+        // ============================================================
+        //  MediaPipe Hands
+        // ============================================================
+        function startCamera() {
+            const videoEl = document.getElementById('camera-view');
+            // 摄像头模式下 video 元素不单独显示（已绘制到画布上）
+            videoEl.style.display = 'block';
+            videoEl.style.opacity = '0';
+            videoEl.style.pointerEvents = 'none';
+            videoEl.style.position = 'fixed';
+            videoEl.style.top = '0';
+            videoEl.style.left = '0';
+            videoEl.style.width = '1px';
+            videoEl.style.height = '1px';
+
+            if (!mpHands) {
+                mpHands = new Hands({
+                    locateFile: (file) => {
+                        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+                    }
+                });
+
+                mpHands.setOptions({
+                    maxNumHands: 1,
+                    modelComplexity: 1,  // 恢复为稳定版 1
+                    minDetectionConfidence: 0.6,
+                    minTrackingConfidence: 0.4,
+                });
+
+                mpHands.onResults(onHandResults);
+            }
+
+            // ✨ 使用 requestVideoFrameCallback 将视频帧处理与 UI 渲染解耦
+            if (!videoStream) {
+                navigator.mediaDevices.getUserMedia({
+                    video: { width: 640, height: 480, frameRate: { ideal: 60 } }
+                }).then((stream) => {
+                    videoStream = stream;
+                    videoEl.srcObject = stream;
+                    videoEl.play();
+
+                    let processFrame = async () => {
+                        if (mode !== 'camera' || videoEl.paused || videoEl.ended) return;
+
+                        // 跳过积压的帧
+                        if (!isProcessingFrame && videoEl.readyState >= 2) {
+                            isProcessingFrame = true;
+                            await mpHands.send({ image: videoEl });
+                            isProcessingFrame = false;
+                        }
+
+                        // 请求下一帧
+                        if ('requestVideoFrameCallback' in videoEl) {
+                            videoEl.requestVideoFrameCallback(processFrame);
+                        } else {
+                            // 降级方案 (Firefox)
+                            requestAnimationFrame(processFrame);
+                        }
+                    };
+
+                    if ('requestVideoFrameCallback' in videoEl) {
+                        videoEl.requestVideoFrameCallback(processFrame);
+                    } else {
+                        requestAnimationFrame(processFrame);
+                    }
+                }).catch(err => {
+                    console.error("无法访问摄像头: ", err);
+                    document.getElementById('hint').textContent = '⚠️ 无法访问摄像头';
+                });
+            } else {
+                videoEl.play();
+            }
+        }
+
+        function stopCamera() {
+            const videoEl = document.getElementById('camera-view');
+            videoEl.style.display = 'none';
+            videoEl.style.opacity = '';
+            videoEl.style.pointerEvents = '';
+            videoEl.style.position = '';
+            videoEl.style.width = '';
+            videoEl.style.height = '';
+
+            videoEl.pause();
+            handDetected = false;
+            isProcessingFrame = false;
+        }
+
+        function onHandResults(results) {
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                handDetected = true;
+                // 食指指尖 = landmark 8
+                let tip = results.multiHandLandmarks[0][8];
+                // 实时映射到画布坐标，不做任何滤波延迟
+                targetX = (1 - tip.x) * width;
+                targetY = tip.y * height;
+            } else {
+                handDetected = false;
+            }
+        }
+
+        // 触摸支持 (bonus)
+        function touchMoved(event) {
+            if (mode === 'mouse') {
+                targetX = mouseX;
+                targetY = mouseY;
+            }
+            return false; // 阻止默认滚动
+        }
+    </script>
+</body>
+
+</html>
