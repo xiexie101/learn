@@ -107,26 +107,24 @@
         let isProcessingFrame = false; // 防止帧堆积
 
         // ============================================================
-        //  脊柱系统
+        //  脊柱系统 (变回修长形态)
         // ============================================================
-        const SPINE_COUNT = 22;
-        const SPINE_SPACING = 14;
+        const SPINE_COUNT = 24;
+        const SPINE_SPACING = 12;
         let spine = [];
 
         // ============================================================
-        //  腿部系统
+        //  腿部系统 (L型折线腿)
         // ============================================================
         const LEG_CONFIGS = [
-            { spineIndex: 4, side: 1, label: 'FL' }, // 左前
-            { spineIndex: 4, side: -1, label: 'FR' }, // 右前
-            { spineIndex: 14, side: 1, label: 'BL' }, // 左后
-            { spineIndex: 14, side: -1, label: 'BR' }, // 右后
+            { spineIndex: 5, side: 1, label: 'FL' }, // 左前
+            { spineIndex: 5, side: -1, label: 'FR' }, // 右前
+            { spineIndex: 16, side: 1, label: 'BL' }, // 左后
+            { spineIndex: 16, side: -1, label: 'BR' }, // 右后
         ];
 
-        const UPPER_LEG = 30;
-        const LOWER_LEG = 35;
-        const STEP_THRESHOLD = 50;
-        const STEP_HEIGHT = 15;
+        const STEP_THRESHOLD = 35;
+        const STEP_HEIGHT = 12;
 
         let legs = [];
 
@@ -245,11 +243,24 @@
             updateSpine();
             updateLegs();
 
-            // ====== 绘制蜥蜴 ======
-            drawTail();
-            drawBody();
-            drawLegs();
-            drawHead();
+            // ====== 绘制蜥蜴 (双层绘制法实现贴纸描边) ======
+
+            // 底层描边宽度
+            const OUTLINE_W = 6;
+
+            // ================= PASS 1: 白色描边底图 =================
+            fill(255);
+            stroke(255);
+            drawLegs(true);
+            drawTail(true);
+            drawBody(true);
+            drawHead(true);
+
+            // ================= PASS 2: 填充内容 =================
+            drawLegs(false);
+            drawTail(false);
+            drawBody(false);
+            drawHead(false);
 
             // ====== 摄像头模式：手指红点 ======
             if (mode === 'camera' && handDetected) {
@@ -337,79 +348,43 @@
         }
 
         // ============================================================
-        //  身体绘制
+        //  身体绘制 (一坨圆润的软糖)
         // ============================================================
+        const MINT_GREEN = [120, 225, 175];
+        const DARK_MINT = [95, 200, 150];
+
         function drawBody() {
             noStroke();
 
-            // 身体宽度沿脊柱变化：头部较大 → 中间最宽 → 尾部变窄
+            // 身体宽度沿脊柱变化：头部肥大圆润 → 尾部快速收紧 (水滴状)
             let widths = [];
             for (let i = 0; i < SPINE_COUNT; i++) {
                 let t = i / (SPINE_COUNT - 1);
                 let w;
-                if (t < 0.15) {
-                    w = lerp(12, 18, t / 0.15); // 脖子到肩膀
-                } else if (t < 0.55) {
-                    w = lerp(18, 16, (t - 0.15) / 0.4); // 躯干
+                if (t < 0.3) {
+                    w = lerp(26, 30, t / 0.3); // 肥大的前半身
                 } else {
-                    w = lerp(16, 2, (t - 0.55) / 0.45); // 尾部
+                    w = lerp(30, 4, (t - 0.3) / 0.7); // 向后收拢
                 }
                 widths.push(w);
             }
 
-            // 绘制身体轮廓 (用椭圆连成的粗线条)
+            // 用密集的椭圆拼接出极致圆润的无缝软糖感
+            fill(MINT_GREEN);
+            let steps = 2; // 用更少的步数也能做到平滑，因为脊柱变短了
             for (let i = 0; i < SPINE_COUNT - 1; i++) {
-                let t = i / (SPINE_COUNT - 1);
-                // 颜色渐变：头部亮绿 → 尾部深绿
-                let r = lerp(60, 30, t);
-                let g = lerp(180, 100, t);
-                let b = lerp(75, 50, t);
-                fill(r, g, b);
-
-                // ✨ 性能优化：将原本 3 步补间插值降为 1 步，减少 60% 绘图调用
-                let steps = 1;
                 for (let s = 0; s <= steps; s++) {
                     let frac = s / steps;
                     let px = lerp(spine[i].x, spine[i + 1].x, frac);
                     let py = lerp(spine[i].y, spine[i + 1].y, frac);
                     let pw = lerp(widths[i], widths[i + 1], frac) * 2;
-                    ellipse(px, py, pw, pw * 0.85);
+                    ellipse(px, py, pw, pw);
                 }
-            }
-
-            // 背部花纹 — 菱形斑点
-            for (let i = 2; i < SPINE_COUNT - 4; i += 2) {
-                let t = i / (SPINE_COUNT - 1);
-                let alpha = map(t, 0, 1, 200, 50);
-                fill(80, 210, 100, alpha);
-                let sz = widths[i] * 0.9;
-                let angle = atan2(
-                    spine[i].y - spine[i - 1].y,
-                    spine[i].x - spine[i - 1].x
-                );
-                push();
-                translate(spine[i].x, spine[i].y);
-                rotate(angle);
-                beginShape();
-                vertex(0, -sz * 0.4);
-                vertex(sz * 0.5, 0);
-                vertex(0, sz * 0.4);
-                vertex(-sz * 0.5, 0);
-                endShape(CLOSE);
-                pop();
-            }
-
-            // 腹部淡色条纹
-            for (let i = 1; i < SPINE_COUNT - 3; i++) {
-                let t = i / (SPINE_COUNT - 1);
-                fill(120, 220, 130, 40);
-                let w = widths[i] * 1.2;
-                ellipse(spine[i].x, spine[i].y + widths[i] * 0.2, w, w * 0.3);
             }
         }
 
         // ============================================================
-        //  头部绘制
+        //  头部绘制 (呆萌五官)
         // ============================================================
         function drawHead() {
             let hx = spine[0].x;
@@ -420,106 +395,76 @@
             translate(hx, hy);
             rotate(angle);
 
-            // 头部形状
+            // 主头部 (大且圆钝)
             noStroke();
-            fill(65, 190, 80);
-            ellipse(8, 0, 36, 26); // 主头部
-            ellipse(18, 0, 20, 18); // 鼻子
+            fill(MINT_GREEN);
+            ellipse(6, 0, 56, 52);
 
-            // 鼻孔
-            fill(40, 120, 50);
-            ellipse(25, -3, 3, 3);
-            ellipse(25, 3, 3, 3);
+            // 极简豆豆眼
+            let eyeOffsetX = 12;
+            let eyeOffsetY = 16;
 
-            // 眼眶
-            fill(50, 60, 50);
-            ellipse(4, -11, 14, 14);
-            ellipse(4, 11, 14, 14);
+            // 瞳孔随运动微调 (增加灵动)
+            let lookDist = dist(hx, hy, targetX, targetY);
+            let lookOffset = constrain(lookDist * 0.02, 0, 4);
 
-            // 眼白
-            fill(220, 240, 220);
-            ellipse(4, -11, 12, 12);
-            ellipse(4, 11, 12, 12);
+            fill(30); // 纯黑极简眼
+            ellipse(eyeOffsetX + lookOffset, -eyeOffsetY, 8, 8);
+            ellipse(eyeOffsetX + lookOffset, eyeOffsetY, 8, 8);
 
-            // 瞳孔 — 跟随运动方向
-            let pupilOffsetX = 2;
-            let pupilOffsetY = 0;
-            fill(20, 20, 20);
-            ellipse(4 + pupilOffsetX, -11 + pupilOffsetY, 6, 7);
-            ellipse(4 + pupilOffsetX, 11 + pupilOffsetY, 6, 7);
+            // 可爱腮红
+            fill(255, 120, 150, 150);
+            ellipse(eyeOffsetX - 2, -eyeOffsetY - 8, 12, 8);
+            ellipse(eyeOffsetX - 2, eyeOffsetY + 8, 12, 8);
 
-            // 瞳孔高光
-            fill(255, 255, 255, 200);
-            ellipse(6 + pupilOffsetX, -12 + pupilOffsetY, 2.5, 2.5);
-            ellipse(6 + pupilOffsetX, 10 + pupilOffsetY, 2.5, 2.5);
-
-            // 嘴巴线条
-            stroke(40, 120, 50);
-            strokeWeight(1.5);
+            // 极简嘴巴 (小写 v)
+            stroke(DARK_MINT);
+            strokeWeight(3);
+            strokeCap(ROUND);
+            strokeJoin(ROUND);
             noFill();
-            arc(16, 0, 14, 6, -0.3, 0.3);
+            beginShape();
+            vertex(26, -4);
+            vertex(30, 0);
+            vertex(26, 4);
+            endShape();
 
             pop();
-
-            // 舌头 — 移动快时伸出
-            let spd = dist(spine[0].x, spine[0].y, spine[1].x, spine[1].y);
-            if (spd > SPINE_SPACING * 1.1) {
-                push();
-                translate(hx, hy);
-                rotate(angle);
-                stroke(220, 60, 80);
-                strokeWeight(2.5);
-                noFill();
-                let tongueLen = map(spd, SPINE_SPACING, SPINE_SPACING * 3, 10, 40, true);
-                let flickY = sin(frameCount * 0.8) * 4;
-                beginShape();
-                vertex(26, 0);
-                quadraticVertex(30 + tongueLen * 0.5, flickY, 26 + tongueLen, flickY * 1.5);
-                endShape();
-                // 分叉
-                let endX = 26 + tongueLen;
-                line(endX, flickY * 1.5, endX + 4, flickY * 1.5 - 4);
-                line(endX, flickY * 1.5, endX + 4, flickY * 1.5 + 4);
-                pop();
-            }
         }
 
         // ============================================================
-        //  尾巴绘制
+        //  尾巴绘制 (软糯小短尾)
         // ============================================================
         function drawTail() {
             let last = spine[SPINE_COUNT - 1];
             let prev = spine[SPINE_COUNT - 2];
             let angle = atan2(last.y - prev.y, last.x - prev.x);
 
-            // 尾巴末端加一点摆动
-            let waggle = sin(frameCount * 0.08) * 15;
+            // 尾巴末端轻微摆动
+            let waggle = sin(frameCount * 0.1) * 10;
 
             push();
             translate(last.x, last.y);
             rotate(angle);
 
-            stroke(50, 140, 70);
-            strokeWeight(3);
+            stroke(MINT_GREEN);
+            strokeWeight(10);
+            strokeCap(ROUND);
             noFill();
+
             beginShape();
             vertex(0, 0);
-            quadraticVertex(15, waggle * 0.5, 30, waggle);
+            quadraticVertex(10, waggle, 20, waggle * 1.5);
             endShape();
 
-            // 尾尖
-            strokeWeight(2);
-            stroke(40, 120, 60);
-            line(30, waggle, 38, waggle + waggle * 0.3);
             pop();
         }
 
         // ============================================================
-        //  腿部 IK + 步态
+        //  带折角的贴纸风格腿部
         // ============================================================
         function updateLegs() {
-            const MAX_FOOT_DIST = UPPER_LEG + LOWER_LEG - 5; // 腿的最大可达距离
-            const SNAP_DIST = MAX_FOOT_DIST * 1.5; // 超过此距离直接跳到新位置
+            const MAX_REACH = 60;
 
             for (let i = 0; i < legs.length; i++) {
                 let leg = legs[i];
@@ -530,42 +475,25 @@
                     anchor.x - prevSpine.x
                 );
 
-                // 肩膀/臀部连接点（与 drawLegs 保持一致）
-                let shoulderX = anchor.x + (-sin(bodyAngle)) * leg.side * 14;
-                let shoulderY = anchor.y + cos(bodyAngle) * leg.side * 14;
+                // 肩膀/大腿根部位置
+                let shoulderX = anchor.x + (-sin(bodyAngle)) * leg.side * 18;
+                let shoulderY = anchor.y + cos(bodyAngle) * leg.side * 18;
 
-                // 自然站立时脚的目标位置
-                let perpX = -sin(bodyAngle) * leg.side * 45;
-                let perpY = cos(bodyAngle) * leg.side * 45;
-                let idealFootX = anchor.x + perpX + cos(bodyAngle) * 5;
-                let idealFootY = anchor.y + perpY + sin(bodyAngle) * 5;
+                // 理想落脚点 (向外+向前/向后)
+                // 前腿往前指，后腿往后指
+                let fwdDir = (i < 2) ? 1 : -1;
+                let idealFootX = anchor.x + (-sin(bodyAngle)) * leg.side * 36 + cos(bodyAngle) * 22 * fwdDir;
+                let idealFootY = anchor.y + cos(bodyAngle) * leg.side * 36 + sin(bodyAngle) * 22 * fwdDir;
 
-                // 当前脚到肩膀的距离
+                let footDist = dist(leg.footX, leg.footY, idealFootX, idealFootY);
                 let footToShoulder = dist(leg.footX, leg.footY, shoulderX, shoulderY);
 
-                // 🔑 关键修复：如果脚离肩膀太远，强制拉回
-                if (footToShoulder > MAX_FOOT_DIST) {
-                    let dx = leg.footX - shoulderX;
-                    let dy = leg.footY - shoulderY;
-                    let d = sqrt(dx * dx + dy * dy);
-                    if (d > 0) {
-                        leg.footX = shoulderX + (dx / d) * MAX_FOOT_DIST;
-                        leg.footY = shoulderY + (dy / d) * MAX_FOOT_DIST;
-                    }
-                }
-
-                // 脚到理想位置的距离
-                let footDist = dist(leg.footX, leg.footY, idealFootX, idealFootY);
-
-                // 🔑 超远距离时直接跳到新位置（不做动画）
-                if (footToShoulder > SNAP_DIST) {
+                if (footToShoulder > MAX_REACH * 1.5) {
                     leg.footX = idealFootX;
                     leg.footY = idealFootY;
                     leg.stepping = false;
-                    continue;
                 }
 
-                // 对角线步态：FL+BR 一组, FR+BL 一组
                 let partner = (i + 2) % 4;
                 let canStep = !legs[partner].stepping;
 
@@ -578,8 +506,7 @@
                     leg.newFootY = idealFootY;
                 }
 
-                // 🔑 如果脚太远且伙伴也在迈步，强制开始迈步（忽略对角线约束）
-                if (footDist > STEP_THRESHOLD * 1.5 && !leg.stepping) {
+                if (footDist > STEP_THRESHOLD * 2 && !leg.stepping) {
                     leg.stepping = true;
                     leg.stepProgress = 0;
                     leg.oldFootX = leg.footX;
@@ -589,27 +516,29 @@
                 }
 
                 if (leg.stepping) {
-                    // 🔑 步速根据距离动态调整：距离越远步速越快
-                    let stepSpeed = map(footDist, STEP_THRESHOLD, STEP_THRESHOLD * 3, 0.12, 0.35, true);
+                    let stepSpeed = map(footDist, STEP_THRESHOLD, STEP_THRESHOLD * 3, 0.15, 0.4, true);
                     leg.stepProgress += stepSpeed;
                     if (leg.stepProgress >= 1) {
                         leg.stepProgress = 1;
                         leg.stepping = false;
                     }
-                    // 平滑插值 + 抬脚弧线
+
                     let t = leg.stepProgress;
                     let ease = t < 0.5 ? 2 * t * t : 1 - pow(-2 * t + 2, 2) / 2;
                     leg.footX = lerp(leg.oldFootX, leg.newFootX, ease);
                     leg.footY = lerp(leg.oldFootY, leg.newFootY, ease);
-                    // 抬起高度
+
+                    // 抬脚
                     let lift = sin(t * PI) * STEP_HEIGHT;
-                    leg.footY -= lift;
+                    leg.footX += (-sin(bodyAngle)) * leg.side * lift;
+                    leg.footY += cos(bodyAngle) * leg.side * lift;
                 }
             }
         }
 
-        function drawLegs() {
-            for (let leg of legs) {
+        function drawLegs(isOutline) {
+            for (let i = 0; i < legs.length; i++) {
+                let leg = legs[i];
                 let anchor = spine[leg.spineIndex];
                 let prevSpine = spine[leg.spineIndex - 1] || spine[leg.spineIndex];
                 let bodyAngle = atan2(
@@ -617,72 +546,31 @@
                     anchor.x - prevSpine.x
                 );
 
-                // 肩膀/臀部连接点
-                let shoulderX = anchor.x + (-sin(bodyAngle)) * leg.side * 14;
-                let shoulderY = anchor.y + cos(bodyAngle) * leg.side * 14;
+                // 肩膀/大腿根部位置
+                let shoulderX = anchor.x + (-sin(bodyAngle)) * leg.side * 12;
+                let shoulderY = anchor.y + cos(bodyAngle) * leg.side * 12;
 
-                // IK 两关节求解
-                let ik = solveTwoJointIK(
-                    shoulderX, shoulderY,
-                    leg.footX, leg.footY,
-                    UPPER_LEG, LOWER_LEG, leg.side
-                );
+                // L型折线手：计算手肘坐标 (只向外扩张)
+                let elbowX = anchor.x + (-sin(bodyAngle)) * leg.side * 32;
+                let elbowY = anchor.y + cos(bodyAngle) * leg.side * 32;
 
-                if (ik) {
-                    // 大腿
-                    stroke(50, 155, 65);
-                    strokeWeight(7);
-                    strokeCap(ROUND);
-                    line(shoulderX, shoulderY, ik.elbowX, ik.elbowY);
-
-                    // 小腿
-                    stroke(45, 140, 60);
-                    strokeWeight(5);
-                    line(ik.elbowX, ik.elbowY, leg.footX, leg.footY);
-
-                    // 脚掌
-                    noStroke();
-                    fill(60, 170, 75);
-                    ellipse(leg.footX, leg.footY, 10, 7);
-
-                    // 脚趾
-                    let footAngle = atan2(leg.footY - ik.elbowY, leg.footX - ik.elbowX);
-                    for (let t = -1; t <= 1; t++) {
-                        let toeAngle = footAngle + t * 0.4;
-                        let toeX = leg.footX + cos(toeAngle) * 6;
-                        let toeY = leg.footY + sin(toeAngle) * 6;
-                        fill(55, 160, 70);
-                        ellipse(toeX, toeY, 5, 4);
-                    }
+                if (isOutline) {
+                    stroke(255);
+                    strokeWeight(16 + 6);
+                } else {
+                    stroke(MINT_GREEN);
+                    strokeWeight(16);
                 }
+                strokeCap(ROUND);
+                strokeJoin(ROUND); // 圆润折角
+                noFill();
+
+                beginShape();
+                vertex(shoulderX, shoulderY);
+                vertex(elbowX, elbowY);  // 拐角
+                vertex(leg.footX, leg.footY); // 脚尖
+                endShape();
             }
-        }
-
-        // ============================================================
-        //  两关节 IK 求解器
-        // ============================================================
-        function solveTwoJointIK(sx, sy, tx, ty, lenA, lenB, side) {
-            let dx = tx - sx;
-            let dy = ty - sy;
-            let dist_ = sqrt(dx * dx + dy * dy);
-
-            // 钳位距离
-            let maxReach = lenA + lenB - 1;
-            let minReach = abs(lenA - lenB) + 1;
-            dist_ = constrain(dist_, minReach, maxReach);
-
-            // 余弦定理求解肘关节角
-            let cosAngle = (lenA * lenA + dist_ * dist_ - lenB * lenB) / (2 * lenA * dist_);
-            cosAngle = constrain(cosAngle, -1, 1);
-            let angleA = acos(cosAngle);
-
-            let baseAngle = atan2(dy, dx);
-            let elbowAngle = baseAngle + angleA * side;
-
-            let elbowX = sx + cos(elbowAngle) * lenA;
-            let elbowY = sy + sin(elbowAngle) * lenA;
-
-            return { elbowX, elbowY };
         }
 
         // ============================================================
