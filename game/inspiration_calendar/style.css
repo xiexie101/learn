@@ -1,0 +1,207 @@
+:root {
+    --primary-blue: #6A67F3;
+    /* Periwinkle Blue */
+    --text-blue: #6A67F3;
+    --bg-color: #F0F0F0;
+    --card-bg: #FFFFFF;
+    --font-serif: 'Noto Serif SC', serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-serif);
+    background-color: var(--bg-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: #333;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.calendar-card {
+    width: 375px;
+    /* Mobile width */
+    height: 850px;
+    /* Updated height */
+    background-color: var(--card-bg);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Header Section (White) */
+.card-header {
+    flex: 1;
+    /* Takes up remaining space */
+    padding: 40px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    /* Allow shrinking if needed */
+}
+
+.yi-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+    /* Reduced margin */
+    flex-shrink: 0;
+}
+
+.yi-circle {
+    width: 70px;
+    /* Slightly smaller */
+    height: 70px;
+    border: 2px solid var(--text-blue);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.yi-text {
+    color: var(--text-blue);
+    font-size: 32px;
+    /* Slightly smaller */
+    font-weight: bold;
+}
+
+.content-area {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    /* Spread main text and side text */
+    align-items: flex-start;
+    padding-top: 10px;
+    overflow: hidden;
+    /* Prevent overflow */
+}
+
+/* Vertical Text Handling */
+.main-text-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 0;
+}
+
+.main-title {
+    writing-mode: vertical-rl;
+    color: var(--text-blue);
+    font-size: 72px;
+    /* Slightly smaller to fit better */
+    font-weight: normal;
+    letter-spacing: 8px;
+    margin-bottom: 15px;
+}
+
+.pinyin {
+    writing-mode: vertical-rl;
+    color: #999;
+    font-size: 12px;
+    letter-spacing: 4px;
+    text-transform: lowercase;
+    font-family: sans-serif;
+    /* Pinyin usually looks better in sans or specific serif */
+}
+
+.side-text {
+    writing-mode: vertical-rl;
+    color: var(--text-blue);
+    font-size: 28px;
+    /* Slightly smaller */
+    letter-spacing: 4px;
+    line-height: 1.5;
+    margin-right: 0;
+    margin-left: 0;
+    height: 80%;
+    /* Allow more height */
+}
+
+/* Footer Section (Blue) */
+.card-footer {
+    background-color: var(--primary-blue);
+    color: white;
+    padding: 25px 35px;
+    /* Slightly reduced padding */
+    height: 220px;
+    /* Slightly reduced fixed height to give more room to header */
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+    /* align-items: flex-end; Removed to allow children to stretch if needed, or handle their own height */
+}
+
+.date-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    justify-content: flex-end;
+    /* Push content to bottom */
+}
+
+.big-date {
+    font-family: sans-serif;
+    /* Numbers often sans-serif */
+    line-height: 1;
+}
+
+.day {
+    font-size: 80px;
+    /* Slightly smaller */
+    font-weight: 300;
+}
+
+.month {
+    font-size: 28px;
+    font-weight: 300;
+    opacity: 0.9;
+}
+
+.day-details {
+    margin-top: 5px;
+}
+
+.weekday,
+.lunar {
+    font-size: 16px;
+    margin-bottom: 3px;
+    opacity: 0.9;
+}
+
+.brand-text {
+    writing-mode: vertical-rl;
+    font-size: 20px;
+    /* Slightly smaller */
+    letter-spacing: 4px;
+    height: 100%;
+    /* To align properly if needed */
+    display: flex;
+    align-items: center;
+    /* Center vertically within the vertical mode? No, align-items works on cross axis */
+    justify-content: flex-end;
+    /* Align text to bottom */
+    padding-bottom: 5px;
+    flex-shrink: 0;
+    /* Prevent shrinking */
+}
+
+.page-footer {
+    color: var(--text-blue);
+    font-size: 16px;
+    margin-top: 20px;
+}

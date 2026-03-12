@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>灵感日历 - 厕所</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="calendar-card">
+            <div class="card-header">
+                <div class="yi-container">
+                    <div class="yi-circle">
+                        <span class="yi-text" id="yi-text">宜</span>
+                    </div>
+                </div>
+
+                <div class="content-area">
+                    <div class="side-text" id="side-text">
+                        厕所革命，文明如厕。
+                    </div>
+                    <div class="main-text-group">
+                        <h1 class="main-title" id="main-title">厕所</h1>
+                        <div class="pinyin" id="pinyin">c e s u o</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer">
+                <div class="date-info">
+                    <div class="big-date">
+                        <span class="day" id="day">19</span><span class="month" id="month">/11</span>
+                    </div>
+                    <div class="day-details">
+                        <div class="weekday" id="weekday">星期三</div>
+                        <div class="lunar" id="lunar">八月十九</div>
+                    </div>
+                </div>
+                <div class="brand-text">
+                    灵感日历
+                </div>
+            </div>
+        </div>
+
+        <div class="page-footer">
+            当前日期: <span id="current-date-text">2025年11月19日</span>
+        </div>
+
+        <!-- Navigation Controls (Hidden by default, visible for demo) -->
+        <div class="controls" style="margin-top: 20px; display: flex; gap: 10px;">
+            <button id="prev-btn">上一天</button>
+            <button id="next-btn">下一天</button>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
