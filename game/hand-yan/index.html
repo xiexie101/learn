@@ -98,6 +98,7 @@
             <div class="row" id="shape">SHAPE: 雨后彩虹</div>
             <div class="row" id="gesture">GESTURE: SEARCHING</div>
             <div class="row" id="snap">ACTION: READY</div>
+            <button id="switch_cam" style="margin-top: 5px; padding: 6px 12px; background: transparent; border: 1px solid #00ffcc; color: #00ffcc; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 14px; font-weight: bold;">切换摄像头</button>
         </div>
     </div>
 
@@ -106,12 +107,14 @@
 
         // 移动端环境检测
         const isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        let currentFacingMode = isMobile ? 'environment' : 'user';
 
         // ==========================================
         // 文字形态初始化：动态生成“吴陈焰”散点
         // ==========================================
-        const textPoints = [];
+        let textPoints = [];
         function initTextPoints() {
+            textPoints = [];
             const canvas = document.createElement('canvas');
             canvas.width = 512;
             canvas.height = 512;
@@ -131,7 +134,7 @@
                     // 只要有颜色就采样，提高图标的丰满度
                     if(imgData[idx] > 50) { 
                         // 如果前置摄像头（画面被镜像），需要把生成的三维点X轴反转，以保证显示正面文字/图标
-                        const px = (!isMobile) ? (256 - x) : (x - 256);
+                        const px = (currentFacingMode === 'user') ? (256 - x) : (x - 256);
                         textPoints.push(new THREE.Vector3(px * 0.025, -(y-256)*0.025, 0));
                     }
                 }
@@ -526,7 +529,7 @@
             
             // 1. 设置画布缩放翻转 (仅在前置摄像头时需要镜像)
             ctx.save();
-            if (!isMobile) {
+            if (currentFacingMode === 'user') {
                 ctx.translate(w, 0);
                 ctx.scale(-1, 1);
             }
@@ -793,20 +796,44 @@
             }
         });
 
-        const CAMERA_FACING = isMobile ? 'environment' : 'user';
+        let cameraUtils;
 
-        if (!isMobile) {
-            videoEl.style.transform = 'scaleX(-1)';
-            renderer.domElement.style.transform = 'scaleX(-1)';
+        function startCamera() {
+            if (cameraUtils) {
+                cameraUtils.stop();
+            }
+            if (currentFacingMode === 'user') {
+                videoEl.style.transform = 'scaleX(-1)';
+                renderer.domElement.style.transform = 'scaleX(-1)';
+            } else {
+                videoEl.style.transform = 'none';
+                renderer.domElement.style.transform = 'none';
+            }
+            cameraUtils = new Camera(videoEl, {
+                onFrame: async () => await hands.send({ image: videoEl }),
+                width: 1280,
+                height: 720,
+                facingMode: currentFacingMode
+            });
+            cameraUtils.start();
         }
 
-        const cameraUtils = new Camera(videoEl, {
-            onFrame: async () => await hands.send({ image: videoEl }),
-            width: 1280,
-            height: 720,
-            facingMode: CAMERA_FACING
+        document.getElementById('switch_cam').addEventListener('click', () => {
+            currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
+            initTextPoints(); // 重新生成朝向正确的文字粒子
+            if (mainSystem && mainSystem.shapes[mainSystem.currentShapeIdx] === '焰') {
+                // 如果当前正好是“焰”，强制刷新一次目标点
+                for (let i = 0; i < mainSystem.count; i++) {
+                    const {p, c} = getShapeData('焰');
+                    mainSystem.targetPositions[i * 3] = p.x;
+                    mainSystem.targetPositions[i * 3 + 1] = p.y;
+                    mainSystem.targetPositions[i * 3 + 2] = p.z;
+                }
+            }
+            startCamera();
         });
-        cameraUtils.start();
+
+        startCamera();
 
         // ==========================================
         // 6. 渲染循环
