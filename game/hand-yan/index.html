@@ -130,7 +130,9 @@
                     const idx = (y*512+x)*4;
                     // 只要有颜色就采样，提高图标的丰满度
                     if(imgData[idx] > 50) { 
-                        textPoints.push(new THREE.Vector3((x-256)*0.025, -(y-256)*0.025, 0));
+                        // 如果前置摄像头（画面被镜像），需要把生成的三维点X轴反转，以保证显示正面文字/图标
+                        const px = (!isMobile) ? (256 - x) : (x - 256);
+                        textPoints.push(new THREE.Vector3(px * 0.025, -(y-256)*0.025, 0));
                     }
                 }
             }
