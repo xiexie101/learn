@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>掌心彩虹·焰之苍兰</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #000;
+            overflow: hidden;
+            font-family: 'Courier New', monospace, sans-serif;
+        }
+
+        #container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        /* 摄像头：底层，镜像，低透明度展示神秘感 */
+        #input_video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.2;
+            z-index: 1;
+            filter: contrast(1.2);
+        }
+
+        /* 画布：顶层，镜像，GPU加速 */
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+            will-change: transform;
+        }
+
+        /* UI */
+        #ui {
+            position: absolute;
+            top: env(safe-area-inset-top, 20px);
+            left: env(safe-area-inset-left, 20px);
+            margin-top: 20px;
+            margin-left: 20px;
+            z-index: 10;
+            color: #00ffcc;
+            background: rgba(0, 20, 20, 0.7);
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 3px solid #00ffcc;
+            pointer-events: none;
+        }
+
+        .row {
+            margin-bottom: 8px;
+            font-size: 14px;
+            text-shadow: 0 0 5px rgba(0, 255, 200, 0.5);
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .row {
+                font-size: 16px; /* 移动端字号稍微大一点方便看 */
+            }
+        }
+
+        .highlight {
+            color: #ffaa00;
+            font-weight: bold;
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <script type="importmap">
+        { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+    </script>
+</head>
+
+<body>
+
+    <div id="container">
+        <video id="input_video" playsinline></video>
+        <div id="ui">
+            <div class="row" id="status">SYSTEM: INITIALIZING...</div>
+            <div class="row" id="shape">SHAPE: 雨后彩虹</div>
+            <div class="row" id="gesture">GESTURE: SEARCHING</div>
+            <div class="row" id="snap">ACTION: READY</div>
+        </div>
+    </div>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        // 移动端环境检测
+        const isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+        // ==========================================
+        // 文字形态初始化：动态生成“吴陈焰”散点
+        // ==========================================
+        const textPoints = [];
+        function initTextPoints() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = 'black';
+            ctx.fillRect(0, 0, 512, 512);
+            ctx.fillStyle = 'white';
+            // 使用更通用的表情符号字体，并调大尺寸
+            ctx.font = '350px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🔥', 256, 280); // 略微下移，给火苗顶部留空间
+            const imgData = ctx.getImageData(0,0,512,512).data;
+            for(let y=0; y<512; y+=2){
+                for(let x=0; x<512; x+=2){
+                    const idx = (y*512+x)*4;
+                    // 只要有颜色就采样，提高图标的丰满度
+                    if(imgData[idx] > 50) { 
+                        textPoints.push(new THREE.Vector3((x-256)*0.025, -(y-256)*0.025, 0));
+                    }
+                }
+            }
+        }
+        initTextPoints();
+
+        // ==========================================
+        // 1. 初始化场景 (Scene Setup)
+        // ==========================================
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x000000, 0.03); 
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.z = 25;
+
+        // 【关键】必须设置 preserveDrawingBuffer: true，否则无法将 WebGL 截图绘制到 Canvas
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, preserveDrawingBuffer: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        document.body.appendChild(renderer.domElement);
+
+        // ==========================================
+        // 2. 原版形状生成器辅助函数
+        // ==========================================
+        function getSpherePoint() {
+            const r = 3.5 * Math.cbrt(Math.random());
+            const theta = Math.random() * 2 * Math.PI;
+            const phi = Math.acos(2 * Math.random() - 1);
+            return new THREE.Vector3(r * Math.sin(phi) * Math.cos(theta), r * Math.sin(phi) * Math.sin(theta), r * Math.cos(phi));
+        }
+
+        function getRingPoint() {
+            const u = Math.random() * Math.PI * 2;
+            const v = Math.random() * Math.PI * 2;
+            const R = 4.0;
+            const r = 1.0 * Math.random();
+            return new THREE.Vector3((R + r * Math.cos(v)) * Math.cos(u), (R + r * Math.cos(v)) * Math.sin(u), r * Math.sin(v) * 0.5);
+        }
+
+        function getHeartPoint() {
+            const t = Math.random() * Math.PI * 2;
+            const s = 0.25;
+            const x = 16 * Math.pow(Math.sin(t), 3);
+            const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+            const z = (Math.random() - 0.5) * 6;
+            return new THREE.Vector3(x * s, y * s, z);
+        }
+
+        function getStarPoint() {
+            const points = 5;
+            const outerR = 4.0;
+            const innerR = 1.8;
+            const t = Math.random() * Math.PI * 2;
+            const isOuter = Math.floor(t / (Math.PI / points)) % 2 === 0;
+            const r = (isOuter ? outerR : innerR) * (0.8 + Math.random() * 0.4);
+            return new THREE.Vector3(r * Math.cos(t), r * Math.sin(t), (Math.random() - 0.5) * 3);
+        }
+
+        function getSpiralPoint() {
+            const t = Math.random() * Math.PI * 6;
+            const r = 2.0 + t * 0.3;
+            return new THREE.Vector3(r * Math.cos(t) + (Math.random() - 0.5) * 0.5, (t - Math.PI * 3) * 0.8 + (Math.random() - 0.5) * 0.5, r * Math.sin(t) + (Math.random() - 0.5) * 0.5);
+        }
+
+        function getDNAPoint() {
+            const t = Math.random() * Math.PI * 8;
+            const strand = Math.random() > 0.5 ? 0 : Math.PI;
+            const r = 2.5;
+            if (Math.random() < 0.15) {
+                const bridgeT = Math.floor(t / 0.5) * 0.5;
+                return new THREE.Vector3((Math.random() - 0.5) * r * 2, (bridgeT - Math.PI * 4) * 0.6, 0);
+            }
+            return new THREE.Vector3(r * Math.cos(t + strand), (t - Math.PI * 4) * 0.6, r * Math.sin(t + strand));
+        }
+
+        function getCubePoint() {
+            const size = 3.5;
+            const face = Math.floor(Math.random() * 6);
+            const u = (Math.random() - 0.5) * 2 * size;
+            const v = (Math.random() - 0.5) * 2 * size;
+            let x, y, z;
+            switch (face) {
+                case 0: x = size; y = u; z = v; break;
+                case 1: x = -size; y = u; z = v; break;
+                case 2: y = size; x = u; z = v; break;
+                case 3: y = -size; x = u; z = v; break;
+                case 4: z = size; x = u; y = v; break;
+                case 5: z = -size; x = u; y = v; break;
+            }
+            return new THREE.Vector3(x, y, z);
+        }
+
+        function getTRexPoint() {
+            const scale = 4.5;
+            const region = Math.random();
+            let x, y;
+            if (region < 0.25) {
+                x = 0.7 + Math.random() * 0.3;
+                y = 0.5 + Math.random() * 0.4;
+            } else if (region < 0.35) {
+                x = 0.85 + Math.random() * 0.15;
+                y = 0.35 + Math.random() * 0.15;
+            } else if (region < 0.45) {
+                const t = Math.random();
+                x = 0.45 + t * 0.25;
+                y = 0.4 + t * 0.3;
+            } else if (region < 0.6) {
+                const angle = Math.random() * Math.PI * 2;
+                x = 0.1 + 0.35 * Math.cos(angle) * (0.7 + Math.random() * 0.3);
+                y = 0.35 + 0.25 * Math.sin(angle) * (0.7 + Math.random() * 0.3);
+            } else if (region < 0.75) {
+                const t = Math.random();
+                x = -0.2 - t * 0.6;
+                y = 0.3 + t * 0.1 + (Math.random() - 0.5) * 0.15 * (1 - t);
+            } else if (region < 0.9) {
+                const t = Math.random();
+                x = -0.1 + (Math.random() - 0.5) * 0.2 + (Math.random() - 0.5) * 0.1;
+                y = 0.1 - t * 0.5;
+            } else {
+                x = 0.4 + (Math.random() - 0.5) * 0.1;
+                y = 0.15 + (Math.random() - 0.5) * 0.15;
+            }
+            return new THREE.Vector3(x * scale, y * scale, (Math.random() - 0.5) * 1.5);
+        }
+
+        // ==========================================
+        // 3. 统一形态分发
+        // ==========================================
+        function getShapeData(shapeName) {
+            let p = new THREE.Vector3();
+            let c = new THREE.Color();
+            switch (shapeName) {
+                case '小苍兰':
+                    // 小苍兰: 漏斗形花朵 + 花瓣散布
+                    const t = Math.random();
+                    const angle = Math.random() * Math.PI * 2;
+                    if (Math.random() < 0.4) {
+                        const h = t * 2.5; 
+                        const r = 0.2 + h * 0.3; 
+                        p.set(r * Math.cos(angle), h - 1.5, r * Math.sin(angle));
+                    } else {
+                        const petal = Math.floor(Math.random() * 6);
+                        const petalAngle = (petal * Math.PI / 3) + (Math.random() - 0.5) * 0.4;
+                        const r = 0.8 + t * 2.0;
+                        const h = 2.0 + Math.sin(t * Math.PI) * 0.5; 
+                        p.set(r * Math.cos(petalAngle), h - 1.5, r * Math.sin(petalAngle));
+                    }
+                    // 奶油香槟金（更柔和的高级黄白渐变）
+                    const mix = Math.random();
+                    c.setRGB(1.0, 0.9 + mix*0.1, 0.6 + mix*0.4);
+                    break;
+                case '雨后彩虹':
+                    // 3D 彩虹拱门
+                    const rt = Math.random() * Math.PI; 
+                    const rr = 3.0 + Math.random() * 1.5; 
+                    p.set(Math.cos(rt) * rr, Math.sin(rt) * rr - 1.5, (Math.random() - 0.5) * 0.5);
+                    // 柔和的马卡龙低饱和七彩色
+                    c.setHSL(rt / Math.PI, 0.85, 0.75);
+                    break;
+                case '焰':
+                    if(textPoints.length > 0) {
+                        const tp = textPoints[Math.floor(Math.random() * textPoints.length)];
+                        // 让火苗有向上升腾的动态感（随机偏移在Y轴向上更多）
+                        const jitterX = (Math.random()-0.5) * 0.08;
+                        const jitterY = (Math.random()-0.3) * 0.18; // 向上偏移感
+                        const jitterZ = (Math.random()-0.5) * 0.12;
+                        p.set(tp.x + jitterX, tp.y + jitterY, tp.z + jitterZ);
+                        
+                        // 渐变奶油色：底部(y较小)更金黄，顶部(y较大)更粉红
+                        // 根据 tp.y 映射颜色 (-3 到 3 左右)
+                        const h = (tp.y + 3) / 6; 
+                        c.setRGB(1.0, 0.5 + h * 0.45, 0.3 + (1-h) * 0.55);
+                    }
+                    break;
+                case '魔法光球':
+                    p = getSpherePoint();
+                    c.setHSL(Math.random(), 0.5, 0.8);
+                    break;
+                case '星环':
+                    p = getRingPoint();
+                    c.setHSL(0.6 + Math.random() * 0.1, 0.8, 0.7); // 柔和蓝紫
+                    break;
+                case '心动':
+                    p = getHeartPoint();
+                    c.setRGB(1.0, 0.6 + Math.random() * 0.2, 0.7 + Math.random() * 0.2); // 蜜桃粉
+                    break;
+                case '繁星':
+                    p = getStarPoint();
+                    c.setRGB(1.0, 0.9 + Math.random() * 0.1, 0.6 + Math.random() * 0.2); // 星光浅黄
+                    break;
+                case '星系螺旋':
+                    p = getSpiralPoint();
+                    c.setHSL(0.5 + Math.random() * 0.2, 0.7, 0.7); // 梦幻青蓝
+                    break;
+                case '生命螺旋':
+                    p = getDNAPoint();
+                    c.setHSL(0.1 + Math.random() * 0.1, 0.8, 0.7); // 暖橘粉
+                    break;
+                case '量子魔方':
+                    p = getCubePoint();
+                    c.setHSL(0.8 + Math.random() * 0.1, 0.6, 0.8); // 浪漫浅紫
+                    break;
+                case '霸王龙':
+                    p = getTRexPoint();
+                    c.setRGB(0.6 + Math.random() * 0.2, 0.8 + Math.random() * 0.2, 0.6 + Math.random() * 0.2); // 治愈抹茶绿
+                    break;
+            }
+            return {p, c};
+        }
+
+        // ==========================================
+        // 3. 主粒子系统 (Main System)
+        // ==========================================
+        class MainParticleSystem {
+            constructor(scene) {
+                this.count = 4000;
+                this.shapes = ['雨后彩虹', '小苍兰', '焰', '心动', '繁星', '魔法光球', '星环', '星系螺旋', '生命螺旋', '量子魔方', '霸王龙'];
+                this.currentShapeIdx = 0;
+                this.isPalmUpLocked = false;
+
+                const geometry = new THREE.BufferGeometry();
+                this.positions = new Float32Array(this.count * 3);
+                this.targetPositions = new Float32Array(this.count * 3);
+                this.colors = new Float32Array(this.count * 3);
+                this.targetColors = new Float32Array(this.count * 3);
+                const sizes = new Float32Array(this.count);
+
+                for (let i = 0; i < this.count; i++) {
+                    const {p, c} = getShapeData(this.shapes[0]);
+                    this.positions[i * 3] = p.x;
+                    this.positions[i * 3 + 1] = p.y;
+                    this.positions[i * 3 + 2] = p.z;
+                    this.targetPositions[i * 3] = p.x;
+                    this.targetPositions[i * 3 + 1] = p.y;
+                    this.targetPositions[i * 3 + 2] = p.z;
+                    
+                    this.colors[i * 3] = c.r;
+                    this.colors[i * 3 + 1] = c.g;
+                    this.colors[i * 3 + 2] = c.b;
+                    this.targetColors[i * 3] = c.r;
+                    this.targetColors[i * 3 + 1] = c.g;
+                    this.targetColors[i * 3 + 2] = c.b;
+                    
+                    sizes[i] = Math.random() * 0.25;
+                }
+
+                geometry.setAttribute('position', new THREE.BufferAttribute(this.positions, 3));
+                geometry.setAttribute('color', new THREE.BufferAttribute(this.colors, 3));
+                geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+                this.material = new THREE.PointsMaterial({
+                    size: 0.25, vertexColors: true, blending: THREE.AdditiveBlending,
+                    depthWrite: false, transparent: true, opacity: 0.9
+                });
+
+                this.mesh = new THREE.Points(geometry, this.material);
+                scene.add(this.mesh);
+                this.geometry = geometry;
+            }
+
+            cycleShape() {
+                this.currentShapeIdx = (this.currentShapeIdx + 1) % this.shapes.length;
+                const shapeName = this.shapes[this.currentShapeIdx];
+                document.getElementById('shape').innerText = `SHAPE: ${shapeName}`;
+
+                for (let i = 0; i < this.count; i++) {
+                    const {p, c} = getShapeData(shapeName);
+                    this.targetPositions[i * 3] = p.x;
+                    this.targetPositions[i * 3 + 1] = p.y;
+                    this.targetPositions[i * 3 + 2] = p.z;
+                    this.targetColors[i * 3] = c.r;
+                    this.targetColors[i * 3 + 1] = c.g;
+                    this.targetColors[i * 3 + 2] = c.b;
+                }
+            }
+
+            update(handData, time) {
+                const positions = this.geometry.attributes.position.array;
+                const colors = this.geometry.attributes.color.array;
+
+                // 手掌翻转检测切换形状
+                if (handData.verticalFactor < 0.4) {
+                    if (!this.isPalmUpLocked) {
+                        this.cycleShape(); 
+                        this.isPalmUpLocked = true;
+                    }
+                } else if (handData.verticalFactor > 0.6) {
+                    this.isPalmUpLocked = false;
+                }
+
+                const spread = 1.0 + (handData.verticalFactor * 2.0);
+
+                for (let i = 0; i < this.count; i++) {
+                    const i3 = i * 3;
+                    const tx = this.targetPositions[i3];
+                    const ty = this.targetPositions[i3 + 1];
+                    const tz = this.targetPositions[i3 + 2];
+
+                    const noiseAmp = handData.verticalFactor * 0.5 + 0.05;
+                    const nx = Math.sin(time * 3 + i) * noiseAmp;
+                    const ny = Math.cos(time * 2 + i) * noiseAmp;
+                    const nz = Math.sin(time * 5 + i) * noiseAmp;
+
+                    // 位置缓动平滑跟随
+                    positions[i3] += ((tx * spread + handData.hoverPos.x + nx) - positions[i3]) * 0.1;
+                    positions[i3 + 1] += ((ty * spread + handData.hoverPos.y + ny) - positions[i3 + 1]) * 0.1;
+                    positions[i3 + 2] += ((tz * spread + handData.hoverPos.z + nz) - positions[i3 + 2]) * 0.1;
+
+                    // 颜色缓动过渡
+                    colors[i3] += (this.targetColors[i3] - colors[i3]) * 0.05;
+                    colors[i3 + 1] += (this.targetColors[i3 + 1] - colors[i3 + 1]) * 0.05;
+                    colors[i3 + 2] += (this.targetColors[i3 + 2] - colors[i3 + 2]) * 0.05;
+                }
+                this.geometry.attributes.position.needsUpdate = true;
+                this.geometry.attributes.color.needsUpdate = true;
+                
+                // 让图形带有微弱自转，名字除外（文字/图标需要正面阅读）
+                if (this.shapes[this.currentShapeIdx] !== '焰') {
+                    this.mesh.rotation.y = time * 0.3; 
+                } else {
+                    this.mesh.rotation.y += (0 - this.mesh.rotation.y) * 0.1;
+                }
+            }
+        }
+
+        // ==========================================
+        // 拍立得纪念相框生成系统
+        // ==========================================
+        let polaroidVisible = false;
+
+        function showPolaroidUI(dataUrl) {
+            polaroidVisible = true;
+            const modal = document.createElement('div');
+            modal.id = 'polaroid-modal';
+            modal.style.position = 'fixed';
+            modal.style.top = '0';
+            modal.style.left = '0';
+            modal.style.width = '100vw';
+            modal.style.height = '100vh';
+            modal.style.backgroundColor = 'rgba(0,0,0,0.85)';
+            modal.style.zIndex = '9999';
+            modal.style.display = 'flex';
+            modal.style.flexDirection = 'column';
+            modal.style.alignItems = 'center';
+            modal.style.justifyContent = 'center';
+            
+            const img = document.createElement('img');
+            img.src = dataUrl;
+            img.style.maxHeight = '75vh';
+            img.style.maxWidth = '85vw';
+            img.style.boxShadow = '0 10px 40px rgba(0,0,0,0.5)';
+            img.style.borderRadius = '2px';
+            
+            const tip = document.createElement('div');
+            tip.innerText = '✨ 长按图片保存专属纪念卡片 ✨';
+            tip.style.color = '#fff';
+            tip.style.marginTop = '20px';
+            tip.style.fontSize = '16px';
+            tip.style.textShadow = '0 0 5px #00ffcc';
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.innerText = '返回现实';
+            closeBtn.style.marginTop = '15px';
+            closeBtn.style.padding = '10px 30px';
+            closeBtn.style.border = '1px solid #00ffcc';
+            closeBtn.style.borderRadius = '20px';
+            closeBtn.style.background = 'transparent';
+            closeBtn.style.color = '#00ffcc';
+            closeBtn.style.fontSize = '16px';
+            closeBtn.style.cursor = 'pointer';
+            
+            closeBtn.onclick = () => {
+                document.body.removeChild(modal);
+                polaroidVisible = false;
+            };
+            
+            modal.appendChild(img);
+            modal.appendChild(tip);
+            modal.appendChild(closeBtn);
+            document.body.appendChild(modal);
+        }
+
+        function takePolaroid() {
+            const videoEl = document.getElementById('input_video');
+            const canvas = document.createElement('canvas');
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            
+            // 1. 设置画布缩放翻转 (仅在前置摄像头时需要镜像)
+            ctx.save();
+            if (!isMobile) {
+                ctx.translate(w, 0);
+                ctx.scale(-1, 1);
+            }
+
+            // 2. 绘制真实摄像头画面
+            const vw = videoEl.videoWidth;
+            const vh = videoEl.videoHeight;
+            const vr = vw / vh;
+            const cr = w / h;
+            let dw, dh, dx, dy;
+            if (vr > cr) {
+                dh = h;
+                dw = h * vr;
+                dx = (w - dw) / 2;
+                dy = 0;
+            } else {
+                dw = w;
+                dh = w / vr;
+                dx = 0;
+                dy = (h - dh) / 2;
+            }
+            ctx.drawImage(videoEl, dx, dy, dw, dh);
+
+            // 3. 叠加 Three.js 的 3D 粒子画布
+            ctx.drawImage(renderer.domElement, 0, 0, w, h);
+            
+            ctx.restore();
+
+            // 4. 生成拍立得相框底板
+            const pCanvas = document.createElement('canvas');
+            const pWidth = 1080; 
+            const pHeight = 1440;
+            pCanvas.width = pWidth;
+            pCanvas.height = pHeight;
+            const pCtx = pCanvas.getContext('2d');
+            
+            // 白色相框底板
+            pCtx.fillStyle = '#f8f8f8';
+            pCtx.fillRect(0, 0, pWidth, pHeight);
+            
+            // 照片区域尺寸和位置
+            const photoSize = 960;
+            const photoX = 60;
+            const photoY = 60;
+            
+            // 从完整屏幕截图中裁剪正方形区域放入相框
+            const cropSize = Math.min(w, h);
+            const cx = (w - cropSize)/2;
+            const cy = (h - cropSize)/2;
+            
+            // 内部照片轻微阴影
+            pCtx.shadowColor = 'rgba(0,0,0,0.1)';
+            pCtx.shadowBlur = 10;
+            pCtx.fillRect(photoX, photoY, photoSize, photoSize);
+            pCtx.shadowColor = 'transparent';
+            
+            pCtx.drawImage(canvas, cx, cy, cropSize, cropSize, photoX, photoY, photoSize, photoSize);
+            
+            // 4. 底部浪漫专属文字
+            pCtx.fillStyle = '#4a4a4a';
+            pCtx.font = `bold 48px sans-serif`;
+            pCtx.textAlign = 'center';
+            pCtx.fillText('2026.03.14 · 福州花海公园 · 定格专属魔法', pWidth/2, photoY + photoSize + 160);
+            
+            pCtx.font = `32px sans-serif`;
+            pCtx.fillStyle = '#999999';
+            pCtx.fillText(new Date().toLocaleDateString(), pWidth/2, photoY + photoSize + 240);
+
+            // 显示 UI
+            showPolaroidUI(pCanvas.toDataURL('image/jpeg', 0.9));
+        }
+
+        // ==========================================
+        // 4. 响指/捏合特效系统 (Snap System)
+        // ==========================================
+        class SnapSystem {
+            constructor(scene) {
+                this.count = 100;
+                this.mode = 'IDLE'; 
+                this.timer = 0;
+
+                const geometry = new THREE.BufferGeometry();
+                const positions = new Float32Array(this.count * 3);
+                const sizes = new Float32Array(this.count);
+                for (let i = 0; i < this.count * 3; i++) positions[i] = 0;
+
+                geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+                this.material = new THREE.PointsMaterial({
+                    color: 0xffffff, 
+                    size: 0.15, transparent: true, opacity: 0,
+                    blending: THREE.AdditiveBlending, depthTest: false
+                });
+
+                this.mesh = new THREE.Points(geometry, this.material);
+                scene.add(this.mesh);
+                this.geometry = geometry;
+            }
+
+            update(fingersCenter, isFist, isPeace, time) {
+                // 如果正在展示照片，停止逻辑
+                if (polaroidVisible) return;
+
+                this._target = this._target || new THREE.Vector3();
+                const target = this._target.copy(fingersCenter);
+                target.y += 3.0;
+
+                if (isFist) {
+                    this.mode = 'CHARGING';
+                    this.material.opacity = 1.0;
+                    this.material.color.setHex(0xffb6c1); // 柔和的樱花粉色蓄力光
+                    this.material.size = 0.15;
+
+                    const pos = this.geometry.attributes.position.array;
+                    for (let i = 0; i < this.count; i++) {
+                        pos[i * 3] = target.x + (Math.random() - 0.5) * 0.3;
+                        pos[i * 3 + 1] = target.y + (Math.random() - 0.5) * 0.3;
+                        pos[i * 3 + 2] = target.z + (Math.random() - 0.5) * 0.3;
+                    }
+                    this.geometry.attributes.position.needsUpdate = true;
+                    document.getElementById('snap').innerText = "ACTION: ROCK (READY)...";
+                    document.getElementById('snap').style.color = "#ffb6c1";
+
+                } else {
+                    if (this.mode === 'CHARGING' && isPeace) {
+                        this.mode = 'EXPLODING';
+                        this.timer = 1.0; 
+                        
+                        // 触发全屏白光闪烁（快门效果）
+                        const flash = document.createElement('div');
+                        flash.style.position = 'fixed';
+                        flash.style.top = '0';
+                        flash.style.left = '0';
+                        flash.style.width = '100vw';
+                        flash.style.height = '100vh';
+                        flash.style.backgroundColor = 'white';
+                        flash.style.zIndex = '9998';
+                        flash.style.transition = 'opacity 0.8s ease-out';
+                        document.body.appendChild(flash);
+                        
+                        // 稍微延迟确保渲染完成再截图拍照
+                        setTimeout(() => {
+                            takePolaroid();
+                            flash.style.opacity = '0';
+                            setTimeout(() => document.body.removeChild(flash), 800);
+                        }, 50);
+                    }
+
+                    if (this.mode === 'EXPLODING') {
+                        this.timer -= 0.03;
+                        if (this.timer <= 0) {
+                            this.mode = 'IDLE';
+                            this.material.opacity = 0;
+                        } else {
+                            this.material.opacity = this.timer;
+                            this.material.color.setHex(0xffffff); 
+                            this.material.size = 0.3;
+
+                            const pos = this.geometry.attributes.position.array;
+                            const radius = 1.0 + (1.0 - this.timer) * 3.0; 
+
+                            for (let i = 0; i < this.count; i++) {
+                                const idx = i * 137.5; 
+                                const theta = idx;
+                                const phi = Math.acos(2 * (i / this.count) - 1);
+                                const rot = time * 10;
+                                pos[i * 3] = target.x + radius * Math.sin(phi) * Math.cos(theta + rot);
+                                pos[i * 3 + 1] = target.y + radius * Math.sin(phi) * Math.sin(theta + rot);
+                                pos[i * 3 + 2] = target.z + radius * Math.cos(phi);
+                            }
+                            this.geometry.attributes.position.needsUpdate = true;
+                            document.getElementById('snap').innerText = "ACTION: CAUGHT!";
+                            document.getElementById('snap').style.color = "#ffffff";
+                        }
+                    } else {
+                        document.getElementById('snap').innerText = "ACTION: READY";
+                        document.getElementById('snap').style.color = "#555";
+                        this.material.opacity = 0;
+                    }
+                }
+            }
+        }
+
+        // ==========================================
+        // 5. 核心逻辑整合
+        // ==========================================
+        const mainSystem = new MainParticleSystem(scene);
+        const snapSystem = new SnapSystem(scene);
+
+        const handState = {
+            detected: false,
+            hoverPos: new THREE.Vector3(0, 0, 0),
+            verticalFactor: 0, 
+            smoothVertical: 0,
+            isFist: false, 
+            isPeace: false,
+            fingersCenter: new THREE.Vector3(0, 0, 0) 
+        };
+
+        const _v1 = new THREE.Vector3(), _v2 = new THREE.Vector3(), _normal = new THREE.Vector3();
+        const _palmCenter = new THREE.Vector3(), _normalScaled = new THREE.Vector3();
+        const _zeroVec = new THREE.Vector3(0, 0, 0); 
+        const _tempVec = new THREE.Vector3(); 
+        const smoothHandData = { hoverPos: null, verticalFactor: 0 };
+
+        const map = (lm) => _tempVec.set((lm.x - 0.5) * 30, -(lm.y - 0.5) * 20, -lm.z * 30).clone();
+
+        function processHand(landmarks) {
+            const wrist = map(landmarks[0]);
+            const indexMCP = map(landmarks[5]);
+            const pinkyMCP = map(landmarks[17]);
+            const thumbTip = map(landmarks[4]);
+            const indexTip = map(landmarks[8]);
+            const middleTip = map(landmarks[12]);
+            const ringTip = map(landmarks[16]);
+            const pinkyTip = map(landmarks[20]);
+
+            _v1.subVectors(indexMCP, wrist);
+            _v2.subVectors(pinkyMCP, wrist);
+            _normal.crossVectors(_v1, _v2).normalize();
+
+            const vRaw = Math.abs(_normal.x);
+            handState.verticalFactor = THREE.MathUtils.smoothstep(vRaw, 0.3, 0.8);
+
+            _palmCenter.copy(wrist).add(indexMCP).add(pinkyMCP).divideScalar(3);
+            const hoverDist = 4.0 + (handState.smoothVertical * 3.0);
+            _normalScaled.copy(_normal).multiplyScalar(hoverDist);
+            handState.hoverPos.copy(_palmCenter).add(_normalScaled);
+
+            const distToWrist = (lm) => Math.hypot(lm.x - landmarks[0].x, lm.y - landmarks[0].y, lm.z - landmarks[0].z);
+            
+            // 判断手指是否伸直：指尖到手腕的距离 > 第二关节到手腕的距离
+            const isIndexExtended = distToWrist(landmarks[8]) > distToWrist(landmarks[6]);
+            const isMiddleExtended = distToWrist(landmarks[12]) > distToWrist(landmarks[10]);
+            const isRingExtended = distToWrist(landmarks[16]) > distToWrist(landmarks[14]);
+            const isPinkyExtended = distToWrist(landmarks[20]) > distToWrist(landmarks[18]);
+
+            // 石头：四根手指均未伸直
+            handState.isFist = !isIndexExtended && !isMiddleExtended && !isRingExtended && !isPinkyExtended;
+            // 剪刀 (Peace): 食指和中指伸展，无名指和小指收缩
+            handState.isPeace = isIndexExtended && isMiddleExtended && !isRingExtended && !isPinkyExtended;
+            
+            handState.fingersCenter.copy(_palmCenter);
+            handState._gestureText = `VERT: ${handState.verticalFactor.toFixed(2)}`;
+        }
+
+        const videoEl = document.getElementById('input_video');
+        const hands = new Hands({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}` });
+        hands.setOptions({ maxNumHands: 1, modelComplexity: 1, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
+
+        hands.onResults(results => {
+            if (results.multiHandLandmarks.length > 0) {
+                handState.detected = true;
+                processHand(results.multiHandLandmarks[0]);
+                document.getElementById('status').innerText = "SYSTEM: LOCKED";
+                document.getElementById('status').style.color = "#00ffcc";
+            } else {
+                handState.detected = false;
+                handState.isFist = false;
+                handState.isPeace = false;
+                document.getElementById('status').innerText = "SYSTEM: SEARCHING...";
+                document.getElementById('status').style.color = "#ff0055";
+            }
+        });
+
+        const CAMERA_FACING = isMobile ? 'environment' : 'user';
+
+        if (!isMobile) {
+            videoEl.style.transform = 'scaleX(-1)';
+            renderer.domElement.style.transform = 'scaleX(-1)';
+        }
+
+        const cameraUtils = new Camera(videoEl, {
+            onFrame: async () => await hands.send({ image: videoEl }),
+            width: 1280,
+            height: 720,
+            facingMode: CAMERA_FACING
+        });
+        cameraUtils.start();
+
+        // ==========================================
+        // 6. 渲染循环
+        // ==========================================
+        const clock = new THREE.Clock();
+        let frameCount = 0; 
+        const gestureEl = document.getElementById('gesture');
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = clock.getElapsedTime();
+            frameCount++;
+
+            if (!handState.detected) {
+                handState.hoverPos.lerp(_zeroVec, 0.05);
+                handState.verticalFactor = 0;
+            }
+            handState.smoothVertical = THREE.MathUtils.lerp(handState.smoothVertical, handState.verticalFactor, 0.1);
+
+            smoothHandData.hoverPos = handState.hoverPos;
+            smoothHandData.verticalFactor = handState.smoothVertical;
+
+            // 拍立得界面显示时暂停粒子更新，让画面静止更有拍照感
+            if (!polaroidVisible) {
+                mainSystem.update(smoothHandData, time);
+                snapSystem.update(handState.fingersCenter, handState.isFist, handState.isPeace, time);
+            }
+
+            if (frameCount % 5 === 0 && handState._gestureText) {
+                gestureEl.textContent = handState._gestureText;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }, 150);
+        });
+    </script>
+</body>
+
+</html>
