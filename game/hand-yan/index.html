@@ -98,7 +98,6 @@
             <div class="row" id="shape">SHAPE: 雨后彩虹</div>
             <div class="row" id="gesture">GESTURE: SEARCHING</div>
             <div class="row" id="snap">ACTION: READY</div>
-            <button id="switch_cam" style="margin-top: 5px; padding: 6px 12px; background: transparent; border: 1px solid #00ffcc; color: #00ffcc; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 14px; font-weight: bold;">切换摄像头</button>
         </div>
     </div>
 
@@ -817,21 +816,6 @@
             });
             cameraUtils.start();
         }
-
-        document.getElementById('switch_cam').addEventListener('click', () => {
-            currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
-            initTextPoints(); // 重新生成朝向正确的文字粒子
-            if (mainSystem && mainSystem.shapes[mainSystem.currentShapeIdx] === '焰') {
-                // 如果当前正好是“焰”，强制刷新一次目标点
-                for (let i = 0; i < mainSystem.count; i++) {
-                    const {p, c} = getShapeData('焰');
-                    mainSystem.targetPositions[i * 3] = p.x;
-                    mainSystem.targetPositions[i * 3 + 1] = p.y;
-                    mainSystem.targetPositions[i * 3 + 2] = p.z;
-                }
-            }
-            startCamera();
-        });
 
         startCamera();
 
