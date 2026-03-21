@@ -95,7 +95,7 @@
         <video id="input_video" playsinline></video>
         <div id="ui">
             <div class="row" id="status">SYSTEM: INITIALIZING...</div>
-            <div class="row" id="shape">SHAPE: 雨后彩虹</div>
+            <div class="row" id="shape">SHAPE: 金鱼草</div>
             <div class="row" id="gesture">GESTURE: SEARCHING</div>
             <div class="row" id="snap">ACTION: READY</div>
         </div>
@@ -260,6 +260,136 @@
             return new THREE.Vector3(x * scale, y * scale, (Math.random() - 0.5) * 1.5);
         }
 
+        function getSnapdragonData() {
+            let p = new THREE.Vector3();
+            let c = new THREE.Color();
+            
+            // 氛围特效：散落游离的星尘
+            if (Math.random() < 0.05) {
+                p.set(
+                    (Math.random() - 0.5) * 8,
+                    (Math.random() - 0.5) * 8,
+                    (Math.random() - 0.5) * 8
+                );
+                // 游离光斑
+                c.setHSL(0.1 + Math.random() * 0.1, 0.8, 0.6 + Math.random() * 0.3);
+                return {p, c};
+            }
+
+            // 金鱼草花序结构
+            const h = Math.random() * 6.0;
+            const y = h - 2.5; 
+            const rBase = 1.5 * (1.0 - h / 7.0); 
+            const turns = 5;
+            const baseTheta = h * Math.PI * turns;
+
+            const part = Math.random();
+            let px = 0, py = 0, pz = 0;
+            
+            if (part < 0.4) {
+                // 上唇瓣
+                px = (Math.random() - 0.5) * 0.3;
+                py = 0.2 + Math.random() * 0.3;
+                pz = Math.random() * 0.4;
+            } else if (part < 0.8) {
+                // 下唇瓣鼓包
+                px = (Math.random() - 0.5) * 0.4;
+                py = -0.1 + (Math.random() - 0.5) * 0.2;
+                pz = 0.2 + Math.random() * 0.5;
+            } else {
+                // 中心花蕊
+                px = (Math.random() - 0.5) * 0.2;
+                py = (Math.random() - 0.5) * 0.2;
+                pz = Math.random() * 0.2;
+            }
+
+            // 层次感：越往上花朵越小
+            const petalScale = 0.5 * (1.0 - h / 8.0) + 0.2;
+            px *= petalScale;
+            py *= petalScale;
+            pz *= petalScale;
+
+            const r = rBase + pz; 
+            p.x = r * Math.cos(baseTheta) - px * Math.sin(baseTheta);
+            p.z = r * Math.sin(baseTheta) + px * Math.cos(baseTheta);
+            p.y = y + py;
+
+            // 热情渐变：底部明黄橙，顶部粉红紫红
+            const hNorm = THREE.MathUtils.clamp((p.y + 2.5) / 6.0, 0, 1);
+            c.lerpColors(new THREE.Color(1.0, 0.7, 0.1), new THREE.Color(0.9, 0.1, 0.4), hNorm);
+            const currentHSL = {};
+            c.getHSL(currentHSL);
+            c.setHSL(
+                currentHSL.h + (Math.random() - 0.5) * 0.05,
+                currentHSL.s + (Math.random() - 0.5) * 0.1,
+                currentHSL.l + (Math.random() - 0.5) * 0.1
+            );
+            
+            return {p, c};
+        }
+
+        function getVioletData() {
+            let p = new THREE.Vector3();
+            let c = new THREE.Color();
+            
+            // 氛围特效：上方缓缓升起的星光幽香
+            if (Math.random() < 0.05) {
+                p.set(
+                    (Math.random() - 0.5) * 6,
+                    Math.random() * 8 - 1, 
+                    (Math.random() - 0.5) * 6
+                );
+                c.setHSL(0.75 + (Math.random() - 0.5) * 0.1, 0.8, 0.8); 
+                return {p, c};
+            }
+
+            // 自然簇生丛：多中心分布
+            const numClusters = 9;
+            const clusterIdx = Math.floor(Math.random() * numClusters);
+            const clusterTheta = (clusterIdx / numClusters) * Math.PI * 2 + Math.random() * 0.5;
+            const clusterPhi = Math.random() * Math.PI * 0.45; 
+            const clusterR = 0.5 + Math.random() * 1.5;
+            
+            const cx = clusterR * Math.sin(clusterPhi) * Math.cos(clusterTheta);
+            const cy = clusterR * Math.cos(clusterPhi) - 2.0;
+            const cz = clusterR * Math.sin(clusterPhi) * Math.sin(clusterTheta);
+
+            // 4-5瓣花朵
+            const numPetals = 5;
+            const petalIdx = Math.floor(Math.random() * numPetals);
+            const petalAngle = (petalIdx / numPetals) * Math.PI * 2 + (Math.random() - 0.5) * 0.3;
+            
+            const isStamen = Math.random() < 0.08; 
+            
+            let px, py, pz;
+            if (isStamen) {
+                // 花蕊中心高光
+                px = (Math.random() - 0.5) * 0.3;
+                py = (Math.random() - 0.5) * 0.3 + 0.1;
+                pz = (Math.random() - 0.5) * 0.3;
+                c.setRGB(1.0, 0.9 + Math.random() * 0.1, 0.2 + Math.random() * 0.2); // 明黄/白色
+            } else {
+                // 花瓣晕染开
+                const spread = 0.2 + Math.random() * 0.9;
+                px = Math.cos(petalAngle) * spread;
+                pz = Math.sin(petalAngle) * spread;
+                py = Math.sin(spread * Math.PI) * 0.3; 
+                
+                px += (Math.random() - 0.5) * 0.2;
+                py += (Math.random() - 0.5) * 0.2;
+                pz += (Math.random() - 0.5) * 0.2;
+
+                // 经典蓝紫：中心较深，向外稍浅
+                const distToCenter = spread;
+                const hue = 0.72 + (Math.random() - 0.5) * 0.08; 
+                const lightness = 0.4 + distToCenter * 0.3 + (Math.random() - 0.5) * 0.1;
+                c.setHSL(hue, 0.8, lightness);
+            }
+
+            p.set(cx + px, cy + py, cz + pz);
+            return {p, c};
+        }
+
         // ==========================================
         // 3. 统一形态分发
         // ==========================================
@@ -267,6 +397,16 @@
             let p = new THREE.Vector3();
             let c = new THREE.Color();
             switch (shapeName) {
+                case '金鱼草':
+                    const snapdragon = getSnapdragonData();
+                    p = snapdragon.p;
+                    c = snapdragon.c;
+                    break;
+                case '紫罗兰':
+                    const violet = getVioletData();
+                    p = violet.p;
+                    c = violet.c;
+                    break;
                 case '小苍兰':
                     // 小苍兰: 漏斗形花朵 + 花瓣散布
                     const t = Math.random();
@@ -351,9 +491,9 @@
         class MainParticleSystem {
             constructor(scene) {
                 this.count = 4000;
-                this.shapes = ['雨后彩虹', '小苍兰', '焰', '心动', '繁星', '魔法光球', '星环', '星系螺旋', '生命螺旋', '量子魔方', '霸王龙'];
+                this.shapes = ['金鱼草', '紫罗兰', '雨后彩虹', '小苍兰', '焰', '心动', '繁星', '魔法光球', '星环', '星系螺旋', '生命螺旋', '量子魔方', '霸王龙'];
                 this.currentShapeIdx = 0;
-                this.isPalmUpLocked = false;
+                this.isPalmUpLocked = true;
 
                 const geometry = new THREE.BufferGeometry();
                 this.positions = new Float32Array(this.count * 3);
@@ -426,6 +566,14 @@
                 }
 
                 const spread = 1.0 + (handData.verticalFactor * 2.0);
+                const currentShape = this.shapes[this.currentShapeIdx];
+
+                if (!this.lastHoverPos) this.lastHoverPos = handData.hoverPos.clone();
+                const velocity = new THREE.Vector3().subVectors(handData.hoverPos, this.lastHoverPos);
+                this.lastHoverPos.copy(handData.hoverPos);
+                
+                const speed = velocity.length();
+                this.smoothSpeed = (this.smoothSpeed || 0) * 0.9 + speed * 0.1;
 
                 for (let i = 0; i < this.count; i++) {
                     const i3 = i * 3;
@@ -433,15 +581,34 @@
                     const ty = this.targetPositions[i3 + 1];
                     const tz = this.targetPositions[i3 + 2];
 
-                    const noiseAmp = handData.verticalFactor * 0.5 + 0.05;
-                    const nx = Math.sin(time * 3 + i) * noiseAmp;
-                    const ny = Math.cos(time * 2 + i) * noiseAmp;
-                    const nz = Math.sin(time * 5 + i) * noiseAmp;
+                    let noiseAmp = handData.verticalFactor * 0.5 + 0.05;
+                    let nx = Math.sin(time * 3 + i) * noiseAmp;
+                    let ny = Math.cos(time * 2 + i) * noiseAmp;
+                    let nz = Math.sin(time * 5 + i) * noiseAmp;
+
+                    let finalSpread = spread;
+                    let swayX = 0;
+                    let swayZ = 0;
+
+                    if (currentShape === '金鱼草') {
+                        // 金鱼草：随手运动产生风摆效应。越往上摆动幅度越大
+                        const heightFactor = Math.max(0, (ty + 2.5) / 6.0); 
+                        const windForce = this.smoothSpeed * 2.0;
+                        swayX = velocity.x * windForce * heightFactor + Math.sin(time * 2 + heightFactor) * 0.5 * heightFactor;
+                        swayZ = velocity.z * windForce * heightFactor + Math.cos(time * 2.5 + heightFactor) * 0.5 * heightFactor;
+                        finalSpread = 1.0; 
+                    } else if (currentShape === '紫罗兰') {
+                        // 紫罗兰：手掌张开时花团扩张，并带有呼吸感
+                        const expansion = 1.0 + (1.0 - handData.verticalFactor) * 1.5;
+                        finalSpread = expansion;
+                        nx += Math.sin(time * 2) * 0.2 * Math.abs(ty);
+                        nz += Math.cos(time * 2) * 0.2 * Math.abs(ty);
+                    }
 
                     // 位置缓动平滑跟随
-                    positions[i3] += ((tx * spread + handData.hoverPos.x + nx) - positions[i3]) * 0.1;
-                    positions[i3 + 1] += ((ty * spread + handData.hoverPos.y + ny) - positions[i3 + 1]) * 0.1;
-                    positions[i3 + 2] += ((tz * spread + handData.hoverPos.z + nz) - positions[i3 + 2]) * 0.1;
+                    positions[i3] += ((tx * finalSpread + handData.hoverPos.x + nx + swayX) - positions[i3]) * 0.1;
+                    positions[i3 + 1] += ((ty * finalSpread + handData.hoverPos.y + ny) - positions[i3 + 1]) * 0.1;
+                    positions[i3 + 2] += ((tz * finalSpread + handData.hoverPos.z + nz + swayZ) - positions[i3 + 2]) * 0.1;
 
                     // 颜色缓动过渡
                     colors[i3] += (this.targetColors[i3] - colors[i3]) * 0.05;
@@ -452,8 +619,10 @@
                 this.geometry.attributes.color.needsUpdate = true;
                 
                 // 让图形带有微弱自转，名字除外（文字/图标需要正面阅读）
-                if (this.shapes[this.currentShapeIdx] !== '焰') {
+                if (currentShape !== '焰' && currentShape !== '金鱼草') {
                     this.mesh.rotation.y = time * 0.3; 
+                } else if (currentShape === '金鱼草') {
+                    this.mesh.rotation.y = Math.sin(time * 0.5) * 0.2; 
                 } else {
                     this.mesh.rotation.y += (0 - this.mesh.rotation.y) * 0.1;
                 }
