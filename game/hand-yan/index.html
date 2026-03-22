@@ -757,10 +757,19 @@
             pCtx.drawImage(canvas, cx, cy, cropSize, cropSize, photoX, photoY, photoSize, photoSize);
             
             // 4. 底部浪漫专属文字
+            const urlParams = new URLSearchParams(window.location.search);
+            const nameParam = urlParams.get('name');
+            const parkMap = {
+                'hh': '福州花海公园',
+                'n': '南公园'
+            };
+            const parkName = parkMap[nameParam];
+            const magicText = parkName ? `${parkName} · 定格专属魔法` : '定格专属魔法';
+
             pCtx.fillStyle = '#4a4a4a';
             pCtx.font = `bold 48px sans-serif`;
             pCtx.textAlign = 'center';
-            pCtx.fillText('2026.03.14 · 福州花海公园 · 定格专属魔法', pWidth/2, photoY + photoSize + 160);
+            pCtx.fillText(magicText, pWidth/2, photoY + photoSize + 160);
             
             pCtx.font = `32px sans-serif`;
             pCtx.fillStyle = '#999999';
