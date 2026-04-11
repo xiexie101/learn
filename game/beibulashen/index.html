@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>程序员背部锻炼与脊柱健康防护计划</title>
+    <script src="https://image.uc.cn/s/uae/g/3n/mos-production/fontawesome-free-7.1.0-web/js/all.min.js"></script>
+    <script src="https://image.uc.cn/s/uae/g/3n/mos-production/0915/3.4.17.js"></script>
+    <script src="https://image.uc.cn/s/uae/g/3n/mos-production/0915/echarts.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+        
+        /* 自定义动画 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-fadeInUp {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+        
+        /* 自定义卡片阴影 */
+        .custom-card-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+        }
+        
+        .custom-card-shadow:hover {
+            box-shadow: 0 20px 35px -5px rgba(0, 0, 0, 0.08), 0 10px 15px -6px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s ease;
+        }
+        
+        /* 自定义时间线 */
+        .custom-timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+        
+        .custom-timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.75rem;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(to bottom, #3b82f6, #8b5cf6);
+        }
+        
+        .custom-timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+        
+        .custom-timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2rem;
+            top: 0.5rem;
+            width: 1.25rem;
+            height: 1.25rem;
+            border-radius: 50%;
+            background-color: #3b82f6;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        
+        /* 自定义图表容器 */
+        #hazardsChart {
+            min-height: 400px;
+        }
+        
+        /* 自定义警告样式 */
+        .custom-warning-card {
+            border-left: 5px solid #f59e0b;
+            background-color: #fffbeb;
+        }
+        
+        .custom-danger-card {
+            border-left: 5px solid #ef4444;
+            background-color: #fef2f2;
+        }
+        
+        /* 自定义呼吸动画 */
+        @keyframes breathing {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        .breathing-icon {
+            animation: breathing 3s infinite ease-in-out;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .custom-timeline {
+                padding-left: 1.5rem;
+            }
+            
+            .custom-timeline::before {
+                left: 0.5rem;
+            }
+            
+            .custom-timeline-item::before {
+                left: -1.5rem;
+                width: 1rem;
+                height: 1rem;
+            }
+        }
+    </style>
+<script>
+!(function(j,a,g){j.__itrace_conf = {bid: 'kt40h0wl-koyh4af8',rel: '', uid: 'b6d7cf8e-fdad-4768-a873-ee46bc4395ed' ,  spa: true, plugins:['jserror','interface','perf','resource','flow','blank']};var b = a.createElement("script");var d = a.getElementsByTagName("script")[0];b.type = "text/javascript";b.crossorigin = true;b.async = true;b.onload = function(){j.__itrace && j.__itrace.setReady()};d.parentNode.insertBefore(b,d);b.src = g})(window, document, "https://g.alicdn.com/woodpeckerx/itrace-next/itrace.iife.js")
+</script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <!-- 页头 -->
+    <header class="bg-gradient-to-r from-blue-900 to-indigo-900 text-white py-12 md:py-16">
+        <div class="container mx-auto px-4 md:px-8">
+            <div class="max-w-4xl mx-auto">
+                <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 animate-fadeInUp">
+                    <i class="fas fa-user-secret mr-3"></i>程序员背部锻炼与脊柱健康防护计划
+                </h1>
+                <p class="text-xl md:text-2xl text-blue-100 mb-6 animate-fadeInUp" style="animation-delay: 0.2s;">
+                    专为36岁程序员设计的科学、安全、循序渐进的训练方案
+                </p>
+                <div class="flex flex-wrap gap-3 mt-8 animate-fadeInUp" style="animation-delay: 0.4s;">
+                    <span class="bg-blue-700 bg-opacity-70 px-4 py-2 rounded-full text-sm font-medium">
+                        <i class="fas fa-calendar-alt mr-2"></i>从零基础开始
+                    </span>
+                    <span class="bg-indigo-700 bg-opacity-70 px-4 py-2 rounded-full text-sm font-medium">
+                        <i class="fas fa-dumbbell mr-2"></i>兼顾久坐体态
+                    </span>
+                    <span class="bg-purple-700 bg-opacity-70 px-4 py-2 rounded-full text-sm font-medium">
+                        <i class="fas fa-shield-alt mr-2"></i>安全第一原则
+                    </span>
+                    <span class="bg-teal-700 bg-opacity-70 px-4 py-2 rounded-full text-sm font-medium">
+                        <i class="fas fa-home mr-2"></i>家/健身房皆可
+                    </span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要内容 -->
+    <main class="container mx-auto px-4 md:px-8 py-8 md:py-12">
+        <!-- 计划概述 -->
+        <section class="mb-16">
+            <div class="max-w-4xl mx-auto">
+                <div class="bg-white rounded-2xl p-6 md:p-8 custom-card-shadow">
+                    <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 flex items-center">
+                        <i class="fas fa-clipboard-list text-blue-600 mr-3"></i>计划概述
+                    </h2>
+                    <p class="text-gray-700 mb-6 text-lg leading-relaxed">
+                        本计划专为每日在电脑前工作8小时以上的程序员设计，旨在通过科学训练逆转职业性体态损伤。计划分为两个主要阶段：<span class="font-bold text-blue-600">基础激活期（第1-4周）</span>和<span class="font-bold text-indigo-600">强化训练期（第5周起）</span>，配合全面的安全指南和日常防护建议，形成一套全天候、全方位的脊柱保护体系。
+                    </p>
+                    
+                    <div class="custom-timeline mt-8">
+                        <div class="custom-timeline-item">
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">阶段一：基础激活期（第1-4周）</h3>
+                            <p class="text-gray-700">
+                                <i class="fas fa-bullseye text-blue-500 mr-2"></i>核心目标：唤醒深层稳定肌群，建立正确的神经肌肉连接
+                            </p>
+                            <p class="text-gray-700 mt-2">
+                                <i class="fas fa-dumbbell text-blue-500 mr-2"></i>训练内容：7个无需器械的基础动作，每周2-3次
+                            </p>
+                        </div>
+                        
+                        <div class="custom-timeline-item">
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">阶段二：强化训练期（第5周起）</h3>
+                            <p class="text-gray-700">
+                                <i class="fas fa-bullseye text-indigo-500 mr-2"></i>核心目标：系统性地增强背部肌力与围度
+                            </p>
+                            <p class="text-gray-700 mt-2">
+                                <i class="fas fa-dumbbell text-indigo-500 mr-2"></i>训练内容：引入高位下拉、杠铃划船、引体向上等复合动作
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 第一部分：久坐三大危害 -->
+        <section class="mb-16 bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl p-6 md:p-8">
+            <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-8 flex items-center">
+                <i class="fas fa-exclamation-triangle text-red-500 mr-3"></i>一、深入解析：久坐对脊柱健康的三大危害
+            </h2>
+            
+            <p class="text-gray-700 mb-8 text-lg leading-relaxed">
+                对于每日在电脑前工作8小时以上的程序员而言，看似安静的"久坐"实则是脊柱健康的"隐形杀手"。理解这些机制是坚持科学锻炼的根本动力。
+            </p>
+            
+            <!-- 危害图表 -->
+            <div class="bg-white rounded-xl p-4 md:p-6 mb-10 custom-card-shadow">
+                <h3 class="text-xl font-bold text-gray-800 mb-6 text-center">久坐危害数据对比</h3>
+                <div id="hazardsChart" class="w-full"></div>
+            </div>
+            
+            <!-- 危害详情卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <!-- 危害1 -->
+                <div class="bg-white rounded-xl p-6 custom-card-shadow">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-red-100 p-3 rounded-full mr-4">
+                            <i class="fas fa-weight-hanging text-red-600 text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">腰椎间盘压力剧增</h3>
+                    </div>
+                    <p class="text-gray-700 mb-4">
+                        端坐时腰椎间盘所受压力约为站立时的<strong class="text-red-600">1.5倍</strong>。在弯腰驼背或身体前倾使用电脑的姿势下，这一压力会急剧攀升至站立时的<strong class="text-red-600">185%至275%</strong>，相当于将体重的近三倍压在腰椎上<sup>[1],[2],[3]</sup>。
+                    </p>
+                    <div class="bg-red-50 p-4 rounded-lg mt-4">
+                        <p class="text-red-700 font-medium">
+                            <i class="fas fa-chart-line mr-2"></i>数据警示：每日久坐超过6小时的人群，其腰椎间盘突出症的发病率比常人高出<strong>2.4倍</strong><sup>[4]</sup>。
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- 危害2 -->
+                <div class="bg-white rounded-xl p-6 custom-card-shadow">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-amber-100 p-3 rounded-full mr-4">
+                            <i class="fas fa-balance-scale text-amber-600 text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">腰部肌肉功能失衡</h3>
+                    </div>
+                    <p class="text-gray-700 mb-4">
+                        维持脊柱稳定的深层核心肌群在久坐状态下因缺乏刺激而陷入"休眠"，变得松弛无力。同时，负责维持坐姿的表层大肌群则被迫长时间处于紧张状态，导致局部血液循环不畅，乳酸等代谢废物堆积。
+                    </p>
+                    <div class="bg-amber-50 p-4 rounded-lg mt-4">
+                        <p class="text-amber-700 font-medium">
+                            <i class="fas fa-tint mr-2"></i>研究发现：久坐仅1小时后，腰部肌肉的血氧含量就会<strong>下降30%</strong>，进一步加剧疲劳与僵硬感<sup>[6]</sup>。
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- 危害3 -->
+                <div class="bg-white rounded-xl p-6 custom-card-shadow">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-teal-100 p-3 rounded-full mr-4">
+                            <i class="fas fa-heartbeat text-teal-600 text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">营养代谢障碍</h3>
+                    </div>
+                    <p class="text-gray-700 mb-4">
+                        椎间盘是一个没有血管直接供血的组织，需要通过身体活动产生的周期性"挤压-放松"来促进营养物质的进入和代谢废物的排出。久坐时，这种"泵吸效应"几乎完全停滞。
+                    </p>
+                    <div class="bg-teal-50 p-4 rounded-lg mt-4">
+                        <p class="text-teal-700 font-medium">
+                            <i class="fas fa-hourglass-half mr-2"></i>数据警示：久坐一天，椎间盘可以<strong>流失近两成的水分</strong>，使其像一块干涸的海绵，失去原有的弹性和缓冲能力<sup>[5]</sup>。
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 危害总结表格 -->
+            <div class="bg-white rounded-xl p-6 custom-card-shadow overflow-x-auto">
+                <h3 class="text-xl font-bold text-gray-800 mb-6">久坐危害总结</h3>
+                <table class="w-full text-sm md:text-base">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="p-3 text-left font-bold text-gray-700">危害类型</th>
+                            <th class="p-3 text-left font-bold text-gray-700">核心科学依据</th>
+                            <th class="p-3 text-left font-bold text-gray-700">关键数据/后果</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200 hover:bg-gray-50">
+                            <td class="p-3 font-medium text-red-600">腰椎间盘高压</td>
+                            <td class="p-3">坐姿压力达站立位1.5-2.75倍</td>
+                            <td class="p-3">每日久坐>6小时，椎间盘突出风险↑2.4倍<sup>[4]</sup></td>
+                        </tr>
+                        <tr class="border-b border-gray-200 hover:bg-gray-50">
+                            <td class="p-3 font-medium text-amber-600">肌肉功能失衡</td>
+                            <td class="p-3">核心"休眠" vs 表层"过劳"</td>
+                            <td class="p-3">久坐1小时，腰部肌肉血氧↓30%<sup>[6]</sup></td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-3 font-medium text-teal-600">营养代谢障碍</td>
+                            <td class="p-3">"泵吸效应"停滞</td>
+                            <td class="p-3">椎间盘每日流失约20%水分<sup>[5]</sup></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 第二部分：入门阶段7个动作 -->
+        <section class="mb-16 bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-6 md:p-8">
+            <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-8 flex items-center">
+                <i class="fas fa-walking text-amber-600 mr-3"></i>二、入门阶段（第1–4周）：基础激活训练
+            </h2>
+            
+            <p class="text-gray-700 mb-8 text-lg leading-relaxed">
+                本阶段的核心目标是"唤醒"而非"征服"。重点在于学习正确的动作模式，激活那些在久坐中沉睡的深层肌肉，为后续的强化训练打下坚实的基础。所有推荐动作均无需任何器械，可在家中或办公室轻松完成。
+            </p>
+            
+            <!-- 动作网格 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 动作1：弹力带肩胛后收 -->
+                <div class="bg-white rounded-xl overflow-hidden custom-card-shadow flex flex-col">
+                    <div class="image-container w-full aspect-[4/3] bg-gray-100 flex items-center justify-center overflow-hidden">
+                        <img src="https://agent.qianwen.com/mos/89e5536d89624934862d457e51ee4743/116cdd4454440d933405684498e1899f" alt="女性站姿用弹力带做肩胛后收训练动作" class="w-full h-full object-contain p-4" 
+                             title="弹力带肩胛后收动作示意图">
+                    </div>
+                    <div class="p-5 flex-grow">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-gray-800">1. 弹力带肩胛后收</h3>
+                            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+                                <i class="fas fa-dumbbell mr-1"></i>激活
+                            </span>
+                        </div>
+                        <p class="text-gray-700 mb-4">此动作为整个背部训练的基石，能有效改善圆肩、驼背等不良体态。</p>
+                        
+                        <div class="mb-4">
+                            <h4 class="font-bold text-gray-700 mb-2 flex items-center">
+                                <i class="fas fa-list-ol text-blue-500 mr-2"></i>标准姿势：
+                            </h4>
+                            <ol class="list-decimal pl-5 text-gray-700 space-y-1">
+                                <li><strong>起始</strong>：双脚踩住弹力带中部，双手握住两端，挺胸、收腹、下颌微收</li>
+                                <li><strong>拉开</strong>：呼气，手臂水平向两侧外展，主动用背部发力</li>
+                                <li><strong>顶峰</strong>：在最大后缩位置停顿1-2秒</li>
+                                <li><strong>还原</strong>：用3-4秒缓慢控制回放</li>
+                            </ol>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-3 text-sm">
+                            <div class="bg-blue-50 p-3 rounded-lg">
+                                <p class="font-medium text-blue-700">
+                                    <i class="fas fa-lungs mr-1"></i>呼吸：发力时呼气，还原时吸气<sup>[8]</sup>
+                                </p>
+                            </div>
+                            <div class="bg-green-50 p-3 rounded-lg">
+                                <p class="font-medium text-green-700">
+                                    <i class="fas fa-calendar-alt mr-1"></i>频率：每周2–3次，每次2组，每组15-20次<sup>[9]</sup>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 动作2：猫牛式 -->
+                <div class="bg-white rounded-xl overflow-hidden custom-card-shadow flex flex-col">
+                    <div class="image-container w-full aspect-[4/3] bg-gray-100 flex items-center justify-center overflow-hidden">
+                        <img src="https://agent.qianwen.com/mos/89e5536d89624934862d457e51ee4743/07f2a93a85ab26ab86da7143c91edd59" alt="猫牛式动作分解图展示四足跪姿下吸气呼气交替过程" class="w-full h-full object-contain p-4" 
+                             title="猫牛式动作示意图">
+                    </div>
+                    <div class="p-5 flex-grow">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-gray-800">2. 猫牛式</h3>
+                            <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-medium">
+                                <i class="fas fa-spa mr-1"></i>灵活
+                            </span>
+                        </div>
+                        <p class="text-gray-700 mb-4">这是一个经典的瑜伽动作，能灵活脊柱，缓解腰部酸痛，非常适合久坐后的放松。</p>
+                        
+                        <div class="mb-4">
+                            <h4 class="font-bold text-gray-700 mb-2 flex items-center">
+                                <i class="fas fa-list-ol text-amber-500 mr-2"></i>标准姿势：
+                            </h4>
+                            <ul class="list-disc pl-5 text-gray-700 space-y-1">
+                                <li><strong>起始</strong>：四点跪姿，手腕位于肩膀正下方</li>
+                                <li><strong>牛式</strong>：吸气，抬头向上看，塌腰下沉腹部，胸部向前打开</li>
+                                <li><strong>猫式</strong>：呼气，低头收下巴，拱背向上，脊柱弓起</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-3 text-sm">
+                            <div class="bg-amber-50 p-3 rounded-lg">
+                                <p class="font-medium text-amber-700">
+                                    <i class="fas fa-lungs mr-1"></i>呼吸：吸气牛式，呼气猫式<sup>[10]</sup>
+                                </p>
+                            </div>
+                            <div class="bg-green-50 p-3 rounded-lg">
+                                <p class="font-medium text-green-700">
+                                    <i class="fas fa-calendar-alt mr-1"></i>频率：可每日练习，每次重复8-15次<sup>[10]</sup>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 动作3：YTW字母练习 -->
+                <div class="bg-white rounded-xl overflow-hidden custom-card-shadow flex flex-col">
+                    <div class="image-container w-full aspect-[4/3] bg-gray-100 flex items-center justify-center overflow-hidden">
+                        <img src="https://agent.qianwen.com/mos/89e5536d89624934862d457e51ee4743/7250b9084203fcb41045fc61640208bc" alt="YTW练习中俯身位上肢呈Y形动作示意图" class="w-full h-full object-contain p-4" 
+                             title="YTW字母练习动作示意图">
+                    </div>
+                    <div class="p-5 flex-grow">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-gray-800">3. YTW字母练习</h3>
+                            <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-medium">
+                                <i class="fas fa-font mr-1"></i>综合
+                            </span>
+                        </div>
+                        <p class="text-gray-700 mb-4">这是一套针对中背部肌群的综合性训练，能有效强化斜方肌中下束和菱形肌，改善含胸驼背。</p>
+                        
+                        <div class="mb-4">
+                            <h4 class="font-bold text-gray-700 mb-2 flex items-center">
+                                <i class="fas fa-list-ol text-purple-500 mr-2"></i>具体动作：
+                            </h4>
+                            <ul class="list-disc pl-5 text-gray-700 space-y-1">
+                                <li><strong>Y字</strong>：双臂向斜上方上举，呈60°夹角的Y字形</li>
+                                <li><strong>T字</strong>：手臂向两侧水平上举至肩关节平面以上</li>
+                                <li><strong>W字</strong>：双臂屈肘，双手靠近肩部，然后向后上方拉动</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-3 text-sm">
+                            <div class="bg-purple-50 p-3 rounded-lg">
+                                <p class="font-medium text-purple-700">
+                                    <i class="fas fa-lungs mr-1"></i>呼吸：打开后缩时呼气，还原时吸气<sup>[11]</sup>
+                                </p>
+                            </div>
+                            <div class="bg-green-50 p-3 rounded-lg">
+                                <p class="font-medium text-green-700">
+                                    <i class="fas fa-calendar-alt mr-1"></i>频率：每个动作8-12次，共3组<sup>[12]</sup>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 动作4：腹横肌激活 -->
+                <div class="bg-white rounded-xl overflow-hidden custom-card-shadow flex flex-col">
+                    <div class="image-container w-full aspect-[4/3] bg-gray-100 flex items-center justify-center overflow-hidden">
+                        <img src="https://agent.qianwen.com/mos/89e5536d89624934862d457e51ee4743/f9397721bb3b6bc4b690502c2f834a9a" alt="腹横肌解剖位置与人体姿态示意图" class="w-full h-full object-contain p-4" 
+                             title="腹横肌激活动作示意图">
+                    </div>
+                    <div class="p-5 flex-grow">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-gray-800">4. 腹横肌激活</h3>
+                            <span class="bg-teal-100 text-teal-700 px-3 py-1 rounded-full text-sm font-medium">
+                                <i class="fas fa-layer-group mr-1"></i>核心
+                            </span>
+                        </div>
+                        <p class="text-gray-700 mb-4">激活最深层的核心肌群——腹横肌，是保护腰椎的关键第一步。</p>
+                        
+                        <div class="mb-4">
+                            <h4 class="font-bold text-gray-700 mb-2 flex items-center">
+                                <i class="fas fa-list-ol text-teal-500 mr-2"></i>腹部凹陷法：
+                            </h4>
+                            <ol class="list-decimal pl-5 text-gray-700 space-y-1">
+                                <li><strong>起始</strong>：仰卧，双膝弯曲，双脚平放于地面</li>
+                                <li><strong>执行</strong>：缓慢地将肚脐向脊柱方向轻轻拉回</li>
+                                <li><strong>感知</strong>：理想收紧强度为30%-40%，应能正常呼吸和说话</li>
+                            </ol>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-3 text-sm">
+                            <div class="bg-teal-50 p-3 rounded-lg">
+                                <p class="font-medium text-teal-700">
+                                    <i class="fas fa-lungs mr-1"></i>呼吸：保持正常呼吸，禁用憋气<sup>[13]</sup>
+                                </p>
+                            </div>
+                            <div class="bg-green-50 p-3 rounded-lg">
+                                <p class="font-medium text-green-700">
+                                    <i class="fas fa-calendar-alt mr-1"></i>频率：保持5-10秒，重复10-15次<sup>[13]</sup>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 动作5：靠墙拉伸 -->
+                <div class="bg-white rounded-xl overflow-hidden custom-card-shadow flex flex-col">
+                    <div class="image-container w-full aspect-[4/3] bg-gray-100 flex items-center justify-center overflow-hidden">
+                        <img src="https://agent.qianwen.com/mos/89e5536d89624934862d457e51ee4743/9f19d056e72a0aaf1c355176f1b927a7" 
+                             alt="靠墙拉伸标准姿势示意图：程序员站立背靠墙壁，标注五个关键接触点（脚后跟、小腿肚、臀部、上背部、后脑勺），展示正确体态" 
+                             class="w-full h-full object-contain p-4" 
+                             title="靠墙拉伸示意图">
+                    </div>
+                    <div class="p-5 flex-grow">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-gray-800">5. 靠墙拉伸</h3>
+                            <span class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-medium">
+                                <i class="fas fa-expand-arrows-alt mr-1"></i>矫正
+                            </span>
+                        </div>
+                        <p class="text-gray-700 mb-4">这是一个静态的体态矫正练习，帮助你找到并记忆正确的站立姿势。</p>
+                        
+                        <div class="mb-4">
+                            <h4 class="font-bold text-gray-700 mb-2 flex items-center">
+                                <i class="fas fa-list-ol text-indigo-500 mr-2"></i>标准姿势：
+                            </h4>
+                            <ol class="list-decimal pl-5 text-gray-700 space-y-1">
+                                <li>双脚距墙约一个足跟长度，分开与肩同宽</li>
+                                <li>依次紧贴墙面：<strong>脚后跟、小腿肚、臀部、上背部、后脑勺</strong><sup>[14]</sup></li>
+                                <li>下巴微收，双肩下沉远离耳朵</li>
+                                <li>腹部轻微收紧，感受下背部与墙面之间留有半个手掌的距离</li>
+                            </ol>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 gap-3 text-sm">
+                            <div class="bg-indigo-50 p-3 rounded-lg">
+                                <p class="font-medium text-indigo-700">
+                                    <i class="fas fa-clock mr-1"></i>训练参数：每次保持5～10分钟，每日累计不宜超过半小时<sup>[15]</sup>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 动作6：臀桥 -->
+                <div class="bg-white rounded-xl overflow-hidden custom-card-shadow flex flex-col">
+                    <div class="image-container w-full aspect-[4/3] bg-gray-100 flex items-center justify-center overflow-hidden">
+                        <img src="https://agent.qianwen.com/mos/89e5536d89624934862d457e51ee4743/61815f398483129a06f64eb629af70cd" alt="臀桥标准动作示范及肌肉发力示意图" class="w-full h-full object-contain p-4" 
+                             title="臀桥动作示意图">
+                    </div>
+                    <div class="p-5 flex-grow">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-gray-800">6. 臀桥</h3>
+                            <span class="bg-pink-100 text-pink-700 px-3 py-1 rounded-full text-sm font-medium">
+                                <i class="fas fa-arrows-alt-v mr-1"></i>驱动
+                            </span>
+                        </div>
+                        <p class="text-gray-700 mb-4">此动作能有效激活臀大肌，减轻腰椎负担，并训练"髋部驱动"的正确发力模式。</p>
+                        
+                        <div class="mb-4">
+                            <h4 class="font-bold text-gray-700 mb-2 flex items-center">
+                                <i class="fas fa-list-ol text-pink-500 mr-2"></i>标准姿势：
+                            </h4>
+                            <ol class="list-decimal pl-5 text-gray-700 space-y-1">
+                                <li><strong>准备</strong>：仰卧于垫上，双膝弯曲90°，双脚平放地面</li>
+                                <li><strong>抬起</strong>：呼气，从臀部开始发力，逐节将骨盆抬离地面</li>
+                                <li><strong>顶峰</strong>：在最高点保持1-3秒</li>
+                                <li><strong>下降</strong>：吸气，缓慢地从下背部开始，逐节落回地面</li>
+                            </ol>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-3 text-sm">
+                            <div class="bg-pink-50 p-3 rounded-lg">
+                                <p class="font-medium text-pink-700">
+                                    <i class="fas fa-lungs mr-1"></i>呼吸：抬起时呼气，下降时吸气<sup>[16]</sup>
+                                </p>
+                            </div>
+                            <div class="bg-red-50 p-3 rounded-lg">
+                                <p class="font-medium text-red-700">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i>常见错误：过度顶腰、腰部代偿、动作过快
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 动作7：平板支撑 -->
+                <div class="bg-white rounded-xl overflow-hidden custom-card-shadow flex flex-col">
+                    <div class="image-container w-full aspect-[4/3] bg-gray-100 flex items-center justify-center overflow-hidden">
+                        <img src="https://agent.qianwen.com/mos/89e5536d89624934862d457e51ee4743/37a493c190576b54fef754541959365c" alt="平板支撑正确姿势图示前臂支撑身体呈直线并对比常见错误" class="w-full h-full object-contain p-4" 
+                             title="平板支撑动作示意图">
+                    </div>
+                    <div class="p-5 flex-grow">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-gray-800">7. 平板支撑</h3>
+                            <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">
+                                <i class="fas fa-shield-alt mr-1"></i>稳定
+                            </span>
+                        </div>
+                        <p class="text-gray-700 mb-4">这是最经典的核心力量测试与训练动作，能全面激活躯干前后侧的深层稳定肌群。</p>
+                        
+                        <div class="mb-4">
+                            <h4 class="font-bold text-gray-700 mb-2 flex items-center">
+                                <i class="fas fa-list-ol text-gray-500 mr-2"></i>标准姿势：
+                            </h4>
+                            <ol class="list-decimal pl-5 text-gray-700 space-y-1">
+                                <li>俯卧，双肘弯曲，前臂贴地，手肘位于肩部正下方</li>
+                                <li>双脚并拢伸直，脚尖着地</li>
+                                <li>收紧腹部和臀部，使身体从头到脚踝呈一条笔直的直线</li>
+                                <li>头部自然平视，眼睛看向地面前方约30公分处</li>
+                            </ol>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-3 text-sm">
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="font-medium text-gray-700">
+                                    <i class="fas fa-lungs mr-1"></i>呼吸：保持自然呼吸，鼻吸口呼<sup>[17]</sup>
+                                </p>
+                            </div>
+                            <div class="bg-green-50 p-3 rounded-lg">
+                                <p class="font-medium text-green-700">
+                                    <i class="fas fa-calendar-alt mr-1"></i>频率：新手从30秒开始，每周3-4次<sup>[18]</sup>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 入门阶段总结 -->
+            <div class="mt-10 bg-gradient-to-r from-amber-100 to-orange-100 border-l-4 border-amber-500 p-6 rounded-r-xl">
+                <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+                    <i class="fas fa-lightbulb text-amber-600 mr-2"></i>入门阶段训练要点总结
+                </h3>
+                <ul class="text-gray-700 space-y-2">
+                    <li><i class="fas fa-check-circle text-green-500 mr-2"></i>重点在于学习正确的动作模式，而非追求重量或次数</li>
+                    <li><i class="fas fa-check-circle text-green-500 mr-2"></i>每次训练前进行5-10分钟的热身（如关节活动、动态拉伸）</li>
+                    <li><i class="fas fa-check-circle text-green-500 mr-2"></i>训练后配合静态拉伸，每个动作保持20-30秒</li>
+                    <li><i class="fas fa-check-circle text-green-500 mr-2"></i>如果感觉动作困难，可减少次数或保持时间，但务必保证动作质量</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 第三部分：进阶阶段训练参数表 -->
+        <section class="mb-16 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 md:p-8">
+            <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-8 flex items-center">
+                <i class="fas fa-chart-line text-indigo-600 mr-3"></i>三、进阶阶段（第5周起）：强化训练方案
+            </h2>
+            
+            <p class="text-gray-700 mb-8 text-lg leading-relaxed">
+                经过四周的基础激活，您的身体已经准备好迎接更具挑战性的训练。本阶段将引入健身房中的经典背部训练动作，旨在系统性地增强背部肌力、肌耐力和肌肉维度。
+            </p>
+            
+            <!-- 进阶动作网格 -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                <!-- 高位下拉 -->
+                <div class="bg-white rounded-xl overflow-hidden custom-card-shadow flex flex-col">
+                    <div class="image-container w-full aspect-[4/3] bg-gray-100 flex items-center justify-center overflow-hidden">
+                        <img src="https://agent.qianwen.com/mos/89e5536d89624934862d457e51ee4743/acd949f4f9671370ee4d21936153793f" alt="高位下拉动作图展示宽握正手下拉至胸部的训练过程" class="w-full h-full object-contain p-4" 
+                             title="高位下拉动作示意图">
+                    </div>
+                    <div class="p-5 flex-grow">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-gray-800">高位下拉</h3>
+                            <span class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-medium">
+                                <i class="fas fa-arrows-alt-v mr-1"></i>宽度
+                            </span>
+                        </div>
+                        <p class="text-gray-700 mb-4">这是打造宽阔背部的经典动作，主要刺激背阔肌。</p>
+                        
+                        <div class="space-y-3">
+                            <div class="flex items-start">
+                                <i class="fas fa-dumbbell text-indigo-500 mt-1 mr-2"></i>
+                                <div>
+                                    <p class="font-medium text-gray-700">训练参数</p>
+                                    <p class="text-gray-600 text-sm">选择能标准完成8-12次的重量，做3-4组</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fas fa-lungs text-indigo-500 mt-1 mr-2"></i>
+                                <div>
+                                    <p class="font-medium text-gray-700">呼吸节奏</p>
+                                    <p class="text-gray-600 text-sm">下拉时呼气，还原时吸气<sup>[19]</sup></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 杠铃划船 -->
+                <div class="bg-white rounded-xl overflow-hidden custom-card-shadow flex flex-col">
+                    <div class="image-container w-full aspect-[4/3] bg-gray-100 flex items-center justify-center overflow-hidden">
+                        <img src="https://agent.qianwen.com/mos/89e5536d89624934862d457e51ee4743/4af49d31c42a2dec9c9226d49da7023f" alt="杠铃划船标准姿势展示背部肌肉群的侧面动作" class="w-full h-full object-contain p-4" 
+                             title="杠铃划船动作示意图">
+                    </div>
+                    <div class="p-5 flex-grow">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-gray-800">杠铃划船</h3>
+                            <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-medium">
+                                <i class="fas fa-weight-hanging mr-1"></i>厚度
+                            </span>
+                        </div>
+                        <p class="text-gray-700 mb-4">此动作为背部厚度和力量增长的核心，能全面刺激中背部肌群。</p>
+                        
+                        <div class="space-y-3">
+                            <div class="flex items-start">
+                                <i class="fas fa-dumbbell text-purple-500 mt-1 mr-2"></i>
+                                <div>
+                                    <p class="font-medium text-gray-700">核心要点</p>
+                                    <p class="text-gray-600 text-sm">强调"髋部驱动而非腰部驱动"，收紧核心肌群</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fas fa-lungs text-purple-500 mt-1 mr-2"></i>
+                                <div>
+                                    <p class="font-medium text-gray-700">呼吸节奏</p>
+                                    <p class="text-gray-600 text-sm">上拉时呼气，下放时吸气<sup>[20]</sup></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 引体向上 -->
+                <div class="bg-white rounded-xl overflow-hidden custom-card-shadow flex flex-col">
+                    <div class="image-container w-full aspect-[4/3] bg-gray-100 flex items-center justify-center overflow-hidden">
+                        <img src="https://agent.qianwen.com/mos/89e5536d89624934862d457e51ee4743/cb4fb021ebdaa52faf805b134b3ae3ef" alt="正握引体向上动作分解图示下颌过杠过程" class="w-full h-full object-contain p-4" 
+                             title="引体向上动作示意图">
+                    </div>
+                    <div class="p-5 flex-grow">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-gray-800">引体向上</h3>
+                            <span class="bg-teal-100 text-teal-700 px-3 py-1 rounded-full text-sm font-medium">
+                                <i class="fas fa-award mr-1"></i>黄金标准
+                            </span>
+                        </div>
+                        <p class="text-gray-700 mb-4">这是衡量上肢力量的"黄金标准"，也是背部训练的终极目标之一。</p>
+                        
+                        <div class="space-y-3">
+                            <div class="flex items-start">
+                                <i class="fas fa-dumbbell text-teal-500 mt-1 mr-2"></i>
+                                <div>
+                                    <p class="font-medium text-gray-700">训练参数</p>
+                                    <p class="text-gray-600 text-sm">若无法完成自重引体向上，可使用弹力带辅助</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fas fa-lungs text-teal-500 mt-1 mr-2"></i>
+                                <div>
+                                    <p class="font-medium text-gray-700">呼吸节奏</p>
+                                    <p class="text-gray-600 text-sm">上拉时呼气，下降时吸气<sup>[21]</sup></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 进阶训练参数表 -->
+            <div class="bg-white rounded-xl p-6 custom-card-shadow overflow-x-auto">
+                <h3 class="text-xl font-bold text-gray-800 mb-6">进阶阶段训练参数参考表</h3>
+                <table class="w-full text-sm md:text-base">
+                    <thead class="bg-indigo-50">
+                        <tr>
+                            <th class="p-3 text-left font-bold text-gray-700">动作名称</th>
+                            <th class="p-3 text-left font-bold text-gray-700">主要目标肌群</th>
+                            <th class="p-3 text-left font-bold text-gray-700">推荐组数</th>
+                            <th class="p-3 text-left font-bold text-gray-700">推荐次数</th>
+                            <th class="p-3 text-left font-bold text-gray-700">组间休息</th>
+                            <th class="p-3 text-left font-bold text-gray-700">每周频率</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200 hover:bg-gray-50">
+                            <td class="p-3 font-medium text-indigo-600">高位下拉</td>
+                            <td class="p-3">背阔肌、大圆肌</td>
+                            <td class="p-3">3-4组</td>
+                            <td class="p-3">8-12次</td>
+                            <td class="p-3">60-90秒</td>
+                            <td class="p-3">1-2次</td>
+                        </tr>
+                        <tr class="border-b border-gray-200 hover:bg-gray-50">
+                            <td class="p-3 font-medium text-purple-600">杠铃划船</td>
+                            <td class="p-3">斜方肌中下部、菱形肌、背阔肌</td>
+                            <td class="p-3">3-4组</td>
+                            <td class="p-3">8-12次</td>
+                            <td class="p-3">90-120秒</td>
+                            <td class="p-3">1-2次</td>
+                        </tr>
+                        <tr class="border-b border-gray-200 hover:bg-gray-50">
+                            <td class="p-3 font-medium text-teal-600">引体向上</td>
+                            <td class="p-3">背阔肌、肱二头肌、斜方肌</td>
+                            <td class="p-3">3-5组</td>
+                            <td class="p-3">力竭次数</td>
+                            <td class="p-3">120-180秒</td>
+                            <td class="p-3">1-2次</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-3 font-medium text-blue-600">弹力带肩胛后收</td>
+                            <td class="p-3">斜方肌中下部、菱形肌</td>
+                            <td class="p-3">2-3组</td>
+                            <td class="p-3">15-20次</td>
+                            <td class="p-3">45-60秒</td>
+                            <td class="p-3">2-3次</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 进阶训练提醒 -->
+            <div class="mt-8 bg-gradient-to-r from-indigo-100 to-purple-100 border-l-4 border-indigo-500 p-6 rounded-r-xl">
+                <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+                    <i class="fas fa-exclamation-circle text-indigo-600 mr-2"></i>进阶阶段重要提醒
+                </h3>
+                <ul class="text-gray-700 space-y-2">
+                    <li><i class="fas fa-check-circle text-indigo-500 mr-2"></i>始终以动作质量为第一位，重量增长为辅</li>
+                    <li><i class="fas fa-check-circle text-indigo-500 mr-2"></i>每次训练前进行充分热身，特别是肩关节和胸椎的活动</li>
+                    <li><i class="fas fa-check-circle text-indigo-500 mr-2"></i>训练后务必进行拉伸，特别是胸肌、肩前束等拮抗肌群</li>
+                    <li><i class="fas fa-check-circle text-indigo-500 mr-2"></i>保证充足的营养和睡眠，促进肌肉恢复</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 第四部分：安全指南 - 禁忌动作警示 -->
+        <section class="mb-16 bg-gradient-to-br from-red-50 to-orange-50 rounded-2xl p-6 md:p-8">
+            <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-8 flex items-center">
+                <i class="fas fa-shield-alt text-red-600 mr-3"></i>四、完整的安全指南 - 禁忌动作警示
+            </h2>
+            
+            <p class="text-gray-700 mb-8 text-lg leading-relaxed">
+                安全永远是第一位的。在追求进步的同时，必须了解潜在的风险，学会倾听身体的声音。
+            </p>
+            
+            <!-- 常见错误表格 -->
+            <div class="bg-white rounded-xl p-6 custom-card-shadow mb-10 overflow-x-auto">
+                <h3 class="text-xl font-bold text-gray-800 mb-6">常见错误与纠正方法汇总</h3>
+                <table class="w-full text-sm md:text-base">
+                    <thead class="bg-red-50">
+                        <tr>
+                            <th class="p-3 text-left font-bold text-gray-700">错误类型</th>
+                            <th class="p-3 text-left font-bold text-gray-700">具体表现</th>
+                            <th class="p-3 text-left font-bold text-gray-700">后果</th>
+                            <th class="p-3 text-left font-bold text-gray-700">纠正方法</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200 hover:bg-gray-50">
+                            <td class="p-3 font-medium text-red-600">耸肩</td>
+                            <td class="p-3">上拉类动作时，肩膀靠近耳朵</td>
+                            <td class="p-3">斜方肌上束代偿，背部发力不足，易致颈肩酸痛</td>
+                            <td class="p-3">主动沉肩，想象"肩膀远离耳朵"，先带动肩胛骨后缩再发力<sup>[22]</sup></td>
+                        </tr>
+                        <tr class="border-b border-gray-200 hover:bg-gray-50">
+                            <td class="p-3 font-medium text-red-600">核心松弛</td>
+                            <td class="p-3">动作中腰部摆动、塌陷或过度反弓</td>
+                            <td class="p-3">借力完成动作，降低训练效果，增加腰椎受伤风险</td>
+                            <td class="p-3">收紧腹部和臀部，想象身体是一块坚硬的平板<sup>[23]</sup></td>
+                        </tr>
+                        <tr class="border-b border-gray-200 hover:bg-gray-50">
+                            <td class="p-3 font-medium text-red-600">用手臂发力代替背部收缩</td>
+                            <td class="p-3">依赖肱二头肌完成拉类动作</td>
+                            <td class="p-3">背部肌肉激活不足，训练无效</td>
+                            <td class="p-3">减轻重量，专注肩胛骨回缩，建立"用背不用手"的连接<sup>[24]</sup></td>
+                        </tr>
+                        <tr class="border-b border-gray-200 hover:bg-gray-50">
+                            <td class="p-3 font-medium text-red-600">忽视离心控制</td>
+                            <td class="p-3">下放阶段快速回落</td>
+                            <td class="p-3">浪费超过40%的训练效益，易造成肌肉拉伤</td>
+                            <td class="p-3">控制离心阶段速度，建议用4秒慢放<sup>[25]</sup></td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-3 font-medium text-red-600">使用过大重量导致变形</td>
+                            <td class="p-3">动作标准性丧失</td>
+                            <td class="p-3">增加受伤风险，训练效果适得其反</td>
+                            <td class="p-3">从小重量甚至0负重开始，优先保证动作模式的正确性<sup>[24]</sup></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 禁忌动作警示 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+                <!-- 小燕飞禁忌 -->
+                <div class="custom-danger-card rounded-xl p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-red-100 p-3 rounded-full mr-4">
+                            <i class="fas fa-ban text-red-600 text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">禁忌动作：小燕飞 (Superman)</h3>
+                    </div>
+                    <p class="text-gray-700 mb-4">
+                        尽管广为人知，但"小燕飞"对许多人来说是绝对的禁忌动作。动作会显著增加椎间盘内压，可能导致髓核进一步突出，加重神经压迫。
+                    </p>
+                    
+                    <div class="mb-4">
+                        <h4 class="font-bold text-gray-700 mb-2">绝对禁忌人群：</h4>
+                        <ul class="list-disc pl-5 text-gray-700 space-y-1">
+                            <li>腰椎间盘突出/脱出患者</li>
+                            <li>腰椎管狭窄症患者</li>
+                            <li>中重度腰椎滑脱患者（Ⅱ度及以上）</li>
+                            <li>急性腰痛或损伤发作期患者</li>
+                            <li>严重骨质疏松患者</li>
+                            <li>脊柱侧弯患者</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-red-50 p-4 rounded-lg">
+                        <p class="text-red-700 font-medium">
+                            <i class="fas fa-lightbulb mr-2"></i>替代建议：鸟狗式、臀桥、猫式伸展<sup>[26]</sup>
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- 仰卧起坐禁忌 -->
+                <div class="custom-warning-card rounded-xl p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-amber-100 p-3 rounded-full mr-4">
+                            <i class="fas fa-exclamation-triangle text-amber-600 text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">禁忌动作：仰卧起坐 (Sit-up)</h3>
+                    </div>
+                    <p class="text-gray-700 mb-4">
+                        传统仰卧起坐对脊柱的压力极大，已被许多专业机构不推荐。在仰卧起坐过程中，腰椎承受高达<strong>3350牛顿</strong>的压力，已超过美国职业安全健康研究所认定的下背部损伤阈值（3300牛顿）<sup>[27]</sup>。
+                    </p>
+                    
+                    <div class="mb-4">
+                        <h4 class="font-bold text-gray-700 mb-2">禁忌人群：</h4>
+                        <ul class="list-disc pl-5 text-gray-700 space-y-1">
+                            <li>腰椎间盘突出患者</li>
+                            <li>颈椎病患者</li>
+                            <li>老年人</li>
+                            <li>高血压患者</li>
+                            <li>心脑血管疾病患者</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-amber-50 p-4 rounded-lg">
+                        <p class="text-amber-700 font-medium">
+                            <i class="fas fa-lightbulb mr-2"></i>推荐替代动作：卷腹（Crunches）、平板支撑、五点支撑法<sup>[28]</sup>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 红色预警信号 -->
+            <div class="bg-white rounded-xl p-6 custom-card-shadow">
+                <h3 class="text-xl font-bold text-gray-800 mb-6">红色预警信号：必须立即停止训练</h3>
+                <p class="text-gray-700 mb-6">
+                    一旦在训练或日常生活中出现以下任何一种情况，请<strong class="text-red-600">立即停止训练</strong>，休息观察，必要时必须寻求专业医疗帮助。
+                </p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+                        <h4 class="font-bold text-red-700 mb-2 flex items-center">
+                            <i class="fas fa-bolt mr-2"></i>剧烈或急性疼痛
+                        </h4>
+                        <p class="text-red-600 text-sm">突然出现的尖锐疼痛（评分7-10分）、撕裂样剧痛、后背刺痛</p>
+                    </div>
+                    
+                    <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+                        <h4 class="font-bold text-red-700 mb-2 flex items-center">
+                            <i class="fas fa-brain mr-2"></i>神经功能障碍
+                        </h4>
+                        <p class="text-red-600 text-sm">疼痛从背部放射至腿部、臀部；下肢麻木或无力；排尿排便失控</p>
+                    </div>
+                    
+                    <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+                        <h4 class="font-bold text-red-700 mb-2 flex items-center">
+                            <i class="fas fa-heartbeat mr-2"></i>全身性警示信号
+                        </h4>
+                        <p class="text-red-600 text-sm">胸闷胸痛并放射至左肩/下颌；不明原因体重减轻；极度呼吸困难</p>
+                    </div>
+                </div>
+                
+                <div class="mt-8 bg-gradient-to-r from-red-100 to-orange-100 border-l-4 border-red-500 p-6 rounded-r-xl">
+                    <h4 class="text-lg font-bold text-gray-800 mb-2 flex items-center">
+                        <i class="fas fa-first-aid text-red-600 mr-2"></i>核心原则
+                    </h4>
+                    <p class="text-gray-700">
+                        <strong>"酸胀可继续，剧痛必停止"</strong>。训练后的肌肉酸胀是正常的修复反应，但任何形式的剧烈疼痛都是身体发出的求救信号，绝不能忽视<sup>[29]</sup>。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 第五部分：日常防护建议 - 工位调整图示 -->
+        <section class="mb-16 bg-gradient-to-br from-green-50 to-teal-50 rounded-2xl p-6 md:p-8">
+            <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-8 flex items-center">
+                <i class="fas fa-desktop text-green-600 mr-3"></i>五、日常防护建议 - 工位调整图示
+            </h2>
+            
+            <p class="text-gray-700 mb-8 text-lg leading-relaxed">
+                真正的健康不仅仅来自每周几次的训练，更在于每一天的生活习惯。以下是为您量身定制的日常防护策略。
+            </p>
+            
+            <!-- 工位人体工学调整 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+                <!-- 工位图示 -->
+                <div class="bg-white rounded-xl p-6 custom-card-shadow">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6">程序员工位人体工学示意图</h3>
+                    <div class="image-container w-full aspect-[4/3] bg-gray-100 flex items-center justify-center overflow-hidden mb-4">
+                        <img src="https://agent.qianwen.com/mos/89e5536d89624934862d457e51ee4743/10001e76f83b79122107006342eedb0a" alt="程序员工位显示器与座椅布局示意图" class="w-full h-full object-contain p-4" 
+                             title="工位人体工学调整示意图">
+                    </div>
+                    <p class="text-gray-700 text-sm italic">
+                        正确的工位设置是预防职业损伤的第一道防线。即使工位完美，也需每工作40–60分钟起身活动5–10分钟<sup>[30]</sup>。
+                    </p>
+                </div>
+                
+                <!-- 工位调整表格 -->
+                <div class="bg-white rounded-xl p-6 custom-card-shadow overflow-x-auto">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6">工位人体工学调整标准</h3>
+                    <table class="w-full text-sm md:text-base">
+                        <thead class="bg-green-50">
+                            <tr>
+                                <th class="p-3 text-left font-bold text-gray-700">调整项目</th>
+                                <th class="p-3 text-left font-bold text-gray-700">推荐标准</th>
+                                <th class="p-3 text-left font-bold text-gray-700">目的</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                <td class="p-3 font-medium text-green-600">座椅高度</td>
+                                <td class="p-3">膝盖与髋部齐平，大腿基本平行地面</td>
+                                <td class="p-3">保证下肢血液循环，减轻腰椎负担</td>
+                            </tr>
+                            <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                <td class="p-3 font-medium text-green-600">屏幕高度</td>
+                                <td class="p-3">屏幕顶部与眼睛水平线齐平或略低（0–10cm）</td>
+                                <td class="p-3">避免头部前倾，减少颈椎压力</td>
+                            </tr>
+                            <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                <td class="p-3 font-medium text-green-600">屏幕距离</td>
+                                <td class="p-3">50–70 cm（约一臂长）</td>
+                                <td class="p-3">预防视觉疲劳和颈部代偿</td>
+                            </tr>
+                            <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                <td class="p-3 font-medium text-green-600">键盘布局</td>
+                                <td class="p-3">键盘置于肘部自然下垂位置，肘关节弯曲90°–110°</td>
+                                <td class="p-3">预防腕管综合征和肩颈劳损</td>
+                            </tr>
+                            <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                <td class="p-3 font-medium text-green-600">腰部支撑</td>
+                                <td class="p-3">使用腰靠贴合第三至第五腰椎生理曲度</td>
+                                <td class="p-3">维持腰椎自然前凸，提供支撑</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="p-3 font-medium text-green-600">视线角度</td>
+                                <td class="p-3">向下注视15°–20°</td>
+                                <td class="p-3">最大程度减少颈部肌肉张力</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- 定时活动策略 -->
+            <div class="bg-white rounded-xl p-6 custom-card-shadow mb-10">
+                <h3 class="text-xl font-bold text-gray-800 mb-6">定时活动策略</h3>
+                <p class="text-gray-700 mb-6">
+                    打破久坐的循环，是恢复脊柱健康的简单而有效的方法。世界卫生组织建议每小时至少进行2-5分钟轻度活动<sup>[32]</sup>。
+                </p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <div class="flex items-center mb-2">
+                            <div class="bg-green-100 p-2 rounded-full mr-3">
+                                <i class="fas fa-clock text-green-600"></i>
+                            </div>
+                            <h4 class="font-bold text-gray-800">频率</h4>
+                        </div>
+                        <p class="text-gray-700">每30～60分钟起身活动一次<sup>[31]</sup></p>
+                    </div>
+                    
+                    <div class="bg-teal-50 p-4 rounded-lg">
+                        <div class="flex items-center mb-2">
+                            <div class="bg-teal-100 p-2 rounded-full mr-3">
+                                <i class="fas fa-hourglass-half text-teal-600"></i>
+                            </div>
+                            <h4 class="font-bold text-gray-800">时长</h4>
+                        </div>
+                        <p class="text-gray-700">单次活动2～10分钟</p>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <div class="flex items-center mb-2">
+                            <div class="bg-blue-100 p-2 rounded-full mr-3">
+                                <i class="fas fa-running text-blue-600"></i>
+                            </div>
+                            <h4 class="font-bold text-gray-800">微型运动标准</h4>
+                        </div>
+                        <p class="text-gray-700">每次活动应达到呼吸加速、微微出汗为有效<sup>[33]</sup></p>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold text-gray-700 mb-3">推荐动作清单：</h4>
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+                        <span class="bg-gray-100 text-gray-700 px-3 py-2 rounded-lg text-center text-sm">颈部拉伸</span>
+                        <span class="bg-gray-100 text-gray-700 px-3 py-2 rounded-lg text-center text-sm">肩部绕环</span>
+                        <span class="bg-gray-100 text-gray-700 px-3 py-2 rounded-lg text-center text-sm">猫牛式</span>
+                        <span class="bg-gray-100 text-gray-700 px-3 py-2 rounded-lg text-center text-sm">靠墙站立</span>
+                        <span class="bg-gray-100 text-gray-700 px-3 py-2 rounded-lg text-center text-sm">踮脚尖</span>
+                        <span class="bg-gray-100 text-gray-700 px-3 py-2 rounded-lg text-center text-sm">原地踏步</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 呼吸配合技巧 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- 呼吸技巧 -->
+                <div class="bg-white rounded-xl p-6 custom-card-shadow">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6">呼吸配合技巧</h3>
+                    <p class="text-gray-700 mb-6">
+                        将呼吸融入日常生活，是提升核心稳定性和改善体态的"隐藏技巧"。
+                    </p>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <div class="bg-blue-100 p-3 rounded-full mr-4 breathing-icon">
+                                <i class="fas fa-wind text-blue-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-700 mb-1">力量训练呼吸</h4>
+                                <p class="text-gray-700">遵循<strong>"发力时呼气，还原时吸气"</strong>的原则。例如，在做高位下拉或杠铃划船时，下拉/上拉阶段呼气，有助于核心收紧，稳定躯干<sup>[19]</sup>。</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="bg-teal-100 p-3 rounded-full mr-4">
+                                <i class="fas fa-lungs text-teal-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-700 mb-1">腹式横膈膜呼吸</h4>
+                                <p class="text-gray-700">坐姿下，吸气时想象气息充满腹部，使其像气球一样向四周扩张；呼气时，腹部向脊柱方向收紧。每日多次练习，可减少颈肩代偿<sup>[34]</sup>。</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="bg-green-100 p-3 rounded-full mr-4">
+                                <i class="fas fa-walking text-green-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-700 mb-1">行走呼吸法</h4>
+                                <p class="text-gray-700">走路时默念"吸-停-呼-停"，每步配合一次深呼吸，既能调节节奏又能激活核心<sup>[36]</sup>。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 呼吸示意图 -->
+                <div class="bg-white rounded-xl p-6 custom-card-shadow">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6">背部训练呼吸配合图示</h3>
+                    <div class="image-container w-full aspect-[4/3] bg-gray-100 flex items-center justify-center overflow-hidden">
+                        <img src="https://agent.qianwen.com/mos/89e5536d89624934862d457e51ee4743/6b199df4a4126fa9ba144bb789991ddb" alt="背部训练中俯卧撑与引体向上的呼吸配合图示" class="w-full h-full object-contain p-4" 
+                             title="呼吸配合示意图">
+                    </div>
+                    <p class="text-gray-700 mt-4 text-sm">
+                        图片展示了俯卧撑和引体向上动作中的呼吸配合方法，明确标注了吸气与呼气的时机，符合背部训练呼吸配合图的需求。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 参考文献 -->
+        <section class="mb-16 bg-gray-100 rounded-2xl p-6 md:p-8">
+            <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-8">
+                <i class="fas fa-book mr-3"></i>参考文献
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[1]</sup> <a href="https://www.fjtv.net/folder526/folder616/folder8543/folder772/2025-05-09/6654276.html" class="text-blue-600 hover:underline">健康科普_福建网络广播电视台</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[2]</sup> <a href="https://cloud.kepuchina.cn/newSearch/imgText?id=7405645365938515968" class="text-blue-600 hover:underline">图文详情</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[3]</sup> <a href="https://www.kepuchina.cn/article/articleinfo?ar_id=665064&business_type=100&classify=0" class="text-blue-600 hover:underline">久坐之痛：揭秘颈肩腰腿酸痛的现代根源与科学应对</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[4]</sup> <a href="https://m.youlai.cn/sjingbian/article/4E1613Mka40.html" class="text-blue-600 hover:underline">长时间坐着有什么危害-有来医生</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[5]</sup> <a href="https://health.cnr.cn/sy/jd/20250930/t20250930_527381143.shtml" class="text-blue-600 hover:underline">腰痛不是小事！久坐族自救指南_央广网</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[6]</sup> <a href="https://www.hebtv.com/2/2hbgbdsb/myjys/11966067.shtml" class="text-blue-600 hover:underline">久坐后腰痛？可能是腰肌劳损_名医讲养生</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[7]</sup> <a href="https://m.bohe.cn/article/view/regwtj7hikawylp.html" class="text-blue-600 hover:underline">为什么久坐会引起腰椎间盘突出-专家文章-博禾医生</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[8]</sup> <a href="http://tyj.gxzf.gov.cn/xwzx/qjdt/t7842293.shtml" class="text-blue-600 hover:underline">弹力带居家锻炼肌力增强法</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[9]</sup> <a href="https://baijiahao.baidu.com/s?id=1841428461803713937" class="text-blue-600 hover:underline">圆肩、探颈别忽视！一条弹力带"拉开"肩背</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[10]</sup> <a href="https://baike.baidu.com/item/%E4%BF%AF%E5%8D%A7%E9%AA%A8%E7%9B%86%E5%89%8D%E5%80%BE%E7%BB%83%E4%B9%A0/49874484" class="text-blue-600 hover:underline">俯卧骨盆前倾练习_百度百科</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[11]</sup> <a href="https://baike.baidu.com/item/%E4%BF%AF%E8%BA%AB%20YTW%20%E4%BC%B8%E5%B1%95/49868556" class="text-blue-600 hover:underline">俯身 YTW 伸展_百度百科</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[12]</sup> <a href="http://tyj.hunan.gov.cn/tyj/tslm/qmjs/202206/t20220616_26264304.html" class="text-blue-600 hover:underline">久坐、低头小心患上"上交叉综合征"</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[13]</sup> <a href="https://www.hbdxfy.cn/news/show.aspx?cid=8552&lmid=49" class="text-blue-600 hover:underline">健康科普 | 强健腰背，远离疼痛：科学腰背肌锻炼指南</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[14]</sup> <a href="https://jiankang.gmw.cn/2026-03/10/content_38558177.htm" class="text-blue-600 hover:underline">这个零成本"长寿动作"比散步还简单</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[15]</sup> <a href="https://tyfw.jschina.com.cn/yzjszb/202603/t20260318_s69ba5a2ae4b045d3a5e7965b.shtml" class="text-blue-600 hover:underline">10分钟改善体态，快来试试</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[16]</sup> <a href="https://www.youlai.cn/pjingbian/article/AA80D9gVcJg.html" class="text-blue-600 hover:underline">臀桥的标准动作-有来医生</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[17]</sup> <a href="https://www.kepuchina.cn/article/articleinfo?ar_id=647792&business_type=100&classify=0" class="text-blue-600 hover:underline">每天2分钟平板支撑，仅仅1个月后就能收获惊喜改变？</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[18]</sup> <a href="https://baike.baidu.com/link?url=5GkwW-MwtwE2dB_bA1Q6UdfPC0JQk3WwGkmZ2X-CwRi4SsZ_Z-chgJTjMHSceT7B8EwkF9PKF5jkC4lYmNXsPOfHMOfWIbXFziBy3tWruiOyv8EffbUFcx8jHixxPxAP" class="text-blue-600 hover:underline">平板支撑_百度百科</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[19]</sup> <a href="https://m.bohe.cn/zx/964942.html" class="text-blue-600 hover:underline">练高位下拉时的呼吸规律是什么-养生保健-博禾医生</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[20]</sup> <a href="https://www.jianshenba.net/zhishi/19372.html" class="text-blue-600 hover:underline">背部必练动作——杠铃划船，两种形式的划船要点与解析</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[21]</sup> <a href="https://baike.baidu.com/item/%E5%BC%95%E4%BD%93%E5%90%91%E4%B8%8A" class="text-blue-600 hover:underline">引体向上（依靠自身力量克服自重的垂吊运动）_百度百科</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[22]</sup> <a href="https://page.sm.cn/blm/video-page-710/video?h=v1.mcn_video_produce.quark.cn&id=27_f2744b527f676f0c6d5f8b880cc7eb27" class="text-blue-600 hover:underline">背部训练｜新手常见练背错误❌和动作纠正✅</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[23]</sup> <a href="https://baike.baidu.com/item/%E4%BF%AF%E8%BA%AB%E5%93%91%E9%93%83%E5%88%92%E8%88%B9/49757340" class="text-blue-600 hover:underline">俯身哑铃划船_百度百科</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[24]</sup> <a href="https://baike.baidu.com/item/%E8%83%8C%E9%83%A8%E4%B8%8B%E6%8B%89/13582487" class="text-blue-600 hover:underline">背部下拉_百度百科</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[25]</sup> <a href="https://tyj.fujian.gov.cn/zwgk/xwzx/sxdt/202212/t20221223_6083195.htm" class="text-blue-600 hover:underline">体育课堂 | 肩膀训练的7个误区→</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[26]</sup> <a href="https://www.thepaper.cn/newsDetail_forward_31703972" class="text-blue-600 hover:underline">腰疼就练习"小燕飞"？意外！大多数人都不适合</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[27]</sup> <a href="https://baike.baidu.com/item/%E4%BB%B0%E5%8D%A7%E8%B5%B7%E5%9D%90" class="text-blue-600 hover:underline">仰卧起坐（一种锻炼身体的方式）_百度百科</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[28]</sup> <a href="https://www.gdmuah.com/jztb/info/1003/1147.htm" class="text-blue-600 hover:underline">保护脊柱----最好别做这项运动-广东医科大学附属医院脊柱退变与畸形外科</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[29]</sup> <a href="https://www.hebtv.com/2/2hbgbdsb/myjys/11963821.shtml" class="text-blue-600 hover:underline">"疼就停"不可取：康复训练中"轻微酸胀"是正常，剧痛才需暂停</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[30]</sup> <a href="https://www.sohu.com/a/866820154_122307090" class="text-blue-600 hover:underline">办公室座椅高度如何调节？正确方法解析</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[31]</sup> <a href="https://m.youlai.cn/pjingbian/article/F00655gBxsU.html" class="text-blue-600 hover:underline">坐多久要起来活动一下-有来医生</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[32]</sup> <a href="https://www.yihu.com/doctorArticle/03C199D5AA5846A88BF0876CD598022E" class="text-blue-600 hover:underline">久坐族预防血栓形成的每小时活动建议_健康之路</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[33]</sup> <a href="https://wjw.xiaogan.gov.cn/zwdt/jkkp/202603/t20260316_566648.shtml" class="text-blue-600 hover:underline">减轻久坐危害调节血压血脂 疏解慢性压力 微运动就能改善健康</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[34]</sup> <a href="http://www.thepaper.cn/newsDetail_forward_32822308" class="text-blue-600 hover:underline">打工人续命运动！不用去健身房，8 个动作拯救全身酸痛</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[35]</sup> <a href="https://hnwj.dahe.cn/2025/12-30/2037793.html" class="text-blue-600 hover:underline">3个简单动作 为脊柱"松绑"-手机大河网</a></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700 text-sm"><sup>[36]</sup> <a href="https://www.thepaper.cn/newsDetail_forward_31131852" class="text-blue-600 hover:underline">华山康复丨挺起脊梁勇敢抗帕：康复治疗师教你守护生命中轴线</a></p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-gray-900 text-white py-8">
+        <div class="container mx-auto px-4 md:px-8">
+            <div class="max-w-4xl mx-auto">
+                <div class="mb-6">
+                    <h3 class="text-xl font-bold mb-4">免责声明</h3>
+                    <p class="text-gray-300 mb-4">
+                        本内容由AI生成，可能存在错误或不准确之处。请在使用前自行核实信息的准确性。本计划仅供参考，不构成医疗建议。在开始任何新的锻炼计划前，特别是如果您有既往病史或健康问题，请咨询专业医生或物理治疗师。
+                    </p>
+                </div>
+                
+                <div class="border-t border-gray-700 pt-6 flex flex-col md:flex-row justify-between items-center">
+                    <p class="text-gray-400 mb-4 md:mb-0">
+                        &copy; 2026 程序员背部锻炼与脊柱健康防护计划
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition">
+                            <i class="fab fa-github text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition">
+                            <i class="fas fa-heart text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 初始化ECharts图表
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化久坐危害图表
+            const hazardsChart = echarts.init(document.getElementById('hazardsChart'));
+            
+            const hazardsOption = {
+                title: {
+                    text: '久坐对脊柱健康的危害数据对比',
+                    left: 'center',
+                    textStyle: {
+                        fontSize: 18,
+                        fontWeight: 'bold'
+                    }
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    },
+                    formatter: function(params) {
+                        let result = params[0].name + '<br/>';
+                        for (let i = 0; i < params.length; i++) {
+                            result += params[i].marker + params[i].seriesName + ': ' + params[i].value + '<br/>';
+                        }
+                        return result;
+                    }
+                },
+                legend: {
+                    data: ['腰椎间盘压力倍数', '椎间盘突出风险倍数', '肌肉血氧下降百分比', '椎间盘水分流失百分比'],
+                    top: '10%',
+                    textStyle: {
+                        fontSize: 12
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '10%',
+                    top: '20%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['危害数据对比'],
+                    axisLabel: {
+                        fontSize: 14
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '百分比/倍数',
+                    axisLabel: {
+                        formatter: '{value}',
+                        fontSize: 12
+                    }
+                },
+                series: [
+                    {
+                        name: '腰椎间盘压力倍数',
+                        type: 'bar',
+                        data: [2.75],
+                        itemStyle: {
+                            color: '#ef4444' // 红色
+                        },
+                        label: {
+                            show: true,
+                            position: 'top',
+                            formatter: '{c}倍',
+                            fontSize: 12
+                        }
+                    },
+                    {
+                        name: '椎间盘突出风险倍数',
+                        type: 'bar',
+                        data: [2.4],
+                        itemStyle: {
+                            color: '#f59e0b' // 琥珀色
+                        },
+                        label: {
+                            show: true,
+                            position: 'top',
+                            formatter: '{c}倍',
+                            fontSize: 12
+                        }
+                    },
+                    {
+                        name: '肌肉血氧下降百分比',
+                        type: 'bar',
+                        data: [30],
+                        itemStyle: {
+                            color: '#10b981' // 绿色
+                        },
+                        label: {
+                            show: true,
+                            position: 'top',
+                            formatter: '{c}%',
+                            fontSize: 12
+                        }
+                    },
+                    {
+                        name: '椎间盘水分流失百分比',
+                        type: 'bar',
+                        data: [20],
+                        itemStyle: {
+                            color: '#3b82f6' // 蓝色
+                        },
+                        label: {
+                            show: true,
+                            position: 'top',
+                            formatter: '{c}%',
+                            fontSize: 12
+                        }
+                    }
+                ]
+            };
+            
+            hazardsChart.setOption(hazardsOption);
+            
+            // 响应式调整图表大小
+            window.addEventListener('resize', function() {
+                hazardsChart.resize();
+            });
+            
+            // 为所有卡片添加悬停效果
+            const cards = document.querySelectorAll('.custom-card-shadow');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+            
+            // 为警告卡片添加点击效果
+            const warningCards = document.querySelectorAll('.custom-warning-card, .custom-danger-card');
+            warningCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    this.classList.toggle('opacity-90');
+                    setTimeout(() => {
+                        this.classList.toggle('opacity-90');
+                    }, 300);
+                });
+            });
+            
+            // 添加页面滚动动画
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-fadeInUp');
+                    }
+                });
+            }, observerOptions);
+            
+            // 观察所有section
+            document.querySelectorAll('section').forEach(section => {
+                observer.observe(section);
+            });
+        });
+    </script>
+</body>
+</html>

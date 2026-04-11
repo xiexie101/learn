@@ -4,9 +4,19 @@
 
 ---
 
+## 2026年4月
+
+- **[Remotion 视频工作台](../vibe-motionapp/preview/index.html)** — 基于 Remotion 的动态视频生成预览工作台 `04-07`
+- **[背部拉伸计划](../beibulashen/index.html)** — 程序员背部锻炼与脊柱健康防护计划 `04-07`
+- **[ASCII Buddy](../ascii-buddy-web/index.html)** — 定制可爱的 ASCII 字符宠物伙伴 `04-02`
+
+---
+
 ## 2026年3月
 
 - **[掌心彩虹·焰之苍兰](../hand-yan/index.html)** — 专属定制：手势驱动的 3D 苍兰花海与拍立得互动 `03-13`
+- **[手势表情木偶](../gesture-puppet/index.html)** — 基于 MediaPipe 的手势控制表情木偶 `03-12`
+- **[福州三县洲大桥](../citywalk2/index.html)** — 宏观远端绕行动画探索 `03-11`
 - **[蜥蜴跟随](../lizard-follow/index.html)** — 一只跟随你手指或鼠标运动的卡通蜥蜴 `03-10`
 - **[LoveDoor 表白](../love-door/index.html)** — 为TA定制的表白迷宫小游戏 `03-09`
 - **[手势分解](../gesture-explode/index.html)** — 喵喵机 · 手势视频分解打印工具 `03-09`
@@ -49,4 +59,4 @@
 
 ---
 
-> 共 20 个项目 · 跨越 2025.07 — 2026.03
+> 共 25 个项目 · 跨越 2025.07 — 2026.04
