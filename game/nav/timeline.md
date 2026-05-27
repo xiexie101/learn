@@ -6,6 +6,7 @@
 
 ## 2026年4月
 
+- **[AI 姿势推荐](../ai-pose-recommendation/index.html)** — 基于 AI 的实时姿势对齐与 AR 灵感辅助工具 `04-22`
 - **[Remotion 视频工作台](../vibe-motionapp/preview/index.html)** — 基于 Remotion 的动态视频生成预览工作台 `04-07`
 - **[背部拉伸计划](../beibulashen/index.html)** — 程序员背部锻炼与脊柱健康防护计划 `04-07`
 - **[ASCII Buddy](../ascii-buddy-web/index.html)** — 定制可爱的 ASCII 字符宠物伙伴 `04-02`
@@ -59,4 +60,4 @@
 
 ---
 
-> 共 25 个项目 · 跨越 2025.07 — 2026.04
+> 共 26 个项目 · 跨越 2025.07 — 2026.04
