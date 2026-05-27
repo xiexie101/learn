@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>苏州旅游全攻略 - 一城江南梦，让我反复沦陷的地方</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0d9488', // 江南青绿色
+                        secondary: '#92400e', // 古建暖棕色
+                        accent: '#f59e0b', // 点缀金色
+                        light: '#f8fafc',
+                        dark: '#1e293b'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        serif: ['Noto Serif SC', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .text-shadow-lg {
+                text-shadow: 0 4px 8px rgba(0,0,0,0.25);
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .bg-gradient-hero {
+                background: linear-gradient(to bottom, rgba(13, 148, 136, 0.8), rgba(15, 118, 110, 0.9));
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800">
+    <!-- 顶部导航栏 -->
+    <header id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-sm">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="#" class="flex items-center space-x-2">
+                <i class="fa fa-map-o text-primary text-2xl"></i>
+                <span class="text-xl font-bold text-primary">苏州旅游攻略</span>
+            </a>
+            <div class="hidden md:flex space-x-6">
+                <a href="#attractions" class="text-gray-600 hover:text-primary transition-colors">必逛景点</a>
+                <a href="#opera" class="text-gray-600 hover:text-primary transition-colors">戏曲体验</a>
+                <a href="#food" class="text-gray-600 hover:text-primary transition-colors">美食指南</a>
+                <a href="#travel-tips" class="text-gray-600 hover:text-primary transition-colors">出行贴士</a>
+            </div>
+            <button id="menu-toggle" class="md:hidden text-gray-600 focus:outline-none">
+                <i class="fa fa-bars text-xl"></i>
+            </button>
+        </div>
+        <!-- 移动端菜单 -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
+            <div class="container mx-auto px-4 py-2 flex flex-col space-y-3">
+                <a href="#attractions" class="py-2 text-gray-600 hover:text-primary transition-colors">必逛景点</a>
+                <a href="#opera" class="py-2 text-gray-600 hover:text-primary transition-colors">戏曲体验</a>
+                <a href="#food" class="py-2 text-gray-600 hover:text-primary transition-colors">美食指南</a>
+                <a href="#travel-tips" class="py-2 text-gray-600 hover:text-primary transition-colors">出行贴士</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 英雄区域 -->
+    <section class="relative pt-16">
+        <div class="h-[50vh] md:h-[60vh] bg-cover bg-center" style="background-image: url('https://picsum.photos/id/1036/1920/1080');">
+            <div class="h-full w-full bg-gradient-hero flex flex-col justify-center items-center text-white text-center px-4">
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 text-shadow-lg">一城江南梦</h1>
+                <p class="text-xl md:text-2xl mb-8 text-shadow">让我反复沦陷的地方</p>
+                <p class="max-w-2xl text-lg opacity-90">春赏园林细雨，夏摇蒲扇听曲，秋品湖蟹美酒，冬泡温泉啖羊</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 主要内容区域 -->
+    <div class="container mx-auto px-4 py-12">
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- 侧边目录 (桌面端) -->
+            <aside class="hidden lg:block w-64 sticky top-24 self-start h-[calc(100vh-6rem)] overflow-y-auto scrollbar-hide">
+                <div class="bg-white rounded-lg shadow-sm p-5">
+                    <h3 class="text-lg font-bold mb-4 text-primary border-b pb-2">目录</h3>
+                    <nav class="space-y-2">
+                        <a href="#intro" class="block py-1 px-2 rounded hover:bg-gray-100 text-gray-700 hover:text-primary transition-colors">苏州旅游基本原理</a>
+                        <a href="#attractions" class="block py-1 px-2 rounded hover:bg-gray-100 text-gray-700 hover:text-primary transition-colors">苏州必逛景点</a>
+                        <div class="pl-4 space-y-1">
+                            <a href="#districts" class="block py-1 px-2 rounded hover:bg-gray-100 text-gray-600 hover:text-primary transition-colors text-sm">按行政区划分</a>
+                            <a href="#gardens" class="block py-1 px-2 rounded hover:bg-gray-100 text-gray-600 hover:text-primary transition-colors text-sm">园林分类及特色</a>
+                            <a href="#garden-tickets" class="block py-1 px-2 rounded hover:bg-gray-100 text-gray-600 hover:text-primary transition-colors text-sm">园林购票指南</a>
+                            <a href="#streets" class="block py-1 px-2 rounded hover:bg-gray-100 text-gray-600 hover:text-primary transition-colors text-sm">特色街巷</a>
+                        </div>
+                        <a href="#opera" class="block py-1 px-2 rounded hover:bg-gray-100 text-gray-700 hover:text-primary transition-colors">苏州传统戏曲体验</a>
+                        <div class="pl-4 space-y-1">
+                            <a href="#kunqu" class="block py-1 px-2 rounded hover:bg-gray-100 text-gray-600 hover:text-primary transition-colors text-sm">昆曲</a>
+                            <a href="#pingtan" class="block py-1 px-2 rounded hover:bg-gray-100 text-gray-600 hover:text-primary transition-colors text-sm">评弹</a>
+                        </div>
+                        <a href="#food" class="block py-1 px-2 rounded hover:bg-gray-100 text-gray-700 hover:text-primary transition-colors">苏州美食指南</a>
+                        <div class="pl-4 space-y-1">
+                            <a href="#traditional-food" class="block py-1 px-2 rounded hover:bg-gray-100 text-gray-600 hover:text-primary transition-colors text-sm">传统特色美食</a>
+                            <a href="#suzhou-cuisine" class="block py-1 px-2 rounded hover:bg-gray-100 text-gray-600 hover:text-primary transition-colors text-sm">苏帮菜</a>
+                            <a href="#food-streets" class="block py-1 px-2 rounded hover:bg-gray-100 text-gray-600 hover:text-primary transition-colors text-sm">逛吃推荐街道</a>
+                        </div>
+                        <a href="#other-areas" class="block py-1 px-2 rounded hover:bg-gray-100 text-gray-700 hover:text-primary transition-colors">苏州其他区域及周边</a>
+                        <a href="#travel-tips" class="block py-1 px-2 rounded hover:bg-gray-100 text-gray-700 hover:text-primary transition-colors">出行贴士</a>
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- 主要内容 -->
+            <main class="flex-1">
+                <!-- 基本原理 -->
+                <section id="intro" class="mb-12">
+                    <div class="bg-white rounded-lg shadow-sm p-6 md:p-8">
+                        <h2 class="text-2xl md:text-3xl font-bold mb-6 text-primary border-b pb-3">苏州旅游基本原理</h2>
+                        <p class="text-lg leading-relaxed mb-4">
+                            苏州旅游的核心魅力在于<strong>千年古城的风雅底蕴与现代都市的烟火气息完美融合</strong>。其旅游体验遵循"四季轮转皆有景，移步换景皆成画"的原则，以古典园林为文化核心，以历史街巷为生活载体，以传统戏曲为艺术灵魂，以时令美食为味觉纽带，同时兼具现代都市的休闲娱乐功能。
+                        </p>
+                        <p class="text-lg leading-relaxed">
+                            苏州旅游的最佳策略是"分区域、分季节、分主题"深度游览，一次行程难以覆盖全部精华，适合多次到访体验不同风情。
+                        </p>
+                    </div>
+                </section>
+
+                <!-- 必逛景点 -->
+                <section id="attractions" class="mb-12">
+                    <div class="bg-white rounded-lg shadow-sm p-6 md:p-8">
+                        <h2 class="text-2xl md:text-3xl font-bold mb-6 text-primary border-b pb-3">苏州必逛景点</h2>
+                        
+                        <!-- 按行政区划分 -->
+                        <div id="districts" class="mb-8">
+                            <h3 class="text-xl font-semibold mb-4 text-secondary flex items-center">
+                                <i class="fa fa-map-marker mr-2"></i>按行政区划分
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <h4 class="font-bold text-primary mb-2">姑苏区 (精华所在)</h4>
+                                    <p class="text-gray-700">拙政园、苏州博物馆、狮子林、留园、网师园、沧浪亭、西园、山塘街、十全街、观前街、平江路、虎丘、寒山寺、西园寺、昆曲博物馆</p>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <h4 class="font-bold text-primary mb-2">虎丘区</h4>
+                                    <p class="text-gray-700">狮子山</p>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <h4 class="font-bold text-primary mb-2">苏州工业园区</h4>
+                                    <p class="text-gray-700">金鸡湖</p>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <h4 class="font-bold text-primary mb-2">吴中区</h4>
+                                    <p class="text-gray-700">太湖、甪直古镇</p>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <h4 class="font-bold text-primary mb-2">吴江区</h4>
+                                    <p class="text-gray-700">同里古镇、黎里古镇、庐墟古镇</p>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <h4 class="font-bold text-primary mb-2">相城区</h4>
+                                    <p class="text-gray-700">黄埭镇</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 园林分类及特色 -->
+                        <div id="gardens" class="mb-8">
+                            <h3 class="text-xl font-semibold mb-4 text-secondary flex items-center">
+                                <i class="fa fa-tree mr-2"></i>园林分类及特色
+                            </h3>
+                            <p class="mb-4">苏州共有108座园林，各有特色，可根据兴趣选择：</p>
+                            
+                            <!-- 可折叠内容块 -->
+                            <div class="space-y-4">
+                                <!-- 四大园林 -->
+                                <div class="border border-gray-200 rounded-lg overflow-hidden">
+                                    <button class="collapsible w-full bg-gray-50 px-4 py-3 text-left font-semibold flex justify-between items-center hover:bg-gray-100 transition-colors">
+                                        <span>苏州四大园林 (分别代表四个朝代风格)</span>
+                                        <i class="fa fa-chevron-down text-gray-500 transition-transform"></i>
+                                    </button>
+                                    <div class="collapsible-content hidden p-4 bg-white">
+                                        <div class="space-y-6">
+                                            <!-- 沧浪亭 -->
+                                            <div class="border-l-4 border-primary pl-4">
+                                                <h4 class="font-bold text-lg mb-2">沧浪亭 (宋代)</h4>
+                                                <p class="mb-2"><span class="font-medium">特色：</span>苏州最古老的园林，北宋苏舜钦被贬后所建，名字取自《沧浪歌》。巧妙借园外葑溪之水，用复廊做围墙。</p>
+                                                <p><span class="font-medium">亮点：</span>园内花窗多达108种，样式各异；《浮生六记》作者沈复和芸娘曾居住附近。</p>
+                                            </div>
+                                            
+                                            <!-- 狮子林 -->
+                                            <div class="border-l-4 border-primary pl-4">
+                                                <h4 class="font-bold text-lg mb-2">狮子林 (元代)</h4>
+                                                <p class="mb-2"><span class="font-medium">特色：</span>距今600多年历史，叠山艺术出众，假山群错综复杂如迷宫。</p>
+                                                <p><span class="font-medium">亮点：</span>乾隆皇帝亲笔题"真趣"二字。</p>
+                                            </div>
+                                            
+                                            <!-- 拙政园 -->
+                                            <div class="border-l-4 border-primary pl-4">
+                                                <h4 class="font-bold text-lg mb-2">拙政园 (明代)</h4>
+                                                <p class="mb-2"><span class="font-medium">特色：</span>苏州规模最大、最具代表性的园林，以水为中心，布局疏密有致，亭台楼阁错落。</p>
+                                                <p><span class="font-medium">亮点：</span>江南四大才子文徵明参与设计并绘制《拙政园三十一景图》；文徵明亲手种植的400年紫藤每年4月盛开。</p>
+                                            </div>
+                                            
+                                            <!-- 留园 -->
+                                            <div class="border-l-4 border-primary pl-4">
+                                                <h4 class="font-bold text-lg mb-2">留园 (清代)</h4>
+                                                <p class="mb-2"><span class="font-medium">特色：</span>面积约为拙政园的一半，以建筑布局精巧著称，长廊、假山、水池相映成趣。</p>
+                                                <p><span class="font-medium">亮点：</span>冠云峰（高5.7米，江南三大名石之一）；五峰仙馆（楠木殿，全部采用珍贵楠木建造）。</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 小而美的园林 -->
+                                <div class="border border-gray-200 rounded-lg overflow-hidden">
+                                    <button class="collapsible w-full bg-gray-50 px-4 py-3 text-left font-semibold flex justify-between items-center hover:bg-gray-100 transition-colors">
+                                        <span>小而美的园林</span>
+                                        <i class="fa fa-chevron-down text-gray-500 transition-transform"></i>
+                                    </button>
+                                    <div class="collapsible-content hidden p-4 bg-white">
+                                        <div class="space-y-6">
+                                            <!-- 网师园 -->
+                                            <div class="border-l-4 border-primary pl-4">
+                                                <h4 class="font-bold text-lg mb-2">网师园</h4>
+                                                <p class="mb-2">占地仅半亩，小而美的典范。</p>
+                                                <p class="mb-2"><span class="font-medium">历史意义：</span>1993-1994年苏州工业园区合作项目谈判在此举行；第一座走出海外的苏州园林（纽约大都会博物馆明轩以其殿春簃为蓝本）。</p>
+                                                <p class="mb-2"><span class="font-medium">特色：</span>3-11月开放夜游，可欣赏评弹、昆剧、古琴等7场表演，时长约45分钟。</p>
+                                                <div class="bg-yellow-50 p-3 rounded-md text-sm">
+                                                    <p class="font-medium text-yellow-800">夜游贴士：</p>
+                                                    <p class="text-yellow-700">票价100元/人，开放时间19:30-22:00，21:00停止售票。</p>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- 其他小园林 -->
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div class="bg-gray-50 p-3 rounded-lg">
+                                                    <h4 class="font-bold mb-1">耦园</h4>
+                                                    <p class="text-sm">三面环水，一面与古城墙相望，东西对称结构独一无二。沈秉成与才女严永华在此隐居相伴的浪漫爱情故事。</p>
+                                                </div>
+                                                <div class="bg-gray-50 p-3 rounded-lg">
+                                                    <h4 class="font-bold mb-1">环秀山庄</h4>
+                                                    <p class="text-sm">以假山闻名，清代叠山大师戈裕良的杰作。</p>
+                                                </div>
+                                                <div class="bg-gray-50 p-3 rounded-lg">
+                                                    <h4 class="font-bold mb-1">艺圃</h4>
+                                                    <p class="text-sm">藏在小巷中，延光阁是苏州最大的水榭，现为本地人常去的茶馆。</p>
+                                                </div>
+                                                <div class="bg-gray-50 p-3 rounded-lg">
+                                                    <h4 class="font-bold mb-1">怡园</h4>
+                                                    <p class="text-sm">建造较晚，集合了苏州各大园林之长。</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 主题特色园林 -->
+                                <div class="border border-gray-200 rounded-lg overflow-hidden">
+                                    <button class="collapsible w-full bg-gray-50 px-4 py-3 text-left font-semibold flex justify-between items-center hover:bg-gray-100 transition-colors">
+                                        <span>主题特色园林</span>
+                                        <i class="fa fa-chevron-down text-gray-500 transition-transform"></i>
+                                    </button>
+                                    <div class="collapsible-content hidden p-4 bg-white">
+                                        <div class="space-y-6">
+                                            <!-- 虎丘 -->
+                                            <div class="border-l-4 border-primary pl-4">
+                                                <h4 class="font-bold text-lg mb-2">最野趣的园林：虎丘 (海涌山，海拔34.3米)</h4>
+                                                <p class="mb-2"><span class="font-medium">称号：</span>"吴中第一山"，苏东坡评价"到苏州不游虎丘，乃憾事也"。</p>
+                                                <div class="mb-2">
+                                                    <p class="font-medium">亮点：</p>
+                                                    <ul class="list-disc pl-5 space-y-1 text-gray-700">
+                                                        <li>云岩寺塔（虎丘塔）：始建于961年，七层八面仿木结构砖塔，塔身倾斜，塔顶偏离中心2.34米，比比萨斜塔古老200多年</li>
+                                                        <li>剑池：传说吴王阖闾墓开口处，有颜真卿、米芾、王羲之等唐宋书法家题字</li>
+                                                        <li>后山：青石小桥、湖石假山，秋季最美</li>
+                                                    </ul>
+                                                </div>
+                                                <p><span class="font-medium">交通推荐：</span>从山塘街白居易码头乘船直达。</p>
+                                            </div>
+                                            
+                                            <!-- 最禅意的园林 -->
+                                            <div class="border-l-4 border-primary pl-4">
+                                                <h4 class="font-bold text-lg mb-2">最禅意的园林</h4>
+                                                <div class="space-y-4">
+                                                    <div>
+                                                        <h5 class="font-semibold mb-1">西园寺 (戒幢律寺)</h5>
+                                                        <p class="mb-1">苏州香火最旺的寺庙之一，寺庙与园林融为一体。</p>
+                                                        <p class="mb-1"><span class="font-medium">必体验：</span>吃素面（香菇、木耳、笋丝、豆腐等食材，可免费续面）；花园东侧茶室免费抄写经书。</p>
+                                                        <div class="bg-yellow-50 p-2 rounded-md text-sm">
+                                                            <p class="text-yellow-700"><i class="fa fa-info-circle mr-1"></i>贴士：不建议购买门口来路不明的猫条猫粮，可咨询义工捐赠正规猫粮。</p>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <h5 class="font-semibold mb-1">寒山寺</h5>
+                                                        <p>"夜半钟声到客船"的出处，始建于南北朝，初名"妙利普明塔院"，唐朝寒山法师来此修行后改名。</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- 最艺术的园林 -->
+                                            <div class="border-l-4 border-primary pl-4">
+                                                <h4 class="font-bold text-lg mb-2">最艺术的园林</h4>
+                                                <div class="space-y-4">
+                                                    <div>
+                                                        <h5 class="font-semibold mb-1">苏州博物馆</h5>
+                                                        <p class="mb-1"><span class="font-medium">门票：</span>免费（周一闭馆，提前7天在"苏州博物馆全预约"小程序预约）。</p>
+                                                        <p class="mb-1"><span class="font-medium">设计者：</span>贝聿铭先生，被其称为最满意的作品之一。</p>
+                                                        <p class="mb-1"><span class="font-medium">镇馆之宝：</span>彩绘四天王木盒、真珠舍利宝幢、秘色瓷莲花碗。</p>
+                                                        <p><span class="font-medium">特色：</span>馆内陈列与窗外景色相呼应；狮山新馆展品更丰富。</p>
+                                                    </div>
+                                                    <div>
+                                                        <h5 class="font-semibold mb-1">昆曲博物馆</h5>
+                                                        <p>位于平江路支巷，闹中取静，古戏台气派十足。</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 园林购票指南 -->
+                        <div id="garden-tickets" class="mb-8">
+                            <h3 class="text-xl font-semibold mb-4 text-secondary flex items-center">
+                                <i class="fa fa-ticket mr-2"></i>园林购票指南
+                            </h3>
+                            <div class="bg-gray-50 rounded-lg p-5">
+                                <ul class="space-y-2">
+                                    <li class="flex items-start">
+                                        <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                        <span><strong>购票渠道：</strong>「苏州园林官微」微信公众号（除博物馆、寺庙外）</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                        <span><strong>门票价格：</strong>淡旺季差价5-10元
+                                            <ul class="pl-5 mt-1 space-y-1">
+                                                <li>旺季：4月-5月、7月-10月</li>
+                                                <li>淡季：1月-3月、6月、11月-12月</li>
+                                            </ul>
+                                        </span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fa fa-check-circle text-primary mt-1 mr-2"></i>
+                                        <span><strong>优惠方式：</strong>
+                                            <ul class="pl-5 mt-1 space-y-1">
+                                                <li>景点一日联票：比单独购买便宜，如拙政园+虎丘、拙政园+耦园、留园+沧浪亭等</li>
+                                                <li>园林年卡：本地人和常住居民可办理，120元/人，详情见「苏州园林旅游」微信公众号</li>
+                                            </ul>
+                                        </span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- 特色街巷 -->
+                        <div id="streets">
+                            <h3 class="text-xl font-semibold mb-4 text-secondary flex items-center">
+                                <i class="fa fa-road mr-2"></i>特色街巷
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- 最江南街巷 -->
+                                <div class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                                    <div class="bg-primary/10 p-4">
+                                        <h4 class="font-bold text-primary">最江南街巷</h4>
+                                    </div>
+                                    <div class="p-4 space-y-3">
+                                        <div>
+                                            <h5 class="font-semibold mb-1">平江路</h5>
+                                            <p class="text-sm text-gray-700">精华在支巷。中国昆曲博物馆；菉葭巷：佛教居士林（免费开放，有藏书万册的图书馆，12月-1月蜡梅盛开）。</p>
+                                        </div>
+                                        <div>
+                                            <h5 class="font-semibold mb-1">观前街</h5>
+                                            <p class="text-sm text-gray-700">类似南京新街口、杭州河坊街，适合晚上逛夜市。</p>
+                                        </div>
+                                        <div>
+                                            <h5 class="font-semibold mb-1">山塘街</h5>
+                                            <p class="text-sm text-gray-700">全长3.6公里，东起渡僧桥，西至虎丘山。沿街有河道，可乘坐游船；白居易修通后成为"最是红尘中一二等富贵风流之地"。</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 最古韵街巷 -->
+                                <div class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                                    <div class="bg-primary/10 p-4">
+                                        <h4 class="font-bold text-primary">最古韵街巷</h4>
+                                    </div>
+                                    <div class="p-4 space-y-3">
+                                        <div>
+                                            <h5 class="font-semibold mb-1">定慧寺巷</h5>
+                                            <p class="text-sm text-gray-700">西端有始建于861年的定慧寺，大殿门前两株百年银杏，秋天金黄满地；向东可见宋代罗汉院双塔和现代双塔市集。</p>
+                                        </div>
+                                        <div>
+                                            <h5 class="font-semibold mb-1">五卅路</h5>
+                                            <p class="text-sm text-gray-700">民国风情街，为纪念"五卅惨案"而建；同德里是杜月笙出资建造的标准石库门建筑。</p>
+                                        </div>
+                                        <div>
+                                            <h5 class="font-semibold mb-1">西北街</h5>
+                                            <p class="text-sm text-gray-700">一头连接狮子林、拙政园，另一头是北塔报恩寺（相传孙权为母祈福所建）。</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 戏曲体验 -->
+                <section id="opera" class="mb-12">
+                    <div class="bg-white rounded-lg shadow-sm p-6 md:p-8">
+                        <h2 class="text-2xl md:text-3xl font-bold mb-6 text-primary border-b pb-3">苏州传统戏曲体验</h2>
+                        
+                        <!-- 昆曲 -->
+                        <div id="kunqu" class="mb-8">
+                            <h3 class="text-xl font-semibold mb-4 text-secondary flex items-center">
+                                <i class="fa fa-music mr-2"></i>昆曲 (百戏之祖)
+                            </h3>
+                            <p class="mb-4"><span class="font-medium">特色：</span>唱腔婉转悠扬。</p>
+                            <div class="mb-4">
+                                <p class="font-medium mb-2">推荐演出及地点：</p>
+                                <ul class="list-disc pl-5 space-y-1 text-gray-700">
+                                    <li>山塘街真趣园：《寻梦山塘》</li>
+                                    <li>昆曲传习所：《玉簪记》《游园惊梦》</li>
+                                    <li>沧浪亭：《浮生六记》</li>
+                                    <li>网师园：夜游昆曲表演</li>
+                                </ul>
+                            </div>
+                            <p><span class="font-medium">购票渠道：</span>猫眼、大麦APP，或「苏州市文广旅局官微」「君到苏州」公众号。</p>
+                        </div>
+                        
+                        <!-- 评弹 -->
+                        <div id="pingtan">
+                            <h3 class="text-xl font-semibold mb-4 text-secondary flex items-center">
+                                <i class="fa fa-microphone mr-2"></i>评弹 (吴侬软语的代表)
+                            </h3>
+                            <p class="mb-4"><span class="font-medium">特色：</span>一把琵琶配三弦，曲调婉转丝滑。</p>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- 光裕社 -->
+                                <div class="bg-gray-50 rounded-lg p-5">
+                                    <h4 class="font-bold text-lg mb-2 text-primary">光裕社</h4>
+                                    <p class="mb-2">苏州评弹界成立最早的场馆。</p>
+                                    <p class="mb-2"><span class="font-medium">特色：</span>下午场最有气氛，多为老苏州人。</p>
+                                    <p><span class="font-medium">票价：</span>30元/位（原6元/位）。</p>
+                                </div>
+                                
+                                <!-- 琵琶语评弹馆 -->
+                                <div class="bg-gray-50 rounded-lg p-5">
+                                    <h4 class="font-bold text-lg mb-2 text-primary">琵琶语评弹馆</h4>
+                                    <p class="mb-2">更适合游客。</p>
+                                    <p class="mb-2"><span class="font-medium">特色：</span>开场有评弹科普，全程有字幕。</p>
+                                    <p class="mb-2"><span class="font-medium">分店：</span>平江路店（年轻演员表演，男女合唱《声声慢》）、观前街店（吴亮莹老师，《金陵十三钗》中《秦淮景》原唱之一）。</p>
+                                    <p class="mb-2"><span class="font-medium">压轴曲目：</span>《声声慢》。</p>
+                                    <p><span class="font-medium">购票渠道：</span>美团APP。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 美食指南 -->
+                <section id="food" class="mb-12">
+                    <div class="bg-white rounded-lg shadow-sm p-6 md:p-8">
+                        <h2 class="text-2xl md:text-3xl font-bold mb-6 text-primary border-b pb-3">苏州美食指南</h2>
+                        
+                        <p class="mb-6 text-lg">苏州人讲究"不时不食"，四季有不同的时令美食：</p>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                            <div class="bg-green-50 rounded-lg p-4 text-center">
+                                <i class="fa fa-leaf text-green-600 text-2xl mb-2"></i>
+                                <h4 class="font-bold text-green-700">春季</h4>
+                                <p class="text-sm text-green-600">春笋、香椿、马兰头</p>
+                            </div>
+                            <div class="bg-blue-50 rounded-lg p-4 text-center">
+                                <i class="fa fa-tint text-blue-600 text-2xl mb-2"></i>
+                                <h4 class="font-bold text-blue-700">夏季</h4>
+                                <p class="text-sm text-blue-600">鸡头米糖水、苏式绿豆汤</p>
+                            </div>
+                            <div class="bg-yellow-50 rounded-lg p-4 text-center">
+                                <i class="fa fa-sun-o text-yellow-600 text-2xl mb-2"></i>
+                                <h4 class="font-bold text-yellow-700">秋季</h4>
+                                <p class="text-sm text-yellow-600">桂花糖藕、桂花糖芋苗、阳澄湖大闸蟹</p>
+                            </div>
+                            <div class="bg-gray-100 rounded-lg p-4 text-center">
+                                <i class="fa fa-snowflake-o text-gray-600 text-2xl mb-2"></i>
+                                <h4 class="font-bold text-gray-700">冬季</h4>
+                                <p class="text-sm text-gray-600">藏书羊肉（白烧、红烧等多种吃法）</p>
+                            </div>
+                        </div>
+                        
+                        <!-- 传统特色美食 -->
+                        <div id="traditional-food" class="mb-8">
+                            <h3 class="text-xl font-semibold mb-4 text-secondary flex items-center">
+                                <i class="fa fa-cutlery mr-2"></i>传统特色美食
+                            </h3>
+                            
+                            <!-- 可折叠内容块 -->
+                            <div class="space-y-4">
+                                <!-- 苏面 -->
+                                <div class="border border-gray-200 rounded-lg overflow-hidden">
+                                    <button class="collapsible w-full bg-gray-50 px-4 py-3 text-left font-semibold flex justify-between items-center hover:bg-gray-100 transition-colors">
+                                        <span>苏面</span>
+                                        <i class="fa fa-chevron-down text-gray-500 transition-transform"></i>
+                                    </button>
+                                    <div class="collapsible-content hidden p-4 bg-white">
+                                        <p class="mb-3"><span class="font-medium">灵魂：</span>鲜香汤头（鸡鸭鳝骨虾壳熬制）。</p>
+                                        <p class="mb-3"><span class="font-medium">分类：</span>红汤（酱油底）、白汤；细面软硬可定制。</p>
+                                        
+                                        <div class="mb-4">
+                                            <p class="font-medium mb-2">经典浇头：</p>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                <div class="bg-gray-50 p-3 rounded">
+                                                    <h5 class="font-semibold mb-1">焖肉面</h5>
+                                                    <p class="text-sm">五花肉炖至软烂，吃法是将肉捂到面底，等肉热了再吃。</p>
+                                                </div>
+                                                <div class="bg-gray-50 p-3 rounded">
+                                                    <h5 class="font-semibold mb-1">枫镇大肉面</h5>
+                                                    <p class="text-sm">特别版焖肉面，白汤底加酒酿，5-10月供应。</p>
+                                                </div>
+                                                <div class="bg-gray-50 p-3 rounded">
+                                                    <h5 class="font-semibold mb-1">三虾面</h5>
+                                                    <p class="text-sm">虾脑、虾籽、虾仁炒制，6月初-7月初供应。</p>
+                                                </div>
+                                                <div class="bg-gray-50 p-3 rounded">
+                                                    <h5 class="font-semibold mb-1">秃黄油面</h5>
+                                                    <p class="text-sm">蟹黄蟹膏熬制，价格不菲。</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div>
+                                            <p class="font-medium mb-2">推荐店铺：</p>
+                                            <ul class="list-disc pl-5 space-y-1 text-gray-700">
+                                                <li>连锁老字号：陆振兴、裕兴记、同得兴、姑苏桥·文人苏式面馆</li>
+                                                <li>荣阳楼（山塘街店）：无分店，价格实惠，推荐焖肉面、煎包、大馄饨、油汆团子</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 其他美食 -->
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                                        <div class="bg-primary/10 p-3">
+                                            <h4 class="font-bold text-primary">苏式月饼</h4>
+                                        </div>
+                                        <div class="p-4">
+                                            <p class="text-sm mb-2"><span class="font-medium">特色：</span>酥皮酥而不腻，分甜咸两派. 甜口：豆沙、百果；咸口：鲜肉月饼。</p>
+                                            <p class="text-sm"><span class="font-medium">推荐店铺：</span>长发西饼（临顿路108号）、胥城鲜肉月饼（三香路333号）。</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                                        <div class="bg-primary/10 p-3">
+                                            <h4 class="font-bold text-primary">糕团</h4>
+                                        </div>
+                                        <div class="p-4">
+                                            <p class="text-sm mb-2"><span class="font-medium">代表：</span>青团、薄荷糕、桂花糕。</p>
+                                            <p class="text-sm"><span class="font-medium">推荐店铺：</span>万福兴、黄天源、赵天禄。</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                                        <div class="bg-primary/10 p-3">
+                                            <h4 class="font-bold text-primary">汤团</h4>
+                                        </div>
+                                        <div class="p-4">
+                                            <p class="text-sm mb-2"><span class="font-medium">特色：</span>高尔夫球大小，皮薄馅大，可按颗点单。</p>
+                                            <p class="text-sm"><span class="font-medium">推荐店铺：</span>朱新年·苏式汤团·面点(山塘街店)。</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 其他小吃 -->
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <h4 class="font-semibold mb-2">其他小吃</h4>
+                                    <ul class="list-disc pl-5 space-y-1 text-gray-700">
+                                        <li>蛮好阁包子铺（旧学前9号）：素包出名</li>
+                                        <li>哑巴生煎（临顿路店）</li>
+                                        <li>聚新春·非遗紧酵馒头·苏式面馆(观前店)：紧酵馒头形似小笼包，外皮脆香有汤汁</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 苏帮菜 -->
+                        <div id="suzhou-cuisine" class="mb-8">
+                            <h3 class="text-xl font-semibold mb-4 text-secondary flex items-center">
+                                <i class="fa fa-spoon mr-2"></i>苏帮菜
+                            </h3>
+                            <p class="mb-3"><span class="font-medium">特色：</span>浓油赤酱，口味偏甜，讲求食材选料和火候，湖鲜为主。</p>
+                            <p class="mb-3"><span class="font-medium">招牌菜：</span>响油鳝丝、蟹粉豆腐、松鼠桂鱼、清炒虾仁。</p>
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <p class="font-medium mb-2">推荐店铺：</p>
+                                <ul class="list-disc pl-5 space-y-1 text-gray-700">
+                                    <li>傅记私房菜（史家巷68号）：提前预定按人头排菜，人均150+</li>
+                                    <li>聆香酒楼（十梓街428号）</li>
+                                    <li>协和菜馆（双塔街道凤凰街15号）</li>
+                                    <li>阿成饭店（凤凰街66号）</li>
+                                    <li>新聚丰（太监弄9号）</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- 逛吃推荐街道 -->
+                        <div id="food-streets">
+                            <h3 class="text-xl font-semibold mb-4 text-secondary flex items-center">
+                                <i class="fa fa-shopping-bag mr-2"></i>逛吃推荐街道
+                            </h3>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="bg-primary/10 text-primary px-3 py-1 rounded-full">葑门横街</span>
+                                <span class="bg-primary/10 text-primary px-3 py-1 rounded-full">十全街</span>
+                                <span class="bg-primary/10 text-primary px-3 py-1 rounded-full">皮市街</span>
+                                <span class="bg-primary/10 text-primary px-3 py-1 rounded-full">吴趋坊</span>
+                                <span class="bg-primary/10 text-primary px-3 py-1 rounded-full">西中市街</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 其他区域及周边 -->
+                <section id="other-areas" class="mb-12">
+                    <div class="bg-white rounded-lg shadow-sm p-6 md:p-8">
+                        <h2 class="text-2xl md:text-3xl font-bold mb-6 text-primary border-b pb-3">苏州其他区域及周边景点</h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- 苏州工业园区 -->
+                            <div class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                                <div class="h-40 bg-cover bg-center" style="background-image: url('https://picsum.photos/id/1067/800/400');"></div>
+                                <div class="p-5">
+                                    <h3 class="text-xl font-bold mb-2 text-primary">苏州工业园区</h3>
+                                    <p class="mb-3 text-gray-700">现代时髦，被比作"小新加坡"。</p>
+                                    <div class="mb-3">
+                                        <p class="font-medium mb-1">金鸡湖周边景点：</p>
+                                        <ul class="list-disc pl-5 space-y-1 text-sm text-gray-600">
+                                            <li>北岸：诚品书店（国内唯一一家）</li>
+                                            <li>西岸：东方之门（"大裤衩"）</li>
+                                            <li>南岸：李公堤、创意园区</li>
+                                            <li>东岸：摩天轮</li>
+                                        </ul>
+                                    </div>
+                                    <p class="mb-2 text-sm"><span class="font-medium">购物推荐：</span>苏州比斯特（品牌齐全，折扣力度大，冬装9月、夏装4月最佳）。</p>
+                                    <p class="text-sm"><span class="font-medium">住宿：</span>四季、凯悦、皇冠假日、洲际等大牌酒店集中在金鸡湖附近。</p>
+                                </div>
+                            </div>
+                            
+                            <!-- 吴江区古镇 -->
+                            <div class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                                <div class="h-40 bg-cover bg-center" style="background-image: url('https://picsum.photos/id/164/800/400');"></div>
+                                <div class="p-5">
+                                    <h3 class="text-xl font-bold mb-2 text-primary">吴江区古镇</h3>
+                                    <p class="mb-3 text-gray-700">吴江区"盛产"古镇。</p>
+                                    <p class="mb-2"><span class="font-medium">知名古镇：</span>同里古镇。</p>
+                                    <p class="mb-3"><span class="font-medium">小众古镇：</span>甪直、震泽、木渎、芦墟。</p>
+                                    <p class="text-sm"><span class="font-medium">交通：</span>沪苏湖高铁可作为古镇游路线。</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 下辖县级市 -->
+                        <div class="mt-8">
+                            <h3 class="text-xl font-semibold mb-4 text-secondary">苏州下辖县级市</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <h4 class="font-bold text-primary mb-2">常熟市</h4>
+                                    <p class="text-sm text-gray-700">国家历史文化名城，吴文化发祥地之一，"江南福地"。</p>
+                                    <p class="text-sm mt-2"><span class="font-medium">推荐：</span>逛园子、爬虞山、兴福禅寺吃素面。</p>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <h4 class="font-bold text-primary mb-2">张家港市</h4>
+                                    <p class="text-sm text-gray-700">全国top3县城，江鲜一绝。</p>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <h4 class="font-bold text-primary mb-2">昆山市</h4>
+                                    <p class="text-sm text-gray-700">多年稳居百强县第一，拥有"天下第一水乡"周庄、锦溪古镇、千灯古镇。</p>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <h4 class="font-bold text-primary mb-2">太仓市</h4>
+                                    <p class="text-sm text-gray-700">沙溪古镇（人少清静）、阿尔卑斯冰雪乐园（华东最大室内雪场之一，有游乐设施和小企鹅）。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 出行贴士 -->
+                <section id="travel-tips" class="mb-12">
+                    <div class="bg-white rounded-lg shadow-sm p-6 md:p-8">
+                        <h2 class="text-2xl md:text-3xl font-bold mb-6 text-primary border-b pb-3">出行贴士</h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- 交通 -->
+                            <div class="bg-gray-50 rounded-lg p-5">
+                                <div class="flex items-center mb-4">
+                                    <i class="fa fa-plane text-primary text-2xl mr-3"></i>
+                                    <h3 class="text-lg font-bold">交通</h3>
+                                </div>
+                                <div class="space-y-3">
+                                    <div>
+                                        <h4 class="font-semibold mb-1">飞机</h4>
+                                        <p class="text-sm text-gray-700">最近的机场是无锡硕放机场和上海虹桥机场。</p>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold mb-1">高铁</h4>
+                                        <p class="text-sm text-gray-700">苏州有13座高铁站。到姑苏区选苏州站，到金鸡湖选苏州园区站。</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 住宿 -->
+                            <div class="bg-gray-50 rounded-lg p-5">
+                                <div class="flex items-center mb-4">
+                                    <i class="fa fa-bed text-primary text-2xl mr-3"></i>
+                                    <h3 class="text-lg font-bold">住宿</h3>
+                                </div>
+                                <div class="space-y-3">
+                                    <div>
+                                        <h4 class="font-semibold mb-1">姑苏区 (游园林推荐)</h4>
+                                        <p class="text-sm text-gray-700">凯悦旗下逸扉、本土品牌书香酒店（性价比高）；万豪、英迪格。</p>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold mb-1">金鸡湖</h4>
+                                        <p class="text-sm text-gray-700">四季、凯悦、皇冠假日、洲际。</p>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold mb-1">虎丘</h4>
+                                        <p class="text-sm text-gray-700">香格里拉。</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 最佳时间 -->
+                            <div class="bg-gray-50 rounded-lg p-5">
+                                <div class="flex items-center mb-4">
+                                    <i class="fa fa-calendar text-primary text-2xl mr-3"></i>
+                                    <h3 class="text-lg font-bold">最佳时间</h3>
+                                </div>
+                                <p class="text-sm text-gray-700 mb-3">苏州四季皆宜，各有特色：</p>
+                                <ul class="list-disc pl-5 space-y-1 text-sm text-gray-700">
+                                    <li>春季(3-5月)：园林花开，紫藤盛开</li>
+                                    <li>夏季(6-8月)：听曲乘凉，品尝时令美食</li>
+                                    <li>秋季(9-11月)：蟹肥膏黄，虎丘后山最美</li>
+                                    <li>冬季(12-2月)：人少清静，腊梅飘香</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa fa-map-o text-primary text-2xl"></i>
+                        <span class="text-xl font-bold">苏州旅游攻略</span>
+                    </div>
+                    <p class="text-gray-400 mt-2">一城江南梦，让我反复沦陷的地方</p>
+                </div>
+                <div class="text-gray-400 text-sm">
+                    <p>最后更新：2025年3月29日</p>
+                    <p>© 2025 苏州旅游指南</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 返回顶部按钮 -->
+    <button id="back-to-top" class="fixed bottom-6 right-6 bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg opacity-0 invisible transition-all duration-300 hover:bg-primary/90">
+        <i class="fa fa-arrow-up"></i>
+    </button>
+
+    <script>
+        // 移动端菜单切换
+        document.getElementById('menu-toggle').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // 可折叠内容
+        document.querySelectorAll('.collapsible').forEach(button => {
+            button.addEventListener('click', function() {
+                const content = this.nextElementSibling;
+                const icon = this.querySelector('i');
+                
+                content.classList.toggle('hidden');
+                icon.classList.toggle('rotate-180');
+            });
+        });
+
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            const backToTop = document.getElementById('back-to-top');
+            
+            if (window.scrollY > 50) {
+                navbar.classList.add('shadow-md');
+                navbar.classList.remove('shadow-sm');
+                
+                backToTop.classList.remove('opacity-0', 'invisible');
+                backToTop.classList.add('opacity-100', 'visible');
+            } else {
+                navbar.classList.remove('shadow-md');
+                navbar.classList.add('shadow-sm');
+                
+                backToTop.classList.add('opacity-0', 'invisible');
+                backToTop.classList.remove('opacity-100', 'visible');
+            }
+        });
+
+        // 返回顶部
+        document.getElementById('back-to-top').addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    // 关闭移动端菜单
+                    document.getElementById('mobile-menu').classList.add('hidden');
+                    
+                    // 滚动到目标位置
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
