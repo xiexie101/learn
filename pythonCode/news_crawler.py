@@ -12,39 +12,74 @@ async def fetch_news(date):
     :return: 新闻列表和总数
     """
     url = f"https://www.kankanews.com/program/KBkDwmqwldZ/{date}"
+    browser = None
 
     try:
-        browser = await pyppeteer.launch({
-            'headless': True,
-            'args': ['--no-sandbox', '--disable-dev-shm-usage']
-        })
+        # 优先尝试连接到现有的浏览器实例
+        try:
+            browser = await pyppeteer.connect({
+                'browserURL': 'http://127.0.0.1:9222',
+                'defaultViewport': {'width': 1366, 'height': 768}
+            })
+            print("✅ 已连接到正在运行的 Chrome。")
+        except Exception:
+            # 如果连接失败，尝试自行启动
+            print("📡 正在启动新的 Chromium 实例...")
+            browser = await pyppeteer.launch({
+                'headless': True,
+                'args': [
+                    '--no-sandbox', 
+                    '--disable-dev-shm-usage',
+                    '--disable-gpu',
+                    '--disable-software-rasterizer',
+                ],
+                'defaultViewport': {'width': 1366, 'height': 768}
+            })
+
         page = await browser.newPage()
-        await page.setViewport({'width': 1366, 'height': 768})
-        await page.goto(url, {'waitUntil': 'networkidle0'})
-        await page.waitForSelector('.tab-list span')
+        print(f"  - 正在导航至: {url}")
+        
+        # 增加超时时间并优化等待条件
+        await page.goto(url, {'waitUntil': 'domcontentloaded', 'timeout': 60000})
+        await asyncio.sleep(3)
+        
+        try:
+            await page.waitForSelector('.tab-list span', {'timeout': 15000})
+        except Exception:
+            print(f"⚠️ 在 {date} 页面未发现栏目列表，可能该日无节目存档。")
+            return [], url
 
         tabs = await page.querySelectorAll('.tab-list span')
-
         news_list = []
 
         for tab in tabs:
-            await tab.click()
-            await asyncio.sleep(1)
+            try:
+                tab_name = await page.evaluate('(element) => element.textContent', tab)
+                print(f"    - 正在处理栏目: {tab_name.strip() if tab_name else 'Unknown'}")
+                await tab.click()
+                await asyncio.sleep(1.5)
 
-            news_items = await page.querySelectorAll('.scroll-container .current-list li div.title')
+                news_items = await page.querySelectorAll('.scroll-container .current-list li div.title')
 
-            for item in news_items:
-                title = await page.evaluate('(element) => element.textContent', item)
-                title = title.strip() if title else ""
-                if title:
-                    news_list.append(title)
+                for item in news_items:
+                    title = await page.evaluate('(element) => element.textContent', item)
+                    title = title.strip() if title else ""
+                    if title and title not in news_list:
+                        news_list.append(title)
+            except Exception as tab_err:
+                print(f"    ⚠️ 栏目处理出错: {tab_err}")
 
-        await browser.close()
         return news_list, url
 
     except Exception as e:
         print(f"获取新闻失败: {e}")
         return [], url
+    finally:
+        if browser:
+            try:
+                await browser.close()
+            except Exception:
+                pass
 
 
 def save_to_markdown(date, news_list, url):
@@ -97,4 +132,9 @@ async def main_async():
 
 
 if __name__ == "__main__":
-    asyncio.run(main_async())
+    try:
+        asyncio.run(main_async())
+    except KeyboardInterrupt:
+        pass
+    except Exception as e:
+        print(f"程序运行异常: {e}")

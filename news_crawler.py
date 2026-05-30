@@ -1,12 +1,9 @@
-import requests
-from bs4 import BeautifulSoup
-import markdown
-from datetime import datetime
-import re
-import os
-import time
 import asyncio
+import os
+from datetime import datetime
+
 import pyppeteer
+
 
 async def fetch_news(date):
     """
@@ -14,89 +11,130 @@ async def fetch_news(date):
     :param date: 日期格式 YYYY-MM-DD
     :return: 新闻列表和总数
     """
-    # 将日期转换为URL格式
-    date_formatted = date.replace('-', '')
     url = f"https://www.kankanews.com/program/KBkDwmqwldZ/{date}"
-    
-    try:
-        # 启动浏览器
-        browser = await pyppeteer.launch({
-            'headless': True,
-            'args': ['--no-sandbox', '--disable-dev-shm-usage']
-        })
-        page = await browser.newPage()
-        
-        # 设置视窗大小
-        await page.setViewport({'width': 1366, 'height': 768})
-        
-        # 访问URL
-        await page.goto(url, {'waitUntil': 'networkidle0'})
-        
-        # 等待页面加载完成
-        await page.waitForSelector('.tab-list span')
-        
-        # 获取所有标签页
-        tabs = await page.querySelectorAll('.tab-list span')
-        
-        news_list = []
-        total_news = 0
-        
-        # 遍历点击每个标签页
-        for tab in tabs:
-            await tab.click()
-            # 等待内容加载
-            await asyncio.sleep(1)
-            
-            # 获取当前标签页下的新闻列表
-            news_items = await page.querySelectorAll('.scroll-container .current-list li div.title')
-            
-            # 提取每条新闻的标题
-            for item in news_items:
-                title = await page.evaluate('(element) => element.textContent', item)
-                title = title.strip() if title else ""
-                if title:
-                    news_list.append(title)
-                    total_news += 1
-        
-        await browser.close()
-        return news_list, total_news, url
-        
-    except Exception as e:
-        print(f"Error fetching news: {e}")
-        return [], 0, url
+    browser = None
 
-def save_to_markdown(date, news_list, total_news, url):
+    try:
+        # 优先尝试连接到现有的浏览器实例
+        try:
+            browser = await pyppeteer.connect({
+                'browserURL': 'http://127.0.0.1:9222',
+                'defaultViewport': {'width': 1366, 'height': 768}
+            })
+            print("✅ 已连接到正在运行的 Chrome。")
+        except Exception:
+            # 如果连接失败，尝试自行启动
+            print("📡 正在启动新的 Chromium 实例...")
+            browser = await pyppeteer.launch({
+                'headless': True,
+                'args': [
+                    '--no-sandbox', 
+                    '--disable-dev-shm-usage',
+                    '--disable-gpu',
+                    '--disable-software-rasterizer',
+                ],
+                'defaultViewport': {'width': 1366, 'height': 768}
+            })
+
+        page = await browser.newPage()
+        print(f"  - 正在导航至: {url}")
+        
+        # 增加超时时间并优化等待条件
+        await page.goto(url, {'waitUntil': 'domcontentloaded', 'timeout': 60000})
+        await asyncio.sleep(3)
+        
+        try:
+            await page.waitForSelector('.tab-list span', {'timeout': 15000})
+        except Exception:
+            print(f"⚠️ 在 {date} 页面未发现栏目列表，可能该日无节目存档。")
+            return [], url
+
+        tabs = await page.querySelectorAll('.tab-list span')
+        news_list = []
+
+        for tab in tabs:
+            try:
+                tab_name = await page.evaluate('(element) => element.textContent', tab)
+                print(f"    - 正在处理栏目: {tab_name.strip() if tab_name else 'Unknown'}")
+                await tab.click()
+                await asyncio.sleep(1.5)
+
+                news_items = await page.querySelectorAll('.scroll-container .current-list li div.title')
+
+                for item in news_items:
+                    title = await page.evaluate('(element) => element.textContent', item)
+                    title = title.strip() if title else ""
+                    if title and title not in news_list:
+                        news_list.append(title)
+            except Exception as tab_err:
+                print(f"    ⚠️ 栏目处理出错: {tab_err}")
+
+        return news_list, url
+
+    except Exception as e:
+        print(f"获取新闻失败: {e}")
+        return [], url
+    finally:
+        if browser:
+            try:
+                await browser.close()
+            except Exception:
+                pass
+
+
+def save_to_markdown(date, news_list, url):
     """
-    将新闻保存为Markdown格式
+    将新闻保存为Markdown格式，存到 news/日期.md
     """
-    markdown_content = f"# 看看新闻 - 本期看点 (共{total_news}条)\n\n"
-    markdown_content += f"## 来源：{url}\n\n"
-    markdown_content += f"## 时间：{date}\n\n"
-    
+    # 确保 news 目录存在
+    news_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'news')
+    os.makedirs(news_dir, exist_ok=True)
+
+    filepath = os.path.join(news_dir, f'{date}.md')
+    total_news = len(news_list)
+
+    content = f"# 看看新闻 - 本期看点 (共{total_news}条)\n\n"
+    content += f"- 来源：{url}\n"
+    content += f"- 时间：{date}\n\n"
+    content += "---\n\n"
+
     for i, news in enumerate(news_list, 1):
-        markdown_content += f"{i}. {news}\n\n"
-    
-    with open('news_summary.md', 'w', encoding='utf-8') as f:
-        f.write(markdown_content)
+        content += f"{i}. {news}\n\n"
+
+    with open(filepath, 'w', encoding='utf-8') as f:
+        f.write(content)
+
+    return filepath
+
 
 async def main_async():
-    date = input("请输入要获取的新闻日期 (格式: YYYY-MM-DD): ")
-    try:
-        # 验证日期格式
-        datetime.strptime(date, '%Y-%m-%d')
-        news_list, total_news, url = await fetch_news(date)
-        
-        if news_list:
-            save_to_markdown(date, news_list, total_news, url)
-            print(f"成功保存{total_news}条新闻到 news_summary.md")
-        else:
-            print("未获取到新闻内容")
-            
-    except ValueError:
-        print("日期格式错误，请使用 YYYY-MM-DD 格式")
+    today = datetime.now().strftime('%Y-%m-%d')
+    date_input = input(f"直接回车获取当天新闻 ({today})，或输入日期 (YYYY-MM-DD)：").strip()
 
-def main():
-    asyncio.get_event_loop().run_until_complete(main_async())
+    if date_input:
+        try:
+            datetime.strptime(date_input, '%Y-%m-%d')
+            date = date_input
+        except ValueError:
+            print("❌ 日期格式错误，请使用 YYYY-MM-DD 格式")
+            return
+    else:
+        date = today
+
+    print(f"📡 正在获取 {date} 的新闻...")
+    news_list, url = await fetch_news(date)
+
+    if news_list:
+        filepath = save_to_markdown(date, news_list, url)
+        print(f"✅ 成功保存 {len(news_list)} 条新闻到 {filepath}")
+    else:
+        print("❌ 未获取到新闻内容")
+
 
 if __name__ == "__main__":
-    main()
+    try:
+        asyncio.run(main_async())
+    except KeyboardInterrupt:
+        pass
+    except Exception as e:
+        print(f"程序运行异常: {e}")
