@@ -1,593 +1,776 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>2026 驱蚊全能方案</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 创意实验室 | 项目导览</title>
+    <meta name="description" content="AI 创意实验室项目导览页 — 汇集互动游戏、体感交互、健康运动、文化创意等多类实验项目">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
     <style>
-        :root {
-            /* 采用更具高级感的冷萃绿配色体系 */
-            --primary: #0a4f36;
-            --primary-light: #167a56;
-            --primary-bg: #eaf5f0;
-            --bg-body: #f4f8f6;
-            --card-bg: rgba(255, 255, 255, 0.85);
-            
-            --text-heading: #102a20;
-            --text-body: #4a6358;
-            --text-light: #7c968b;
-            
-            --accent-amber: #ff9f1c;
-            --accent-blue: #3a86ff;
-            
-            --radius-sm: 12px;
-            --radius-md: 20px;
-            --radius-lg: 32px;
-            
-            --shadow-soft: 0 8px 30px rgba(10, 79, 54, 0.04);
-            --shadow-hover: 0 20px 40px rgba(10, 79, 54, 0.08);
-            
-            --safe-area-bottom: env(safe-area-inset-bottom, 20px);
-        }
-
-        * {
+        *,
+        *::before,
+        *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg-primary: #0f0f13;
+            --bg-card: #1a1a24;
+            --bg-card-hover: #22223a;
+            --text-primary: #e8e8f0;
+            --text-secondary: #9898b0;
+            --text-dim: #6a6a80;
+            --border: rgba(255, 255, 255, 0.06);
+
+            /* Category accent colors */
+            --color-game: #f472b6;
+            --color-gesture: #818cf8;
+            --color-health: #34d399;
+            --color-culture: #fbbf24;
+            --color-tool: #60a5fa;
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
-            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-body);
-            background-image: 
-                radial-gradient(circle at 15% 0%, #d8eee5 0%, transparent 40%),
-                radial-gradient(circle at 85% 10%, #eef6f2 0%, transparent 40%);
-            background-attachment: fixed;
-            color: var(--text-body);
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
             line-height: 1.6;
-            padding-bottom: calc(80px + var(--safe-area-bottom));
-            overflow-x: hidden;
         }
 
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        /* ======= Header & Hero ======= */
-        header {
-            padding: 8vh 0 6vh;
+        /* ============ Header ============ */
+        .header {
             text-align: center;
+            padding: 60px 20px 40px;
             position: relative;
         }
 
-        .badge-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 16px;
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            color: var(--primary);
-            border-radius: 100px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-            margin-bottom: 24px;
-            border: 1px solid rgba(255,255,255,0.6);
-        }
-
-        .badge-pill i {
-            width: 14px;
-            height: 14px;
-        }
-
-        h1 {
-            font-size: clamp(2rem, 5vw, 3.2rem);
-            font-weight: 900;
-            color: var(--text-heading);
-            margin-bottom: 16px;
-            line-height: 1.2;
-            letter-spacing: -0.03em;
-        }
-
-        .hero-desc {
-            font-size: clamp(1rem, 2.5vw, 1.15rem);
-            color: var(--text-light);
-            max-width: 500px;
-            margin: 0 auto;
-        }
-
-        /* ======= Section Typography ======= */
-        .section-header {
-            margin: 60px 0 24px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .section-header-icon {
-            width: 32px;
-            height: 32px;
-            background: var(--primary);
-            color: white;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .section-header-icon i { width: 18px; }
-
-        .section-title {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--text-heading);
-            letter-spacing: -0.01em;
-        }
-
-        /* ======= Product Cards (Uniform Grid) ======= */
-        .bento-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
-        .bento-card {
-            background: var(--card-bg);
-            border-radius: var(--radius-md);
-            padding: 24px;
-            box-shadow: var(--shadow-soft);
-            border: 1px solid rgba(255,255,255,0.8);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            height: 100%; /* 确保高度一致 */
-        }
-
-        .bento-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-hover);
-            background: #ffffff;
-        }
-
-        /* 卡片内部元素 */
-        .card-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 20px;
-        }
-
-        .icon-wrapper {
-            width: 44px;
-            height: 44px;
-            background: var(--primary-bg);
-            color: var(--primary-light);
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .icon-wrapper.accent { background: #fff3e0; color: var(--accent-amber); }
-        .icon-wrapper.danger { background: #fee2e2; color: #d32f2f; }
-        .icon-wrapper.safe { background: #e0f2f1; color: #00897b; }
-
-        .score-badge {
-            background: #f1f3f2;
-            color: var(--text-light);
-            font-size: 0.75rem;
-            font-weight: 700;
-            padding: 4px 10px;
-            border-radius: 100px;
-        }
-
-        .card-title {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--text-heading);
-            margin-bottom: 6px;
-        }
-
-        .card-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-bottom: 20px;
-        }
-
-        .tag {
-            font-size: 0.7rem;
-            font-weight: 500;
-            color: var(--primary-light);
-            background: var(--primary-bg);
-            padding: 4px 10px;
-            border-radius: 6px;
-        }
-
-        .feature-list {
-            list-style: none;
-            flex-grow: 1;
-        }
-
-        .feature-list li {
-            font-size: 0.9rem;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
-        }
-
-        .feature-list i {
-            width: 16px;
-            height: 16px;
-            margin-top: 3px;
-            color: #a3b8af;
-            flex-shrink: 0;
-        }
-
-        .card-bottom {
-            margin-top: 20px;
-            padding-top: 16px;
-            border-top: 1px dashed rgba(0,0,0,0.06);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .recommend-brand {
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: var(--text-heading);
-        }
-
-        /* ======= Scenarios Carousel for Mobile ======= */
-        .scenarios-wrapper {
-            margin: 0 -20px; /* Bleed edge on mobile */
-            padding: 0 20px;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-        }
-        
-        .scenarios-wrapper::-webkit-scrollbar { display: none; }
-
-        .scenarios-flex {
-            display: flex;
-            gap: 16px;
-            width: max-content;
-            padding-bottom: 20px;
-        }
-
-        .scenario-box {
-            width: 280px;
-            scroll-snap-align: center;
-            background: linear-gradient(135deg, var(--card-bg) 0%, #ffffff 100%);
-            border-radius: var(--radius-md);
-            padding: 24px;
-            box-shadow: var(--shadow-soft);
-            border: 1px solid rgba(255,255,255,0.8);
-        }
-
-        .s-icon-circle {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: var(--primary);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 16px;
-            box-shadow: 0 8px 16px rgba(10, 79, 54, 0.2);
-        }
-        
-        .s-icon-circle.park { background: var(--accent-amber); box-shadow: 0 8px 16px rgba(255, 159, 28, 0.2); }
-        .s-icon-circle.mountain { background: var(--accent-blue); box-shadow: 0 8px 16px rgba(58, 134, 255, 0.2); }
-
-        .scenario-box h4 {
-            font-size: 1.1rem;
-            color: var(--text-heading);
-            margin-bottom: 8px;
-        }
-
-        .scenario-box p {
-            font-size: 0.85rem;
-            color: var(--text-light);
-            line-height: 1.7;
-        }
-
-        /* ======= Modern Callouts ======= */
-        .tips-container {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            margin-top: 20px;
-        }
-
-        .alert-box {
-            display: flex;
-            gap: 16px;
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-soft);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .alert-box::before {
+        .header::after {
             content: '';
             position: absolute;
-            left: 0;
-            top: 0;
             bottom: 0;
-            width: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--text-dim), transparent);
         }
 
-        .alert-box.money::before { background: var(--accent-amber); }
-        .alert-box.warning::before { background: #f28482; }
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            background: linear-gradient(135deg, #e0e0ff 0%, #a0a0e0 50%, #7070c0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
 
-        .alert-icon {
-            flex-shrink: 0;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
+        .header .subtitle {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            font-weight: 300;
+            margin-top: 10px;
+            letter-spacing: 0.15em;
+        }
+
+        /* ============ Quick Nav ============ */
+        .quick-nav {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 24px 20px 10px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .quick-nav a {
+            text-decoration: none;
+            font-size: 0.82rem;
+            padding: 6px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            background: var(--bg-card);
+            transition: all 0.25s ease;
+        }
+
+        .quick-nav a:hover {
+            background: var(--bg-card-hover);
+            color: var(--text-primary);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        /* ============ Layout ============ */
+        .container {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 30px 20px 80px;
+        }
+
+        /* ============ Category Section ============ */
+        .category {
+            margin-bottom: 44px;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .category-icon {
+            font-size: 1.3rem;
+            width: 36px;
+            height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
+            border-radius: 10px;
+            flex-shrink: 0;
         }
 
-        .alert-box.money .alert-icon { background: #fff8e1; color: var(--accent-amber); }
-        .alert-box.warning .alert-icon { background: #fef2f2; color: #f28482; }
-
-        .alert-content h5 {
-            font-size: 1rem;
-            color: var(--text-heading);
-            margin-bottom: 6px;
-        }
-
-        .alert-content p, .alert-content li {
-            font-size: 0.85rem;
-            color: var(--text-body);
-        }
-        
-        .alert-content ul {
-            list-style: none;
-            padding-left: 0;
-        }
-        
-        .alert-content li {
-            margin-bottom: 4px;
-            position: relative;
-            padding-left: 12px;
-        }
-        
-        .alert-content li::before {
-            content: "•";
-            position: absolute;
-            left: 0;
-            color: #f28482;
-        }
-
-        /* ======= Footer ======= */
-        footer {
-            margin-top: 80px;
-            text-align: center;
-            padding: 0 20px;
-        }
-        
-        .footer-logo {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            background: #e3ece8;
-            border-radius: 12px;
-            color: var(--primary);
-            margin-bottom: 16px;
-        }
-
-        footer p {
-            font-size: 0.8rem;
-            color: var(--text-light);
+        .category-title {
+            font-size: 1.05rem;
             font-weight: 500;
+            letter-spacing: 0.04em;
         }
 
-        /* ======= Desktop Overrides ======= */
-        @media (min-width: 768px) {
-            .scenarios-wrapper {
-                overflow: visible;
-                padding: 0;
-                margin: 0;
+        .category-count {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-left: auto;
+        }
+
+        /* accent colors per category */
+        .category--game .category-icon {
+            background: rgba(244, 114, 182, 0.12);
+        }
+
+        .category--game .category-title {
+            color: var(--color-game);
+        }
+
+        .category--gesture .category-icon {
+            background: rgba(129, 140, 248, 0.12);
+        }
+
+        .category--gesture .category-title {
+            color: var(--color-gesture);
+        }
+
+        .category--health .category-icon {
+            background: rgba(52, 211, 153, 0.12);
+        }
+
+        .category--health .category-title {
+            color: var(--color-health);
+        }
+
+        .category--culture .category-icon {
+            background: rgba(251, 191, 36, 0.12);
+        }
+
+        .category--culture .category-title {
+            color: var(--color-culture);
+        }
+
+        .category--tool .category-icon {
+            background: rgba(96, 165, 250, 0.12);
+        }
+
+        .category--tool .category-title {
+            color: var(--color-tool);
+        }
+
+        /* ============ Project Item ============ */
+        .project-list {
+            list-style: none;
+        }
+
+        .project-item {
+            position: relative;
+        }
+
+        .project-link {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            margin-bottom: 4px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.25s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .project-link:hover {
+            background: var(--bg-card);
+            border-left-color: var(--accent-color);
+            transform: translateX(4px);
+        }
+
+        .project-link:active {
+            transform: translateX(2px);
+        }
+
+        .project-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            opacity: 0.6;
+            transition: opacity 0.25s ease;
+        }
+
+        .project-link:hover .project-dot {
+            opacity: 1;
+        }
+
+        .category--game .project-dot {
+            background: var(--color-game);
+        }
+
+        .category--game .project-link {
+            --accent-color: var(--color-game);
+        }
+
+        .category--gesture .project-dot {
+            background: var(--color-gesture);
+        }
+
+        .category--gesture .project-link {
+            --accent-color: var(--color-gesture);
+        }
+
+        .category--health .project-dot {
+            background: var(--color-health);
+        }
+
+        .category--health .project-link {
+            --accent-color: var(--color-health);
+        }
+
+        .category--culture .project-dot {
+            background: var(--color-culture);
+        }
+
+        .category--culture .project-link {
+            --accent-color: var(--color-culture);
+        }
+
+        .category--tool .project-dot {
+            background: var(--color-tool);
+        }
+
+        .category--tool .project-link {
+            --accent-color: var(--color-tool);
+        }
+
+        .project-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .project-name {
+            font-size: 0.95rem;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .project-desc {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .project-arrow {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            opacity: 0;
+            transform: translateX(-6px);
+            transition: all 0.25s ease;
+            flex-shrink: 0;
+        }
+
+        .project-link:hover .project-arrow {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* ============ Footer ============ */
+        .footer {
+            text-align: center;
+            padding: 30px 20px;
+            color: var(--text-dim);
+            font-size: 0.78rem;
+            border-top: 1px solid var(--border);
+            max-width: 760px;
+            margin: 0 auto;
+        }
+
+        /* ============ Animation ============ */
+        .category {
+            opacity: 0;
+            transform: translateY(16px);
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .category:nth-child(1) {
+            animation-delay: 0.05s;
+        }
+
+        .category:nth-child(2) {
+            animation-delay: 0.12s;
+        }
+
+        .category:nth-child(3) {
+            animation-delay: 0.19s;
+        }
+
+        .category:nth-child(4) {
+            animation-delay: 0.26s;
+        }
+
+        .category:nth-child(5) {
+            animation-delay: 0.33s;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
-            .scenarios-flex {
-                width: 100%;
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
+        }
+
+        /* ============ Responsive ============ */
+        @media (max-width: 600px) {
+            .header {
+                padding: 40px 16px 30px;
             }
-            .scenario-box { width: 100%; }
-            .tips-container {
-                flex-direction: row;
+
+            .header h1 {
+                font-size: 1.6rem;
             }
-            .alert-box {
-                flex: 1;
+
+            .container {
+                padding: 20px 12px 60px;
+            }
+
+            .project-link {
+                padding: 12px 12px;
+            }
+
+            .project-arrow {
+                display: none;
             }
         }
     </style>
 </head>
-<body>
 
-    <header class="container">
-        <div class="badge-pill">
-            <i data-lucide="shield-check"></i> 权威指南适配 2026
-        </div>
-        <h1>夏季驱蚊全方案</h1>
-        <p class="hero-desc">一套科学、省钱且肤感极佳的防蚊组合，精准覆盖居家、通勤与重度户外场景。</p>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <h1>AI 创意实验室</h1>
+        <p class="subtitle">CREATIVE AI LAB — 实验项目导览</p>
     </header>
 
+    <!-- Quick Navigation -->
+    <nav class="quick-nav">
+        <a href="#game">🎮 互动游戏</a>
+        <a href="#gesture">✋ 体感交互</a>
+        <a href="#health">🧘 健康运动</a>
+        <a href="#culture">✍️ 文化创意</a>
+        <a href="#tool">🔧 工具</a>
+    </nav>
+
+    <!-- Main Content -->
     <main class="container">
-        
-        <!-- 核心组合 Bento Grid -->
-        <div class="section-header">
-            <div class="section-header-icon"><i data-lucide="package-open"></i></div>
-            <h2 class="section-title">核心产品矩阵</h2>
-        </div>
-        
-        <div class="bento-grid">
-            <!-- 居家主力 -->
-            <div class="bento-card">
-                <div class="card-top">
-                    <div class="icon-wrapper"><i data-lucide="home"></i></div>
-                    <div class="score-badge">性价比之王</div>
-                </div>
-                <h3 class="card-title">电蚊香液</h3>
-                <div class="card-tags">
-                    <span class="tag">居家主力</span>
-                    <span class="tag">0.6%氯氟醚菊酯</span>
-                </div>
-                <ul class="feature-list">
-                    <li><i data-lucide="check"></i><span>睡前1小时开启，保持卧室留缝通风</span></li>
-                    <li><i data-lucide="check"></i><span>成本极低，不接触皮肤，一瓶可用30晚</span></li>
-                </ul>
-                <div class="card-bottom">
-                    <span class="recommend-brand">推荐品牌：超威无香版</span>
-                    <i data-lucide="arrow-right" style="color: #ccc; width: 16px;"></i>
-                </div>
-            </div>
 
-            <!-- 公园通勤 -->
-            <div class="bento-card">
-                <div class="card-top">
-                    <div class="icon-wrapper accent"><i data-lucide="trees"></i></div>
-                    <div class="score-badge">体验最佳</div>
-                </div>
-                <h3 class="card-title">20%派卡瑞丁（羟哌酯）</h3>
-                <div class="card-tags">
-                    <span class="tag">公园/通勤</span>
-                    <span class="tag">羟哌酯</span>
-                </div>
-                <ul class="feature-list">
-                    <li><i data-lucide="check"></i><span>肤感清爽不黏腻，不伤衣物</span></li>
-                    <li><i data-lucide="check"></i><span>6月龄以上及孕妇均可使用</span></li>
-                </ul>
-                <div class="card-bottom">
-                    <span class="recommend-brand">首推成分，防护极佳</span>
-                </div>
+        <!-- 🎮 互动游戏 -->
+        <section class="category category--game" id="game">
+            <div class="category-header">
+                <div class="category-icon">🎮</div>
+                <h2 class="category-title">互动游戏</h2>
+                <span class="category-count">4 个项目</span>
             </div>
+            <ul class="project-list">
+                <li class="project-item">
+                    <a class="project-link" href="../cyber-blowing-game/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">赛博吹气游戏</div>
+                            <div class="project-desc">通过麦克风吹气互动的体感游戏</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../birthday-dino-game/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">生日恐龙游戏</div>
+                            <div class="project-desc">生日主题恐龙跑酷游戏</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../love-door/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">LoveDoor 表白</div>
+                            <div class="project-desc">为TA定制的表白迷宫小游戏</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../gushan-adventure/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">鼓山漫步奇遇记</div>
+                            <div class="project-desc">鼓山探索冒险互动游戏</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+            </ul>
+        </section>
 
-            <!-- 户外爬山 -->
-            <div class="bento-card">
-                <div class="card-top">
-                    <div class="icon-wrapper danger"><i data-lucide="mountain"></i></div>
-                    <div class="score-badge">最可靠</div>
-                </div>
-                <h3 class="card-title">15%避蚊胺 (DEET)</h3>
-                <div class="card-tags">
-                    <span class="tag">野外/爬山</span>
-                    <span class="tag">对蜱虫有效</span>
-                </div>
-                <ul class="feature-list">
-                    <li><i data-lucide="check"></i><span>历史最久效果最强，硬核户外必备</span></li>
-                    <li><i data-lucide="check"></i><span>需每4-5小时补喷，注意避开化纤</span></li>
-                </ul>
-                <div class="card-bottom">
-                    <span class="recommend-brand">推荐品牌：雷达欧护/森林地带</span>
-                </div>
+        <!-- ✋ 手势/体感交互 -->
+        <section class="category category--gesture" id="gesture">
+            <div class="category-header">
+                <div class="category-icon">✋</div>
+                <h2 class="category-title">手势 / 体感交互</h2>
+                <span class="category-count">8 个项目</span>
             </div>
+            <ul class="project-list">
+                <li class="project-item">
+                    <a class="project-link" href="../ai-pose-recommendation/index.html" style="background-color: rgba(76, 217, 100, 0.05); border-left: 2px solid #4CD964;">
+                        <span class="project-dot" style="background: linear-gradient(135deg, #4CD964, #34d399); box-shadow: 0 0 10px rgba(76, 217, 100, 0.4);"></span>
+                        <div class="project-info">
+                            <div class="project-name" style="color: #4CD964;">AI 姿势推荐 · 灵感拍摄 ✨</div>
+                            <div class="project-desc">基于 AI 的实时姿势对齐与 AR 灵感辅助工具</div>
+                        </div>
+                        <span class="project-arrow" style="color: #4CD964;">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../hand-yan/index.html" style="background-color: rgba(255, 105, 180, 0.05); border-left: 2px solid #ffb6c1;">
+                        <span class="project-dot" style="background: linear-gradient(135deg, #ffb6c1, #ffc0cb); box-shadow: 0 0 10px rgba(255, 182, 193, 0.6);"></span>
+                        <div class="project-info">
+                            <div class="project-name" style="color: #ffb6c1;">掌心彩虹·焰之苍兰 ✨</div>
+                            <div class="project-desc">专属定制：手势驱动的 3D 苍兰花海与拍立得互动</div>
+                        </div>
+                        <span class="project-arrow" style="color: #ffb6c1;">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../gesture-puppet/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">手势表情木偶</div>
+                            <div class="project-desc">基于 MediaPipe 的手势控制表情木偶</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../lizard-follow/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">蜥蜴跟随</div>
+                            <div class="project-desc">一只跟随你手指或鼠标运动的卡通蜥蜴</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../hand-magic/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">Ethereal Touch</div>
+                            <div class="project-desc">手势驱动的视觉粒子特效</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../bird-magic/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">Bird Magic</div>
+                            <div class="project-desc">手势控制的飞鸟魔法互动</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../gesture-explode/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">手势分解</div>
+                            <div class="project-desc">喵喵机 · 手势视频分解打印工具</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../living-painting/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">活的画</div>
+                            <div class="project-desc">手势驱动的动态绘画体验</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+            </ul>
+        </section>
 
-            <!-- 应急备用 -->
-            <div class="bento-card">
-                <div class="card-top">
-                    <div class="icon-wrapper safe"><i data-lucide="pocket"></i></div>
-                    <div class="score-badge">母婴首选</div>
-                </div>
-                <h3 class="card-title">迷你驱蚊酯喷雾</h3>
-                <div class="card-tags">
-                    <span class="tag">随身便携</span>
-                    <span class="tag">极度温和</span>
-                </div>
-                <ul class="feature-list">
-                    <li><i data-lucide="check"></i><span>四大权威机构推荐孕妇可用</span></li>
-                    <li><i data-lucide="check"></i><span>放包里临时救急，随时随地补喷</span></li>
-                </ul>
-                <div class="card-bottom">
-                    <span class="recommend-brand">推荐品牌：海氏海诺/名创优品</span>
-                </div>
+        <!-- 🧘 健康/运动 -->
+        <section class="category category--health" id="health">
+            <div class="category-header">
+                <div class="category-icon">🧘</div>
+                <h2 class="category-title">健康 / 运动</h2>
+                <span class="category-count">4 个项目</span>
             </div>
-        </div>
+            <ul class="project-list">
+                <li class="project-item">
+                    <a class="project-link" href="../beibulashen/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">背部拉伸计划</div>
+                            <div class="project-desc">程序员背部锻炼与脊柱健康防护计划</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../baduanjin/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">八段锦</div>
+                            <div class="project-desc">AI 八段锦动作识别与教学</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../baduanjin-tracker/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">八段锦追踪</div>
+                            <div class="project-desc">八段锦每日练习打卡追踪</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../bdj/garden.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">禅意花园</div>
+                            <div class="project-desc">禅意花园运动追踪器</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+            </ul>
+        </section>
 
-        <!-- 场景实战方案 (Mobile Scrollable) -->
-        <div class="section-header" style="margin-top: 50px;">
-            <div class="section-header-icon" style="background: var(--text-heading)"><i data-lucide="map"></i></div>
-            <h2 class="section-title">场景部署指南</h2>
-        </div>
-        
-        <div class="scenarios-wrapper">
-            <div class="scenarios-flex">
-                <div class="scenario-box">
-                    <div class="s-icon-circle"><i data-lucide="home"></i></div>
-                    <h4>室内防御战</h4>
-                    <p>核心是物理隔离，务必装好纱窗。发现漏网之鱼，睡前1小时开电蚊香液，切忌24小时长开。每周排查清理花盆、接水盘积水。</p>
-                </div>
-                <div class="scenario-box">
-                    <div class="s-icon-circle park"><i data-lucide="trees"></i></div>
-                    <h4>公园漫步 / 遛娃</h4>
-                    <p>出门前15分钟用派卡瑞丁喷洒四肢。穿浅色长裤，避开清晨黄昏蚊虫高峰。随身口袋备一瓶迷你驱蚊酯应急。</p>
-                </div>
-                <div class="scenario-box">
-                    <div class="s-icon-circle mountain"><i data-lucide="tent"></i></div>
-                    <h4>重度户外 / 登山</h4>
-                    <p>提前30分钟全身喷洒避蚊胺，脚踝、背包、鞋面是重灾区。4小时复喷一次，回家后必须彻底洗澡换衣。</p>
-                </div>
+        <!-- ✍️ 文化/创意 -->
+        <section class="category category--culture" id="culture">
+            <div class="category-header">
+                <div class="category-icon">✍️</div>
+                <h2 class="category-title">文化 / 创意</h2>
+                <span class="category-count">6 个项目</span>
             </div>
-        </div>
+            <ul class="project-list">
+                <li class="project-item">
+                    <a class="project-link" href="../suzhou-travel/index.html" style="background-color: rgba(200, 75, 49, 0.05); border-left: 2px solid #C84B31;">
+                        <span class="project-dot" style="background: linear-gradient(135deg, #C84B31, #A03B26); box-shadow: 0 0 10px rgba(200, 75, 49, 0.4);"></span>
+                        <div class="project-info">
+                            <div class="project-name" style="color: #C84B31;">苏州旅游全攻略 ✨</div>
+                            <div class="project-desc">移步换景，姑苏游园惊梦深度导览</div>
+                        </div>
+                        <span class="project-arrow" style="color: #C84B31;">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../citywalk2/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">福州三县洲大桥</div>
+                            <div class="project-desc">宏观远端绕行动画探索</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../su_dongpo_poem/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">苏东坡诗词</div>
+                            <div class="project-desc">苏东坡诗词互动体验</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../handwriting-practice/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">汉字练字板</div>
+                            <div class="project-desc">小学生汉字仿影练字工具</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../inspiration_calendar/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">灵感日历</div>
+                            <div class="project-desc">每日灵感与宜忌日历</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../derive-of-two/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">福清行</div>
+                            <div class="project-desc">城市探索 · 漂移行走</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+            </ul>
+        </section>
 
-        <!-- Tips & Warnings -->
-        <div class="tips-container">
-            <div class="alert-box money">
-                <div class="alert-icon"><i data-lucide="piggy-bank"></i></div>
-                <div class="alert-content">
-                    <h5>省钱指南</h5>
-                    <p>618大促是最佳入手机会。家里备大容量派卡瑞丁，出门分装；不同成分轮换使用防耐药。</p>
-                </div>
+        <!-- 🔧 工具/其他 -->
+        <section class="category category--tool" id="tool">
+            <div class="category-header">
+                <div class="category-icon">🔧</div>
+                <h2 class="category-title">工具 / 其他</h2>
+                <span class="category-count">6 个项目</span>
             </div>
-            
-            <div class="alert-box warning">
-                <div class="alert-icon"><i data-lucide="alert-triangle"></i></div>
-                <div class="alert-content">
-                    <h5>使用红线</h5>
-                    <ul>
-                        <li>面部使用需先喷在手心，再涂抹。</li>
-                        <li>避蚊胺勿碰化纤衣物、手表及塑料。</li>
-                        <li>禁止与防晒霜混用（会增加毒性吸收）。</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
+            <ul class="project-list">
+                <li class="project-item">
+                    <a class="project-link" href="../gemini-tts-flash/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">Gemini Flash TTS</div>
+                            <div class="project-desc">基于 Gemini 2.0 Flash 的高保真 AI 语音生成工具</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../vibe-motionapp/preview/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">Remotion 视频工作台</div>
+                            <div class="project-desc">基于 Remotion 的动态视频生成预览工作台</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../ascii-buddy-web/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">ASCII Buddy</div>
+                            <div class="project-desc">定制可爱的 ASCII 字符宠物伙伴</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../newspaper/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">榕城旧闻录</div>
+                            <div class="project-desc">复古报纸风格的新闻呈现</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../cloudroam/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">云游 · 不老松</div>
+                            <div class="project-desc">AI 体感姿态识别互动</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../particle-system/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">粒子系统</div>
+                            <div class="project-desc">粒子系统视觉效果演示</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+            </ul>
+        </section>
 
     </main>
 
-    <footer>
-        <div class="footer-logo"><i data-lucide="flask-conical"></i></div>
-        <p>© 2026 谢书房 - 驱蚊科学实验室</p>
-        <p style="margin-top: 4px; opacity: 0.6;">Designed for Mobile & Desktop</p>
+    <!-- Footer -->
+    <footer class="footer">
+        共 29 个项目 · AI 创意实验室
     </footer>
-
-    <script>
-        lucide.createIcons();
-    </script>
 </body>
+
+</html></div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+                <li class="project-item">
+                    <a class="project-link" href="../particle-system/index.html">
+                        <span class="project-dot"></span>
+                        <div class="project-info">
+                            <div class="project-name">粒子系统</div>
+                            <div class="project-desc">粒子系统视觉效果演示</div>
+                        </div>
+                        <span class="project-arrow">→</span>
+                    </a>
+                </li>
+            </ul>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        共 28 个项目 · AI 创意实验室
+    </footer>
+</body>
+
 </html>

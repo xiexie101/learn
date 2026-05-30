@@ -1,1 +1,593 @@
-nav/index.html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>2026 驱蚊全能方案</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            /* 采用更具高级感的冷萃绿配色体系 */
+            --primary: #0a4f36;
+            --primary-light: #167a56;
+            --primary-bg: #eaf5f0;
+            --bg-body: #f4f8f6;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            
+            --text-heading: #102a20;
+            --text-body: #4a6358;
+            --text-light: #7c968b;
+            
+            --accent-amber: #ff9f1c;
+            --accent-blue: #3a86ff;
+            
+            --radius-sm: 12px;
+            --radius-md: 20px;
+            --radius-lg: 32px;
+            
+            --shadow-soft: 0 8px 30px rgba(10, 79, 54, 0.04);
+            --shadow-hover: 0 20px 40px rgba(10, 79, 54, 0.08);
+            
+            --safe-area-bottom: env(safe-area-inset-bottom, 20px);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-body);
+            background-image: 
+                radial-gradient(circle at 15% 0%, #d8eee5 0%, transparent 40%),
+                radial-gradient(circle at 85% 10%, #eef6f2 0%, transparent 40%);
+            background-attachment: fixed;
+            color: var(--text-body);
+            line-height: 1.6;
+            padding-bottom: calc(80px + var(--safe-area-bottom));
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* ======= Header & Hero ======= */
+        header {
+            padding: 8vh 0 6vh;
+            text-align: center;
+            position: relative;
+        }
+
+        .badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 16px;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: var(--primary);
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            margin-bottom: 24px;
+            border: 1px solid rgba(255,255,255,0.6);
+        }
+
+        .badge-pill i {
+            width: 14px;
+            height: 14px;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            font-weight: 900;
+            color: var(--text-heading);
+            margin-bottom: 16px;
+            line-height: 1.2;
+            letter-spacing: -0.03em;
+        }
+
+        .hero-desc {
+            font-size: clamp(1rem, 2.5vw, 1.15rem);
+            color: var(--text-light);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* ======= Section Typography ======= */
+        .section-header {
+            margin: 60px 0 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .section-header-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            color: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .section-header-icon i { width: 18px; }
+
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-heading);
+            letter-spacing: -0.01em;
+        }
+
+        /* ======= Product Cards (Uniform Grid) ======= */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .bento-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid rgba(255,255,255,0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100%; /* 确保高度一致 */
+        }
+
+        .bento-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+            background: #ffffff;
+        }
+
+        /* 卡片内部元素 */
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .icon-wrapper {
+            width: 44px;
+            height: 44px;
+            background: var(--primary-bg);
+            color: var(--primary-light);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .icon-wrapper.accent { background: #fff3e0; color: var(--accent-amber); }
+        .icon-wrapper.danger { background: #fee2e2; color: #d32f2f; }
+        .icon-wrapper.safe { background: #e0f2f1; color: #00897b; }
+
+        .score-badge {
+            background: #f1f3f2;
+            color: var(--text-light);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 100px;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-heading);
+            margin-bottom: 6px;
+        }
+
+        .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 20px;
+        }
+
+        .tag {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--primary-light);
+            background: var(--primary-bg);
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        .feature-list {
+            list-style: none;
+            flex-grow: 1;
+        }
+
+        .feature-list li {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .feature-list i {
+            width: 16px;
+            height: 16px;
+            margin-top: 3px;
+            color: #a3b8af;
+            flex-shrink: 0;
+        }
+
+        .card-bottom {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px dashed rgba(0,0,0,0.06);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .recommend-brand {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-heading);
+        }
+
+        /* ======= Scenarios Carousel for Mobile ======= */
+        .scenarios-wrapper {
+            margin: 0 -20px; /* Bleed edge on mobile */
+            padding: 0 20px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        
+        .scenarios-wrapper::-webkit-scrollbar { display: none; }
+
+        .scenarios-flex {
+            display: flex;
+            gap: 16px;
+            width: max-content;
+            padding-bottom: 20px;
+        }
+
+        .scenario-box {
+            width: 280px;
+            scroll-snap-align: center;
+            background: linear-gradient(135deg, var(--card-bg) 0%, #ffffff 100%);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid rgba(255,255,255,0.8);
+        }
+
+        .s-icon-circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            box-shadow: 0 8px 16px rgba(10, 79, 54, 0.2);
+        }
+        
+        .s-icon-circle.park { background: var(--accent-amber); box-shadow: 0 8px 16px rgba(255, 159, 28, 0.2); }
+        .s-icon-circle.mountain { background: var(--accent-blue); box-shadow: 0 8px 16px rgba(58, 134, 255, 0.2); }
+
+        .scenario-box h4 {
+            font-size: 1.1rem;
+            color: var(--text-heading);
+            margin-bottom: 8px;
+        }
+
+        .scenario-box p {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            line-height: 1.7;
+        }
+
+        /* ======= Modern Callouts ======= */
+        .tips-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .alert-box {
+            display: flex;
+            gap: 16px;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-soft);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .alert-box::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+        }
+
+        .alert-box.money::before { background: var(--accent-amber); }
+        .alert-box.warning::before { background: #f28482; }
+
+        .alert-icon {
+            flex-shrink: 0;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .alert-box.money .alert-icon { background: #fff8e1; color: var(--accent-amber); }
+        .alert-box.warning .alert-icon { background: #fef2f2; color: #f28482; }
+
+        .alert-content h5 {
+            font-size: 1rem;
+            color: var(--text-heading);
+            margin-bottom: 6px;
+        }
+
+        .alert-content p, .alert-content li {
+            font-size: 0.85rem;
+            color: var(--text-body);
+        }
+        
+        .alert-content ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .alert-content li {
+            margin-bottom: 4px;
+            position: relative;
+            padding-left: 12px;
+        }
+        
+        .alert-content li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #f28482;
+        }
+
+        /* ======= Footer ======= */
+        footer {
+            margin-top: 80px;
+            text-align: center;
+            padding: 0 20px;
+        }
+        
+        .footer-logo {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: #e3ece8;
+            border-radius: 12px;
+            color: var(--primary);
+            margin-bottom: 16px;
+        }
+
+        footer p {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        /* ======= Desktop Overrides ======= */
+        @media (min-width: 768px) {
+            .scenarios-wrapper {
+                overflow: visible;
+                padding: 0;
+                margin: 0;
+            }
+            .scenarios-flex {
+                width: 100%;
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .scenario-box { width: 100%; }
+            .tips-container {
+                flex-direction: row;
+            }
+            .alert-box {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="container">
+        <div class="badge-pill">
+            <i data-lucide="shield-check"></i> 权威指南适配 2026
+        </div>
+        <h1>夏季驱蚊全方案</h1>
+        <p class="hero-desc">一套科学、省钱且肤感极佳的防蚊组合，精准覆盖居家、通勤与重度户外场景。</p>
+    </header>
+
+    <main class="container">
+        
+        <!-- 核心组合 Bento Grid -->
+        <div class="section-header">
+            <div class="section-header-icon"><i data-lucide="package-open"></i></div>
+            <h2 class="section-title">核心产品矩阵</h2>
+        </div>
+        
+        <div class="bento-grid">
+            <!-- 居家主力 -->
+            <div class="bento-card">
+                <div class="card-top">
+                    <div class="icon-wrapper"><i data-lucide="home"></i></div>
+                    <div class="score-badge">性价比之王</div>
+                </div>
+                <h3 class="card-title">电蚊香液</h3>
+                <div class="card-tags">
+                    <span class="tag">居家主力</span>
+                    <span class="tag">0.6%氯氟醚菊酯</span>
+                </div>
+                <ul class="feature-list">
+                    <li><i data-lucide="check"></i><span>睡前1小时开启，保持卧室留缝通风</span></li>
+                    <li><i data-lucide="check"></i><span>成本极低，不接触皮肤，一瓶可用30晚</span></li>
+                </ul>
+                <div class="card-bottom">
+                    <span class="recommend-brand">推荐品牌：超威无香版</span>
+                    <i data-lucide="arrow-right" style="color: #ccc; width: 16px;"></i>
+                </div>
+            </div>
+
+            <!-- 公园通勤 -->
+            <div class="bento-card">
+                <div class="card-top">
+                    <div class="icon-wrapper accent"><i data-lucide="trees"></i></div>
+                    <div class="score-badge">体验最佳</div>
+                </div>
+                <h3 class="card-title">20%派卡瑞丁（羟哌酯）</h3>
+                <div class="card-tags">
+                    <span class="tag">公园/通勤</span>
+                    <span class="tag">羟哌酯</span>
+                </div>
+                <ul class="feature-list">
+                    <li><i data-lucide="check"></i><span>肤感清爽不黏腻，不伤衣物</span></li>
+                    <li><i data-lucide="check"></i><span>6月龄以上及孕妇均可使用</span></li>
+                </ul>
+                <div class="card-bottom">
+                    <span class="recommend-brand">首推成分，防护极佳</span>
+                </div>
+            </div>
+
+            <!-- 户外爬山 -->
+            <div class="bento-card">
+                <div class="card-top">
+                    <div class="icon-wrapper danger"><i data-lucide="mountain"></i></div>
+                    <div class="score-badge">最可靠</div>
+                </div>
+                <h3 class="card-title">15%避蚊胺 (DEET)</h3>
+                <div class="card-tags">
+                    <span class="tag">野外/爬山</span>
+                    <span class="tag">对蜱虫有效</span>
+                </div>
+                <ul class="feature-list">
+                    <li><i data-lucide="check"></i><span>历史最久效果最强，硬核户外必备</span></li>
+                    <li><i data-lucide="check"></i><span>需每4-5小时补喷，注意避开化纤</span></li>
+                </ul>
+                <div class="card-bottom">
+                    <span class="recommend-brand">推荐品牌：雷达欧护/森林地带</span>
+                </div>
+            </div>
+
+            <!-- 应急备用 -->
+            <div class="bento-card">
+                <div class="card-top">
+                    <div class="icon-wrapper safe"><i data-lucide="pocket"></i></div>
+                    <div class="score-badge">母婴首选</div>
+                </div>
+                <h3 class="card-title">迷你驱蚊酯喷雾</h3>
+                <div class="card-tags">
+                    <span class="tag">随身便携</span>
+                    <span class="tag">极度温和</span>
+                </div>
+                <ul class="feature-list">
+                    <li><i data-lucide="check"></i><span>四大权威机构推荐孕妇可用</span></li>
+                    <li><i data-lucide="check"></i><span>放包里临时救急，随时随地补喷</span></li>
+                </ul>
+                <div class="card-bottom">
+                    <span class="recommend-brand">推荐品牌：海氏海诺/名创优品</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 场景实战方案 (Mobile Scrollable) -->
+        <div class="section-header" style="margin-top: 50px;">
+            <div class="section-header-icon" style="background: var(--text-heading)"><i data-lucide="map"></i></div>
+            <h2 class="section-title">场景部署指南</h2>
+        </div>
+        
+        <div class="scenarios-wrapper">
+            <div class="scenarios-flex">
+                <div class="scenario-box">
+                    <div class="s-icon-circle"><i data-lucide="home"></i></div>
+                    <h4>室内防御战</h4>
+                    <p>核心是物理隔离，务必装好纱窗。发现漏网之鱼，睡前1小时开电蚊香液，切忌24小时长开。每周排查清理花盆、接水盘积水。</p>
+                </div>
+                <div class="scenario-box">
+                    <div class="s-icon-circle park"><i data-lucide="trees"></i></div>
+                    <h4>公园漫步 / 遛娃</h4>
+                    <p>出门前15分钟用派卡瑞丁喷洒四肢。穿浅色长裤，避开清晨黄昏蚊虫高峰。随身口袋备一瓶迷你驱蚊酯应急。</p>
+                </div>
+                <div class="scenario-box">
+                    <div class="s-icon-circle mountain"><i data-lucide="tent"></i></div>
+                    <h4>重度户外 / 登山</h4>
+                    <p>提前30分钟全身喷洒避蚊胺，脚踝、背包、鞋面是重灾区。4小时复喷一次，回家后必须彻底洗澡换衣。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tips & Warnings -->
+        <div class="tips-container">
+            <div class="alert-box money">
+                <div class="alert-icon"><i data-lucide="piggy-bank"></i></div>
+                <div class="alert-content">
+                    <h5>省钱指南</h5>
+                    <p>618大促是最佳入手机会。家里备大容量派卡瑞丁，出门分装；不同成分轮换使用防耐药。</p>
+                </div>
+            </div>
+            
+            <div class="alert-box warning">
+                <div class="alert-icon"><i data-lucide="alert-triangle"></i></div>
+                <div class="alert-content">
+                    <h5>使用红线</h5>
+                    <ul>
+                        <li>面部使用需先喷在手心，再涂抹。</li>
+                        <li>避蚊胺勿碰化纤衣物、手表及塑料。</li>
+                        <li>禁止与防晒霜混用（会增加毒性吸收）。</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer>
+        <div class="footer-logo"><i data-lucide="flask-conical"></i></div>
+        <p>© 2026 谢书房 - 驱蚊科学实验室</p>
+        <p style="margin-top: 4px; opacity: 0.6;">Designed for Mobile & Desktop</p>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
