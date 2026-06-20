@@ -4,8 +4,26 @@
 
 ---
 
+## 2026年6月
+
+- **[八段锦 · 东方导引养生术](../xiaoguo/baduanjin.html)** — 传统导引养生，字聚成形，轻缓舒适的水墨粒子互动招式谱 `06-20`
+- **[武形八式 · 中国功夫招式谱](../xiaoguo/wuxing_bashi.html)** — 字聚成形，形随意转。国风太极粒子体感动态招式书 `06-20`
+- **[成品油价格趋势](../xiaoguo/oil_price_trends.html)** — 2021-2026年国内92号油价历史折线，含地缘大事件联动与机制科普 `06-20`
+
+---
+
+## 2026年5月
+
+- **[夏季驱蚊全方案](../mosquito-repellent/index.html)** — 权威指南适配 2026：覆盖居家、通勤与重度户外场景 `05-30`
+- **[Swing 摇摆互动](../swing/index.html)** — 摇摆舞 (Swing Dance) 互动指南与节奏探索 `05-29`
+- **[苏州旅游全攻略](../suzhou-travel/index.html)** — 移步换景，姑苏游园惊梦深度导览 `05-27`
+- **[Gemini Flash TTS](../gemini-tts-flash/index.html)** — 基于 Gemini 2.0 Flash 的高保真 AI 语音生成工具 `05-09`
+
+---
+
 ## 2026年4月
 
+- **[甄嬛知识图谱](../zhenhuan-kg/index.html)** — 基于《甄嬛传》的人物关系知识图谱实验 `04-24`
 - **[AI 姿势推荐](../ai-pose-recommendation/index.html)** — 基于 AI 的实时姿势对齐与 AR 灵感辅助工具 `04-22`
 - **[Remotion 视频工作台](../vibe-motionapp/preview/index.html)** — 基于 Remotion 的动态视频生成预览工作台 `04-07`
 - **[背部拉伸计划](../beibulashen/index.html)** — 程序员背部锻炼与脊柱健康防护计划 `04-07`
@@ -60,4 +78,4 @@
 
 ---
 
-> 共 26 个项目 · 跨越 2025.07 — 2026.04
+> 共 34 个项目 · 跨越 2025.07 — 2026.06

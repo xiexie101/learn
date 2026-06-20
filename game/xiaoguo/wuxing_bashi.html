@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>武形八式 · 中国功夫招式谱</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;600;900&display=swap" rel="stylesheet">
+<style>
+  html, body { 
+    margin: 0; 
+    padding: 0; 
+    background: #F3EEE3; 
+    overflow: hidden; 
+    height: 100%; 
+    overscroll-behavior: none; 
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  body { 
+    -webkit-font-smoothing: antialiased; 
+    -moz-osx-font-smoothing: grayscale;
+  }
+  ::selection { 
+    background: #9E342B; 
+    color: #F3EEE3; 
+  }
+  
+  /* 关键帧动画 */
+  @keyframes fadeIn { 
+    0% { opacity: 0; } 
+    100% { opacity: 1; } 
+  }
+  @keyframes nameIn { 
+    0% { opacity: 0; transform: translateY(20px); filter: blur(10px); } 
+    100% { opacity: 1; transform: translateY(0); filter: blur(0); } 
+  }
+  @keyframes hintFloat { 
+    0%, 100% { transform: translateY(0); opacity: 0.55; } 
+    50% { transform: translateY(7px); opacity: 1; } 
+  }
+  @keyframes sealIn { 
+    0% { opacity: 0; transform: scale(1.5) rotate(-12deg); } 
+    100% { opacity: 1; transform: scale(1) rotate(-4deg); } 
+  }
+
+  /* 提示控制 */
+  .swipe-hint {
+    position: absolute; 
+    right: 48px; 
+    bottom: 34px; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    gap: 10px; 
+    animation: fadeIn 1.4s ease 1s both; 
+    pointer-events: none;
+  }
+  
+  .swipe-text {
+    writing-mode: vertical-rl; 
+    font-size: 12px; 
+    letter-spacing: 0.4em; 
+    color: #6B6354;
+  }
+
+  .swipe-line {
+    width: 1px; 
+    height: 44px; 
+    background: #9E342B; 
+    animation: hintFloat 2.4s ease-in-out infinite;
+  }
+</style>
+</head>
+<body>
+
+<div data-screen-label="武形八式" style="position: fixed; inset: 0; font-family: 'Noto Serif SC', serif; color: #211D17; background: #F3EEE3; overflow: hidden;">
+
+  <!-- 背景水墨圆 -->
+  <div style="position: absolute; left: 56%; top: 50%; width: min(78vh, 60vw); height: min(78vh, 60vw); transform: translate(-50%, -50%) rotate(-5deg); border-radius: 50%; border: 2px solid rgba(33,29,23,0.1); pointer-events: none;"></div>
+  <div style="position: absolute; left: 56%; top: 50%; width: min(84vh, 65vw); height: min(84vh, 65vw); transform: translate(-50%, -50%); border-radius: 50%; border: 12px solid rgba(33,29,23,0.04); filter: blur(5px); pointer-events: none;"></div>
+
+  <!-- 背景水印 -->
+  <div style="position: absolute; right: -2%; bottom: -8%; font-family: 'Ma Shan Zheng', cursive; font-size: 38vh; color: rgba(33,29,23,0.03); line-height: 1; pointer-events: none; user-select: none;">武</div>
+
+  <!-- 字阵画布 -->
+  <canvas id="dc-canvas" style="position: absolute; inset: 0; width: 100%; height: 100%;"></canvas>
+
+  <!-- 顶栏 -->
+  <header style="position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: center; padding: 32px 48px; animation: fadeIn 1.4s ease 0.3s both; pointer-events: none;">
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <div style="width: 34px; height: 34px; background: #9E342B; color: #F3EEE3; display: flex; align-items: center; justify-content: center; font-family: 'Ma Shan Zheng', cursive; font-size: 20px; line-height: 1;">武</div>
+      <div style="font-size: 14px; letter-spacing: 0.4em; font-weight: 600;">中国功夫 · 招式谱</div>
+    </div>
+    <div style="font-size: 12px; letter-spacing: 0.35em; color: #6B6354;">字聚成形 · 形随意转</div>
+  </header>
+
+  <!-- 招式名（左侧竖排） -->
+  <div id="dc-name" style="position: absolute; left: 48px; top: 50%; transform: translateY(-50%); pointer-events: none;"></div>
+
+  <!-- 式码（底部中央） -->
+  <div id="dc-dots" style="position: absolute; bottom: 34px; left: 50%; transform: translateX(-50%);"></div>
+
+  <!-- 左下角计数 -->
+  <div style="position: absolute; left: 48px; bottom: 38px; font-size: 12px; letter-spacing: 0.35em; color: #6B6354; animation: fadeIn 1.4s ease 0.8s both; pointer-events: none;">第 <span id="dc-num">壹</span> 式 · 共捌式</div>
+
+  <!-- 右下角提示 -->
+  <div class="swipe-hint">
+    <div class="swipe-text">滑 动 换 式</div>
+    <div class="swipe-line"></div>
+  </div>
+</div>
+
+<script>
+class WuXingBaShi {
+  constructor() {
+    this.idx = 0;
+    this.NUMS = ['壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌'];
+    this.CHARS = '武功夫德刚柔巧变精气神静恒势形意拳道禅';
+    
+    // 骨架关节，坐标系 0–100，y 向下
+    this.POSES = [
+      { name: '抱拳起势', line: '以礼始 以礼终',
+        j: { head: [50,15], neck: [50,24], pelvis: [50,52], le: [40,37], lh: [46,34], re: [60,37], rh: [54,34], lk: [46,68], lf: [45,85], rk: [54,68], rf: [55,85] } },
+      { name: '马步冲拳', line: '力从地起 拳似流星',
+        j: { head: [50,24], neck: [50,32], pelvis: [50,54], le: [41,44], lh: [39,50], re: [61,36], rh: [75,33], lk: [34,66], lf: [27,84], rk: [66,66], rf: [73,84] } },
+      { name: '白鹤亮翅', line: '开合有度 形展神聚',
+        j: { head: [50,16], neck: [50,25], pelvis: [50,52], le: [37,20], lh: [25,12], re: [63,20], rh: [75,12], lk: [46,68], lf: [44,85], rk: [55,66], rf: [61,79] } },
+      { name: '金鸡独立', line: '提膝独立 稳如磐石',
+        j: { head: [50,13], neck: [50,22], pelvis: [50,50], le: [42,33], lh: [36,40], re: [57,14], rh: [60,4], lk: [42,55], lf: [43,67], rk: [51,66], rf: [51,85] } },
+      { name: '弓步推掌', line: '进步推山 其势如潮',
+        j: { head: [44,22], neck: [45,30], pelvis: [47,54], le: [55,41], lh: [66,38], re: [57,33], rh: [69,29], lk: [36,68], lf: [26,82], rk: [61,66], rf: [64,84] } },
+      { name: '旋风蹬腿', line: '起腿如风 落步如钉',
+        j: { head: [36,24], neck: [38,31], pelvis: [45,54], le: [28,40], lh: [22,47], re: [48,26], rh: [57,20], lk: [42,70], lf: [40,86], rk: [60,46], rf: [77,36] } },
+      { name: '仆步穿掌', line: '伏身取势 低走高击',
+        j: { head: [60,38], neck: [60,45], pelvis: [57,63], le: [48,55], lh: [33,64], re: [68,50], rh: [77,40], lk: [40,72], lf: [23,77], rk: [66,68], rf: [63,83] } },
+      { name: '单鞭定式', line: '一字单鞭 气贯长虹',
+        j: { head: [50,20], neck: [50,28], pelvis: [50,53], le: [36,26], lh: [23,22], re: [64,26], rh: [78,23], lk: [41,68], lf: [36,85], rk: [59,68], rf: [64,85] } },
+    ];
+
+    this.canvas = document.getElementById('dc-canvas');
+    this.nameHost = document.getElementById('dc-name');
+    this.dotsHost = document.getElementById('dc-dots');
+    this.numHost = document.getElementById('dc-num');
+
+    this.mount();
+  }
+
+  mount() {
+    const canvas = this.canvas;
+    if (!canvas) return;
+    this.ctx = canvas.getContext('2d');
+    this.N = 1400; // 粒子总数
+    this.lockUntil = 0;
+    this.lastInteract = performance.now();
+    this.wheelAcc = 0;
+
+    // 建立离屏 Canvas，用于骨架线像素化检测
+    this.off = document.createElement('canvas');
+    this.off.width = 300; 
+    this.off.height = 300;
+    this.offCtx = this.off.getContext('2d', { willReadFrequently: true });
+
+    // 自适应视口尺寸
+    this.onResize = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      this.dpr = dpr;
+      this.W = window.innerWidth; 
+      this.H = window.innerHeight;
+      canvas.width = this.W * dpr; 
+      canvas.height = this.H * dpr;
+      this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      this.layout();
+      if (this.particles) this.applyPose(this.idx, true);
+    };
+    window.addEventListener('resize', this.onResize);
+
+    // 滚轮滑动调谐
+    this.onWheel = (e) => {
+      this.wheelAcc += e.deltaY;
+      if (Math.abs(this.wheelAcc) > 60) {
+        this.step(this.wheelAcc > 0 ? 1 : -1);
+        this.wheelAcc = 0;
+      }
+    };
+    window.addEventListener('wheel', this.onWheel, { passive: true });
+
+    // 键盘动作响应
+    this.onKey = (e) => {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') this.step(1);
+      else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') this.step(-1);
+    };
+    window.addEventListener('keydown', this.onKey);
+
+    // 移动端手势捕获
+    this.onTouchStart = (e) => { this.touchY = e.touches[0].clientY; };
+    this.onTouchEnd = (e) => {
+      if (this.touchY == null) return;
+      const dy = this.touchY - e.changedTouches[0].clientY;
+      if (Math.abs(dy) > 40) this.step(dy > 0 ? 1 : -1);
+      this.touchY = null;
+    };
+    window.addEventListener('touchstart', this.onTouchStart, { passive: true });
+    window.addEventListener('touchend', this.onTouchEnd, { passive: true });
+
+    this.onResize();
+    this.initParticles();
+    this.render();
+
+    // 字体资源加载控制
+    const boot = () => { 
+      this.fontReady = true; 
+      this.applyPose(0, false); 
+    };
+    if (document.fonts && document.fonts.load) {
+      Promise.all([
+        document.fonts.load("20px 'Ma Shan Zheng'", '武'),
+        document.fonts.ready,
+      ]).then(boot).catch(boot);
+      setTimeout(boot, 2500); // 2.5s 强制加载兜底
+    } else {
+      boot();
+    }
+
+    this.loop = this.loop.bind(this);
+    this.raf = requestAnimationFrame(this.loop);
+  }
+
+  layout() {
+    // 骨架中心点偏右定位，为左侧书法字留白
+    this.cx = this.W * 0.56;
+    this.cy = this.H * 0.5;
+    this.scale = Math.min(this.H * 0.0105, this.W * 0.0066);
+  }
+
+  initParticles() {
+    if (this.particles) return;
+    const sizes = [11, 13, 15, 18];
+    const colors = ['rgba(33,29,23,0.92)', 'rgba(33,29,23,0.66)', 'rgba(74,68,58,0.5)', 'rgba(158,52,43,0.9)'];
+    this.particles = [];
+    
+    for (let i = 0; i < this.N; i++) {
+      const isRed = Math.random() < 0.07; // 少量硃砂色点缀
+      const size = sizes[Math.floor(Math.random() * (isRed ? 2 : 4))] + (isRed ? 4 : 0);
+      
+      this.particles.push({
+        ch: this.CHARS[Math.floor(Math.random() * this.CHARS.length)],
+        size,
+        color: isRed ? colors[3] : colors[Math.floor(Math.random() * 3)],
+        x: Math.random() * this.W, 
+        y: Math.random() * this.H,
+        fx: 0, fy: 0, cxp: 0, cyp: 0, tx: 0, ty: 0,
+        delay: 0, dur: 1000, t0: 0,
+        ph: Math.random() * Math.PI * 2, // 初始扰动弧度
+      });
+    }
+
+    // 按 字体|色彩 归类分桶，优化渲染管线
+    this.buckets = new Map();
+    this.particles.forEach((p, i) => {
+      const key = p.size + '|' + p.color;
+      if (!this.buckets.has(key)) {
+        this.buckets.set(key, { size: p.size, color: p.color, idx: [] });
+      }
+      this.buckets.get(key).idx.push(i);
+    });
+  }
+
+  buildTargets(poseIdx) {
+    const j = this.POSES[poseIdx].j;
+    const c = this.offCtx;
+    const S = 3; // 缩放倍率
+    c.clearRect(0, 0, 300, 300);
+    c.fillStyle = '#000'; 
+    c.strokeStyle = '#000';
+    c.lineCap = 'round'; 
+    c.lineJoin = 'round';
+
+    const seg = (a, b, w) => {
+      c.lineWidth = w * S;
+      c.beginPath();
+      c.moveTo(j[a][0] * S, j[a][1] * S);
+      c.lineTo(j[b][0] * S, j[b][1] * S);
+      c.stroke();
+    };
+
+    // 绘制肢体骨架段
+    seg('neck', 'pelvis', 13);
+    seg('neck', 'le', 8.5); 
+    seg('le', 'lh', 8);
+    seg('neck', 're', 8.5); 
+    seg('re', 'rh', 8);
+    seg('pelvis', 'lk', 9); 
+    seg('lk', 'lf', 8.5);
+    seg('pelvis', 'rk', 9); 
+    seg('rk', 'rf', 8.5);
+    
+    // 绘制头部
+    c.beginPath();
+    c.arc(j.head[0] * S, j.head[1] * S, 7.5 * S, 0, Math.PI * 2);
+    c.fill();
+
+    // 像素探测
+    const data = c.getImageData(0, 0, 300, 300).data;
+    const pts = [];
+    for (let y = 0; y < 300; y += 2) {
+      for (let x = 0; x < 300; x += 2) {
+        if (data[(y * 300 + x) * 4 + 3] > 100) {
+          pts.push([
+            this.cx + (x / S - 50 + (Math.random() - 0.5) * 1.6) * this.scale,
+            this.cy + (y / S - 50 + (Math.random() - 0.5) * 1.6) * this.scale,
+          ]);
+        }
+      }
+    }
+
+    // 像素补齐与裁剪
+    const out = [];
+    if (pts.length >= this.N) {
+      const stride = pts.length / this.N;
+      for (let i = 0; i < this.N; i++) {
+        out.push(pts[Math.floor(i * stride)]);
+      }
+    } else {
+      for (let i = 0; i < this.N; i++) {
+        const p = pts[i % pts.length];
+        out.push([p[0] + (Math.random() - 0.5) * 3, p[1] + (Math.random() - 0.5) * 3]);
+      }
+    }
+
+    // 采用质心极角排序算法，换式时展现水墨回旋聚拢效果
+    let mx = 0, my = 0;
+    out.forEach((p) => { mx += p[0]; my += p[1]; });
+    mx /= out.length; my /= out.length;
+    out.sort((a, b) => Math.atan2(a[1] - my, a[0] - mx) - Math.atan2(b[1] - my, b[0] - mx));
+    
+    return out;
+  }
+
+  applyPose(i, immediate) {
+    const targets = this.buildTargets(i);
+    const now = performance.now();
+    
+    for (let k = 0; k < this.N; k++) {
+      const p = this.particles[k], t = targets[k];
+      p.fx = p.x; 
+      p.fy = p.y;
+      p.tx = t[0]; 
+      p.ty = t[1];
+      
+      const mx2 = (p.fx + p.tx) / 2, my2 = (p.fy + p.ty) / 2;
+      const dx = p.tx - p.fx, dy = p.ty - p.fy;
+      const d = Math.sqrt(dx * dx + dy * dy) || 1;
+      
+      // 随机扰动回旋半径
+      const swing = Math.min(d * 0.45, 90) * (Math.random() < 0.5 ? -1 : 1);
+      p.cxp = mx2 + (-dy / d) * swing;
+      p.cyp = my2 + (dx / d) * swing;
+      
+      p.t0 = now;
+      p.delay = immediate ? 0 : (k % 70) * 1.5 + Math.random() * 50;
+      p.dur = immediate ? 1 : 450 + Math.random() * 250;
+    }
+  }
+
+  step(dir) {
+    const now = performance.now();
+    if (now < this.lockUntil) return;
+    this.lockUntil = now + 500;
+    this.lastInteract = now;
+    
+    const idx = (this.idx + dir + this.POSES.length) % this.POSES.length;
+    this.idx = idx;
+    this.render();
+    this.applyPose(idx, false);
+  }
+
+  jump(i) {
+    if (i === this.idx) return;
+    const now = performance.now();
+    if (now < this.lockUntil) return;
+    this.lockUntil = now + 500;
+    this.lastInteract = now;
+    
+    this.idx = i;
+    this.render();
+    this.applyPose(i, false);
+  }
+
+  loop(t) {
+    this.raf = requestAnimationFrame(this.loop);
+    const ctx = this.ctx;
+    if (!ctx) return;
+    ctx.clearRect(0, 0, this.W, this.H);
+
+    // 闲置 10 秒后自动演示拳招
+    if (this.fontReady && t - this.lastInteract > 10000 && t > this.lockUntil) {
+      this.lastInteract = t;
+      this.step(1);
+    }
+
+    // 绘制地面墨影
+    const gs = this.scale;
+    const g = ctx.createRadialGradient(this.cx, this.cy + 37 * gs, 0, this.cx, this.cy + 37 * gs, 30 * gs);
+    g.addColorStop(0, 'rgba(33,29,23,0.07)');
+    g.addColorStop(1, 'rgba(33,29,23,0)');
+    ctx.save();
+    ctx.translate(this.cx, this.cy + 37 * gs);
+    ctx.scale(1, 0.13); // 地面扁平投影
+    ctx.translate(-this.cx, -(this.cy + 37 * gs));
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(this.cx, this.cy + 37 * gs, 30 * gs, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    // 贝塞尔曲线过渡插值缓动
+    const ease = (u) => (u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2);
+    ctx.textAlign = 'center'; 
+    ctx.textBaseline = 'middle';
+    const ff = this.fontReady ? "'Ma Shan Zheng'" : "'Noto Serif SC', serif";
+
+    // 绘制字符阵列
+    for (const b of this.buckets.values()) {
+      ctx.font = b.size + 'px ' + ff;
+      ctx.fillStyle = b.color;
+      
+      for (const k of b.idx) {
+        const p = this.particles[k];
+        let u = (t - p.t0 - p.delay) / p.dur;
+        
+        if (u <= 0) { /* 延时等待 */ }
+        else if (u >= 1) { 
+          p.x = p.tx; 
+          p.y = p.ty; 
+        } else {
+          const e = ease(u), ie = 1 - e;
+          p.x = ie * ie * p.fx + 2 * ie * e * p.cxp + e * e * p.tx;
+          p.y = ie * ie * p.fy + 2 * ie * e * p.cyp + e * e * p.ty;
+        }
+        
+        // 墨影微浮：增加少许自然呼吸律动
+        const ax = Math.sin(t * 0.0006 + p.ph) * 0.9;
+        const ay = Math.cos(t * 0.0007 + p.ph * 1.3) * 0.9;
+        ctx.fillText(p.ch, p.x + ax, p.y + ay);
+      }
+    }
+  }
+
+  // 渲染排版结构
+  render() {
+    const idx = this.idx;
+    const pose = this.POSES[idx];
+
+    // 更新招式名节点（重构节点以重放入场动画）
+    this.nameHost.replaceChildren();
+    const nameWrap = document.createElement('div');
+    nameWrap.style.cssText = 'display:flex;align-items:flex-start;gap:20px;';
+
+    const sealCol = document.createElement('div');
+    sealCol.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:14px;';
+    
+    // 印章
+    const seal = document.createElement('div');
+    seal.style.cssText = "width:44px;height:44px;background:#9E342B;color:#F3EEE3;display:flex;align-items:center;justify-content:center;font-family:'Noto Serif SC',serif;font-weight:600;font-size:19px;animation:sealIn 0.7s cubic-bezier(0.3,1.2,0.4,1) both;";
+    seal.textContent = this.NUMS[idx];
+    
+    const sealBar = document.createElement('div');
+    sealBar.style.cssText = 'width:1px;height:70px;background:rgba(33,29,23,0.22);';
+    sealCol.append(seal, sealBar);
+
+    // 招式名书法字
+    const h1 = document.createElement('h1');
+    h1.style.cssText = "margin:0;writing-mode:vertical-rl;font-family:'Ma Shan Zheng',cursive;font-weight:400;font-size:clamp(58px,11vh,96px);line-height:1.08;letter-spacing:0.08em;color:#211D17;animation:nameIn 0.9s cubic-bezier(0.2,0.7,0.2,1) both;";
+    h1.textContent = pose.name;
+
+    // 招式心法/诗句
+    const lineEl = document.createElement('div');
+    lineEl.style.cssText = 'writing-mode:vertical-rl;font-size:13px;letter-spacing:0.42em;color:#6B6354;margin-top:10px;animation:nameIn 1s cubic-bezier(0.2,0.7,0.2,1) 0.18s both;';
+    lineEl.textContent = pose.line;
+
+    nameWrap.append(sealCol, h1, lineEl);
+    this.nameHost.appendChild(nameWrap);
+
+    // 绘制底部页码式码导航
+    if (!this.dotsBuilt) {
+      const dots = document.createElement('div');
+      dots.style.cssText = 'display:flex;gap:22px;animation:fadeIn 1.4s ease 0.6s both;';
+      
+      this.dotItems = this.POSES.map((p, i) => {
+        const item = document.createElement('div');
+        item.title = p.name;
+        item.style.cssText = 'cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:7px;padding:4px 3px;transition:opacity 0.3s ease;';
+        item.addEventListener('click', () => this.jump(i));
+        
+        const num = document.createElement('span');
+        num.style.cssText = 'font-size:15px;letter-spacing:0.1em;';
+        num.textContent = this.NUMS[i];
+        
+        const bar = document.createElement('span');
+        bar.style.cssText = 'width:16px;height:2px;transition:background 0.3s ease;';
+        
+        item.append(num, bar);
+        item._num = num; 
+        item._bar = bar;
+        dots.appendChild(item);
+        return item;
+      });
+      this.dotsHost.appendChild(dots);
+      this.dotsBuilt = true;
+    }
+
+    // 选中态颜色调配
+    this.dotItems.forEach((item, i) => {
+      const active = i === idx;
+      item.style.opacity = active ? 1 : 0.45;
+      item._num.style.color = active ? '#9E342B' : '#211D17';
+      item._num.style.fontWeight = active ? 600 : 400;
+      item._bar.style.background = active ? '#9E342B' : 'rgba(33,29,23,0.25)';
+    });
+
+    // 计数指示
+    this.numHost.textContent = this.NUMS[idx];
+  }
+}
+
+// 自动实例化
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => new WuXingBaShi());
+} else {
+  new WuXingBaShi();
+}
+</script>
+</body>
+</html>

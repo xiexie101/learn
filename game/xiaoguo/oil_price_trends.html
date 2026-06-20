@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>近五年中国成品油价格趋势 (2021-2026)</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-main: #06090e;
+            --bg-radial: radial-gradient(circle at 80% 20%, #15202b, #06090e);
+            --bg-card: rgba(22, 27, 34, 0.6);
+            --bg-card-hover: rgba(33, 39, 48, 0.85);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(56, 139, 253, 0.4);
+            
+            --text-primary: #f0f6fc;
+            --text-secondary: #8b949e;
+            --text-muted: #484f58;
+            
+            --color-oil: #58a6ff;      /* 传统原油科技蓝 */
+            --color-energy: #39d353;   /* 新能源活力绿 */
+            --color-accent: #ff9f1c;   /* 地缘警示橘黄 */
+            --color-danger: #f85149;   /* 跌幅/冲高红 */
+
+            --font-family: 'Plus Jakarta Sans', 'Noto Sans SC', -apple-system, sans-serif;
+            --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            --glow-shadow: 0 0 25px rgba(56, 139, 253, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg-main);
+            background-image: var(--bg-radial);
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* 滚动条美化 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-main);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        /* Hero 区域 */
+        header {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 40px;
+            align-items: center;
+            margin-bottom: 50px;
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @media (max-width: 968px) {
+            header {
+                grid-template-columns: 1fr;
+                gap: 24px;
+                text-align: center;
+            }
+        }
+
+        .hero-text h1 {
+            font-size: clamp(2.2rem, 4vw, 3.2rem);
+            font-weight: 700;
+            line-height: 1.15;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #ffffff 30%, #a5c3e6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.03em;
+        }
+
+        .hero-text p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin-bottom: 24px;
+        }
+
+        .hero-badges {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 968px) {
+            .hero-badges {
+                justify-content: center;
+            }
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-color);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .badge span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .badge.blue span { background: var(--color-oil); }
+        .badge.green span { background: var(--color-energy); }
+        .badge.orange span { background: var(--color-accent); }
+
+        .hero-img-container {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--glow-shadow);
+            transition: var(--transition-smooth);
+        }
+
+        .hero-img-container:hover {
+            transform: translateY(-4px) scale(1.01);
+            border-color: var(--border-hover);
+        }
+
+        .hero-img-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* 仪表盘主体 */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1.8fr 1.2fr;
+            gap: 32px;
+            margin-bottom: 60px;
+            animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 卡片通用样式 */
+        .glass-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            transition: var(--transition-smooth);
+        }
+
+        /* 图表区 */
+        .chart-card {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .chart-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .chart-filters {
+            display: flex;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        .filter-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .filter-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .filter-btn.active {
+            background: rgba(56, 139, 253, 0.15);
+            color: var(--color-oil);
+            box-shadow: inset 0 0 5px rgba(56, 139, 253, 0.1);
+        }
+
+        .chart-container {
+            position: relative;
+            flex-grow: 1;
+            width: 100%;
+            height: 380px;
+        }
+
+        /* 侧边大事件面板 */
+        .events-panel {
+            display: flex;
+            flex-direction: column;
+            max-height: 520px;
+        }
+
+        .events-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .events-title span {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-weight: normal;
+        }
+
+        .events-list {
+            overflow-y: auto;
+            padding-right: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .event-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 18px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .event-card:hover, .event-card.active {
+            background: var(--bg-card-hover);
+            border-color: var(--border-hover);
+            transform: translateX(4px);
+            box-shadow: 0 4px 20px rgba(56, 139, 253, 0.08);
+        }
+
+        .event-year {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--color-oil);
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .event-year .meta-price {
+            font-size: 0.85rem;
+            font-weight: 500;
+            background: rgba(88, 166, 255, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .event-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .event-highlights {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+        }
+
+        .tag.alert {
+            background: rgba(255, 159, 28, 0.1);
+            color: var(--color-accent);
+        }
+
+        .tag.green {
+            background: rgba(57, 211, 83, 0.1);
+            color: var(--color-energy);
+        }
+
+        /* 机制科普区域 */
+        .mechanism-section {
+            margin-bottom: 40px;
+            animation: fadeInUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .mechanism-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .mechanism-grid a {
+            text-decoration: none;
+        }
+
+        .mech-card {
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .mech-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--color-oil);
+        }
+
+        .mech-card.green::before {
+            background: var(--color-energy);
+        }
+
+        .mech-card.orange::before {
+            background: var(--color-accent);
+        }
+
+        .mech-card h3 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .mech-card p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* 动画定义 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 底部信息 */
+        footer {
+            margin-top: 60px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 24px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        footer a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: var(--transition-smooth);
+        }
+
+        footer a:hover {
+            color: var(--color-oil);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 Hero -->
+        <header>
+            <div class="hero-text">
+                <div class="hero-badges">
+                    <div class="badge blue"><span></span> 挂钩国际原油</div>
+                    <div class="badge green"><span></span> 绿色转型浪潮</div>
+                    <div class="badge orange"><span></span> 10工作日机制</div>
+                </div>
+                <h1 style="margin-top: 15px;">近五年中国成品油<br>价格趋势深度分析</h1>
+                <p>透视 2021 至 2026 年成品油价格轨迹。经历俄乌危机破“9”的巅峰与 2025 年新能源强力替代的重心下移，看懂宏观与地缘对出行成本的深刻改变。</p>
+            </div>
+            <div class="hero-img-container">
+                <img src="./oil_price_trends_1781921107300.jpg" alt="成品油价格趋势概念图">
+            </div>
+        </header>
+
+        <!-- 仪表盘主体 -->
+        <div class="dashboard-grid">
+            <!-- 折线图卡片 -->
+            <div class="glass-card chart-card">
+                <div class="chart-header">
+                    <div class="chart-title">92# 汽油历史价格走势 (折合升价)</div>
+                    <div class="chart-filters">
+                        <button class="filter-btn active" onclick="updateChartRange('all', this)">全部</button>
+                        <button class="filter-btn" onclick="updateChartRange('2021-2022', this)">2021-22</button>
+                        <button class="filter-btn" onclick="updateChartRange('2023-2024', this)">2023-24</button>
+                        <button class="filter-btn" onclick="updateChartRange('2025-2026', this)">2025-26</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="oilPriceChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 年度大事记列表 -->
+            <div class="glass-card events-panel">
+                <div class="events-title">
+                    <span>历年重大油价节点</span>
+                    <span>点击定位图表数据</span>
+                </div>
+                <div class="events-list" id="eventsList">
+                    <!-- 2026 -->
+                    <div class="event-card active" onclick="focusYear('2026', 20, 21)" data-year="2026">
+                        <div class="event-year">
+                            2026 年 <span>最新态势</span>
+                            <span class="meta-price">中枢 ~7.6元/升</span>
+                        </div>
+                        <p class="event-desc">受中东局势阶段性缓和影响，6月下旬国内成品油价格迎来了“二连跌”，消退了年初的涨幅。</p>
+                        <div class="event-highlights">
+                            <span class="tag alert">地缘溢价回落</span>
+                            <span class="tag">二连跌</span>
+                        </div>
+                    </div>
+                    <!-- 2025 -->
+                    <div class="event-card" onclick="focusYear('2025', 16, 19)" data-year="2025">
+                        <div class="event-year">
+                            2025 年 <span>重心下移</span>
+                            <span class="meta-price">中枢 ~7.2元/升</span>
+                        </div>
+                        <p class="event-desc">全年呈现跌多涨少格局（7涨12跌6搁浅），由于国内新能源渗透率破纪录，燃油需求见顶，92#汽油累计大跌 0.72 元/升。</p>
+                        <div class="event-highlights">
+                            <span class="tag green">新能源强势替代</span>
+                            <span class="tag">累计下调 0.72元</span>
+                        </div>
+                    </div>
+                    <!-- 2024 -->
+                    <div class="event-card" onclick="focusYear('2024', 12, 15)" data-year="2024">
+                        <div class="event-year">
+                            2024 年 <span>供需平衡</span>
+                            <span class="meta-price">中枢 ~7.8元/升</span>
+                        </div>
+                        <p class="event-desc">呈现“9涨9跌7搁浅”的多空对峙格局。红海危机与中东地缘局势震荡，但非OPEC原油供应充足，价格最终平稳微降。</p>
+                        <div class="event-highlights">
+                            <span class="tag">9涨9跌7搁浅</span>
+                            <span class="tag alert">红海地缘因素</span>
+                        </div>
+                    </div>
+                    <!-- 2023 -->
+                    <div class="event-card" onclick="focusYear('2023', 8, 11)" data-year="2023">
+                        <div class="event-year">
+                            2023 年 <span>高位震荡</span>
+                            <span class="meta-price">中枢 ~8.0元/升</span>
+                        </div>
+                        <p class="event-desc">OPEC+主动减产与美联储激进加息进行博弈，前三季度高位波动，四季度市场需求萎缩，在年底以罕见的“六连降”收尾。</p>
+                        <div class="event-highlights">
+                            <span class="tag">高位震荡</span>
+                            <span class="tag alert">年底六连降</span>
+                        </div>
+                    </div>
+                    <!-- 2022 -->
+                    <div class="event-card" onclick="focusYear('2022', 4, 7)" data-year="2022">
+                        <div class="event-year">
+                            2022 年 <span>历史新高</span>
+                            <span class="meta-price">均值 ~8.3元/升</span>
+                        </div>
+                        <p class="event-desc">俄乌冲突爆发引发全球油气暴涨，6月中旬全国 92# 汽油价格全面冲破“9元大关”（北京创下 9.33 元/升历史纪录）。</p>
+                        <div class="event-highlights">
+                            <span class="tag alert">历史破“9”</span>
+                            <span class="tag alert">俄乌能源危机</span>
+                        </div>
+                    </div>
+                    <!-- 2021 -->
+                    <div class="event-card" onclick="focusYear('2021', 0, 3)" data-year="2021">
+                        <div class="event-year">
+                            2021 年 <span>疫后复苏</span>
+                            <span class="meta-price">中枢 ~6.8元/升</span>
+                        </div>
+                        <p class="event-desc">全球进入疫后经济复苏轨道，原油需求迅速回暖，国内 92# 汽油稳步告别“5元时代”，震荡攀升突破“7元”。</p>
+                        <div class="event-highlights">
+                            <span class="tag">疫后经济反弹</span>
+                            <span class="tag">价格稳步回升</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 机制科普 -->
+        <section class="mechanism-section">
+            <h2 class="section-title">国内成品油零售价调整规则科普</h2>
+            <div class="mechanism-grid">
+                <div class="glass-card mech-card">
+                    <h3>10 工作日调价周期</h3>
+                    <p>依据国家发改委规定，国内汽、柴油最高零售价格每 10 个工作日进行一次调整。调整幅度参考前 10 个工作日国际市场一揽子原油均价变化率。</p>
+                </div>
+                <div class="glass-card mech-card orange">
+                    <h3>“天花板”与“地板”红线</h3>
+                    <p>国际原油高于 <b>130 美元/桶</b>（天花板）时，国内成品油原则上不再上调；低于 <b>40 美元/桶</b>（地板）时，零售价格原则上不再下调，确保极端行情下的市场平稳。</p>
+                </div>
+                <div class="glass-card mech-card green">
+                    <h3>50 元/吨 起调门槛</h3>
+                    <p>如果汽、柴油当期价格调整幅度折合每吨不足 <b>50 元</b>（即每升约合不足 0.04 元），则该轮窗口期不作调整，累加至下一次调价时一并计算。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 底部 -->
+        <footer>
+            <p>数据源：国家发展和改革委员会价格司 | © 2026 成品油价格趋势分析页</p>
+            <p style="margin-top: 8px;"><a href="./oil_price_trends_analysis.md">返回阅读 Markdown 原始报告</a></p>
+        </footer>
+    </div>
+
+    <!-- JS 逻辑控制 -->
+    <script>
+        // 数据集定义
+        const rawLabels = [
+            '2021 Q1', '2021 Q2', '2021 Q3', '2021 Q4',
+            '2022 Q1', '2022 Q2', '2022 Q3', '2022 Q4',
+            '2023 Q1', '2023 Q2', '2023 Q3', '2023 Q4',
+            '2024 Q1', '2024 Q2', '2024 Q3', '2024 Q4',
+            '2025 Q1', '2025 Q2', '2025 Q3', '2025 Q4',
+            '2026 Q1', '2026 Q2 (最新)'
+        ];
+
+        const rawData = [
+            5.95, 6.60, 7.05, 7.15,
+            8.05, 9.33, 8.40, 7.60,
+            7.75, 7.55, 8.45, 7.65,
+            7.90, 8.25, 7.80, 7.49,
+            7.65, 7.30, 7.45, 7.20,
+            7.85, 7.45
+        ];
+
+        // 核心说明（大事记）
+        const eventNotes = {
+            '2021 Q1': '疫后油价回升，92#步入6元时代',
+            '2021 Q4': '原油供求回暖，油价稳定攀升至7.15元',
+            '2022 Q2': '俄乌局势极化，油价创历史纪录突破9.33元',
+            '2022 Q4': '美联储激进加息，原油回落至7.60元',
+            '2023 Q3': 'OPEC+主动减产，支撑油价重返8.45元',
+            '2023 Q4': '年底原油市场走弱，迎来“六连降”收尾',
+            '2024 Q2': '红海危机爆发，油价年内冲高到8.25元',
+            '2024 Q4': '非OPEC增产，年底均价回落至7.49元',
+            '2025 Q2': '新能源渗透率攀升，传统油价下挫',
+            '2025 Q4': '全年累计跌幅达0.72元，年底收官至7.20元',
+            '2026 Q1': '地缘局势死灰复燃，油价拉升至7.85元',
+            '2026 Q2 (最新)': '美伊协议停火预期，6月暴跌二连降落回7.45元'
+        };
+
+        // 初始化 Chart.js
+        const ctx = document.getElementById('oilPriceChart').getContext('2d');
+        
+        // 创建渐变背景
+        const gradient = ctx.createLinearGradient(0, 0, 0, 350);
+        gradient.addColorStop(0, 'rgba(56, 139, 253, 0.4)');
+        gradient.addColorStop(0.5, 'rgba(56, 139, 253, 0.1)');
+        gradient.addColorStop(1, 'rgba(56, 139, 253, 0.0)');
+
+        const chartConfig = {
+            type: 'line',
+            data: {
+                labels: rawLabels,
+                datasets: [{
+                    label: '92号汽油价格 (元/升)',
+                    data: rawData,
+                    borderColor: '#58a6ff',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#58a6ff',
+                    pointBorderColor: '#06090e',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 8,
+                    pointHoverBackgroundColor: '#ff9f1c',
+                    pointHoverBorderColor: '#ffffff',
+                    fill: true,
+                    backgroundColor: gradient,
+                    tension: 0.35
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(22, 27, 34, 0.95)',
+                        titleColor: '#f0f6fc',
+                        bodyColor: '#8b949e',
+                        borderColor: 'rgba(56, 139, 253, 0.3)',
+                        borderWidth: 1,
+                        padding: 12,
+                        callbacks: {
+                            label: function(context) {
+                                let label = ` 零售价: ${context.parsed.y.toFixed(2)} 元/升`;
+                                const quarter = context.label;
+                                if (eventNotes[quarter]) {
+                                    label += `\n 节点: ${eventNotes[quarter]}`;
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        min: 5.0,
+                        max: 10.0,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.04)'
+                        },
+                        ticks: {
+                            color: '#8b949e',
+                            font: {
+                                family: 'Plus Jakarta Sans'
+                            },
+                            callback: function(value) {
+                                return '¥' + value.toFixed(1);
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#8b949e',
+                            font: {
+                                family: 'Plus Jakarta Sans'
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        let myChart = new Chart(ctx, chartConfig);
+
+        // 按钮筛选逻辑
+        function updateChartRange(range, btn) {
+            // 切换 active class
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            let filteredLabels = [...rawLabels];
+            let filteredData = [...rawData];
+
+            if (range === '2021-2022') {
+                filteredLabels = rawLabels.slice(0, 8);
+                filteredData = rawData.slice(0, 8);
+            } else if (range === '2023-2024') {
+                filteredLabels = rawLabels.slice(8, 16);
+                filteredData = rawData.slice(8, 16);
+            } else if (range === '2025-2026') {
+                filteredLabels = rawLabels.slice(16);
+                filteredData = rawData.slice(16);
+            }
+
+            myChart.data.labels = filteredLabels;
+            myChart.data.datasets[0].data = filteredData;
+            myChart.update();
+        }
+
+        // 大事记卡片点击高亮和定位
+        function focusYear(year, startIndex, endIndex) {
+            // 切换卡片活跃状态
+            document.querySelectorAll('.event-card').forEach(card => {
+                if (card.dataset.year === year) {
+                    card.classList.add('active');
+                } else {
+                    card.classList.remove('active');
+                }
+            });
+
+            // 重置顶部“全部”筛选按钮的状态
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if (btn.textContent === '全部') {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            // 还原图表所有数据
+            myChart.data.labels = rawLabels;
+            myChart.data.datasets[0].data = rawData;
+            myChart.update();
+
+            // 为图表对应年份的点添加特殊效果
+            // 在图表上直接触发高亮特效
+            const meta = myChart.getDatasetMeta(0);
+            myChart.setActiveElements([]); // 先清空
+
+            // 生成要选中的元素列表
+            const activeElements = [];
+            for (let i = startIndex; i <= endIndex; i++) {
+                activeElements.push({
+                    datasetIndex: 0,
+                    index: i
+                });
+            }
+            myChart.setActiveElements(activeElements);
+            myChart.tooltip.setActiveElements(activeElements, {
+                x: myChart.chartArea.left + (myChart.chartArea.right - myChart.chartArea.left) * (startIndex / (rawLabels.length - 1)),
+                y: myChart.chartArea.top
+            });
+            myChart.update();
+        }
+    </script>
+</body>
+</html>
