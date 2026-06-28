@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>繁花与共生 —— 唤醒沉睡的色彩</title>
+    <style>
+        :root {
+            --bg-gallery: #111113;
+            --frame-gold: #d4af37;
+            --frame-cream: #f9f6f0;
+            --text-gold: #e6ca65;
+            --text-dim: rgba(249, 246, 240, 0.45);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-gallery);
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Noto Serif SC", serif;
+        }
+
+        /* 展厅主舞台容器 (支持3D透视视差) */
+        #stage-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 40%, #222228 0%, #111113 85%);
+        }
+
+        /* 胶片颗粒噪声背景层 */
+        .grain-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0.04;
+            pointer-events: none;
+            z-index: 2;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+
+        /* 全屏墙面蔓延特效 Canvas */
+        #wall-canvas {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        /* 3D视差旋转墙面容器 */
+        #gallery-wall {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transform-style: preserve-3d;
+            transition: transform 0.15s ease-out;
+            will-change: transform;
+        }
+
+        /* 中央立体画框 */
+        .art-frame {
+            position: relative;
+            width: 68vw;
+            max-width: 320px;
+            aspect-ratio: 3 / 4;
+            background: #1a1a1e;
+            padding: 14px;
+            border-radius: 6px;
+            box-shadow: 
+                0 25px 60px rgba(0, 0, 0, 0.9),
+                0 0 0 1px rgba(255, 255, 255, 0.08),
+                0 0 40px rgba(212, 175, 55, 0.15);
+            cursor: pointer;
+            transform-style: preserve-3d;
+            transition: box-shadow 0.6s ease, transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .art-frame:active {
+            transform: scale(0.97);
+        }
+
+        /* 画框外框金属雕花边缘层 */
+        .art-frame::before {
+            content: '';
+            position: absolute;
+            top: -4px; left: -4px; right: -4px; bottom: -4px;
+            border: 2px solid rgba(212, 175, 55, 0.4);
+            border-radius: 10px;
+            pointer-events: none;
+            opacity: 0.7;
+            transition: all 0.5s;
+        }
+
+        .art-frame.glow-1::before { border-color: #e8a87c; box-shadow: 0 0 30px rgba(232, 168, 124, 0.4); }
+        .art-frame.glow-2::before { border-color: #41b3a3; box-shadow: 0 0 35px rgba(65, 179, 163, 0.5); }
+        .art-frame.glow-3::before { border-color: #8d74c0; box-shadow: 0 0 50px rgba(141, 116, 192, 0.8); }
+
+        /* 画框内部画作 Canvas Container */
+        .canvas-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            border-radius: 2px;
+            background: #f4efe6;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        #frame-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            transition: filter 0.5s ease;
+        }
+
+        /* 初始沉睡空白画布遮罩 */
+        .blank-veil {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #f9f6f0 0%, #e8e2d5 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2;
+            transition: opacity 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+            pointer-events: none;
+        }
+
+        .blank-veil::after {
+            content: 'TOUCH';
+            font-size: 10px;
+            letter-spacing: 4px;
+            color: rgba(0,0,0,0.15);
+            font-weight: 700;
+        }
+
+        /* 引导与状态字样 */
+        .guide-panel {
+            margin-top: 36px;
+            text-align: center;
+            z-index: 20;
+            height: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .guide-title {
+            font-size: 15px;
+            color: var(--frame-cream);
+            letter-spacing: 3px;
+            font-weight: 500;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+            transition: all 0.5s ease;
+        }
+
+        .guide-subtitle {
+            font-size: 11px;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+            margin-top: 6px;
+            animation: pulse 3s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; transform: translateY(0); }
+            50% { opacity: 0.9; transform: translateY(-2px); color: var(--text-gold); }
+        }
+
+        /* 右上角复古烫金馆藏落款凭证 (满墙触发) */
+        .museum-stamp {
+            position: absolute;
+            top: 36px;
+            right: 28px;
+            z-index: 30;
+            text-align: right;
+            opacity: 0;
+            transform: translateY(-15px) scale(0.95);
+            transition: all 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+            pointer-events: none;
+        }
+
+        .museum-stamp.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .stamp-badge {
+            display: inline-block;
+            border: 1px solid var(--frame-gold);
+            color: var(--frame-gold);
+            font-size: 9px;
+            letter-spacing: 2px;
+            padding: 2px 6px;
+            border-radius: 2px;
+            margin-bottom: 6px;
+            background: rgba(212, 175, 55, 0.08);
+            backdrop-filter: blur(4px);
+        }
+
+        .stamp-main {
+            font-size: 12px;
+            color: #f9f6f0;
+            letter-spacing: 2px;
+            font-weight: 600;
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.6);
+        }
+
+        .stamp-sub {
+            font-size: 9px;
+            color: rgba(249, 246, 240, 0.5);
+            letter-spacing: 1.5px;
+            margin-top: 4px;
+            font-family: monospace;
+        }
+
+        /* 顶部触控进度点指示器 */
+        .progress-dots {
+            position: absolute;
+            top: 40px;
+            left: 28px;
+            display: flex;
+            gap: 8px;
+            z-index: 30;
+        }
+
+        .dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .dot.active {
+            background: var(--frame-gold);
+            box-shadow: 0 0 10px var(--frame-gold);
+            transform: scale(1.4);
+        }
+
+        /* 底部毛玻璃操作栏 */
+        .action-bar {
+            position: absolute;
+            bottom: 40px;
+            left: 0; right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            z-index: 50;
+            opacity: 0;
+            transform: translateY(25px);
+            transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+            pointer-events: none;
+        }
+
+        .action-bar.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            color: #f9f6f0;
+            padding: 12px 24px;
+            border-radius: 100px;
+            font-size: 13px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .btn:active {
+            transform: scale(0.94);
+            background: var(--frame-gold);
+            color: #000;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #e6ca65 0%, #d4af37 100%);
+            color: #111;
+            font-weight: 600;
+            border: none;
+            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.35);
+        }
+
+        /* 海报预览模态框 */
+        #poster-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.92);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        #poster-modal.open {
+            display: flex;
+            opacity: 1;
+        }
+
+        .poster-preview-wrap {
+            position: relative;
+            width: 82vw;
+            max-width: 340px;
+            aspect-ratio: 9 / 16;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.1);
+        }
+
+        #poster-img {
+            width: 100%; height: 100%; object-fit: cover;
+        }
+
+        .modal-tip {
+            color: var(--text-gold);
+            font-size: 12px;
+            letter-spacing: 2px;
+            margin-top: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        .btn-close {
+            position: absolute;
+            top: 24px; right: 24px;
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 18px; cursor: pointer; border: none;
+        }
+    </style>
+</head>
+<body>
+
+<div id="stage-container">
+    <div class="grain-overlay"></div>
+    <canvas id="wall-canvas"></canvas>
+
+    <!-- 顶部触控进度指示 -->
+    <div class="progress-dots">
+        <div class="dot active" id="dot-0"></div>
+        <div class="dot" id="dot-1"></div>
+        <div class="dot" id="dot-2"></div>
+        <div class="dot" id="dot-3"></div>
+    </div>
+
+    <!-- 右上角馆藏凭证落款 -->
+    <div class="museum-stamp" id="stamp-panel">
+        <div class="stamp-badge">BRIDGEMAN SPECIAL EXHIBITION</div>
+        <div class="stamp-main">繁花与共生 · 色彩唤醒凭证</div>
+        <div class="stamp-sub">CURATOR: 小谢 ｜ No.20260626</div>
+    </div>
+
+    <!-- 核心画框舞台 -->
+    <div id="gallery-wall">
+        <div class="art-frame" id="frame-trigger">
+            <div class="canvas-container">
+                <canvas id="frame-canvas" width="600" height="800"></canvas>
+                <div class="blank-veil" id="veil"></div>
+            </div>
+        </div>
+
+        <div class="guide-panel">
+            <div class="guide-title" id="guide-t">沉睡的画廊</div>
+            <div class="guide-subtitle" id="guide-sub">伸出指尖，轻触空白画框</div>
+        </div>
+    </div>
+
+    <!-- 底部出片操作栏 -->
+    <div class="action-bar" id="action-panel">
+        <button class="btn" id="btn-reset">🔄 重置展墙</button>
+        <button class="btn btn-primary" id="btn-save">📷 保存珍藏海报</button>
+    </div>
+</div>
+
+<!-- 海报生成模态框 -->
+<div id="poster-modal">
+    <button class="btn-close" id="btn-close-modal">✕</button>
+    <div class="poster-preview-wrap">
+        <img id="poster-img" src="" alt="专属珍藏海报">
+    </div>
+    <div class="modal-tip">✨ 长按上方海报即可保存至相册分享</div>
+</div>
+
+<script>
+/**
+ * 🌸 《繁花与共生 —— 唤醒沉睡的色彩》核心交互引擎
+ */
+(function() {
+    const wallCanvas = document.getElementById('wall-canvas');
+    const wCtx = wallCanvas.getContext('2d');
+    const frameCanvas = document.getElementById('frame-canvas');
+    const fCtx = frameCanvas.getContext('2d');
+    const frameTrigger = document.getElementById('frame-trigger');
+    const veil = document.getElementById('veil');
+    const galleryWall = document.getElementById('gallery-wall');
+
+    const guideT = document.getElementById('guide-t');
+    const guideSub = document.getElementById('guide-sub');
+    const stampPanel = document.getElementById('stamp-panel');
+    const actionPanel = document.getElementById('action-panel');
+
+    let tapState = 0; // 0:沉睡, 1:工笔, 2:睡莲, 3:鸢尾满墙
+    let particles = [];
+    let ribbons = [];
+    let isAnimating = true;
+
+    // 适配屏幕分辨率
+    function resize() {
+        wallCanvas.width = window.innerWidth * window.devicePixelRatio;
+        wallCanvas.height = window.innerHeight * window.devicePixelRatio;
+        wCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // 🌸 1. 画框内部名画程序化绘制算法 (离屏或直接绘制)
+    function drawMasterpiece(stage) {
+        const w = frameCanvas.width;
+        const h = frameCanvas.height;
+        fCtx.clearRect(0, 0, w, h);
+
+        if (stage === 1) {
+            // 【海派工笔繁花】 绢本淡设色与工笔勾勒
+            fCtx.fillStyle = '#f5efe6';
+            fCtx.fillRect(0, 0, w, h);
+
+            // 绘制工笔枝干
+            fCtx.strokeStyle = '#6e5534';
+            fCtx.lineWidth = 8;
+            fCtx.lineCap = 'round';
+            fCtx.beginPath();
+            fCtx.moveTo(w*0.8, h+20);
+            fCtx.bezierCurveTo(w*0.7, h*0.6, w*0.3, h*0.5, w*0.2, h*0.2);
+            fCtx.stroke();
+
+            fCtx.lineWidth = 4;
+            fCtx.beginPath();
+            fCtx.moveTo(w*0.45, h*0.55);
+            fCtx.bezierCurveTo(w*0.6, h*0.4, w*0.75, h*0.3, w*0.85, h*0.35);
+            fCtx.stroke();
+
+            // 绘制牡丹花簇
+            drawPeony(fCtx, w*0.35, h*0.45, 90, '#d96b7c', '#fce4ec');
+            drawPeony(fCtx, w*0.65, h*0.35, 65, '#e88998', '#fff0f5');
+            drawPeony(fCtx, w*0.25, h*0.25, 50, '#c75265', '#f8d7da');
+
+            // 东方朱砂印章落款
+            fCtx.fillStyle = '#b73239';
+            fCtx.fillRect(w - 90, 40, 45, 45);
+            fCtx.fillStyle = '#fff';
+            fCtx.font = 'bold 18px "Noto Serif SC"';
+            fCtx.fillText('繁花', w - 85, 68);
+        } 
+        else if (stage === 2) {
+            // 【莫奈印象睡莲】 绿蓝水波晕染与印象光影
+            const grad = fCtx.createLinearGradient(0, 0, 0, h);
+            grad.addColorStop(0, '#3a5f6f');
+            grad.addColorStop(0.5, '#4f838c');
+            grad.addColorStop(1, '#2c4a5e');
+            fCtx.fillStyle = grad;
+            fCtx.fillRect(0, 0, w, h);
+
+            // 水面印象光斑
+            for (let i = 0; i < 60; i++) {
+                fCtx.fillStyle = `rgba(180, 220, 210, ${Math.random()*0.25})`;
+                fCtx.beginPath();
+                fCtx.ellipse(Math.random()*w, Math.random()*h, Math.random()*80 + 20, Math.random()*8 + 3, 0, 0, Math.PI*2);
+                fCtx.fill();
+            }
+
+            // 睡莲叶片与花簇
+            drawWaterLily(fCtx, w*0.3, h*0.65, 80, '#f3b3c8');
+            drawWaterLily(fCtx, w*0.7, h*0.45, 60, '#fce4ec');
+            drawWaterLily(fCtx, w*0.5, h*0.8, 95, '#e29bb3');
+        } 
+        else if (stage === 3) {
+            // 【梵高蓝紫狂野鸢尾】 厚重旋转笔触与黄蓝对比
+            fCtx.fillStyle = '#1e284f';
+            fCtx.fillRect(0, 0, w, h);
+
+            // 梵高油彩笔触背景
+            for (let i = 0; i < 400; i++) {
+                const x = Math.random()*w;
+                const y = Math.random()*h;
+                const len = Math.random()*35 + 15;
+                const angle = Math.sin(x*0.01 + y*0.01)*Math.PI;
+                fCtx.strokeStyle = Math.random() > 0.3 ? '#2e4378' : '#e6a13c';
+                fCtx.lineWidth = Math.random()*8 + 4;
+                fCtx.lineCap = 'round';
+                fCtx.beginPath();
+                fCtx.moveTo(x, y);
+                fCtx.lineTo(x + Math.cos(angle)*len, y + Math.sin(angle)*len);
+                fCtx.stroke();
+            }
+
+            // 狂野鸢尾盛开
+            drawIris(fCtx, w*0.5, h*0.55, 130, '#7563c0', '#ebaf4c');
+            drawIris(fCtx, w*0.25, h*0.7, 90, '#58499c', '#e09828');
+            drawIris(fCtx, w*0.78, h*0.4, 100, '#8675d6', '#f2c166');
+        }
+    }
+
+    // 辅助绘图：工笔牡丹
+    function drawPeony(ctx, x, y, r, colorMain, colorEdge) {
+        for(let i=r; i>10; i-=12) {
+            ctx.fillStyle = i % 24 === 0 ? colorMain : colorEdge;
+            ctx.beginPath();
+            for(let a=0; a<Math.PI*2; a+=Math.PI/4) {
+                const px = x + Math.cos(a)*i + (Math.random()*8-4);
+                const py = y + Math.sin(a)*i*0.75;
+                ctx.lineTo(px, py);
+            }
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(110,85,52,0.3)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        }
+        ctx.fillStyle = '#e6ca65';
+        ctx.beginPath();
+        ctx.arc(x, y, r*0.15, 0, Math.PI*2);
+        ctx.fill();
+    }
+
+    // 辅助绘图：莫奈睡莲
+    function drawWaterLily(ctx, x, y, r, flowerColor) {
+        ctx.fillStyle = 'rgba(45, 90, 75, 0.85)';
+        ctx.beginPath();
+        ctx.arc(x, y+10, r*0.9, 0.2, Math.PI*1.8);
+        ctx.fill();
+
+        ctx.fillStyle = flowerColor;
+        for(let j=0; j<8; j++) {
+            ctx.beginPath();
+            ctx.ellipse(x + (j-4)*8, y - j*3, 16, 28, (j-4)*0.2, 0, Math.PI*2);
+            ctx.fill();
+        }
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(x, y-8, 10, 0, Math.PI*2);
+        ctx.fill();
+    }
+
+    // 辅助绘图：梵高鸢尾
+    function drawIris(ctx, x, y, r, cMain, cCenter) {
+        ctx.strokeStyle = '#2d4a3e';
+        ctx.lineWidth = 10;
+        ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x-20, y+200); ctx.stroke();
+
+        for(let k=0; k<6; k++) {
+            ctx.fillStyle = cMain;
+            ctx.beginPath();
+            const angle = (k/6)*Math.PI*2;
+            ctx.ellipse(x + Math.cos(angle)*r*0.4, y + Math.sin(angle)*r*0.3, r*0.45, r*0.25, angle, 0, Math.PI*2);
+            ctx.fill();
+            ctx.strokeStyle = '#382b73'; ctx.lineWidth=3; ctx.stroke();
+        }
+        ctx.fillStyle = cCenter;
+        ctx.beginPath(); ctx.arc(x, y, r*0.22, 0, Math.PI*2); ctx.fill();
+    }
+
+
+    // 🌸 2. 展墙蔓延粒子与流体藤蔓系统
+    class Particle {
+        constructor(x, y, type) {
+            this.x = x; this.y = y; this.type = type;
+            const angle = Math.random() * Math.PI * 2;
+            const speed = Math.random() * 6 + 2;
+            this.vx = Math.cos(angle) * speed;
+            this.vy = Math.sin(angle) * speed;
+            this.life = 1.0;
+            this.decay = Math.random() * 0.008 + 0.004;
+            this.size = Math.random() * 12 + 4;
+            this.rot = Math.random() * Math.PI;
+            this.vRot = (Math.random() - 0.5) * 0.1;
+
+            if (type === 1) { // 工笔粉金
+                this.colors = ['#e8a87c', '#d96b7c', '#fce4ec', '#d4af37'];
+            } else if (type === 2) { // 莫奈水光青绿
+                this.colors = ['#41b3a3', '#85cdca', '#e29bb3', '#f9f6f0'];
+            } else { // 梵高狂野蓝紫金
+                this.colors = ['#8d74c0', '#58499c', '#ebaf4c', '#4da8da'];
+                this.vx *= 1.5; this.vy *= 1.5;
+            }
+            this.color = this.colors[Math.floor(Math.random()*this.colors.length)];
+        }
+
+        update() {
+            this.x += this.vx; this.y += this.vy;
+            this.vx *= 0.98; this.vy *= 0.98;
+            this.rot += this.vRot;
+            this.life -= this.decay;
+
+            // 梵高旋涡引力场偏移
+            if (this.type === 3) {
+                const cx = window.innerWidth / 2;
+                const cy = window.innerHeight / 2;
+                const dx = this.x - cx; const dy = this.y - cy;
+                this.vx += -dy * 0.001;
+                this.vy += dx * 0.001;
+            }
+        }
+
+        draw(ctx) {
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            ctx.rotate(this.rot);
+            ctx.globalAlpha = Math.max(0, this.life);
+            ctx.fillStyle = this.color;
+
+            if (this.type === 1) { // 花瓣柳叶形
+                ctx.beginPath(); ctx.ellipse(0, 0, this.size, this.size*0.4, 0, 0, Math.PI*2); ctx.fill();
+            } else if (this.type === 2) { // 印象朦胧光点
+                ctx.beginPath(); ctx.arc(0, 0, this.size*0.8, 0, Math.PI*2); ctx.fill();
+            } else { // 狂野厚重笔触矩形
+                ctx.fillRect(-this.size, -this.size*0.3, this.size*2, this.size*0.6);
+            }
+            ctx.restore();
+        }
+    }
+
+    // 蔓延生长的东方藤蔓线条
+    class Ribbon {
+        constructor(x, y, color) {
+            this.points = [{x, y}];
+            this.angle = Math.random() * Math.PI * 2;
+            this.vAngle = (Math.random() - 0.5) * 0.2;
+            this.speed = Math.random() * 5 + 3;
+            this.color = color;
+            this.maxLen = Math.floor(Math.random() * 40 + 25);
+            this.width = Math.random() * 4 + 2;
+        }
+        update() {
+            if (this.points.length >= this.maxLen) return;
+            const head = this.points[this.points.length - 1];
+            this.angle += (Math.random() - 0.5) * 0.3;
+            const nx = head.x + Math.cos(this.angle) * this.speed;
+            const ny = head.y + Math.sin(this.angle) * this.speed;
+            this.points.push({x: nx, y: ny});
+        }
+        draw(ctx) {
+            if (this.points.length < 2) return;
+            ctx.save();
+            ctx.strokeStyle = this.color;
+            ctx.lineWidth = this.width;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            ctx.moveTo(this.points[0].x, this.points[0].y);
+            for(let i=1; i<this.points.length; i++) {
+                ctx.lineTo(this.points[i].x, this.points[i].y);
+            }
+            ctx.stroke();
+            ctx.restore();
+        }
+    }
+
+    // 发射蔓延奇点
+    function triggerBloom(x, y, stage) {
+        const count = stage === 3 ? 180 : 90;
+        for(let i=0; i<count; i++) {
+            if (particles.length < 2200) {
+                particles.push(new Particle(x, y, stage));
+            }
+        }
+
+        if (stage === 1 || stage === 3) {
+            const rCount = stage === 3 ? 35 : 20;
+            const rCol = stage === 1 ? 'rgba(212, 175, 55, 0.6)' : 'rgba(141, 116, 192, 0.7)';
+            for(let j=0; j<rCount; j++) {
+                ribbons.push(new Ribbon(x, y, rCol));
+            }
+        }
+    }
+
+    // 动画主循环
+    function loop() {
+        wCtx.fillStyle = 'rgba(17, 17, 19, 0.12)'; // 拖尾残影
+        wCtx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+
+        // 绘制藤蔓
+        ribbons.forEach(r => { r.update(); r.draw(wCtx); });
+
+        // 绘制粒子
+        for(let i=particles.length-1; i>=0; i--) {
+            const p = particles[i];
+            p.update();
+            p.draw(wCtx);
+            if (p.life <= 0) particles.splice(i, 1);
+        }
+
+        if (isAnimating) requestAnimationFrame(loop);
+    }
+    loop();
+
+
+    // 🌸 3. 触控状态机与动线推进
+    frameTrigger.addEventListener('click', function(e) {
+        if (tapState >= 3) return; // 已满墙
+        tapState++;
+
+        // 顶部进度点
+        document.querySelectorAll('.dot').forEach(d => d.classList.remove('active'));
+        const curDot = document.getElementById(`dot-${tapState}`);
+        if (curDot) curDot.classList.add('active');
+
+        // 计算中心发射点坐标
+        const rect = frameTrigger.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+
+        if (tapState === 1) {
+            veil.style.opacity = '0';
+            drawMasterpiece(1);
+            frameTrigger.classList.add('glow-1');
+            guideT.innerText = '第一击：工笔繁花';
+            guideSub.innerText = '东方细线初绽，轻触继续流转';
+            triggerBloom(cx, cy, 1);
+        } 
+        else if (tapState === 2) {
+            drawMasterpiece(2);
+            frameTrigger.classList.remove('glow-1');
+            frameTrigger.classList.add('glow-2');
+            guideT.innerText = '第二击：睡莲水色';
+            guideSub.innerText = '莫奈光影叠化，轻触见证满墙盛开';
+            triggerBloom(cx, cy, 2);
+        } 
+        else if (tapState === 3) {
+            drawMasterpiece(3);
+            frameTrigger.classList.remove('glow-2');
+            frameTrigger.classList.add('glow-3');
+            guideT.innerText = '第三击：狂野鸢尾';
+            guideSub.innerText = '梵高旋涡燃爆 ｜ 沉睡色彩已然唤醒';
+            triggerBloom(cx, cy, 3);
+
+            // 触发高潮出片UI闭环
+            setTimeout(() => {
+                stampPanel.classList.add('show');
+                actionPanel.classList.add('show');
+            }, 1000);
+        }
+    });
+
+
+    // 🌸 4. 手机陀螺仪 3D 展墙视差感应
+    let targetX = 0, targetY = 0;
+    let curX = 0, curY = 0;
+
+    window.addEventListener('deviceorientation', function(e) {
+        if (e.gamma !== null && e.beta !== null) {
+            targetX = Math.max(-15, Math.min(15, e.gamma * 0.4));
+            targetY = Math.max(-15, Math.min(15, (e.beta - 45) * 0.3));
+        }
+    });
+
+    // PC端鼠标移入视差 fallback
+    window.addEventListener('mousemove', function(e) {
+        const nx = (e.clientX / window.innerWidth - 0.5) * 25;
+        const ny = (e.clientY / window.innerHeight - 0.5) * -25;
+        targetX = nx; targetY = ny;
+    });
+
+    function renderParallax() {
+        curX += (targetX - curX) * 0.1;
+        curY += (targetY - curY) * 0.1;
+        galleryWall.style.transform = `rotateY(${curX}deg) rotateX(${curY}deg)`;
+        requestAnimationFrame(renderParallax);
+    }
+    renderParallax();
+
+
+    // 🌸 5. 重置与海报出片逻辑
+    document.getElementById('btn-reset').addEventListener('click', function() {
+        tapState = 0;
+        particles = []; ribbons = [];
+        wCtx.clearRect(0, 0, wallCanvas.width, wallCanvas.height);
+        veil.style.opacity = '1';
+        frameTrigger.className = 'art-frame';
+        guideT.innerText = '沉睡的画廊';
+        guideSub.innerText = '伸出指尖，轻触空白画框';
+        stampPanel.classList.remove('show');
+        actionPanel.classList.remove('show');
+        document.querySelectorAll('.dot').forEach(d => d.classList.remove('active'));
+        document.getElementById('dot-0').classList.add('active');
+    });
+
+    const posterModal = document.getElementById('poster-modal');
+    const posterImg = document.getElementById('poster-img');
+
+    document.getElementById('btn-save').addEventListener('click', function() {
+        // 创建合成专用离屏画布
+        const expCanvas = document.createElement('canvas');
+        expCanvas.width = 1080; expCanvas.height = 1920;
+        const eCtx = expCanvas.getContext('2d');
+
+        // 1. 填充炭黑水泥背景
+        eCtx.fillStyle = '#111113';
+        eCtx.fillRect(0, 0, 1080, 1920);
+
+        // 2. 将当前墙面蔓延特效绘制上去
+        eCtx.drawImage(wallCanvas, 0, 0, 1080, 1920);
+
+        // 3. 绘制中央画框与梵高原作缩略图
+        const fw = 540, fh = 720;
+        const fx = (1080 - fw) / 2, fy = (1920 - fh) / 2 - 60;
+        eCtx.fillStyle = '#1a1a1e';
+        eCtx.fillRect(fx - 24, fy - 24, fw + 48, fh + 48);
+        eCtx.strokeStyle = '#d4af37'; eCtx.lineWidth = 6;
+        eCtx.strokeRect(fx - 12, fy - 12, fw + 24, fh + 24);
+        eCtx.drawImage(frameCanvas, fx, fy, fw, fh);
+
+        // 4. 叠加烫金特展凭证字样
+        eCtx.fillStyle = '#d4af37';
+        eCtx.font = 'bold 28px sans-serif';
+        eCtx.textAlign = 'center';
+        eCtx.fillText('《 繁花与共生 · 色彩唤醒珍藏凭证 》', 540, 140);
+
+        eCtx.fillStyle = '#f9f6f0';
+        eCtx.font = '36px serif';
+        eCtx.fillText('唤醒沉睡的色彩 ｜ 满墙盛开纪念', 540, 1620);
+
+        eCtx.fillStyle = 'rgba(249, 246, 240, 0.5)';
+        eCtx.font = '24px monospace';
+        eCtx.fillText('BRIDGEMAN ART LIBRARY × CURATOR 小谢 · 2026.06.26', 540, 1680);
+
+        // 导出无损PNG
+        posterImg.src = expCanvas.toDataURL('image/png');
+        posterModal.classList.add('open');
+    });
+
+    document.getElementById('btn-close-modal').addEventListener('click', function() {
+        posterModal.classList.remove('open');
+    });
+})();
+</script>
+</body>
+</html>
