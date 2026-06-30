@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>问老爷 · ASK LAOYE — 跋杯 Jiao Bei (复刻版)</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Noto+Serif+SC:wght@400;500;600;700;900&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   高定东方审美设计系统 — 朱砂红与宣纸黄
+   ============================================================ */
+:root {
+  --rice: #F7F0E4; 
+  --rice-2: #FBF6EC;
+  --vermilion: #D23B2C; 
+  --vermilion-2: #B22A20;
+  --deep-red: #6E1610; 
+  --gold: #C19A4B; 
+  --gold-soft: #E9C56A;
+  --ink: #211712; 
+  --ink-soft: #6b5a50; 
+  --line: rgba(33, 23, 18, 0.14);
+  --serif-cn: "Noto Serif SC", "Songti SC", "STSong", serif;
+  --serif-en: "Cormorant Garamond", "Times New Roman", serif;
+  --sans-cn: "Noto Sans SC", -apple-system, "PingFang SC", sans-serif;
+  --maxw: 1180px; 
+  --radius: 18px;
+  --shadow-soft: 0 24px 60px -28px rgba(110, 22, 16, 0.45);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--sans-cn);
+  color: var(--ink);
+  background: var(--rice);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+img { max-width: 100%; display: block; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+input { font-family: inherit; }
+::selection { background: var(--vermilion); color: var(--rice-2); }
+a { color: inherit; text-decoration: none; }
+
+.wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 28px; }
+.en { font-family: var(--serif-en); font-style: italic; }
+.label { font-family: var(--serif-en); font-style: italic; font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-soft); }
+
+/* 传统宣纸颗粒质感叠加 */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9000;
+  opacity: 0.04;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* 页面切换控制 */
+[hidden] { display: none !important; }
+.view[hidden] { display: none !important; }
+.view-cover, .view-throw {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  overflow: hidden; animation: viewIn 0.6s ease;
+}
+@keyframes viewIn { from { opacity: 0; } to { opacity: 1; } }
+.view-main { animation: viewIn 0.5s ease; }
+
+/* ============================================================
+   鼠标好运金色粒子
+   ============================================================ */
+.spark {
+  position: fixed; z-index: 8000; pointer-events: none; transform: translate(-50%, -50%);
+  color: var(--gold-soft); font-size: 13px; filter: drop-shadow(0 0 4px rgba(233, 197, 106, 0.8));
+  animation: sparkUp 0.9s ease-out forwards;
+}
+@keyframes sparkUp {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.1) rotate(var(--rot)); }
+}
+
+/* ============================================================
+   3D 筊杯渲染组件 (胖月牙形态)
+   ============================================================ */
+.stage {
+  position: relative; display: flex; align-items: center; justify-content: center;
+  perspective: 1100px; touch-action: none; cursor: grab; user-select: none;
+}
+.stage:active { cursor: grabbing; }
+.stage-inner {
+  position: relative; display: flex; align-items: center; justify-content: center;
+  gap: clamp(10px, 3vw, 40px); transform-style: preserve-3d; transition: transform 0.25s ease-out;
+}
+.cup-slot { position: relative; transform-style: preserve-3d; }
+.cup3d {
+  position: relative; width: var(--cupw, 160px); aspect-ratio: 175/300;
+  transform-style: preserve-3d; will-change: transform;
+}
+.cup3d .face { position: absolute; inset: 0; backface-visibility: hidden; }
+.cup3d .face svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 16px 18px rgba(110, 22, 16, 0.32)); }
+.face.yang { transform: translateZ(7px); }
+.face.yin { transform: rotateX(180deg) translateZ(7px); }
+.cup-shadow {
+  position: absolute; left: 50%; bottom: -32px; transform: translateX(-50%); width: 74%; height: 24px;
+  border-radius: 50%; background: radial-gradient(closest-side, rgba(110, 22, 16, 0.42), transparent 72%); filter: blur(5px);
+}
+.cup3d.floating { animation: floatL 3.8s ease-in-out infinite; }
+.cup3d.floating.mirror { animation: floatR 3.8s ease-in-out infinite; animation-delay: -1.6s; }
+@keyframes floatL { 0%, 100% { transform: translateY(2px) rotateZ(-11deg) rotateX(7deg); } 50% { transform: translateY(-15px) rotateZ(-5deg) rotateX(-4deg); } }
+@keyframes floatR { 0%, 100% { transform: translateY(-7px) rotateZ(11deg) rotateX(-4deg); } 50% { transform: translateY(9px) rotateZ(5deg) rotateX(7deg); } }
+
+/* ============================================================
+   1. 首页 COVER
+   ============================================================ */
+.view-cover {
+  background:
+    radial-gradient(120% 90% at 50% -8%, color-mix(in srgb, var(--vermilion) 52%, transparent) 0%, transparent 55%),
+    linear-gradient(180deg, color-mix(in srgb, var(--vermilion) 20%, var(--rice)) 0%, var(--rice) 46%);
+}
+.cover-meta {
+  position: absolute; top: 30px; left: 0; right: 0; display: flex; justify-content: space-between; padding: 0 36px; color: var(--ink-soft);
+}
+.cover-meta .en { font-size: 14px; }
+.cover-inner { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 760px; padding: 24px; }
+.cover-title {
+  font-family: var(--serif-cn); font-weight: 700; line-height: 0.94; text-align: center;
+  font-size: clamp(46px, 9vw, 116px); letter-spacing: 0.02em;
+}
+.cover-title .sub-en {
+  display: block; font-family: var(--serif-en); font-style: italic; font-weight: 500;
+  font-size: 0.22em; letter-spacing: 0.06em; color: var(--vermilion); margin-top: 0.16em;
+}
+.cover-stage { --cupw: clamp(110px, 16vw, 168px); width: 100%; height: clamp(220px, 28vw, 330px); margin: -1vw 0 0; }
+.cover-notes {
+  display: flex; justify-content: space-between; width: 100%; max-width: 640px; margin-top: 6px;
+  font-family: var(--serif-en); font-style: italic; font-size: clamp(15px, 2vw, 22px); color: var(--ink);
+}
+.enter-btn {
+  margin-top: 30px; background: var(--vermilion); color: #fff; font-size: 17px; font-weight: 500; letter-spacing: 0.14em;
+  padding: 18px 56px; border-radius: 999px; box-shadow: 0 16px 36px -12px var(--vermilion); transition: 0.25s; position: relative; overflow: hidden;
+}
+.enter-btn:hover { transform: translateY(-2px); background: var(--vermilion-2); }
+.enter-btn .en { font-style: italic; font-size: 13px; opacity: 0.8; margin-left: 8px; }
+.cover-tip { margin-top: 16px; font-size: 13px; color: var(--ink-soft); text-align: center; }
+
+/* ============================================================
+   2. 主页顶部导航
+   ============================================================ */
+.topbar {
+  position: sticky; top: 0; z-index: 200; backdrop-filter: blur(10px);
+  background: color-mix(in srgb, var(--rice) 80%, transparent); border-bottom: 1px solid var(--line);
+}
+.topbar .wrap { display: flex; align-items: center; justify-content: space-between; height: 58px; }
+.brand-mark { font-family: var(--serif-cn); font-weight: 700; font-size: 19px; letter-spacing: 0.04em; cursor: pointer; }
+.brand-mark small { font-family: var(--serif-en); font-style: italic; font-weight: 500; font-size: 12px; letter-spacing: 0.14em; color: var(--ink-soft); margin-left: 8px; }
+.topnav { display: flex; gap: 24px; align-items: center; }
+.topnav a { font-size: 13px; letter-spacing: 0.04em; color: var(--ink-soft); transition: 0.2s; cursor: pointer; }
+.topnav a:hover { color: var(--vermilion); }
+
+/* ============================================================
+   今日运势组件
+   ============================================================ */
+.fortune {
+  margin: 0 auto 30px; max-width: 760px; border: 1px solid var(--line); border-radius: var(--radius);
+  background: color-mix(in srgb, var(--rice-2) 92%, transparent); padding: 20px 26px; display: flex; align-items: center; gap: 18px; box-shadow: var(--shadow-soft);
+}
+.fortune .seal {
+  flex: 0 0 auto; width: 62px; height: 62px; border-radius: 50%; background: var(--vermilion); color: #fff;
+  display: grid; place-items: center; font-family: var(--serif-cn); font-weight: 700; font-size: 13px; line-height: 1.05; text-align: center;
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, #fff 35%, transparent);
+}
+.fortune .ft-k { font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--vermilion); font-weight: 500; }
+.fortune .ft-title { font-family: var(--serif-cn); font-weight: 600; font-size: 22px; margin: 3px 0 2px; }
+.fortune .ft-desc { font-size: 14px; color: var(--ink-soft); font-weight: 300; }
+
+/* ============================================================
+   通用区块与问神表单
+   ============================================================ */
+section { position: relative; z-index: 2; }
+.section-head { display: flex; align-items: baseline; gap: 14px; margin: 0 0 22px; }
+.section-head h2 { font-family: var(--serif-cn); font-weight: 600; font-size: clamp(26px, 4vw, 40px); letter-spacing: 0.01em; }
+.section-head .idx { font-family: var(--serif-en); font-style: italic; font-size: 16px; color: var(--vermilion); }
+
+.ask { padding: 50px 0 30px; }
+.ask-card { border: 1px solid var(--line); border-radius: calc(var(--radius) + 6px); background: var(--rice-2); padding: 34px; box-shadow: var(--shadow-soft); }
+.ask-steps { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px; }
+.ask-steps span { font-size: 11px; color: var(--ink-soft); padding: 5px 11px; border: 1px solid var(--line); border-radius: 999px; }
+.ask-steps span b { color: var(--vermilion); font-weight: 600; margin-right: 5px; }
+.ask-input {
+  width: 100%; background: transparent; border: none; border-bottom: 1.5px solid var(--line);
+  font-family: var(--serif-cn); font-size: clamp(20px, 3vw, 30px); font-weight: 500; color: var(--ink); padding: 10px 2px 14px; outline: none; transition: border-color 0.3s;
+}
+.ask-input::placeholder { color: color-mix(in srgb, var(--ink-soft) 70%, transparent); }
+.ask-input:focus { border-color: var(--vermilion); }
+.presets { margin-top: 24px; }
+.presets .ptitle { font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 12px; }
+.preset-group { margin-bottom: 16px; }
+.preset-group .gname { font-family: var(--serif-en); font-style: italic; font-size: 14px; color: var(--vermilion); margin-bottom: 8px; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip { font-size: 13px; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); color: var(--ink); transition: 0.2s; cursor: pointer; }
+.chip:hover { border-color: var(--vermilion); color: var(--vermilion); transform: translateY(-1px); }
+.ask-actions { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-top: 30px; }
+.toggle { display: inline-flex; align-items: center; gap: 10px; font-size: 13px; color: var(--ink-soft); cursor: pointer; user-select: none; }
+.toggle .sw { width: 42px; height: 24px; border-radius: 999px; background: var(--line); position: relative; transition: 0.25s; }
+.toggle .sw::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: 0.25s; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+.toggle input { display: none; }
+.toggle input:checked + .sw { background: var(--vermilion); }
+.toggle input:checked + .sw::after { transform: translateX(18px); }
+.toggle b { color: var(--ink); font-weight: 500; }
+.btn-throw {
+  margin-left: auto; display: inline-flex; align-items: center; gap: 12px; background: var(--vermilion); color: #fff;
+  font-size: 16px; font-weight: 500; padding: 16px 34px; border-radius: 999px; letter-spacing: 0.05em; box-shadow: 0 14px 30px -10px var(--vermilion); transition: 0.25s;
+}
+.btn-throw:hover { transform: translateY(-2px); background: var(--vermilion-2); }
+.btn-throw .en { font-style: italic; font-size: 14px; opacity: 0.8; }
+
+/* 分享卡片 */
+.share { padding: 30px 0 70px; }
+.share-card {
+  max-width: 420px; margin: 0 auto; border-radius: 22px; overflow: hidden; background: linear-gradient(170deg, var(--vermilion), var(--deep-red)); color: #fdeede; box-shadow: var(--shadow-soft); position: relative;
+}
+.share-card .sc-grain {
+  position: absolute; inset: 0; opacity: 0.12; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.8'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.share-card .sc-in { position: relative; padding: 34px 30px 26px; }
+.share-card .sc-top { display: flex; justify-content: space-between; align-items: center; font-family: var(--serif-en); font-style: italic; font-size: 13px; opacity: 0.85; }
+.share-card .sc-glyph { font-family: var(--serif-cn); font-weight: 900; font-size: 64px; margin: 24px 0 6px; }
+.share-card .sc-line { font-family: var(--serif-cn); font-size: 15px; opacity: 0.85; margin-bottom: 4px; }
+.share-card .sc-q { font-family: var(--serif-cn); font-weight: 600; font-size: 24px; line-height: 1.4; }
+.share-card .sc-a { font-family: var(--serif-cn); font-weight: 700; font-size: 28px; margin-top: 14px; line-height: 1.45; }
+.share-card .sc-foot { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.25); padding-top: 14px; }
+.share-card .sc-foot .qr { width: 46px; height: 46px; border-radius: 8px; background: rgba(255,255,255,0.9); display: grid; place-items: center; font-size: 8px; color: var(--deep-red); text-align: center; }
+.share-card .sc-brand { font-family: var(--serif-cn); font-weight: 700; font-size: 18px; text-align: right; }
+.share-card .sc-brand small { display: block; font-family: var(--serif-en); font-style: italic; font-size: 11px; opacity: 0.8; }
+.share-actions { max-width: 420px; margin: 18px auto 0; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; justify-content: center; }
+.share-actions button { font-size: 14px; padding: 11px 22px; border-radius: 999px; border: 1px solid var(--vermilion); color: var(--vermilion); transition: 0.2s; }
+.share-actions button:hover { background: var(--vermilion); color: #fff; }
+.share-actions .share-tip { font-size: 12px; color: var(--ink-soft); }
+
+/* 历史列表 */
+.history { padding: 30px 0 60px; }
+.hist-list { display: grid; gap: 10px; }
+.hist-empty { font-size: 14px; color: var(--ink-soft); padding: 18px; border: 1px dashed var(--line); border-radius: 14px; text-align: center; }
+.hist-item { display: grid; grid-template-columns: 54px 1fr auto; align-items: center; gap: 16px; border: 1px solid var(--line); border-radius: 14px; padding: 14px 18px; background: var(--rice-2); }
+.hist-item .h-glyph { font-family: var(--serif-cn); font-weight: 900; font-size: 30px; color: var(--vermilion); text-align: center; }
+.hist-item .h-q { font-size: 15px; font-weight: 500; }
+.hist-item .h-meta { font-size: 12px; color: var(--ink-soft); }
+.hist-item .h-res { font-family: var(--serif-en); font-style: italic; font-size: 15px; color: var(--ink-soft); }
+.hist-clear { margin-top: 14px; font-size: 12px; color: var(--ink-soft); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+/* 关于区域 */
+.about { padding: 50px 0 40px; }
+.about-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 48px; align-items: start; }
+.about-lead { font-family: var(--serif-cn); font-weight: 500; font-size: clamp(20px, 2.6vw, 28px); line-height: 1.6; }
+.about-lead .hl { color: var(--vermilion); }
+.about-body { font-size: 15px; line-height: 1.85; color: var(--ink-soft); font-weight: 300; margin-top: 20px; }
+.three { display: grid; gap: 14px; }
+.three .t-row { display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; border-top: 1px solid var(--line); padding: 16px 0; }
+.three .t-glyph { font-family: var(--serif-cn); font-weight: 900; font-size: 40px; color: var(--vermilion); line-height: 1; }
+.three .t-name { font-family: var(--serif-cn); font-weight: 600; font-size: 18px; }
+.three .t-en { font-family: var(--serif-en); font-style: italic; font-size: 13px; color: var(--ink-soft); }
+.three .t-desc { font-size: 13px; color: var(--ink-soft); margin-top: 3px; }
+.three .t-prob { font-family: var(--serif-en); font-style: italic; font-size: 22px; color: var(--vermilion); }
+
+/* 底部页脚 */
+.footer { margin-top: 50px; background: linear-gradient(180deg, var(--rice), color-mix(in srgb, var(--vermilion) 88%, var(--deep-red))); color: #fdeede; position: relative; overflow: hidden; }
+.footer .f-top { text-align: center; padding: 44px 24px 30px; }
+.footer .f-brand { font-family: var(--serif-cn); font-weight: 700; font-size: clamp(40px, 9vw, 110px); letter-spacing: 0.06em; line-height: 1; }
+.footer .f-brand .en { display: block; font-family: var(--serif-en); font-style: italic; font-weight: 500; font-size: 0.28em; letter-spacing: 0.18em; opacity: 0.85; margin-top: 0.2em; }
+.footer .f-desc { max-width: 560px; margin: 18px auto 0; font-size: 13px; line-height: 1.7; opacity: 0.82; font-weight: 300; }
+.footer .f-bar { border-top: 1px solid rgba(255,255,255,0.25); }
+.footer .f-bar .wrap { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; padding: 18px 28px; font-size: 11px; letter-spacing: 0.04em; opacity: 0.85; }
+
+/* ============================================================
+   3. 投掷页 THROW
+   ============================================================ */
+.view-throw {
+  background:
+    radial-gradient(80% 60% at 50% 38%, color-mix(in srgb, var(--vermilion) 30%, transparent) 0%, transparent 60%),
+    linear-gradient(180deg, color-mix(in srgb, var(--vermilion) 14%, var(--rice)) 0%, var(--rice) 60%);
+}
+.throw-back { position: absolute; top: 26px; left: 30px; font-size: 14px; color: var(--ink-soft); padding: 8px 16px; border: 1px solid var(--line); border-radius: 999px; transition: 0.2s; }
+.throw-back:hover { border-color: var(--vermilion); color: var(--vermilion); }
+.throw-meta { position: absolute; top: 30px; right: 36px; font-family: var(--serif-en); font-style: italic; color: var(--ink-soft); font-size: 14px; }
+.throw-k { font-family: var(--serif-en); font-style: italic; font-size: 15px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--vermilion); }
+.throw-q { font-family: var(--serif-cn); font-weight: 700; font-size: clamp(26px, 4.4vw, 46px); text-align: center; margin: 6px 24px 4px; line-height: 1.3; }
+.throw-sub { font-size: 14px; color: var(--ink-soft); text-align: center; }
+.throw-stage { --cupw: clamp(130px, 20vw, 200px); width: min(620px, 92vw); height: clamp(280px, 38vw, 440px); }
+.throw-controls { display: flex; flex-direction: column; align-items: center; gap: 14px; margin-top: 6px; }
+.throw-triple { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--ink-soft); }
+.throw-triple .dot { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid var(--vermilion); transition: 0.3s; }
+.throw-triple .dot.win { background: var(--vermilion); }
+.throw-triple .dot.fail { background: var(--ink-soft); border-color: var(--ink-soft); }
+.cam-toggle { font-size: 13px; color: var(--ink-soft); padding: 9px 16px; border: 1px solid var(--line); border-radius: 999px; transition: 0.2s; }
+.cam-toggle:hover { border-color: var(--vermilion); color: var(--vermilion); }
+.cam-toggle.on { border-color: var(--vermilion); color: var(--vermilion); background: color-mix(in srgb, var(--vermilion) 8%, transparent); }
+
+/* 摄像头手势识别面板 */
+.cam {
+  position: absolute; bottom: 28px; right: 28px; width: 212px; border-radius: 16px;
+  border: 1px solid var(--line); background: var(--rice-2); box-shadow: var(--shadow-soft); z-index: 120; pointer-events: none; padding: 16px 16px 14px;
+}
+.cam video { position: absolute; width: 2px; height: 2px; opacity: 0; left: -20px; top: -20px; pointer-events: none; }
+.cam .gg-title { font-family: var(--serif-en); font-style: italic; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); }
+.cam .gg-hands { display: flex; align-items: center; gap: 8px; margin: 9px 0 11px; font-size: 14px; font-weight: 500; color: var(--ink-soft); }
+.cam .gg-hands .ic { font-size: 19px; filter: grayscale(1); opacity: 0.35; transition: 0.2s; }
+.cam .gg-hands .ic.on { filter: none; opacity: 1; transform: translateY(-1px); }
+.cam .gg-meter { position: relative; height: 10px; border-radius: 999px; background: color-mix(in srgb, var(--ink-soft) 16%, transparent); overflow: visible; }
+.cam .gg-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 999px; background: linear-gradient(90deg, var(--gold-soft), var(--vermilion)); transition: width 0.08s linear; }
+.cam .gg-mark { position: absolute; top: -4px; bottom: -4px; left: 70%; width: 2px; background: var(--vermilion); border-radius: 2px; }
+.cam .gg-mark::after { content: "抛"; position: absolute; top: -15px; left: 50%; transform: translateX(-50%); font-size: 9px; color: var(--vermilion); }
+.cam .gg-tip { margin-top: 11px; font-size: 12px; color: var(--vermilion); text-align: center; min-height: 1em; }
+.cam.armed { border-color: var(--gold-soft); box-shadow: 0 0 0 2px color-mix(in srgb, var(--gold-soft) 55%, transparent), var(--shadow-soft); }
+
+/* ============================================================
+   结果反馈弹层
+   ============================================================ */
+.overlay {
+  position: fixed; inset: 0; z-index: 500; display: none; align-items: center; justify-content: center; padding: 24px;
+  background: color-mix(in srgb, var(--deep-red) 58%, rgba(0,0,0,0.55)); backdrop-filter: blur(8px);
+}
+.overlay.show { display: flex; animation: viewIn 0.4s ease; }
+.result-card {
+  width: min(440px, 92vw); background: var(--rice-2); color: var(--ink); border-radius: 24px; padding: 40px 34px 30px; text-align: center; position: relative;
+  border: 1px solid var(--line); box-shadow: 0 40px 90px -30px rgba(0,0,0,0.6); animation: pop 0.5s cubic-bezier(0.2, 1.2, 0.3, 1);
+}
+@keyframes pop { from { transform: scale(0.86) translateY(10px); opacity: 0; } to { transform: none; opacity: 1; } }
+.result-card .rc-close { position: absolute; top: 16px; right: 18px; font-size: 22px; color: var(--ink-soft); line-height: 1; }
+.result-card .rc-glyph { font-family: var(--serif-cn); font-weight: 900; font-size: 84px; line-height: 1; color: var(--vermilion); margin-bottom: 4px; }
+.result-card .rc-name { font-family: var(--serif-cn); font-weight: 700; font-size: 30px; }
+.result-card .rc-en { font-family: var(--serif-en); font-style: italic; font-size: 16px; color: var(--ink-soft); margin-bottom: 18px; }
+.result-card .rc-quote { font-size: 18px; line-height: 1.5; margin: 0 auto 8px; max-width: 30ch; }
+.result-card .rc-q-en { font-size: 13px; color: var(--ink-soft); }
+.result-card .rc-sep { height: 1px; background: var(--line); margin: 22px 0 18px; }
+.result-card .rc-actions { display: flex; gap: 10px; justify-content: center; }
+.result-card .rc-actions button { font-size: 13px; padding: 11px 18px; border-radius: 999px; border: 1px solid var(--line); transition: 0.2s; }
+.result-card .rc-actions button:hover { border-color: var(--vermilion); color: var(--vermilion); }
+.result-card .rc-actions .primary { background: var(--vermilion); color: #fff; border-color: var(--vermilion); }
+.result-card .rc-actions .primary:hover { background: var(--vermilion-2); color: #fff; }
+.triple { display: flex; gap: 10px; justify-content: center; margin-bottom: 16px; }
+.triple .dot { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--vermilion); transition: 0.3s; }
+.triple .dot.win { background: var(--vermilion); }
+.triple .dot.fail { background: var(--ink-soft); border-color: var(--ink-soft); }
+.trivia { margin-top: 18px; background: color-mix(in srgb, var(--gold) 16%, transparent); border: 1px dashed var(--gold); border-radius: 14px; padding: 14px 16px; text-align: left; }
+.trivia .tk { font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--gold); font-weight: 600; margin-bottom: 5px; }
+.trivia .tt { font-size: 13px; line-height: 1.55; color: var(--ink-soft); }
+
+@media (max-width: 760px) {
+  .about-grid { grid-template-columns: 1fr; gap: 30px; }
+  .ask-card { padding: 24px; }
+  .btn-throw { margin-left: 0; width: 100%; justify-content: center; }
+  .cover-meta { padding: 0 22px; }
+  .brand-mark small { display: none; }
+  .throw-back { top: 18px; left: 18px; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ============================================================
+     1. 首页 COVER
+     ============================================================ -->
+<section id="viewCover" class="view view-cover">
+  <div class="cover-meta"><span class="en">©AskLaoye Replication</span><span class="en">（问神）Issue 01</span></div>
+  <div class="cover-inner">
+    <h1 class="cover-title">跋杯問<br>老爺<span class="sub-en">Chaoshan Divination · Jiao Bei</span></h1>
+    <div class="stage cover-stage" id="coverStage" title="双手捧杯，向上一抛（热身）">
+      <div class="stage-inner" id="coverInner"></div>
+    </div>
+    <div class="cover-notes"><span>老爺保號</span><span>跋杯 Jiao Bei</span></div>
+    <button class="enter-btn" id="enterBtn">進入<span class="en">enter</span></button>
+    <p class="cover-tip">遇事不决，跋杯问老爷 · 杯子可以先捧着抛两下热热手</p>
+  </div>
+</section>
+
+<!-- ============================================================
+     2. 主页 MAIN
+     ============================================================ -->
+<div id="viewMain" class="view view-main" hidden>
+  <header class="topbar">
+    <div class="wrap">
+      <div class="brand-mark" id="brandHome">问老爷<small>ASK LAOYE</small></div>
+      <nav class="topnav">
+        <a data-go="ask">问事</a>
+        <a data-go="share">分享</a>
+        <a data-go="about">关于</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="ask" id="ask">
+    <div class="wrap">
+      <div class="fortune" id="fortune">
+        <div class="seal">今日<br>运势</div>
+        <div>
+          <div class="ft-k">Today's Fortune · 自动卜一卦</div>
+          <div class="ft-title" id="ftTitle">正在为你请示老爷……</div>
+          <div class="ft-desc" id="ftDesc">Throwing for today's guidance</div>
+        </div>
+      </div>
+
+      <div class="section-head"><span class="idx">01</span><h2>问老爷</h2><span class="label">State your question</span></div>
+      <div class="ask-card">
+        <div class="ask-steps">
+          <span><b>1</b>静心默念</span>
+          <span><b>2</b>禀明所求（一次只问一件事）</span>
+          <span><b>3</b>选定问题，进入投掷</span>
+        </div>
+        <input class="ask-input" id="qInput" type="text" maxlength="40" placeholder="老爷，我想问你一件事……" />
+        <div class="presets">
+          <div class="ptitle">选一个直接去掷杯 · Pick to throw</div>
+          <div class="preset-group"><div class="gname">Daily 日常</div><div class="chips" data-group="daily"></div></div>
+          <div class="preset-group"><div class="gname">Big things 人生大事</div><div class="chips" data-group="big"></div></div>
+          <div class="preset-group"><div class="gname">Chaoshan 潮汕风味</div><div class="chips" data-group="cs"></div></div>
+        </div>
+        <div class="ask-actions">
+          <label class="toggle"><input type="checkbox" id="tripleMode" /><span class="sw"></span><span>重要之事 · <b>连掷三次</b></span></label>
+          <button class="btn-throw" id="goThrow">进入投掷 <span class="en">throw</span></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 分享 -->
+  <section class="share" id="share">
+    <div class="wrap">
+      <div class="section-head"><span class="idx">02</span><h2>分享卡片</h2><span class="label">I asked Laoye…</span></div>
+      <div class="share-card" id="shareCard">
+        <div class="sc-grain"></div>
+        <div class="sc-in">
+          <div class="sc-top"><span>问老爷 · ASK LAOYE</span><span id="scDate">2026.06.30</span></div>
+          <div class="sc-glyph" id="scGlyph">圣</div>
+          <div class="sc-line">我问了老爷——</div>
+          <div class="sc-q" id="scQ">「今日运势」</div>
+          <div class="sc-a" id="scA">老爷说：你已经走了很远，再走一步就到了。</div>
+          <div class="sc-foot"><div class="qr">扫码<br>跋杯</div><div class="sc-brand">问老爷<small>ask-laoye.com</small></div></div>
+        </div>
+      </div>
+      <div class="share-actions">
+        <button id="scReroll">换一句鼓励 ↻</button>
+        <span class="share-tip">老爷的话每次随机抽取 · 都是为你打气的</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 历史记录 -->
+  <section class="history" id="history">
+    <div class="wrap">
+      <div class="section-head"><span class="idx">03</span><h2>跋杯记录</h2><span class="label">Saved locally</span></div>
+      <div class="hist-list" id="histList"></div>
+      <button class="hist-clear" id="histClear">清空记录 Clear all</button>
+    </div>
+  </section>
+
+  <!-- 关于 -->
+  <section class="about" id="about">
+    <div class="wrap">
+      <div class="section-head"><span class="idx">04</span><h2>关于跋杯</h2><span class="label">About Jiao Bei</span></div>
+      <div class="about-grid">
+        <div>
+          <p class="about-lead">跋杯，是潮汕人遇事不决时，向<span class="hl">神明或祖先</span>寻求指引的古老仪式。</p>
+          <p class="about-body">两片月牙形的筊杯，用竹根或木头削成——外侧凸面为「阴」，内侧平面为「阳」。合拢时形如蝴蝶，举至眉心，向上轻抛，一正一反落地，便是神明的回应。千百年来，从造房嫁娶到经商远行，潮汕人的每一个重要时刻，都少不了这一掷。流行于潮汕、闽南、台湾及东南亚华人社区。</p>
+        </div>
+        <div class="three">
+          <div class="t-row"><div class="t-glyph">圣</div><div><div class="t-name">圣杯 · 允杯</div><div class="t-en">YinYang — Yes / Agree</div><div class="t-desc">一正一反。神明允许，事情会顺利。</div></div><div class="t-prob">50%</div></div>
+          <div class="t-row"><div class="t-glyph">笑</div><div><div class="t-name">笑杯 · 阳杯</div><div class="t-en">Both Yang — Ask again</div><div class="t-desc">两片皆平面朝上。笑而不答，可重新掷杯。</div></div><div class="t-prob">25%</div></div>
+          <div class="t-row"><div class="t-glyph">阴</div><div><div class="t-name">阴杯 · 乌杯</div><div class="t-en">Both Yin — No / Disagree</div><div class="t-desc">两片皆凸面朝上。神明不认同，行事不顺。</div></div><div class="t-prob">25%</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="f-top">
+      <div class="f-brand">问老爷<span class="en">ASK LAOYE</span></div>
+      <p class="f-desc">跋杯，潮语「跋」即抛掷。两片月牙落地的瞬间，是千年问神习俗，此刻为你指引。<br>Bua buei — a Chaoshan ritual of asking the gods, one toss at a time.</p>
+    </div>
+    <div class="f-bar"><div class="wrap"><span>Daily practice · 遇事不决，跋杯问老爷</span><span class="en">( 心诚则灵 — Simplicity & Craft )</span><span>High-Fidelity Replica</span></div></div>
+  </footer>
+</div>
+
+<!-- ============================================================
+     3. 投掷页 THROW
+     ============================================================ -->
+<section id="viewThrow" class="view view-throw" hidden>
+  <button class="throw-back" id="throwBack">← 返回</button>
+  <div class="throw-meta">©AskLaoye</div>
+  <div class="throw-k">Throw the cups · 跋杯</div>
+  <div class="throw-q" id="throwQ">「今日运势」</div>
+  <div class="throw-sub" id="throwSub">捧住杯子，向上一抛 · 心诚则灵</div>
+  <div class="stage throw-stage" id="throwStage" title="捧住杯子，向上一抛">
+    <div class="stage-inner" id="throwInner"></div>
+  </div>
+  <div class="throw-controls">
+    <button class="btn-throw" id="btnThrow" style="margin:0">掷杯 <span class="en">throw</span></button>
+    <div class="throw-triple" id="throwTriple" hidden>
+      <span>连掷三次</span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    </div>
+    <button class="cam-toggle" id="camToggle">📷 用手势掷杯</button>
+  </div>
+
+  <div class="cam" id="camBox" hidden>
+    <video id="camVideo" playsinline muted></video>
+    <div class="gg-title">手势识别 · Gesture</div>
+    <div class="gg-hands"><span class="ic" id="icL">✋</span><span class="ic" id="icR">🤚</span><span id="ggHands">未检测到手</span></div>
+    <div class="gg-meter"><div class="gg-fill" id="ggFill"></div><div class="gg-mark"></div></div>
+    <div class="gg-tip" id="camStatus">举起双手，向上一抛</div>
+  </div>
+</section>
+
+<!-- ============ 结果反弹层 ============ -->
+<div class="overlay" id="overlay">
+  <div class="result-card">
+    <button class="rc-close" id="rcClose">×</button>
+    <div class="triple" id="tripleDots" style="display:none"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+    <div class="rc-glyph" id="rcGlyph">圣</div>
+    <div class="rc-name" id="rcName">圣杯</div>
+    <div class="rc-en" id="rcEn">YinYang · Yes</div>
+    <div class="rc-quote" id="rcQuote">老爷发话了，冲！</div>
+    <div class="rc-q-en" id="rcQEn">Grandpa says: go for it.</div>
+    <div class="trivia"><div class="tk">冷知识 · Did you know</div><div class="tt" id="rcTrivia"></div></div>
+    <div class="rc-sep"></div>
+    <div class="rc-actions">
+      <button id="rcAgain">再掷一次</button>
+      <button class="primary" id="rcShare">生成分享卡片</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   数据配置
+   ============================================================ */
+const PRESETS = {
+  daily: ["今天要不要加班？", "这顿饭我来请？", "今天适合摆烂吗？", "要不要买这件衣服？", "今天要不要运动？", "外卖还是自己煮？", "要不要早睡？", "今天适合花钱吗？"],
+  big: ["要不要告白？", "要不要换工作？", "要不要辞职创业？", "要不要搬家？", "这段感情值得继续吗？", "要不要考研？"],
+  cs: ["今天要不要喝功夫茶？", "要不要回老家？", "今年要不要回乡过年？"]
+};
+
+const RESULTS = {
+  sheng: {
+    glyph: "圣", name: "圣杯 · 允杯", en: "YinYang · Yes",
+    quotes: [
+      ["老爷发话了，冲！", "Grandpa says: GO."],
+      ["神明点头，此事可为！", "Approved by the gods."],
+      ["老爷说：好！", "A clear yes."],
+      ["天时地利人和，放手去做吧", "Stars aligned — do it."]
+    ]
+  },
+  xiao: {
+    glyph: "笑", name: "笑杯 · 阳杯", en: "Both Yang · Ask again",
+    quotes: [
+      ["老爷在笑你，问题没讲清楚啦", "Laoye is smiling — be clearer."],
+      ["神明笑而不语，换个方式再问", "No answer. Rephrase & retry."],
+      ["老爷：你自己心里有数吧？", "You already know, don't you?"],
+      ["此事未明，可再掷一次", "Unclear — toss again."]
+    ]
+  },
+  yin: {
+    glyph: "阴", name: "阴杯 · 乌杯", en: "Both Yin · No",
+    quotes: [
+      ["老爷摇头，此路不通", "A shake of the head — no."],
+      ["神明不认同，换个方向想想", "Not approved. Rethink it."],
+      ["老爷说：不行", "Hard no from Laoye."],
+      ["此事需三思，暂且搁置", "Pause and reconsider."]
+    ]
+  }
+};
+
+const TRIVIA = [
+  "游神时若连掷三次圣杯，众人会欢呼着把神明请出庙——据说跑得越快，神明越高兴。",
+  "凡求签都要先掷出圣杯，确认神明认可该签诗，签与杯须配合使用。",
+  "野外临时问杯时，可用两枚相同硬币代替筊杯，以正反面判断结果。",
+  "向新逝者的神位问事不可用筊杯，只能用两枚硬币，是对逝者的特别礼仪。",
+  "连掷八次阴杯的概率仅约 0.0015%，远低于彩票中奖，民间视为神明震怒的极端示警。",
+  "筊杯并非庙里专用，供奉祖先神位的潮汕家庭通常也备有一对。",
+  "「跋杯」的「跋」在潮语中有抛掷之意，形象地描述了掷杯的动作。",
+  "潮汕地区不完全统计有 467 座庙宇、供奉主神多达 74 位，筊杯是沟通神明最常用的工具。"
+];
+
+const INSPIRE = [
+  "你已经走了很远，再走一步就到了。", "怕什么？天塌下来有高个子顶着，你尽管去。", "好运正在路上，慢一点也没关系。",
+  "你值得最好的，别替自己谦虚。", "今天扛过的难，是明天的底气。", "心定了，路就直了。", "该来的都会来，急的人先输。",
+  "你比自己以为的更扛得住。", "先迈出腿，运气会跟上来。", "别回头，前面有人等你发光。", "吃饱睡好，神明保号。",
+  "尽人事，剩下的交给老爷。", "种下的都会发芽，只是还没到春天。", "你不是运气差，只是还没轮到你赢。", "稳住，你已经是最难那段路上的人了。"
+];
+const pickInspire = () => INSPIRE[Math.floor(Math.random() * INSPIRE.length)];
+const $ = s => document.querySelector(s);
+
+/* ============================================================
+   SVG 3D 胖月牙杯核心生成函数
+   ============================================================ */
+const CUP_PATH = "M150 25 C70 45 25 95 25 160 C25 225 70 275 150 295 C95 250 95 200 95 160 C95 120 95 70 150 25 Z";
+function faceSVG(gid, mirror, ch, isYin) {
+  const grad = isYin
+    ? `<linearGradient id="g${gid}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff6a52"/><stop offset=".5" stop-color="#d8362a"/><stop offset="1" stop-color="#871b13"/></linearGradient>
+       <radialGradient id="h${gid}" cx=".4" cy=".3" r=".55"><stop offset="0" stop-color="#fff" stop-opacity=".92"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>`
+    : `<linearGradient id="g${gid}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e35c4d"/><stop offset="1" stop-color="#bd362a"/></linearGradient>`;
+  const body = isYin
+    ? `<path d="${CUP_PATH}" fill="url(#g${gid})"/><ellipse cx="56" cy="118" rx="26" ry="54" fill="url(#h${gid})" transform="rotate(-16 56 118)"/>`
+    : `<path d="${CUP_PATH}" fill="url(#g${gid})"/><path d="${CUP_PATH}" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="3"/>`;
+  const inner = mirror ? `<g transform="translate(175,0) scale(-1,1)">${body}</g>` : body;
+  const tx = mirror ? 108 : 48;
+  const text = `<text x="${tx}" y="178" fill="#fff" opacity=".4" font-family="Noto Serif SC,serif" font-weight="700" font-size="30" transform="rotate(${mirror?8:-8} ${tx} 178)">${ch}</text>`;
+  return `<svg viewBox="0 0 175 320" xmlns="http://www.w3.org/2000/svg"><defs>${grad}</defs>${inner}${text}</svg>`;
+}
+function cupHTML(id, mirror, chYang, chYin) {
+  return `<div class="cup-slot">
+    <div class="cup3d floating ${mirror?'mirror':''}" data-cup="${id}">
+      <div class="face yang">${faceSVG(id+'y', mirror, chYang, false)}</div>
+      <div class="face yin">${faceSVG(id+'n', mirror, chYin, true)}</div>
+    </div>
+    <div class="cup-shadow"></div>
+  </div>`;
+}
+function buildStage(innerEl, key) {
+  innerEl.innerHTML = cupHTML(key+'A', false, '老爺', '問') + cupHTML(key+'B', true, '老爺', '事');
+  return [...innerEl.querySelectorAll('.cup3d')];
+}
+const coverCups = buildStage($('#coverInner'), 'c');
+const throwCups = buildStage($('#throwInner'), 't');
+
+/* ============================================================
+   预设问题绑定
+   ============================================================ */
+Object.entries(PRESETS).forEach(([g, arr]) => {
+  const box = document.querySelector(`.chips[data-group="${g}"]`);
+  arr.forEach(q => {
+    const c = document.createElement('button');
+    c.className = 'chip'; c.textContent = q;
+    c.onclick = () => { $('#qInput').value = q; enterThrow(q); };
+    box.appendChild(c);
+  });
+});
+
+/* ============================================================
+   纯 JS 音效合成 (Web Audio API)
+   ============================================================ */
+let actx;
+function audio() { return actx || (actx = new (window.AudioContext || window.webkitAudioContext)()); }
+function playClack() {
+  try {
+    const a = audio(), o = a.createOscillator(), g = a.createGain();
+    o.type = 'triangle'; o.frequency.value = 180;
+    g.gain.value = 0.18; o.connect(g); g.connect(a.destination);
+    o.start(); g.gain.exponentialRampToValueAtTime(0.001, a.currentTime + 0.12);
+    o.stop(a.currentTime + 0.12);
+  } catch (e) {}
+}
+function playChime() {
+  try {
+    const a = audio();
+    [660, 880, 1320].forEach((f, i) => {
+      const o = a.createOscillator(), g = a.createGain();
+      o.type = 'sine'; o.frequency.value = f; g.gain.value = 0.0001;
+      o.connect(g); g.connect(a.destination);
+      const t = a.currentTime + i * 0.08;
+      o.start(t); g.gain.exponentialRampToValueAtTime(0.12, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.5); o.stop(t + 0.5);
+    });
+  } catch (e) {}
+}
+
+/* ============================================================
+   3D 物理掷杯计算逻辑
+   ============================================================ */
+let busy = false;
+const classify = (a, b) => a !== b ? 'sheng' : (a ? 'yin' : 'xiao');
+function setFloating(cups, on) { cups.forEach(c => c.classList.toggle('floating', on)); }
+function resetCups(cups) { cups.forEach(el => { el.style.transition = 'transform .4s'; el.style.transform = ''; }); }
+
+function singleThrow(cups, power = 1) {
+  return new Promise(resolve => {
+    setFloating(cups, false);
+    const yin = [Math.random() < 0.5, Math.random() < 0.5];
+    const H = cups.map(() => (210 + Math.random() * 60) * power);
+    const spins = cups.map(() => 2 + Math.floor(Math.random() * 2));
+    const drift = [-(24 + Math.random() * 22), (24 + Math.random() * 22)];
+    const lean = [-12, 12];
+    const dur = 1050, t0 = performance.now();
+    let clacked = false, done = false;
+    function finish() {
+      if (done) return; done = true;
+      cups.forEach((el, i) => {
+        el.style.transition = 'none';
+        el.style.transform = `translate3d(${drift[i]}px,0,0) rotateZ(0deg) rotateX(${spins[i]*360 + (yin[i]?180:0)}deg)`;
+      });
+      if (!clacked) { clacked = true; playClack(); }
+      resolve(classify(yin[0], yin[1]));
+    }
+    function frame(now) {
+      if (done) return;
+      let t = (now - t0) / dur; if (t > 1) t = 1;
+      cups.forEach((el, i) => {
+        const y = -4 * H[i] * t * (1 - t);
+        const x = drift[i] * t;
+        const rx = (spins[i] * 360 + (yin[i] ? 180 : 0)) * t;
+        const rz = lean[i] * (1 - t);
+        el.style.transition = 'none';
+        el.style.transform = `translate3d(${x}px,${y}px,0) rotateZ(${rz}deg) rotateX(${rx}deg)`;
+        const sh = el.parentNode.querySelector('.cup-shadow');
+        if (sh) {
+          sh.style.transform = `translateX(-50%) scale(${1.4 - (-y)/H[i]*0.7})`;
+          sh.style.opacity = 0.5 - (-y)/H[i]*0.35;
+        }
+      });
+      if (t >= 0.96 && !clacked) { clacked = true; playClack(); }
+      if (t < 1) requestAnimationFrame(frame); else finish();
+    }
+    requestAnimationFrame(frame);
+    setTimeout(finish, dur + 500);
+  });
+}
+
+async function coverWarmup(power = 1) {
+  if (busy) return; busy = true;
+  await singleThrow(coverCups, power);
+  busy = false;
+  setTimeout(() => { setFloating(coverCups, true); resetCups(coverCups); }, 800);
+}
+
+let currentTriple = false;
+async function doThrow(power = 1) {
+  if (busy) return; busy = true;
+  if (currentTriple) {
+    const seq = [null, null, null]; updateThrowDots(seq);
+    for (let i = 0; i < 3; i++) {
+      const type = await singleThrow(throwCups, power);
+      const ok = (type === 'sheng'); seq[i] = ok; updateThrowDots(seq);
+      if (!ok) { showResult(type, { triple: seq.slice(), breakAt: i + 1 }); busy = false; return; }
+      if (i < 2) await new Promise(r => setTimeout(r, 480));
+    }
+    showResult('sheng', { triple: seq });
+  } else {
+    showResult(await singleThrow(throwCups, power));
+  }
+  busy = false;
+}
+function updateThrowDots(seq) {
+  const dots = $('#throwTriple').querySelectorAll('.dot');
+  dots.forEach((d, i) => d.className = 'dot' + (seq[i] == null ? '' : (seq[i] ? ' win' : ' fail')));
+}
+
+/* ============================================================
+   鼠标/触摸拖拽控制
+   ============================================================ */
+function attachDrag(stage, cups, onThrow) {
+  let down = false, startY = 0, lift = 0;
+  stage.addEventListener('pointerdown', e => {
+    if (busy) return; down = true; startY = e.clientY; lift = 0;
+    setFloating(cups, false); try { stage.setPointerCapture(e.pointerId); } catch (_) {}
+  });
+  stage.addEventListener('pointermove', e => {
+    if (!down) return; lift = Math.max(0, startY - e.clientY);
+    const k = Math.min(lift / 180, 1);
+    cups.forEach((el, i) => {
+      el.style.transition = 'transform .06s';
+      el.style.transform = `translateY(${-lift*0.5}px) rotateX(${k*28*(i?1:-1)}deg) scale(${1+k*.06})`;
+    });
+  });
+  const rel = () => {
+    if (!down) return; down = false;
+    if (lift > 54) { onThrow(Math.min(1.4, 0.9 + lift / 300)); }
+    else { setFloating(cups, true); resetCups(cups); }
+  };
+  stage.addEventListener('pointerup', rel);
+  stage.addEventListener('pointercancel', rel);
+}
+attachDrag($('#coverStage'), coverCups, p => coverWarmup(p));
+attachDrag($('#throwStage'), throwCups, p => doThrow(p));
+$('#btnThrow').onclick = () => doThrow();
+
+/* ============================================================
+   AI 隔空手势掷杯 (MediaPipe Hands 引擎)
+   ============================================================ */
+const cam = { on: false, disabled: false, hands: null, stream: null, raf: 0, hist: [], lastFire: 0 };
+const setCamStatus = t => { const e = $('#camStatus'); if (e) e.textContent = t; };
+function loadScript(src) {
+  return new Promise((ok, err) => {
+    const s = document.createElement('script'); s.src = src; s.crossOrigin = 'anonymous';
+    s.onload = ok; s.onerror = () => err(new Error(src)); document.head.appendChild(s);
+  });
+}
+async function ensureHands() {
+  if (cam.hands) return;
+  await loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js');
+  cam.hands = new Hands({ locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}` });
+  cam.hands.setOptions({ maxNumHands: 2, modelComplexity: 0, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
+  cam.hands.onResults(onHandResults);
+}
+async function startCam() {
+  if (cam.disabled) return;
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { camFallback('浏览器不支持摄像头'); return; }
+  $('#camBox').hidden = false; setCamStatus('正在开启手势识别…');
+  try {
+    await ensureHands();
+    cam.stream = await navigator.mediaDevices.getUserMedia({ video: { width: 320, height: 240, facingMode: 'user' } });
+    const v = $('#camVideo'); v.srcObject = cam.stream; await v.play();
+    cam.on = true; cam.hist = [];
+    $('#camToggle').classList.add('on'); $('#camToggle').textContent = '📷 手势已开 · 点关闭';
+    setCamStatus('举起双手，向上一抛');
+    const loop = async () => {
+      if (!cam.on) return;
+      try { await cam.hands.send({ image: v }); } catch (_) {}
+      cam.raf = requestAnimationFrame(loop);
+    };
+    loop();
+  } catch (err) { camFallback('未授权或无摄像头'); }
+}
+function stopCam() {
+  cam.on = false; if (cam.raf) cancelAnimationFrame(cam.raf);
+  if (cam.stream) { cam.stream.getTracks().forEach(t => t.stop()); cam.stream = null; }
+  $('#camBox').hidden = true; $('#camBox').classList.remove('armed');
+}
+function camFallback(msg) {
+  cam.disabled = true; stopCam();
+  $('#camToggle').classList.remove('on'); $('#camToggle').textContent = '📷 摄像头不可用 · 请拖拽';
+  $('#throwSub').textContent = '摄像头未启用 · 捧住杯子拖拽向上一抛 / 点掷杯';
+}
+const THROW_SPEED = 0.75;
+function onHandResults(res) {
+  const hs = res.multiHandLandmarks || [];
+  const now = performance.now();
+  const n = hs.length;
+  $('#icL') && $('#icL').classList.toggle('on', n >= 1);
+  $('#icR') && $('#icR').classList.toggle('on', n >= 2);
+  $('#ggHands') && ($('#ggHands').textContent = n === 0 ? '未检测到手' : (n === 1 ? '检测到 1 只手' : '双手就位'));
+  if (n >= 1) {
+    $('#camBox').classList.toggle('armed', n >= 2);
+    let y = 0; for (const h of hs) y += h[0].y; y /= n;
+    cam.hist.push({ y, t: now });
+    while (cam.hist.length > 1 && now - cam.hist[0].t > 320) cam.hist.shift();
+    const f = cam.hist[0], dt = (now - f.t) / 1000, speed = dt > 0 ? (f.y - y) / dt : 0;
+    const fillEl = $('#ggFill'); if (fillEl) fillEl.style.width = Math.max(0, Math.min(100, speed / THROW_SPEED * 70)) + '%';
+    const blocked = busy || overlay.classList.contains('show');
+    if (speed > THROW_SPEED && now - cam.lastFire > 1500 && !blocked) {
+      cam.lastFire = now; cam.hist.length = 0; if (fillEl) fillEl.style.width = '100%';
+      setCamStatus('抛出！🎉');
+      if (!viewThrow.hidden) doThrow(); else if (!viewCover.hidden) coverWarmup();
+    } else {
+      setCamStatus(n >= 2 ? '用力向上一抛！' : '举起双手更稳');
+    }
+  } else {
+    $('#camBox').classList.remove('armed'); cam.hist.length = 0;
+    const fillEl = $('#ggFill'); if (fillEl) fillEl.style.width = '0%';
+    setCamStatus('举起双手，向上一抛');
+  }
+}
+$('#camToggle').onclick = () => {
+  if (cam.on) { cam.disabled = true; stopCam(); $('#camToggle').classList.remove('on'); $('#camToggle').textContent = '📷 用手势掷杯'; }
+  else { cam.disabled = false; startCam(); }
+};
+
+/* 首页 3D 鼠标视差 */
+(function() {
+  const stage = $('#coverStage'), inner = $('#coverInner');
+  stage.addEventListener('mousemove', e => {
+    if (busy) return;
+    const r = stage.getBoundingClientRect();
+    const dx = (e.clientX - (r.left + r.width / 2)) / r.width, dy = (e.clientY - (r.top + r.height / 2)) / r.height;
+    inner.style.transform = `rotateY(${dx*18}deg) rotateX(${-dy*12}deg)`;
+  });
+  stage.addEventListener('mouseleave', () => { inner.style.transform = ''; });
+})();
+
+/* 鼠标好运金色星点 */
+let lastSpark = 0;
+const SPARK = ['✦', '✧', '·', '✦', '·'];
+function luckSpark(x, y) {
+  const now = performance.now(); if (now - lastSpark < 38) return; lastSpark = now;
+  const s = document.createElement('span'); s.className = 'spark';
+  s.textContent = SPARK[Math.floor(Math.random() * SPARK.length)];
+  s.style.left = x + 'px'; s.style.top = y + 'px';
+  s.style.setProperty('--dx', (Math.random() * 30 - 15) + 'px');
+  s.style.setProperty('--dy', (-20 - Math.random() * 30) + 'px');
+  s.style.setProperty('--rot', (Math.random() * 120 - 60) + 'deg');
+  s.style.fontSize = (9 + Math.random() * 9) + 'px';
+  document.body.appendChild(s);
+  setTimeout(() => s.remove(), 900);
+}
+['#viewCover', '#viewThrow'].forEach(sel => $(sel).addEventListener('pointermove', e => luckSpark(e.clientX, e.clientY)));
+
+/* ============================================================
+   视图路由
+   ============================================================ */
+const viewCover = $('#viewCover'), viewMain = $('#viewMain'), viewThrow = $('#viewThrow');
+function showView(v) {
+  viewCover.hidden = v !== 'cover';
+  viewMain.hidden = v !== 'main';
+  viewThrow.hidden = v !== 'throw';
+  document.body.style.overflow = (v === 'main') ? '' : 'hidden';
+  window.scrollTo(0, 0);
+}
+$('#enterBtn').onclick = () => { showView('main'); firstFortune(); };
+$('#brandHome').onclick = () => showView('cover');
+document.querySelectorAll('.topnav a').forEach(a => a.onclick = () => { const t = $('#' + a.dataset.go); t && t.scrollIntoView({ behavior: 'smooth' }); });
+$('#throwBack').onclick = () => { closeOverlay(); stopCam(); showView('main'); };
+
+function enterThrow(q) {
+  currentTriple = $('#tripleMode').checked;
+  $('#throwQ').textContent = '「' + (q || $('#qInput').value || '今日运势').trim() + '」';
+  $('#throwTriple').hidden = !currentTriple;
+  if (currentTriple) updateThrowDots([null, null, null]);
+  $('#throwSub').textContent = currentTriple ? '重要之事 · 需连掷三次圣杯 · 捧杯向上一抛' : '捧住杯子，向上一抛 · 心诚则灵';
+  setFloating(throwCups, true); resetCups(throwCups);
+  showView('throw');
+}
+$('#goThrow').onclick = () => enterThrow($('#qInput').value);
+
+/* ============================================================
+   结果反馈弹层
+   ============================================================ */
+const overlay = $('#overlay');
+function showResult(type, { triple = null, breakAt = 0 } = {}) {
+  const R = RESULTS[type], q = R.quotes[Math.floor(Math.random() * R.quotes.length)];
+  $('#rcGlyph').textContent = R.glyph; $('#rcName').textContent = R.name; $('#rcEn').textContent = R.en;
+  $('#rcQuote').textContent = q[0]; $('#rcQEn').textContent = q[1];
+  $('#rcTrivia').textContent = TRIVIA[Math.floor(Math.random() * TRIVIA.length)];
+  const dots = $('#tripleDots');
+  if (triple) {
+    dots.style.display = 'flex';
+    dots.querySelectorAll('.dot').forEach((d, i) => d.className = 'dot' + (triple[i] == null ? '' : (triple[i] ? ' win' : ' fail')));
+    if (triple.every(x => x === true)) {
+      $('#rcGlyph').textContent = '圣'; $('#rcName').textContent = '三杯皆圣'; $('#rcEn').textContent = 'Three Holy Throws';
+      $('#rcQuote').textContent = '老爷大力支持！三杯皆圣，此事必成！'; $('#rcQEn').textContent = 'Destiny says yes — go all in.';
+    } else if (breakAt) {
+      $('#rcQuote').textContent = '第 ' + breakAt + ' 掷未成圣杯，连掷中断——可再来一轮。'; $('#rcQEn').textContent = 'Streak broken at throw ' + breakAt + '.';
+    }
+  } else dots.style.display = 'none';
+  overlay.classList.add('show');
+  if (type === 'sheng') playChime();
+  updateShareCard(type); saveHistory(type);
+}
+function closeOverlay() { overlay.classList.remove('show'); setFloating(throwCups, true); resetCups(throwCups); }
+$('#rcClose').onclick = closeOverlay;
+overlay.addEventListener('click', e => { if (e.target === overlay) closeOverlay(); });
+$('#rcAgain').onclick = () => { overlay.classList.remove('show'); setTimeout(() => doThrow(), 250); };
+$('#rcShare').onclick = () => { closeOverlay(); stopCam(); showView('main'); setTimeout(() => $('#share').scrollIntoView({ behavior: 'smooth' }), 60); };
+
+/* ============================================================
+   分享箴言卡片
+   ============================================================ */
+function updateShareCard(type) {
+  const R = RESULTS[type] || RESULTS.sheng;
+  $('#scGlyph').textContent = R.glyph;
+  $('#scQ').textContent = $('#throwQ').textContent || '「今日运势」';
+  $('#scA').textContent = '老爷说：' + pickInspire();
+  $('#scDate').textContent = new Date().toLocaleDateString('zh-CN').replace(/\//g, '.');
+}
+$('#scReroll').onclick = () => { $('#scA').textContent = '老爷说：' + pickInspire(); };
+updateShareCard('sheng');
+
+/* ============================================================
+   历史记录本地持久化
+   ============================================================ */
+const HKEY = 'asklaoye_history_replica';
+const getHistory = () => { try { return JSON.parse(localStorage.getItem(HKEY)) || [] } catch (e) { return [] } };
+function saveHistory(type) {
+  const list = getHistory();
+  list.unshift({ t: type, q: ($('#throwQ').textContent || '今日运势').replace(/[「」]/g, ''), ts: Date.now() });
+  localStorage.setItem(HKEY, JSON.stringify(list.slice(0, 20)));
+  renderHistory();
+}
+function renderHistory() {
+  const list = getHistory(), box = $('#histList');
+  if (!list.length) { box.innerHTML = '<div class="hist-empty">还没有记录 · No throws yet. 去问问老爷吧。</div>'; return; }
+  box.innerHTML = list.map(it => {
+    const R = RESULTS[it.t], d = new Date(it.ts);
+    return `<div class="hist-item"><div class="h-glyph">${R.glyph}</div>
+      <div><div class="h-q">「${it.q}」</div><div class="h-meta">${d.toLocaleDateString('zh-CN').replace(/\//g, '.')} ${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}</div></div>
+      <div class="h-res">${R.en.split('·')[0].trim()}</div></div>`;
+  }).join('');
+}
+$('#histClear').onclick = () => { localStorage.removeItem(HKEY); renderHistory(); };
+renderHistory();
+
+/* ============================================================
+   首次卜卦今日运势
+   ============================================================ */
+let fortuneDone = false;
+function firstFortune() {
+  if (fortuneDone) return; fortuneDone = true;
+  const yin = [Math.random() < 0.5, Math.random() < 0.5], t = classify(yin[0], yin[1]), R = RESULTS[t];
+  const q = R.quotes[Math.floor(Math.random() * R.quotes.length)];
+  $('#ftTitle').textContent = R.glyph + '杯 · ' + q[0];
+  $('#ftDesc').textContent = R.en + ' — ' + q[1];
+  const prev = $('#throwQ').textContent; $('#throwQ').textContent = '「今日运势」';
+  saveHistory(t); updateShareCard(t); $('#throwQ').textContent = prev;
+}
+
+showView('cover');
+</script>
+</body>
+</html>
