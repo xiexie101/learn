@@ -520,6 +520,14 @@
                             <p class="text-sm text-ink-light">总练习天数</p>
                         </div>
                         <div class="bg-white/40 rounded-sm p-3 border border-ink-light/10">
+                            <p class="text-2xl font-bold text-ink-black" id="baduanjin-days">0</p>
+                            <p class="text-sm text-ink-light">八段锦天数</p>
+                        </div>
+                        <div class="bg-white/40 rounded-sm p-3 border border-ink-light/10">
+                            <p class="text-2xl font-bold text-ink-black" id="resistance-days">0</p>
+                            <p class="text-sm text-ink-light">抗阻天数</p>
+                        </div>
+                        <div class="bg-white/40 rounded-sm p-3 border border-ink-light/10">
                             <p class="text-2xl font-bold text-ink-black" id="days-since-start">0</p>
                             <p class="text-sm text-ink-light">已修行(天)</p>
                         </div>
@@ -590,7 +598,7 @@
             moves: [
                 "两手托天理三焦", "左右开弓似射雕", "调理脾胃须单举", "五劳七伤往后瞧",
                 "摇头摆尾去心火", "两手攀足固肾腰", "攒拳怒目增气力", "背后七颠百病消",
-                "核心训练", "超慢跑"
+                "抗阻训练", "超慢跑"
             ],
             levels: [
                 { name: "初学者", xp: 0 }, { name: "入门者", xp: 100 }, { name: "修行者", xp: 300 },
@@ -605,7 +613,7 @@
                 hundred_day_mastery: { name: "百日筑基", icon: "award", desc: "总计练习100天", goal: (data) => data.totalDays >= 100 },
                 heaven_lifter: { name: "托天宗师", icon: "chevrons-up", desc: "完成“两手托天理三焦”50次", goal: (data) => (data.moveCounts?.[0] || 0) >= 50 },
                 archer_master: { name: "射雕英雄", icon: "crosshair", desc: "完成“左右开弓似射雕”50次", goal: (data) => (data.moveCounts?.[1] || 0) >= 50 },
-                core_master: { name: "核心达人", icon: "star", desc: "完成“核心训练”50次", goal: (data) => (data.moveCounts?.[8] || 0) >= 50 },
+                core_master: { name: "抗阻达人", icon: "star", desc: "完成“抗阻训练”50次", goal: (data) => (data.moveCounts?.[8] || 0) >= 50 },
                 jogging_pro: { name: "慢跑健将", icon: "footprints", desc: "完成“超慢跑”50次", goal: (data) => (data.moveCounts?.[9] || 0) >= 50 },
                 grandmaster: { name: "运动宗师", icon: "crown", desc: "达到宗师等级", goal: (data) => data.level >= 6 },
             },
@@ -964,6 +972,8 @@
 
             document.getElementById('streak-days').textContent = state.streak;
             document.getElementById('total-days').textContent = state.totalDays;
+            document.getElementById('baduanjin-days').textContent = state.moveCounts?.[0] || 0;
+            document.getElementById('resistance-days').textContent = state.moveCounts?.[8] || 0;
 
             // NEW: Render start date and days since start
             if (state.startDate) {
