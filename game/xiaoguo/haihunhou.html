@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src * 'unsafe-inline'; script-src * 'unsafe-inline'; img-src * data: blob:; font-src * data:; media-src * data: blob:; connect-src 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>故事化趣味讲解：发现·海昏——西汉大一统叙事下的东南华章</title>
+    <script src="https://image.uc.cn/s/uae/g/3n/mos-production/fontawesome-free-7.1.0-web/js/all.min.js"></script>
+    <script src="https://image.uc.cn/s/uae/g/3n/mos-production/0915/3.4.17.js"></script>
+    <script src="https://image.uc.cn/s/uae/g/3n/mos-production/0915/echarts.min.js"></script>
+    <style>
+        /* 自定义CSS - 使用BEM命名法避免冲突 */
+        .story-timeline {
+            position: relative;
+            padding: -webkit-calc(2rem + 20px) 0;
+            padding: calc(2rem + 20px) 0;
+        }
+        
+        .story-timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: -webkit-calc(100% - 4rem);
+            width: calc(100% - 4rem);
+            height: 4px;
+            background: linear-gradient(90deg, #d4a574, #b08d57, #8a704c);
+            border-radius: -webkit-calc(4px / 2);
+            border-radius: calc(4px / 2);
+            top: 0;
+        }
+        
+        .story-timeline__item {
+            position: relative;
+            margin-bottom: 3rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .story-timeline__marker {
+            width: -webkit-calc(1.5rem + -webkit-calc(4px * 2));
+            width: calc(1.5rem + calc(4px * 2));
+            height: -webkit-calc(1.5rem + -webkit-calc(4px * 2));
+            height: calc(1.5rem + calc(4px * 2));
+            background-color: #8a704c;
+            border: 4px solid #f8f4e9;
+            border-radius: 50%;
+            position: absolute;
+            top: -webkit-calc(-webkit-calc(1.5rem + -webkit-calc(4px * 2)) / 2 - 2px);
+            top: calc(calc(1.5rem + calc(4px * 2)) / 2 - 2px);
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: -webkit-calc(10 + 1);
+            z-index: calc(10 + 1);
+            box-shadow: 0 4px 12px rgba(138, 112, 76, 0.3);
+        }
+        
+        .story-timeline__content {
+            background-color: #f8f4e9;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            width: 90%;
+            max-width: 800px;
+            margin-top: 1rem;
+            border-left: 4px solid #8a704c;
+        }
+        
+        .story-timeline__title {
+            color: #8a704c;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .story-timeline__icon {
+            color: #b08d57;
+        }
+        
+        .story-timeline__subtitle {
+            color: #555;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+        
+        .story-timeline__text {
+            color: #444;
+            line-height: 1.6;
+        }
+        
+        .story-timeline__highlight {
+            background-color: rgba(212, 165, 116, 0.15);
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-weight: 600;
+            color: #8a704c;
+        }
+        
+        .story-timeline__quote {
+            border-left: 3px solid #b08d57;
+            padding-left: 1rem;
+            margin: 1rem 0;
+            color: #666;
+            font-style: italic;
+        }
+        
+        @media (max-width: 768px) {
+            .story-timeline::before {
+                left: 1.5rem;
+                transform: none;
+                width: 4px;
+                height: 100%;
+            }
+            
+            .story-timeline__item {
+                flex-direction: row;
+                align-items: flex-start;
+                padding-left: 3rem;
+            }
+            
+            .story-timeline__marker {
+                left: 1.5rem;
+                transform: none;
+            }
+            
+            .story-timeline__content {
+                width: 100%;
+                margin-top: 0;
+            }
+        }
+        
+        /* 卡片统一设计 */
+        .card {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background-color: white;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+        
+        .card__image-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            overflow: hidden;
+            background-color: #f5f5f5;
+        }
+        
+        .card__image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: center;
+        }
+        
+        .card__content {
+            padding: 1rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .card__title {
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .card__description {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            flex-grow: 1;
+        }
+        
+        .card__meta {
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid #eee;
+            color: #888;
+            font-size: 0.85rem;
+        }
+        
+        /* 图表容器 */
+        .chart-container {
+            width: 100%;
+            height: 300px;
+            margin: 1.5rem 0;
+        }
+        
+        /* 沉浸式背景 */
+        .immersive-bg {
+            background: linear-gradient(135deg, #f8f4e9 0%, #f0e9d8 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .immersive-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="none"/><path d="M20,20 L80,20 L80,80 L20,80 Z" stroke="%238a704c" stroke-width="0.5" fill="none" opacity="0.1"/></svg>');
+            opacity: 0.3;
+            z-index: 0;
+        }
+        
+        .immersive-bg > * {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* 专业术语提示 */
+        .term-tooltip {
+            position: relative;
+            display: inline-block;
+            border-bottom: 1px dashed #8a704c;
+            cursor: help;
+        }
+        
+        .term-tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.25rem;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            z-index: 100;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* 章节标题装饰 */
+        .chapter-title {
+            position: relative;
+            display: inline-block;
+            padding-bottom: 0.5rem;
+        }
+        
+        .chapter-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: IIIpx;
+            background: linear-gradient(90deg, #d4a574, #b08d57);
+            border-radius: IIIpx;
+        }
+    </style>
+<script>
+!(function(j,a,g){j.__itrace_conf = {bid: 'kt40h0wl-koyh4af8',rel: '', uid: 'e67fe58c-7576-4ad2-b341-fb7f642ce9b7' ,  spa: true, plugins:['jserror','interface','perf','resource','flow','blank']};var b = a.createElement("script");var d = a.getElementsByTagName("script")[0];b.type = "text/javascript";b.crossorigin = true;b.async = true;b.onload = function(){j.__itrace && j.__itrace.setReady()};d.parentNode.insertBefore(b,d);b.src = g})(window, document, "https://g.alicdn.com/woodpeckerx/itrace-next/itrace.iife.js")
+</script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <!-- 沉浸式标题区域 -->
+    <header class="immersive-bg py-12 md:py-16">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto text-center">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4 text-amber-900">
+                    <i class="fas fa-scroll mr-3"></i>故事化趣味讲解
+                </h1>
+                <h2 class="text-2xl md:text-3xl font-semibold mb-6 text-amber-800">
+                    发现·海昏——西汉大一统叙事下的东南华章
+                </h2>
+                <div class="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg max-w-3xl mx-auto">
+                    <p class="text-lg mb-4 text-gray-700">
+                        这不是一场关于黄金的炫耀，而是一次穿越两千年的历史破案。我们跟随一位名叫<strong class="text-amber-700">刘贺</strong>的男人，从昌邑王到九五之尊，再到庶人，最终成为远封东南的海昏侯——他一生经历<strong class="text-amber-700">"王、帝、民、侯"</strong>四种身份，是中国历史上唯一一人。
+                    </p>
+                    <p class="text-lg text-gray-700">
+                        本讲解摒弃走马观花模式，仅挑选最具价值的核心展品，串联为完整的时间线与叙事故事，带您进入展品对应的时空语境，体验高密度的沉浸式文化之旅。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- 时间线导航 -->
+        <div class="mb-12">
+            <h2 class="text-3xl font-bold text-center mb-8 text-amber-900 chapter-title">历史时间线叙事</h2>
+            <p class="text-center text-gray-600 max-w-3xl mx-auto mb-10">
+                展览以三大篇章为脉络，层层递进地揭示中原礼制向东南边疆传播的轨迹，并将个体命运嵌入帝国制度运行与文化整合的历史洪流之中。
+            </p>
+            
+            <div class="story-timeline">
+                <!-- 序幕 -->
+                <div class="story-timeline__item">
+                    <div class="story-timeline__marker"></div>
+                    <div class="story-timeline__content">
+                        <h3 class="story-timeline__title">
+                            <i class="fas fa-key story-timeline__icon"></i>序幕：一封诏书开启的时空隧道
+                        </h3>
+                        <p class="story-timeline__subtitle">《海昏侯国除诏书》——南方地区迄今唯一的汉代诏书实物</p>
+                        <div class="story-timeline__text">
+                            <p class="mb-3">
+                                展览的第一件"灵魂文物"，不是金灿灿的马蹄金，而是一块看似普通的木牍——<span class="story-timeline__highlight">《海昏侯国除诏书》</span>。这是南方地区迄今唯一的汉代诏书实物，记录了刘贺死后其封国被废的全过程。
+                            </p>
+                            <p class="mb-3">
+                                19位大臣署名，层层奏报，最终由汉宣帝批复。整个流程完整呈现了西汉高级行政运作机制，是研究中央对地方控制力的微观样本。
+                            </p>
+                            <div class="story-timeline__quote">
+                                这封诏书，是整个展览的钥匙。它告诉我们：即便一个边缘化的贵族，也完全嵌套在帝国精密的行政机器之中。
+                            </div>
+                            <p class="mb-3">
+                                更令人动容的是，这份公文背后隐藏着一段悲情家史——刘贺长子刘充国、次子刘奉亲相继夭折，导致无人继嗣，群臣议请除国，朝廷依法批准。冷冰冰的律令之下，是一个家族血脉断绝的真实悲剧。
+                            </p>
+                            <p>
+                                而这封文书的存在本身，就颠覆了传统认知：一个地处东南、远离政治中心的侯国，其生死存亡仍需经中央政府严格审批，说明西汉的国家治理体系已深入边地，实现了真正意义上的<span class="story-timeline__highlight">"政令通达"</span>。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 第一幕 -->
+                <div class="story-timeline__item">
+                    <div class="story-timeline__marker"></div>
+                    <div class="story-timeline__content">
+                        <h3 class="story-timeline__title">
+                            <i class="fas fa-crown story-timeline__icon"></i>第一幕：金玉其外——权力的游戏规则
+                        </h3>
+                        <p class="story-timeline__subtitle">酎金制度：黄金背后的忠诚税</p>
+                        <div class="story-timeline__text">
+                            <p class="mb-3">
+                                走进"王侯威仪"篇章，最抓眼球的是那堆闪耀的黄金：<span class="story-timeline__highlight">马蹄金、麟趾金、金饼</span>，总重约115公斤，共478件，纯度超99%。但这不是财富展示，而是<span class="story-timeline__highlight">政治服从的物证</span>。
+                            </p>
+                            <p class="mb-3">
+                                这些金器中最关键的，是几枚带有墨书的金饼，上写：<span class="story-timeline__highlight">"臣贺元康三年酎金一斤"</span>。短短数字，却承载着西汉中央集权的核心机制——<span class="term-tooltip" data-tooltip="诸侯每年须按食邑户数向朝廷进献黄金，用于宗庙祭祀">"酎金制度"</span>。
+                            </p>
+                            <p class="mb-3">
+                                根据《汉律·金布令》，诸侯每年须按食邑户数向朝廷进献黄金，用于宗庙祭祀。每千户贡四两，刘贺食邑四千户，应贡十六两（即一斤）。这项制度并非单纯敛财，而是一种政治忠诚测试。汉武帝曾借此一次性削去106位列侯爵位，史称"列侯坐酎金失侯"。
+                            </p>
+                            <p class="mb-3">
+                                刘贺写下"臣贺"，正是在向长安表明：我虽远在豫章，仍忠于朝廷。这种自我定位，既是生存策略，也是体制内身份认同的体现。
+                            </p>
+                            
+                            <!-- 金器类型图表 -->
+                            <div class="chart-container" id="goldChart"></div>
+                            
+                            <p>
+                                这些金子，是西汉<span class="term-tooltip" data-tooltip="郡县制与分封制并行的政治体制">"郡国并行制"</span>下中央权威凌驾诸侯的缩影。它们沉默地诉说着一句话：你的富贵，来自天子恩赐，也随时可被收回。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 第二幕 -->
+                <div class="story-timeline__item">
+                    <div class="story-timeline__marker"></div>
+                    <div class="story-timeline__content">
+                        <h3 class="story-timeline__title">
+                            <i class="fas fa-book story-timeline__icon"></i>第二幕：儒风内里——思想的南迁之路
+                        </h3>
+                        <p class="story-timeline__subtitle">改写儒学史的三大发现</p>
+                        <div class="story-timeline__text">
+                            <p class="mb-3">
+                                当人们以为刘贺不过是个纵欲之徒时，另一批文物撕开了历史的另一面：<span class="story-timeline__highlight">儒家经典的海洋</span>。
+                            </p>
+                            <p class="mb-3">
+                                海昏侯墓出土简牍近6032枚，其中竹简约5700余枚，构成一座真正的"地下图书馆"。它们证明：这位"废帝"不仅读书，而且读的是当时最高规格的官方教材。
+                            </p>
+                            
+                            <h4 class="font-bold text-lg mt-4 mb-2 text-amber-800">1. 齐《论语·智道》篇：失传1800年的文本重现</h4>
+                            <p class="mb-3">
+                                展出的<span class="story-timeline__highlight">《齐论语·智道》</span>竹简，首次实物验证了《齐论语》的存在。据《汉书·艺文志》记载，《齐论语》比鲁、古本多出《问王》《知道》两篇，但早已失传。此次发现的"智道"即"知道"篇，填补了儒家经典传承史的重大空白。
+                            </p>
+                            <p class="mb-3">
+                                这一发现意味着，今天我们所读的《论语》，只是汉代多种版本之一。而刘贺所学的，正是当时流传于齐地的官方教育体系内容，反映出西汉中期儒家思想的多元面貌与统一进程。
+                            </p>
+                            
+                            <h4 class="font-bold text-lg mt-4 mb-2 text-amber-800">2. 秦汉全本《诗经》手稿：现存最早最完整的《诗三百》</h4>
+                            <p class="mb-3">
+                                约1200枚《诗经》竹简明确记载：<span class="story-timeline__highlight">"诗三百五篇，凡千七十六章，七千二百七十四言"</span>，证实其为完整全本。这是考古史上首次发现秦汉时期的《诗经》完整手稿，早于今本《毛诗》，对于研究《诗经》早期形态具有极高文献价值。
+                            </p>
+                            <p class="mb-3">
+                                这些竹简不仅保存了诗歌文本，还包含目录结构与章节划分，展现了汉代贵族如何系统学习经典的过程。
+                            </p>
+                            
+                            <h4 class="font-bold text-lg mt-4 mb-2 text-amber-800">3. 孔子徒人图漆衣镜（复制件）：最早的孔子画像与道德自省</h4>
+                            <p class="mb-3">
+                                展厅陈列的<span class="story-timeline__highlight">孔子徒人图漆衣镜（复制件）</span>，是目前已知最早的孔子形象实物。镜背绘有孔子及其弟子画像，并附墨书传记，描述其生平言行。
+                            </p>
+                            <p class="mb-3">
+                                考古专家张仲立指出，此物并非丧葬明器，而是刘贺生前日常使用之物，可能用于"时时瞻仰，自我观照"。这一发现说明儒家思想已超越中原核心区，传播至豫章郡（今江西），并深刻影响贵族的精神世界。
+                            </p>
+                            
+                            <div class="story-timeline__quote">
+                                展览策展人强调："站在福建看海昏侯，看到的不只是奢华生活，更是中华民族大一统从政治架构到文化认同的形成过程。"
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 第三幕 -->
+                <div class="story-timeline__item">
+                    <div class="story-timeline__marker"></div>
+                    <div class="story-timeline__content">
+                        <h3 class="story-timeline__title">
+                            <i class="fas fa-user story-timeline__icon"></i>第三幕：生活的温度——一个真实的人回来了
+                        </h3>
+                        <p class="story-timeline__subtitle">立体还原刘贺：礼乐践行者、养生爱好者、科技受益者</p>
+                        <div class="story-timeline__text">
+                            <p class="mb-3">
+                                文物最终要回归"人"。我们终于看到了一个立体的刘贺：
+                            </p>
+                            
+                            <h4 class="font-bold text-lg mt-4 mb-2 text-amber-800">他是礼乐的践行者</h4>
+                            <p class="mb-3">
+                                墓中出土<span class="story-timeline__highlight">"三堵悬乐"</span>——编钮钟、编甬钟、编铁磬各一套，符合《周礼》"诸侯轩悬"制度，代表列侯所能享有的最高礼乐等级。更惊人的是，墓园还有真车马陪葬坑（含五辆驷马安车），为长江以南唯一发现，折射其曾为帝的特殊身份。
+                            </p>
+                            <p class="mb-3">
+                                这套礼乐配置不仅是身份象征，更是日常实践。可以想象，在鄱阳湖畔的紫金城中，每逢节庆，钟磬齐鸣，乐舞升平，中原礼制已在东南落地生根。
+                            </p>
+                            
+                            <h4 class="font-bold text-lg mt-4 mb-2 text-amber-800">他是养生的爱好者</h4>
+                            <p class="mb-3">
+                                出土《易占》《房中》《养生方技》等文献，以及中国最早的中药炮制品实物，显示他对生命科学的关注。结合医用毫针（横截面仅0.3–0.5毫米）和蒸馏器（可产22度白酒），可见其知识结构兼具儒学、方术与生活智慧。
+                            </p>
+                            
+                            <h4 class="font-bold text-lg mt-4 mb-2 text-amber-800">他是科技的受益者</h4>
+                            <ul class="list-disc pl-5 mb-3 space-y-1">
+                                <li><span class="story-timeline__highlight">青铜蒸馏器</span>：由釜、甑、天锅组成，经实验证明可用于蒸馏酒，酒精浓度可达22度，为目前所知最早蒸馏酒器具；</li>
+                                <li><span class="story-timeline__highlight">炒钢医用毫针</span>：钢制针灸针，为最早炒钢技术应用于医疗的实证；</li>
+                                <li><span class="story-timeline__highlight">包金丝缕琉璃席</span>：罕见奢华葬具，琉璃来自西域，金丝连接，体现高度工艺水平。</li>
+                            </ul>
+                            <p class="mb-3">
+                                这些科技成果在全国范围内共享，体现了大一统体制下技术传播与创新的一致性基础。
+                            </p>
+                            
+                            <h4 class="font-bold text-lg mt-4 mb-2 text-amber-800">他还爱玩乐</h4>
+                            <p class="mb-3">
+                                千余枚《六博》棋谱简，记录失传的游戏规则，反映其博弈娱乐趣味。这打破了史书"荒淫无道"的单一刻板印象，还原了一个有血有肉的真实人物。
+                            </p>
+                            <p>
+                                甚至连一块呆萌的<span class="story-timeline__highlight">熊形玉嵌饰</span>——一手抚胸、一手招手，被网友称为"汉代社牛"——都让人会心一笑。原来两千年前的贵族，也有如此生动的生活情趣。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 尾声 -->
+                <div class="story-timeline__item">
+                    <div class="story-timeline__marker"></div>
+                    <div class="story-timeline__content">
+                        <h3 class="story-timeline__title">
+                            <i class="fas fa-flag story-timeline__icon"></i>尾声：东南华章——大一统的文明辐射
+                        </h3>
+                        <p class="story-timeline__subtitle">中华文明"多元一体"的宏大叙事</p>
+                        <div class="story-timeline__text">
+                            <p class="mb-3">
+                                展览巧妙呼应福建本地历史。西汉时期，豫章郡与闽越地区山水相连，是中原文化南下的重要通道。汉武帝平定闽越后设冶县（今福州），而刘贺就国带来的不仅是人口，更是先进的农耕技术（稻、粟、麻遗存可见证）、礼乐制度与儒家思想。
+                            </p>
+                            <div class="story-timeline__quote">
+                                南昌汉代海昏侯国遗址博物馆馆长彭印䃂说得好："这些简牍让观众感受到'今人与千年前的古人，读的是同一本书'，体现了中华文明的一脉相承。"
+                            </div>
+                            <p class="mb-3">
+                                这场展览，是以刘贺的人生为线索，用文物作证词，完成的一次历史重审。它告诉我们：
+                            </p>
+                            <ul class="list-disc pl-5 mb-3 space-y-2">
+                                <li>大一统不仅是疆域的统一，更是<span class="story-timeline__highlight">制度的覆盖</span>（酎金、诏书）；</li>
+                                <li>不仅是军事的征服，更是<span class="story-timeline__highlight">文化的渗透</span>（《论语》《诗经》南传）；</li>
+                                <li>不仅是帝王的伟业，更是<span class="story-timeline__highlight">普通人的精神世界</span>被重塑的过程。</li>
+                            </ul>
+                            <p class="mb-3">
+                                当你走出展厅，你能讲述的不是一个展柜里的金子，而是一个人的命运起伏，一段被改写的认知，以及中华文明如何一步步走向"多元一体"的宏大叙事。
+                            </p>
+                            <p class="font-semibold text-amber-800">
+                                这就是「发现·海昏」的力量：它让沉默的文物开口说话，让偏见的历史重获公正。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 核心展品卡片展示 -->
+        <section class="mb-16 bg-amber-50/50 rounded-2xl p-8">
+            <h2 class="text-3xl font-bold text-center mb-8 text-amber-900 chapter-title">核心展品精选</h2>
+            <p class="text-center text-gray-600 max-w-3xl mx-auto mb-10">
+                以下是根据故事线精心挑选的最具价值、最有感染力的核心展品，它们共同构成了完整的时间线与叙事故事。
+            </p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 卡片1：海昏侯国除诏书 -->
+                <div class="card">
+                    <div class="card__image-container">
+                        <img src="https://agent.qianwen.com/mos/a36766a97b514858ba09925a67a407fe/16b24fa0015847ae286b06457628a2e2" 
+                             alt="海昏侯国除诏书木牍：南方地区迄今唯一的汉代诏书实物，记录刘贺死后封国被废过程，19位大臣署名，汉宣帝批复，展现西汉高级行政运作机制"
+                             class="card__image">
+                    </div>
+                    <div class="card__content">
+                        <h3 class="card__title">海昏侯国除诏书</h3>
+                        <p class="card__description">
+                            南方地区迄今唯一的汉代诏书实物，记录了刘贺死后其封国被废的全过程。19位大臣署名，层层奏报，最终由汉宣帝批复，完整呈现西汉高级行政运作机制。
+                        </p>
+                        <div class="card__meta">
+                            <i class="fas fa-history mr-1"></i> 展览钥匙 | 政治制度实证
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 卡片2：酎金墨书金饼 -->
+                <div class="card">
+                    <div class="card__image-container">
+                        <img src="https://agent.qianwen.com/mos/a36766a97b514858ba09925a67a407fe/97fcd7068ca0b7df792cf73fad73ce86" 
+                             alt="酎金墨书金饼：黄金饼状物，表面有墨书'臣贺元康三年酎金一斤'字样，体现西汉酎金制度，诸侯向朝廷进献黄金以示政治忠诚"
+                             class="card__image">
+                    </div>
+                    <div class="card__content">
+                        <h3 class="card__title">酎金墨书金饼</h3>
+                        <p class="card__description">
+                            带有墨书"臣贺元康三年酎金一斤"的金饼，承载西汉中央集权核心机制——酎金制度。诸侯每年须按食邑户数向朝廷进献黄金，作为政治忠诚测试。
+                        </p>
+                        <div class="card__meta">
+                            <i class="fas fa-scale-balanced mr-1"></i> 政治服从物证 | 忠诚税
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 卡片3：齐《论语·智道》竹简 -->
+                <div class="card">
+                    <div class="card__image-container">
+                        <img src="https://agent.qianwen.com/mos/a36766a97b514858ba09925a67a407fe/5ae646f0d698716f5db88101f5f9ea1b" 
+                             alt="齐《论语·智道》竹简：失传1800年的《齐论语》文本实物，填补儒家经典传承史重大空白，反映西汉中期儒家思想多元面貌"
+                             class="card__image">
+                    </div>
+                    <div class="card__content">
+                        <h3 class="card__title">齐《论语·智道》竹简</h3>
+                        <p class="card__description">
+                            首次实物验证《齐论语》的存在，填补儒家经典传承史重大空白。比鲁、古本多出《问王》《知道》两篇，反映西汉中期儒家思想的多元面貌与统一进程。
+                        </p>
+                        <div class="card__meta">
+                            <i class="fas fa-book-open mr-1"></i> 失传文本重现 | 儒学史改写
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 卡片4：秦汉全本《诗经》手稿 -->
+                <div class="card">
+                    <div class="card__image-container">
+                        <img src="https://agent.qianwen.com/mos/a36766a97b514858ba09925a67a407fe/d0a953039506bb5ff78fe6220e1b9917" 
+                             alt="秦汉全本《诗经》竹简手稿：约1200枚竹简，记载'诗三百五篇，凡千七十六章，七千二百七十四言'，考古史上首次发现秦汉时期完整《诗经》手稿"
+                             class="card__image">
+                    </div>
+                    <div class="card__content">
+                        <h3 class="card__title">秦汉全本《诗经》手稿</h3>
+                        <p class="card__description">
+                            约1200枚竹简明确记载"诗三百五篇"，证实其为完整全本。考古史上首次发现秦汉时期的《诗经》完整手稿，早于今本《毛诗》，具有极高文献价值。
+                        </p>
+                        <div class="card__meta">
+                            <i class="fas fa-scroll mr-1"></i> 最早完整手稿 | 文献价值极高
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 卡片5：孔子徒人图漆衣镜（复制件） -->
+                <div class="card">
+                    <div class="card__image-container">
+                        <img src="https://agent.qianwen.com/mos/a36766a97b514858ba09925a67a407fe/c0c456a48b00227a8af12b2c3dd06d0b" 
+                             alt="孔子徒人图漆衣镜（复制件）：目前已知最早的孔子形象实物，镜背绘有孔子及其弟子画像并附墨书传记，刘贺生前日常使用之物"
+                             class="card__image">
+                    </div>
+                    <div class="card__content">
+                        <h3 class="card__title">孔子徒人图漆衣镜（复制件）</h3>
+                        <p class="card__description">
+                            目前已知最早的孔子形象实物。镜背绘有孔子及其弟子画像，并附墨书传记。考古专家指出此物为刘贺生前日常使用之物，可能用于"时时瞻仰，自我观照"。
+                        </p>
+                        <div class="card__meta">
+                            <i class="fas fa-user mr-1"></i> 最早孔子形象 | 道德自省工具
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 卡片6：熊形玉嵌饰 -->
+                <div class="card">
+                    <div class="card__image-container">
+                        <img src="https://agent.qianwen.com/mos/a36766a97b514858ba09925a67a407fe/8fe2dce456f95a4df3c08b418f5041dd" 
+                             alt="熊形玉嵌饰：一手抚胸、一手招手的呆萌玉熊造型，被网友称为'汉代社牛'，展现汉代艺术审美趣味和贵族生活情趣"
+                             class="card__image">
+                    </div>
+                    <div class="card__content">
+                        <h3 class="card__title">熊形玉嵌饰</h3>
+                        <p class="card__description">
+                            一手抚胸、一手招手的呆萌玉熊造型，被网友称为"汉代社牛"。展现汉代艺术审美趣味，打破史书"荒淫无道"的单一刻板印象，还原有血有肉的真实人物。
+                        </p>
+                        <div class="card__meta">
+                            <i class="fas fa-gem mr-1"></i> 生活情趣 | 艺术审美
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 刘贺身份转变可视化 -->
+        <section class="mb-16 bg-slate-100 rounded-2xl p-8">
+            <h2 class="text-3xl font-bold text-center mb-8 text-slate-800 chapter-title">刘贺：中国历史上唯一经历四种身份的人</h2>
+            <p class="text-center text-gray-600 max-w-3xl mx-auto mb-10">
+                刘贺一生经历"王、帝、民、侯"四种身份，是中国历史上唯一一人。他的命运起伏折射出西汉政治制度的复杂性与中央集权的强化过程。
+            </p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white rounded-xl p-6 text-center shadow-md">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-purple-100 flex items-center justify-center">
+                        <i class="fas fa-crown text-3xl text-purple-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2 text-purple-700">昌邑王</h3>
+                    <p class="text-gray-600">武帝之孙，继承昌邑王爵位，封地在今山东</p>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 text-center shadow-md">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-yellow-100 flex items-center justify-center">
+                        <i class="fas fa-empire text-3xl text-yellow-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2 text-yellow-700">皇帝</h3>
+                    <p class="text-gray-600">公元前74年即位，仅27天后被霍光废黜</p>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 text-center shadow-md">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+                        <i class="fas fa-user text-3xl text-gray-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2 text-gray-700">庶人</h3>
+                    <p class="text-gray-600">被废后返回昌邑，削为平民，监视居住</p>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 text-center shadow-md">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center">
+                        <i class="fas fa-landmark text-3xl text-green-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2 text-green-700">海昏侯</h3>
+                    <p class="text-gray-600">元康三年被封海昏侯，迁居豫章（今江西）</p>
+                </div>
+            </div>
+            
+            <div class="mt-10 bg-white rounded-xl p-6 shadow-md">
+                <h3 class="text-xl font-bold mb-4 text-slate-800">历史意义解读</h3>
+                <p class="text-gray-700">
+                    刘贺的身份转变并非个人命运的偶然，而是西汉中央集权制度运行的必然结果。从王到帝，体现宗法继承制度；从帝到民，反映权臣霍光的政治操控；从民到侯，展示宣帝时期对刘氏宗亲的安抚策略。每一种身份转变背后，都是西汉政治制度复杂性的体现。
+                </p>
+            </div>
+        </section>
+
+        <!-- 记忆留存与讲述指南 -->
+        <section class="mb-16 bg-emerald-50/70 rounded-2xl p-8">
+            <h2 class="text-3xl font-bold text-center mb-8 text-emerald-900 chapter-title">离开展厅后：如何留存清晰记忆并讲述给他人</h2>
+            <p class="text-center text-gray-600 max-w-3xl mx-auto mb-10">
+                本讲解的核心目标是确保观众离开展厅后仍能留存清晰记忆，并可将内容完整讲述给他人。以下是三个关键记忆锚点：
+            </p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-xl p-6 shadow-md">
+                    <div class="w-12 h-12 mx-auto mb-4 rounded-full bg-emerald-100 flex items-center justify-center">
+                        <i class="fas fa-file-contract text-2xl text-emerald-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-emerald-800">一个核心文件</h3>
+                    <p class="text-gray-700 mb-3">
+                        <strong>《海昏侯国除诏书》</strong>——这不是普通文物，而是西汉中央集权的微观样本。记住：19位大臣署名，汉宣帝批复，证明即便边远侯国也完全嵌套在帝国行政机器中。
+                    </p>
+                    <p class="text-sm text-gray-500">
+                        讲述要点：中央对地方的控制力，行政运作机制
+                    </p>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 shadow-md">
+                    <div class="w-12 h-12 mx-auto mb-4 rounded-full bg-amber-100 flex items-center justify-center">
+                        <i class="fas fa-coins text-2xl text-amber-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-amber-800">一种政治制度</h3>
+                    <p class="text-gray-700 mb-3">
+                        <strong>酎金制度</strong>——黄金背后的忠诚税。记住：诸侯每年按户数进献黄金，刘贺金饼上写"臣贺"，既是义务也是政治表态。汉武帝曾借此削去106位列侯爵位。
+                    </p>
+                    <p class="text-sm text-gray-500">
+                        讲述要点：政治忠诚测试，中央权威凌驾诸侯
+                    </p>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 shadow-md">
+                    <div class="w-12 h-12 mx-auto mb-4 rounded-full bg-blue-100 flex items-center justify-center">
+                        <i class="fas fa-book text-2xl text-blue-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-blue-800">一次文化南迁</h3>
+                    <p class="text-gray-700 mb-3">
+                        <strong>儒家经典南传</strong>——失传1800年的《齐论语·智道》，最早的孔子画像漆衣镜，完整《诗经》手稿。记住：刘贺不仅读书，而且读的是最高规格官方教材。
+                    </p>
+                    <p class="text-sm text-gray-500">
+                        讲述要点：文化统一进程，儒家思想超越中原核心区
+                    </p>
+                </div>
+            </div>
+            
+            <div class="mt-10 bg-white rounded-xl p-6 shadow-md">
+                <h3 class="text-xl font-bold mb-4 text-emerald-800">完整叙事框架</h3>
+                <p class="text-gray-700 mb-4">
+                    当你向他人讲述时，可以遵循这个简洁框架：
+                </p>
+                <ol class="list-decimal pl-5 space-y-2 text-gray-700">
+                    <li><strong>人物引入</strong>：刘贺，中国历史上唯一经历"王、帝、民、侯"四种身份的人。</li>
+                    <li><strong>核心证据</strong>：一封诏书（行政制度）、一堆金子（政治忠诚）、一批竹简（文化传播）。</li>
+                    <li><strong>历史意义</strong>：西汉大一统不仅是疆域统一，更是制度覆盖、文化渗透和精神世界重塑。</li>
+                    <li><strong>福建视角</strong>：站在福建看海昏侯，看到的是中原文化南下、中华民族"多元一体"的形成过程。</li>
+                </ol>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-amber-900 text-amber-100 py-8">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-6">
+                    <p class="text-lg font-semibold mb-2">本内容由AI生成，可能存在错误或不准确之处。</p>
+                    <p class="text-amber-200">请在使用前自行核实信息的准确性。</p>
+                </div>
+                
+                <div class="border-t border-amber-700 pt-6 text-center text-sm text-amber-300">
+                    <p class="mb-2">参考资料：福建博物院「发现·海昏——西汉大一统叙事下的东南华章」展览及相关考古研究成果</p>
+                    <p>生成时间：2026年7月3日 星期五</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 初始化ECharts图表
+        document.addEventListener('DOMContentLoaded', function() {
+            // 金器类型分布图表
+            const goldChartDom = document.getElementById('goldChart');
+            if (goldChartDom) {
+                const goldChart = echarts.init(goldChartDom);
+                
+                const option = {
+                    title: {
+                        text: '海昏侯墓出土金器类型分布',
+                        left: 'center',
+                        textStyle: {
+                            color: '#8a704c',
+                            fontSize: 16,
+                            fontWeight: 'bold'
+                        }
+                    },
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: '{a} <br/>{b}: {c}件 ({d}%)'
+                    },
+                    legend: {
+                        orient: 'vertical',
+                        left: 'left',
+                        top: 'middle',
+                        textStyle: {
+                            color: '#666'
+                        }
+                    },
+                    series: [
+                        {
+                            name: '金器类型',
+                            type: 'pie',
+                            radius: ['40%', '70%'],
+                            center: ['60%', '50%'],
+                            avoidLabelOverlap: false,
+                            itemStyle: {
+                                borderRadius: 8,
+                                borderColor: '#fff',
+                                borderWidth: 2
+                            },
+                            label: {
+                                show: false,
+                                position: 'center'
+                            },
+                            emphasis: {
+                                label: {
+                                    show: true,
+                                    fontSize: '18',
+                                    fontWeight: 'bold'
+                                }
+                            },
+                            labelLine: {
+                                show: false
+                            },
+                            data: [
+                                { value: 385, name: '金饼', itemStyle: { color: '#d4a574' } },
+                                { value: 48, name: '马蹄金', itemStyle: { color: '#b08d57' } },
+                                { value: 25, name: '麟趾金', itemStyle: { color: '#8a704c' } },
+                                { value: 20, name: '钣金', itemStyle: { color: '#6d5c47' } }
+                            ]
+                        }
+                    ],
+                    color: ['#d4a574', '#b08d57', '#8a704c', '#6d5c47']
+                };
+                
+                goldChart.setOption(option);
+                
+                // 响应式调整
+                window.addEventListener('resize', function() {
+                    goldChart.resize();
+                });
+            }
+            
+            // 交互功能：术语提示
+            const tooltips = document.querySelectorAll('.term-tooltip');
+            tooltips.forEach(tooltip => {
+                tooltip.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = 'rgba(212, 165, 116, 0.2)';
+                });
+                
+                tooltip.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = '';
+                });
+            });
+            
+            // 卡片悬停效果增强
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px)';
+                    this.style.boxShadow = '0 12px 24px rgba(0, 0, 0, 0.15)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.08)';
+                });
+            });
+            
+            // 时间线动画
+            const timelineItems = document.querySelectorAll('.story-timeline__item');
+            const observerOptions = {
+                threshold: 0.2,
+                rootMargin: '0px 0px -50px 0px'
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+            
+            timelineItems.forEach(item => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(20px)';
+                item.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(item);
+            });
+        });
+    </script>
+</body>
+</html>
