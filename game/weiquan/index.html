@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>民事索赔行动指南</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700;900&family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
+
+  :root{
+    --ink:#16233B;
+    --ink-soft:#3C4A63;
+    --paper:#F4F5F2;
+    --paper-card:#FFFFFF;
+    --line:#DDDFD9;
+    --brass:#A9791F;
+    --brass-bg:#F4EBD6;
+    --red:#9C2B37;
+    --red-bg:#F7E5E4;
+    --green:#3C6B52;
+    --green-bg:#E4EEE7;
+  }
+
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    line-height:1.6;
+    padding-bottom:60px;
+  }
+
+  .wrap{max-width:640px; margin:0 auto; padding:0 18px;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;
+    background:var(--ink);
+    color:#F4F5F2;
+    padding:38px 18px 30px;
+    overflow:hidden;
+  }
+  .hero::after{
+    content:"";
+    position:absolute; left:0; right:0; bottom:0; height:6px;
+    background:repeating-linear-gradient(90deg, var(--brass) 0 14px, transparent 14px 28px);
+    opacity:.7;
+  }
+  .eyebrow{
+    font-size:12px; letter-spacing:.28em; color:#C7CCD8; text-transform:uppercase;
+    margin-bottom:10px;
+  }
+  .hero h1{
+    font-family:'Noto Serif SC', serif;
+    font-weight:900;
+    font-size:28px;
+    line-height:1.45;
+    margin:0 0 14px;
+    max-width:520px;
+  }
+  .hero p{
+    color:#C7CCD8;
+    font-size:14.5px;
+    max-width:480px;
+    margin:0;
+  }
+  .seal{
+    position:absolute;
+    top:24px; right:18px;
+    width:78px; height:78px;
+    border:3px solid #C24A55;
+    border-radius:50%;
+    color:#C24A55;
+    display:flex; align-items:center; justify-content:center;
+    transform:rotate(-14deg);
+    font-family:'Noto Serif SC', serif;
+    font-weight:900;
+    font-size:22px;
+    letter-spacing:2px;
+    writing-mode:vertical-rl;
+    opacity:.92;
+    mix-blend-mode:screen;
+  }
+
+  /* ---------- SECTION LABELS ---------- */
+  .section{padding-top:34px;}
+  .section-head{
+    display:flex; align-items:baseline; gap:10px; margin-bottom:16px;
+  }
+  .section-num{
+    font-family:'Noto Serif SC', serif;
+    font-weight:700;
+    font-size:13px;
+    color:var(--brass);
+    border:1px solid var(--brass);
+    border-radius:20px;
+    padding:2px 10px;
+    flex-shrink:0;
+  }
+  .section-title{
+    font-family:'Noto Serif SC', serif;
+    font-weight:700;
+    font-size:19px;
+    color:var(--ink);
+  }
+
+  /* ---------- URGENT BANNER ---------- */
+  .urgent-banner{
+    background:var(--red-bg);
+    border:1px solid #E3B7BA;
+    border-left:5px solid var(--red);
+    border-radius:6px;
+    padding:16px 16px 16px 16px;
+    margin-top:20px;
+  }
+  .urgent-banner .tag{
+    display:inline-block;
+    background:var(--red);
+    color:#fff;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.08em;
+    padding:3px 9px;
+    border-radius:3px;
+    margin-bottom:8px;
+  }
+  .urgent-banner h2{
+    font-family:'Noto Serif SC', serif;
+    font-size:18px;
+    margin:0 0 6px;
+    color:var(--red);
+  }
+  .urgent-banner p{margin:0; font-size:14px; color:var(--ink-soft);}
+
+  /* ---------- ACTION LIST ---------- */
+  .action-item{
+    display:flex;
+    gap:14px;
+    background:var(--paper-card);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:16px;
+    margin-bottom:12px;
+  }
+  .action-item.critical{
+    border-color:#E3B7BA;
+    background:#FFFBFB;
+    box-shadow:0 2px 10px rgba(156,43,55,.08);
+  }
+  .action-num{
+    flex-shrink:0;
+    width:32px; height:32px;
+    border-radius:50%;
+    background:var(--ink);
+    color:#fff;
+    font-family:'Noto Serif SC', serif;
+    font-weight:700;
+    font-size:14px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .action-item.critical .action-num{background:var(--red);}
+  .action-body h3{
+    margin:2px 0 6px;
+    font-size:15.5px;
+    font-weight:700;
+  }
+  .action-item.critical .action-body h3{color:var(--red);}
+  .action-body ul{
+    margin:6px 0 0;
+    padding-left:18px;
+    font-size:13.5px;
+    color:var(--ink-soft);
+  }
+  .action-body ul li{margin-bottom:3px;}
+  .action-body p{font-size:13.5px; color:var(--ink-soft); margin:6px 0 0;}
+
+  .call-btn{
+    display:inline-flex; align-items:center; gap:6px;
+    margin-top:10px;
+    background:var(--ink);
+    color:#fff;
+    text-decoration:none;
+    font-size:13px;
+    font-weight:700;
+    padding:8px 14px;
+    border-radius:20px;
+  }
+
+  /* ---------- TABLES ---------- */
+  .card{
+    background:var(--paper-card);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:16px;
+    margin-bottom:14px;
+  }
+  .card h3{
+    font-size:14.5px;
+    font-family:'Noto Serif SC', serif;
+    margin:0 0 10px;
+    color:var(--brass);
+  }
+  table{width:100%; border-collapse:collapse; font-size:13px;}
+  table td{padding:7px 0; border-bottom:1px dashed var(--line); vertical-align:top;}
+  table td:first-child{
+    width:34%; font-weight:700; color:var(--ink); padding-right:10px;
+  }
+  table tr:last-child td{border-bottom:none;}
+
+  /* ---------- TIMELINE ---------- */
+  .timeline{position:relative; margin-left:10px; padding-left:26px; border-left:2px solid var(--line);}
+  .tl-item{position:relative; padding-bottom:26px;}
+  .tl-item:last-child{padding-bottom:0;}
+  .tl-item::before{
+    content:"";
+    position:absolute; left:-33px; top:2px;
+    width:12px; height:12px; border-radius:50%;
+    background:var(--brass);
+    border:2px solid var(--paper);
+  }
+  .tl-time{
+    font-family:'Noto Serif SC', serif;
+    font-weight:700;
+    font-size:13.5px;
+    color:var(--brass);
+    margin-bottom:4px;
+  }
+  .tl-body{font-size:13.5px; color:var(--ink-soft);}
+  .tl-body ul{margin:4px 0 0; padding-left:16px;}
+
+  /* ---------- DETAILS / ACCORDION ---------- */
+  details{
+    background:var(--paper-card);
+    border:1px solid var(--line);
+    border-radius:8px;
+    margin-bottom:10px;
+    overflow:hidden;
+  }
+  details summary{
+    list-style:none;
+    cursor:pointer;
+    padding:14px 16px;
+    font-weight:700;
+    font-size:14.5px;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  details summary::-webkit-details-marker{display:none;}
+  details summary::after{
+    content:"+";
+    font-size:20px; color:var(--brass); font-weight:400;
+  }
+  details[open] summary::after{content:"–";}
+  details .details-body{
+    padding:0 16px 16px;
+    font-size:13.5px;
+    color:var(--ink-soft);
+  }
+  details .details-body p{margin:0 0 10px;}
+  details .details-body ul{margin:0 0 10px; padding-left:18px;}
+  details .details-body strong{color:var(--ink);}
+
+  .note-strip{
+    background:var(--green-bg);
+    border-left:4px solid var(--green);
+    border-radius:4px;
+    padding:10px 12px;
+    font-size:13px;
+    color:#2C4A3A;
+    margin-top:8px;
+  }
+  .warn-strip{
+    background:var(--brass-bg);
+    border-left:4px solid var(--brass);
+    border-radius:4px;
+    padding:10px 12px;
+    font-size:13px;
+    color:#5B4315;
+    margin-top:8px;
+  }
+
+  footer{
+    margin-top:40px;
+    padding-top:20px;
+    border-top:1px solid var(--line);
+    font-size:12px;
+    color:#8B9099;
+    text-align:center;
+  }
+
+  @media (max-width:400px){
+    .hero h1{font-size:24px;}
+    .seal{width:64px; height:64px; font-size:18px; top:20px; right:14px;}
+  }
+</style>
+</head>
+<body>
+
+  <div class="hero">
+    <div class="seal">特急</div>
+    <div class="eyebrow">民事索赔 · 行动指南</div>
+    <h1>行凶者已亡，民事赔偿仍可主张<br>关键在于——快</h1>
+    <p>刑事责任因行凶者死亡而终止，但民事赔偿责任由其遗产继承人在遗产范围内承担。第一步必须是财产保全，越早越好。</p>
+  </div>
+
+  <div class="wrap">
+
+    <!-- 最紧急提醒 -->
+    <div class="section">
+      <div class="urgent-banner">
+        <span class="tag">最高优先级</span>
+        <h2>立刻申请诉前财产保全</h2>
+        <p>行凶者名下的房产、存款一旦被家属转移或过户，将来即使胜诉也可能执行不到钱。不需要先起诉，可先申请保全，30 天内再补起诉。这一步拖一天，风险就多一分。</p>
+      </div>
+    </div>
+
+    <!-- 五件紧急事项 -->
+    <div class="section">
+      <div class="section-head">
+        <span class="section-num">01</span>
+        <span class="section-title">当下最紧急的五件事</span>
+      </div>
+
+      <div class="action-item critical">
+        <div class="action-num">1</div>
+        <div class="action-body">
+          <h3>申请诉前财产保全</h3>
+          <p>向古田县人民法院申请查封、冻结行凶者名下房产、存款、车辆等一切财产。</p>
+          <ul>
+            <li>不需要先起诉，可先保全、30 天内再起诉</li>
+            <li>需提供担保：现金 / 房产 / 保险公司保全担保函</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-num">2</div>
+        <div class="action-body">
+          <h3>全力救治 + 保留一切证据</h3>
+          <ul>
+            <li>医疗费发票、诊断证明、病历、影像片子、出院小结全部留存</li>
+            <li>ICU 每日费用清单、护理 / 交通 / 住宿收据一并保存</li>
+            <li>手机拍照备份所有票据，原件妥善保管</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-num">3</div>
+        <div class="action-body">
+          <h3>确认公安立案情况，拿到关键文书</h3>
+          <ul>
+            <li>向古田县公安局确认案件编号，索取受案回执 / 立案决定书</li>
+            <li>如因嫌疑人死亡撤案，要求出具撤案决定书（载明案件事实）</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-num">4</div>
+        <div class="action-body">
+          <h3>查清行凶者的继承人信息</h3>
+          <p>是否有配偶、子女；父母是否健在——这直接决定起诉时被告写谁。可通过办案民警了解户籍信息，或委托律师持调查令查询。</p>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-num">5</div>
+        <div class="action-body">
+          <h3>尽快委托律师</h3>
+          <p>案件涉及刑转民、遗产继承、财产保全、伤残鉴定多个环节，建议尽快介入专业律师。</p>
+          <a class="call-btn" href="tel:12348">📞 拨打 12348 法律援助热线</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 案件定性 -->
+    <div class="section">
+      <div class="section-head">
+        <span class="section-num">02</span>
+        <span class="section-title">案件怎么定性</span>
+      </div>
+      <details open>
+        <summary>刑事终结，民事不终结</summary>
+        <div class="details-body">
+          <p><strong>刑事责任：</strong>行凶者已死亡，依据《刑事诉讼法》第16条，不再追诉刑事责任，公安会撤销案件或检察院不起诉。</p>
+          <p><strong>民事赔偿：</strong>不因行凶者死亡而消灭。依据《民法典》第1161条，其遗产继承人须在继承遗产的范围内承担侵权赔偿责任。</p>
+          <p><strong>诉讼路径：</strong>受害方应单独提起民事侵权诉讼，将行凶者的遗产继承人列为被告。</p>
+          <div class="note-strip">参考判例：2023年江苏泰州，凶手捅人后畏罪自杀，法院判决受害人的残疾赔偿金、精神损害抚慰金等全部诉求获支持，由凶手继承人在遗产范围内赔付（2026年1月平安浙江网报道）。案情相似，法院支持方向明确。</div>
+        </div>
+      </details>
+
+      <details>
+        <summary>被告是谁——遗产继承人</summary>
+        <div class="details-body">
+          <p><strong>第一顺序：</strong>配偶、子女、父母</p>
+          <p>若无配偶、无子女，继承人为父母；若父母也不在，则看第二顺序：兄弟姐妹、祖父母、外祖父母。</p>
+          <div class="warn-strip">关键规则：继承人只在继承遗产的范围内赔偿。即使继承人明确放弃继承，法院也可以直接执行遗产来赔偿受害人——那套房子跑不掉。</div>
+        </div>
+      </details>
+    </div>
+
+    <!-- 赔偿主张 -->
+    <div class="section">
+      <div class="section-head">
+        <span class="section-num">03</span>
+        <span class="section-title">可以主张哪些赔偿</span>
+      </div>
+
+      <div class="card">
+        <h3>第一阶段 · 治疗期间（现在就能开始收集）</h3>
+        <table>
+          <tr><td>医疗费</td><td>抢救费、ICU费、手术费、药费、检查费，凭票据实报实销</td></tr>
+          <tr><td>住院伙食补助</td><td>福建一般地区约 50～100 元/天</td></tr>
+          <tr><td>营养费</td><td>根据伤情和医嘱确定</td></tr>
+          <tr><td>护理费</td><td>按护理人员收入或当地护工标准计算</td></tr>
+          <tr><td>误工费</td><td>从受伤到定残前一日，按实际收入或行业平均工资计算</td></tr>
+          <tr><td>交通 / 住宿费</td><td>就医产生的合理费用</td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>第二阶段 · 伤情稳定后（出院后 3～6 个月）</h3>
+        <table>
+          <tr><td>残疾赔偿金</td><td>司法鉴定定级后计算：61,437 元 × 20年 × 伤残系数（60岁以下，福建标准）</td></tr>
+          <tr><td>被扶养人生活费</td><td>如有未成年子女或需赡养老人，按人均消费支出 41,729 元/年计算</td></tr>
+          <tr><td>后续治疗费</td><td>如需二次手术、长期康复，可一并主张或另行起诉</td></tr>
+          <tr><td>精神损害抚慰金</td><td>重伤/伤残可主张，由法院酌定</td></tr>
+          <tr><td>残疾辅助器具费</td><td>如需轮椅、假肢等</td></tr>
+        </table>
+      </div>
+
+      <div class="note-strip">粗略估算仅供参考：若伤残等级较重（5级以上），两人赔偿总额可能在 100万～200万甚至更高，具体以鉴定结果为准。</div>
+    </div>
+
+    <!-- 时间线 -->
+    <div class="section">
+      <div class="section-head">
+        <span class="section-num">04</span>
+        <span class="section-title">后续流程时间线</span>
+      </div>
+
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-time">现在（第1周）</div>
+          <div class="tl-body">
+            <ul>
+              <li>申请诉前财产保全，查封房产 / 冻结账户</li>
+              <li>全力救治，收集所有票据</li>
+              <li>确认公安立案文书</li>
+            </ul>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">第 2～4 周</div>
+          <div class="tl-body">
+            <ul>
+              <li>委托律师（或申请法律援助）</li>
+              <li>查清继承人身份</li>
+              <li>准备起诉材料</li>
+            </ul>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">1～3 个月内</div>
+          <div class="tl-body">
+            向古田县人民法院提起民事侵权诉讼，被告为行凶者的遗产继承人，案由为生命权 / 身体权 / 健康权纠纷；如急需用钱，可就已发生的医疗费申请先予执行。
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">出院后 3～6 个月</div>
+          <div class="tl-body">伤情基本稳定后申请司法鉴定（伤残等级、误工期、护理期、营养期、后续治疗费），据结果变更 / 增加诉讼请求。</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">法院审理（3～6 个月）</div>
+          <div class="tl-body">判决继承人在遗产范围内赔偿。</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">判决生效后</div>
+          <div class="tl-body">如对方不履行，申请法院强制执行（拍卖房产等）。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 特别提醒 -->
+    <div class="section">
+      <div class="section-head">
+        <span class="section-num">05</span>
+        <span class="section-title">几个特别提醒</span>
+      </div>
+
+      <details>
+        <summary>诉讼时效：3 年</summary>
+        <div class="details-body"><p>从受伤之日起算，但不要拖，越早起诉越主动。</p></div>
+      </details>
+
+      <details>
+        <summary>房子到底算不算遗产？</summary>
+        <div class="details-body">
+          <p>要看产权登记在谁名下。登记在行凶者本人名下，属于遗产；登记在其父母名下，则不是遗产，不能直接执行；若与配偶共有，只有属于他的那一半份额是遗产。这一点需要律师去不动产登记中心查清。</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>遗产不够赔怎么办？</summary>
+        <div class="details-body">
+          <p>不足部分原则上无法再向继承人个人追偿（除非其自愿）。但可向古田县人民法院或检察院申请国家司法救助，对因犯罪导致重伤、生活困难的受害人给予一定救助金。</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>医保报销会影响索赔吗？</summary>
+        <div class="details-body"><p>医保先行报销不影响向侵权人索赔，但部分地方法院会扣除已报销部分，这个技术问题律师会处理。</p></div>
+      </details>
+
+      <details>
+        <summary>夫妻二人怎么起诉？</summary>
+        <div class="details-body"><p>可作为共同原告一起起诉，节省诉讼成本，但赔偿金额分别计算。</p></div>
+      </details>
+    </div>
+
+    <!-- 能帮的事 -->
+    <div class="section">
+      <div class="section-head">
+        <span class="section-num">06</span>
+        <span class="section-title">作为朋友，你现在能帮的</span>
+      </div>
+      <div class="card">
+        <table>
+          <tr><td>跑法院</td><td>去古田县人民法院立案庭，咨询诉前财产保全的具体材料要求</td></tr>
+          <tr><td>打电话</td><td>拨打 12348 法律援助热线，说明情况，申请法律援助</td></tr>
+          <tr><td>找律师</td><td>联系宁德或福州靠谱的人身损害赔偿律师</td></tr>
+          <tr><td>管票据</td><td>帮忙整理、保管所有医疗票据</td></tr>
+          <tr><td>盯案件</td><td>与办案民警保持沟通，及时拿到相关文书</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <footer>
+      本页面根据既有法律分析整理，仅供行动参考，不构成正式法律意见。<br>
+      具体操作请以承办律师及法院的正式意见为准。
+    </footer>
+
+  </div>
+
+</body>
+</html>

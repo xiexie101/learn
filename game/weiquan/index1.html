@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>案件应对行动清单</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@400;500;700&family=Zhi+Mang+Xing&display=swap');
+
+:root{
+  --paper:#F6F3EC;
+  --paper-dim:#EFEADD;
+  --ink:#232323;
+  --ink-soft:#5B5A54;
+  --navy:#1E2B45;
+  --navy-soft:#3E4C68;
+  --seal:#A6332A;
+  --seal-soft:#C4574B;
+  --gold:#9C7B3F;
+  --line:#D8D2C2;
+}
+
+*{box-sizing:border-box; margin:0; padding:0;}
+
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'Noto Sans SC', sans-serif;
+  line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* subtle paper texture */
+body::before{
+  content:"";
+  position:fixed; inset:0;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(0,0,0,0.015) 0, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(0,0,0,0.015) 0, transparent 40%);
+  pointer-events:none;
+  z-index:0;
+}
+
+.wrap{max-width:760px; margin:0 auto; padding:0 24px 100px;}
+
+/* ---------- HERO ---------- */
+.hero{
+  position:relative;
+  padding:64px 24px 48px;
+  text-align:center;
+  border-bottom:1px solid var(--line);
+}
+.hero-eyebrow{
+  font-size:13px;
+  letter-spacing:0.3em;
+  color:var(--seal);
+  font-weight:700;
+  margin-bottom:18px;
+}
+.hero h1{
+  font-family:'Noto Serif SC', serif;
+  font-weight:900;
+  font-size:clamp(32px,6vw,46px);
+  color:var(--navy);
+  line-height:1.35;
+  margin-bottom:16px;
+}
+.hero p{
+  color:var(--ink-soft);
+  font-size:15.5px;
+  max-width:480px;
+  margin:0 auto;
+}
+.seal-stamp{
+  position:absolute;
+  top:36px; right:8px;
+  width:88px; height:88px;
+  border:3px solid var(--seal);
+  border-radius:6px;
+  color:var(--seal);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  font-family:'Noto Serif SC', serif;
+  font-weight:900;
+  font-size:15px;
+  line-height:1.3;
+  transform:rotate(8deg);
+  opacity:0.85;
+  writing-mode:vertical-rl;
+  letter-spacing:2px;
+  padding:6px;
+}
+
+/* ---------- URGENT CALLOUT ---------- */
+.urgent-box{
+  margin:36px 0;
+  background:var(--navy);
+  color:var(--paper);
+  border-radius:4px;
+  padding:26px 28px;
+  position:relative;
+  overflow:hidden;
+}
+.urgent-box::before{
+  content:"最优先";
+  position:absolute;
+  top:-1px; left:-1px;
+  background:var(--seal);
+  color:#fff;
+  font-size:12px;
+  font-weight:700;
+  padding:5px 14px 5px 12px;
+  letter-spacing:0.15em;
+  border-bottom-right-radius:6px;
+}
+.urgent-box h2{
+  font-family:'Noto Serif SC', serif;
+  font-size:21px;
+  margin:22px 0 10px;
+  font-weight:700;
+}
+.urgent-box p{
+  color:#D8DCE6;
+  font-size:14.5px;
+}
+
+/* ---------- PHASE TIMELINE ---------- */
+.timeline{
+  margin-top:56px;
+  position:relative;
+}
+.timeline::before{
+  content:"";
+  position:absolute;
+  left:27px; top:8px; bottom:8px;
+  width:1px;
+  background:var(--line);
+}
+.phase{
+  position:relative;
+  padding-left:66px;
+  margin-bottom:52px;
+}
+.phase:last-child{margin-bottom:0;}
+.phase-num{
+  position:absolute;
+  left:0; top:0;
+  width:56px; height:56px;
+  border-radius:50%;
+  background:var(--paper);
+  border:1.5px solid var(--navy);
+  color:var(--navy);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:'Noto Serif SC', serif;
+  font-weight:700;
+  font-size:13px;
+  text-align:center;
+  line-height:1.2;
+  z-index:1;
+}
+.phase-when{
+  font-size:12.5px;
+  letter-spacing:0.15em;
+  color:var(--seal);
+  font-weight:700;
+  margin-bottom:6px;
+  text-transform:uppercase;
+}
+.phase-title{
+  font-family:'Noto Serif SC', serif;
+  font-size:22px;
+  font-weight:700;
+  color:var(--navy);
+  margin-bottom:18px;
+}
+
+.item{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:4px;
+  padding:18px 20px;
+  margin-bottom:14px;
+}
+.item.high{
+  border-left:4px solid var(--seal);
+}
+.item-head{
+  display:flex;
+  align-items:baseline;
+  gap:10px;
+  margin-bottom:8px;
+  flex-wrap:wrap;
+}
+.item-title{
+  font-weight:700;
+  font-size:16px;
+  color:var(--ink);
+}
+.tag{
+  font-size:11px;
+  padding:2px 9px;
+  border-radius:20px;
+  font-weight:700;
+  letter-spacing:0.05em;
+}
+.tag.urgent{background:rgba(166,51,42,0.1); color:var(--seal);}
+.tag.normal{background:rgba(62,76,104,0.1); color:var(--navy-soft);}
+
+.item ul{
+  padding-left:20px;
+  color:var(--ink-soft);
+  font-size:14.5px;
+}
+.item ul li{margin-bottom:4px;}
+.item .why{
+  margin-top:10px;
+  font-size:13.5px;
+  color:var(--seal-soft);
+  background:rgba(166,51,42,0.06);
+  padding:8px 12px;
+  border-radius:3px;
+}
+.item p.note{
+  font-size:14.5px;
+  color:var(--ink-soft);
+}
+
+/* ---------- REMINDERS ---------- */
+.reminders{
+  margin-top:60px;
+  background:var(--paper-dim);
+  border:1px solid var(--line);
+  border-radius:4px;
+  padding:28px 26px;
+}
+.reminders h2{
+  font-family:'Noto Serif SC', serif;
+  font-size:20px;
+  color:var(--seal);
+  margin-bottom:18px;
+}
+.reminders .r-item{
+  display:flex;
+  gap:12px;
+  margin-bottom:14px;
+  align-items:flex-start;
+}
+.reminders .r-item:last-child{margin-bottom:0;}
+.r-mark{
+  color:var(--seal);
+  font-weight:900;
+  font-size:16px;
+  line-height:1.6;
+}
+.r-text b{color:var(--navy);}
+.r-text{font-size:14.5px; color:var(--ink-soft);}
+
+/* ---------- COMPENSATION TABLE ---------- */
+.comp{
+  margin-top:56px;
+}
+.comp h2{
+  font-family:'Noto Serif SC', serif;
+  font-size:22px;
+  color:var(--navy);
+  margin-bottom:6px;
+}
+.comp .sub{
+  font-size:13.5px;
+  color:var(--ink-soft);
+  margin-bottom:20px;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  background:#fff;
+  border:1px solid var(--line);
+  font-size:14px;
+}
+th, td{
+  padding:12px 14px;
+  text-align:left;
+  border-bottom:1px solid var(--line);
+}
+th{
+  font-family:'Noto Serif SC', serif;
+  color:var(--navy);
+  font-size:13px;
+  background:var(--paper-dim);
+}
+td.amt{
+  color:var(--gold);
+  font-weight:700;
+  font-variant-numeric:tabular-nums;
+}
+tr:last-child td{border-bottom:none;}
+.example-box{
+  margin-top:16px;
+  border:1px dashed var(--gold);
+  border-radius:4px;
+  padding:16px 18px;
+  font-size:14px;
+  color:var(--ink-soft);
+  background:rgba(156,123,63,0.05);
+}
+.example-box b{color:var(--gold);}
+
+/* ---------- CHECKLIST FOR INFO ---------- */
+.info-need{
+  margin-top:56px;
+}
+.info-need h2{
+  font-family:'Noto Serif SC', serif;
+  font-size:22px;
+  color:var(--navy);
+  margin-bottom:16px;
+}
+.check-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+.check{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:4px;
+  padding:13px 16px;
+  font-size:14.5px;
+}
+.check .box{
+  min-width:18px; height:18px;
+  border:1.5px solid var(--navy-soft);
+  border-radius:3px;
+}
+
+/* ---------- FOOTER ---------- */
+.footer{
+  margin-top:64px;
+  text-align:center;
+  padding-top:30px;
+  border-top:1px solid var(--line);
+}
+.footer .stamp-line{
+  font-family:'Zhi Mang Xing', cursive;
+  font-size:26px;
+  color:var(--seal);
+  margin-bottom:10px;
+}
+.footer p{
+  font-size:13px;
+  color:var(--ink-soft);
+}
+
+@media(max-width:520px){
+  .hero{padding:52px 18px 36px;}
+  .seal-stamp{position:static; margin:0 auto 20px; transform:rotate(0deg);}
+  .phase{padding-left:56px;}
+  .phase-num{width:46px; height:46px; font-size:11px;}
+  .timeline::before{left:22px;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <div class="seal-stamp">紧急<br>处理</div>
+    <div class="hero-eyebrow">案件应对 · 完整行动指南</div>
+    <h1>受伤维权<br>行动清单</h1>
+    <p>行凶者已死亡，刑事追责终止，但民事索赔的窗口现在打开。按下面的顺序推进，能拿到的赔偿完全不同。</p>
+  </div>
+
+  <div class="urgent-box">
+    <h2>① 本周内：申请财产保全</h2>
+    <p>去古田县人民法院立案庭申请诉前财产保全，查封行凶者名下房产、存款、车辆。行凶者家属随时可能转移财产——一旦转走，将来判了也执行不到。需要：身份证复印件、诊断证明/病历、公安受案回执、担保（现金/房产/保险保全函）。</p>
+  </div>
+
+  <div class="timeline">
+
+    <!-- PHASE 1 -->
+    <div class="phase">
+      <div class="phase-num">第一步<br>本周</div>
+      <div class="phase-title">现在立刻做</div>
+
+      <div class="item high">
+        <div class="item-head"><span class="item-title">申请财产保全</span><span class="tag urgent">最紧急</span></div>
+        <ul>
+          <li>古田县人民法院立案庭，申请诉前财产保全</li>
+          <li>查封行凶者名下房产、银行存款、车辆</li>
+          <li>材料：身份证复印件 / 诊断证明与病历 / 受案回执或立案回执 / 担保</li>
+        </ul>
+        <div class="why">为什么紧急：行凶者已死，家属可能随时过户房产、转移存款</div>
+      </div>
+
+      <div class="item">
+        <div class="item-head"><span class="item-title">找公安拿文书</span><span class="tag normal">证据留存</span></div>
+        <ul>
+          <li>去办案派出所/刑警队，索取受案回执或立案决定书复印件</li>
+          <li>行凶者的死亡证明相关材料</li>
+          <li>若因嫌疑人死亡撤案，要一份撤案决定书</li>
+        </ul>
+        <p class="note">这是将来民事官司证明"他确实捅了我们"的核心证据。</p>
+      </div>
+
+      <div class="item">
+        <div class="item-head"><span class="item-title">保存所有医疗票据</span><span class="tag normal">从现在开始</span></div>
+        <ul>
+          <li>ICU费用、手术费、药费、检查费、护理费、交通费、住宿费</li>
+          <li>原件保管好，手机拍照备份</li>
+          <li>请护工的话，让护工写收条（姓名、金额、日期、签字）</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- PHASE 2 -->
+    <div class="phase">
+      <div class="phase-num">第二步<br>1–4周</div>
+      <div class="phase-title">找律师，摸清对方底细</div>
+
+      <div class="item">
+        <div class="item-head"><span class="item-title">请律师</span></div>
+        <ul>
+          <li><b>方案A（免费）：</b>拨打12348法律援助热线，或去古田县司法局法律援助中心，说明"被人捅成重伤、行凶者已死亡"，申请指派免费律师</li>
+          <li><b>方案B（付费）：</b>在宁德市或福州市找专做人身损害赔偿的律师，可谈风险代理（拿到赔偿后再按比例付费）</li>
+        </ul>
+        <p class="note">律师介入后，后面的事基本不用自己操心。</p>
+      </div>
+
+      <div class="item">
+        <div class="item-head"><span class="item-title">查清继承人</span></div>
+        <ul>
+          <li>委托律师或办案民警协助查：行凶者是否有配偶、子女</li>
+          <li>父母是谁、住哪里</li>
+        </ul>
+        <p class="note">这决定了起诉时被告写谁——若无配偶子女，被告即为其父母。</p>
+      </div>
+
+      <div class="item">
+        <div class="item-head"><span class="item-title">查清对方财产</span></div>
+        <ul>
+          <li>不动产登记中心：名下是否有房产（含跳楼那套房子登记在谁名下）</li>
+          <li>银行：是否有存款</li>
+          <li>车管所：是否有车</li>
+          <li>市场监管局：是否有公司股权</li>
+        </ul>
+        <p class="note">查到什么，就让律师去保全什么。</p>
+      </div>
+    </div>
+
+    <!-- PHASE 3 -->
+    <div class="phase">
+      <div class="phase-num">第三步<br>1–3月</div>
+      <div class="phase-title">正式起诉</div>
+      <div class="item">
+        <div class="item-head"><span class="item-title">向古田县人民法院提起民事诉讼</span></div>
+        <ul>
+          <li><b>案由：</b>生命权、身体权、健康权纠纷</li>
+          <li><b>原告：</b>受伤夫妻二人</li>
+          <li><b>被告：</b>行凶者的遗产继承人（父/母/配偶/子女）</li>
+          <li><b>诉讼请求：</b>医疗费、误工费、护理费、营养费、住院伙食补助费、交通费、残疾赔偿金、精神损害抚慰金、被扶养人生活费等</li>
+        </ul>
+        <p class="note">急需治病钱，可同时申请先予执行，让法院先判对方垫付部分医疗费。</p>
+      </div>
+    </div>
+
+    <!-- PHASE 4 -->
+    <div class="phase">
+      <div class="phase-num">第四步<br>出院后<br>3–6月</div>
+      <div class="phase-title">做伤残鉴定</div>
+      <div class="item">
+        <div class="item-head"><span class="item-title">伤情稳定后，委托司法鉴定机构鉴定</span><span class="tag urgent">影响赔偿额</span></div>
+        <ul>
+          <li>鉴定内容：伤残等级（1–10级）、误工期、护理期、营养期、后续治疗费</li>
+          <li>材料：全部住院病历、手术记录（最重要）、CT/X光/MRI原始片子、诊断证明、出院小结</li>
+        </ul>
+        <p class="note">宁德或福州的司法鉴定中心均可办理。</p>
+      </div>
+    </div>
+
+    <!-- PHASE 5 -->
+    <div class="phase">
+      <div class="phase-num">第五步<br>鉴定后</div>
+      <div class="phase-title">审理与执行</div>
+      <div class="item">
+        <ul>
+          <li>根据鉴定结果，确定残疾赔偿金、后续治疗费等具体金额（律师会算好）</li>
+          <li>法院判决继承人在遗产范围内赔偿</li>
+          <li>对方不付 → 申请强制执行（拍卖房产、扣划存款）</li>
+          <li>遗产确实不够赔 → 可向法院或检察院申请国家司法救助金</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="reminders">
+    <h2>五个关键提醒</h2>
+    <div class="r-item"><span class="r-mark">✕</span><span class="r-text"><b>不要私了、不要签任何协议。</b>行凶者家属可能来谈，律师介入前什么都不答应、不签字。</span></div>
+    <div class="r-item"><span class="r-mark">✕</span><span class="r-text"><b>不要放弃报警、不要撤案。</b>刑事部分虽因嫌疑人死亡无法追诉，但公安案卷是民事索赔的核心证据。</span></div>
+    <div class="r-item"><span class="r-mark">✕</span><span class="r-text"><b>所有票据一张都不能丢。</b>这是计算赔偿金额的直接依据。</span></div>
+    <div class="r-item"><span class="r-mark">✕</span><span class="r-text"><b>跟主治医生沟通好。</b>请医生在病历、手术记录中详细写明损伤部位与切除范围——等级差一级，赔偿差十几万。</span></div>
+    <div class="r-item"><span class="r-mark">✕</span><span class="r-text"><b>诉讼时效3年，但别拖。</b>从受伤之日起算，越早起诉越主动；夫妻二人作为共同原告，赔偿分别计算。</span></div>
+  </div>
+
+  <div class="comp">
+    <h2>赔偿金额参考</h2>
+    <div class="sub">福建标准，60岁以下</div>
+    <table>
+      <tr><th>项目</th><th>计算方式</th></tr>
+      <tr><td>残疾赔偿金</td><td class="amt">61,437元/年 × 20年 × 伤残系数</td></tr>
+      <tr><td>被扶养人生活费</td><td class="amt">41,729元/年 × 年限 × 伤残系数</td></tr>
+      <tr><td>精神损害抚慰金</td><td>法院酌定，一般3万～10万+</td></tr>
+      <tr><td>医疗费</td><td>凭票据实报实销</td></tr>
+      <tr><td>误工费</td><td>按实际收入或行业标准</td></tr>
+      <tr><td>其他</td><td>护理费、营养费、交通费等</td></tr>
+    </table>
+    <div class="example-box">
+      <b>举例：</b>若鉴定为八级伤残（系数30%），仅残疾赔偿金一项 = 61,437 × 20 × 30% ≈ <b>36.9万元</b>。两人合计翻倍，再加上医疗费、精神抚慰金等，总额会更高。
+    </div>
+  </div>
+
+  <div class="info-need">
+    <h2>后续如需帮忙估算，请补充这些信息</h2>
+    <div class="check-grid">
+      <div class="check"><span class="box"></span>具体伤在什么部位（腹部/胸部/四肢）</div>
+      <div class="check"><span class="box"></span>做了什么手术，切除了什么脏器</div>
+      <div class="check"><span class="box"></span>目前大概花了多少医疗费</div>
+      <div class="check"><span class="box"></span>有没有医保/新农合/商业保险</div>
+      <div class="check"><span class="box"></span>有没有未成年子女或需赡养的老人</div>
+      <div class="check"><span class="box"></span>夫妻二人的职业和大概收入</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="stamp-line">最紧急的一步：先去申请财产保全</div>
+    <p>如果朋友还在住院，让父母或其他亲属先去跑这一步。有不清楚的随时再问。</p>
+  </div>
+
+</div>
+</body>
+</html>
