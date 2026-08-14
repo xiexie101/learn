@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2026夏季爬山护膝避险全攻略 | 科学登山不伤膝</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            mountain: '#2E5946',
+            grass: '#6A994E',
+            warn: '#E07A5F',
+            sand: '#F4F1DE',
+            darkwood: '#3D405B'
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .text-shadow { text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+      .card-shadow { box-shadow: 0 4px 16px rgba(46, 89, 70, 0.12); }
+      .bg-gradient-mountain { background: linear-gradient(135deg, #2E5946, #6A994E); }
+    }
+  </style>
+</head>
+<body class="bg-sand text-darkwood">
+  <!-- 顶部导航栏 -->
+  <header class="bg-gradient-mountain text-white sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <h1 class="text-xl md:text-2xl font-bold flex items-center gap-2">
+        <i class="fa fa-mountain"></i>夏季爬山护膝避险全攻略
+      </h1>
+      <nav class="hidden md:flex gap-6 text-sm">
+        <a href="#principle" class="hover:text-sand/80">运动原理</a>
+        <a href="#wrong-pose" class="hover:text-sand/80">伤膝误区</a>
+        <a href="#correct-skill" class="hover:text-sand/80">登山技巧</a>
+        <a href="#warm-stretch" class="hover:text-sand/80">热身拉伸</a>
+        <a href="#elder-guide" class="hover:text-sand/80">中老年指南</a>
+        <a href="#emergency" class="hover:text-sand/80">应急避险</a>
+      </nav>
+      <button class="md:hidden text-xl" id="menuBtn">
+        <i class="fa fa-bars"></i>
+      </button>
+    </div>
+    <!-- 移动端下拉菜单 -->
+    <div id="mobileMenu" class="hidden md:hidden px-4 pb-4 flex flex-col gap-3 text-sm">
+      <a href="#principle" class="hover:text-sand/80">运动原理</a>
+      <a href="#wrong-pose" class="hover:text-sand/80">伤膝误区</a>
+      <a href="#correct-skill" class="hover:text-sand/80">登山技巧</a>
+      <a href="#warm-stretch" class="hover:text-sand/80">热身拉伸</a>
+      <a href="#elder-guide" class="hover:text-sand/80">中老年指南</a>
+      <a href="#emergency" class="hover:text-sand/80">应急避险</a>
+    </div>
+  </header>
+
+  <!-- 头部横幅 -->
+  <section class="bg-gradient-mountain text-white py-12 md:py-16 px-4">
+    <div class="container mx-auto max-w-4xl">
+      <h2 class="text-[clamp(1.8rem,4vw,2.8rem)] font-bold mb-4 text-shadow">别把爬山当日常锻炼！夏季徒步山野完整安全手册</h2>
+      <p class="text-sand/90 text-lg md:text-xl">科学护膝｜正确姿势｜野外避险｜中老年专属登山方案</p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <span class="bg-white/20 px-3 py-1 rounded-full text-sm"><i class="fa fa-knee"></i> 保护膝关节</span>
+        <span class="bg-white/20 px-3 py-1 rounded-full text-sm"><i class="fa fa-sun-o"></i> 夏季户外专用</span>
+        <span class="bg-white/20 px-3 py-1 rounded-full text-sm"><i class="fa fa-medkit"></i> 遇险应急方案</span>
+        <span class="bg-white/20 px-3 py-1 rounded-full text-sm"><i class="fa fa-user-o"></i> 中老年人适用</span>
+      </div>
+    </div>
+  </section>
+
+  <main class="container mx-auto max-w-4xl px-4 py-10">
+    <!-- 一、爬山运动基础原理 -->
+    <section id="principle" class="mb-16">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 rounded-full bg-mountain text-white flex items-center justify-center text-lg">1</div>
+        <h3 class="text-2xl font-bold text-mountain">爬山运动的基本原理</h3>
+      </div>
+      <div class="bg-white rounded-xl p-6 card-shadow">
+        <div class="space-y-4">
+          <div>
+            <h4 class="font-bold text-lg flex items-center gap-2 text-warn"><i class="fa fa-balance-scale"></i>关节负荷规律</h4>
+            <p class="mt-2">上山时膝关节承受约<strong class="text-warn">3倍自身体重</strong>压力；下山叠加着地冲击力，负荷大幅升高，姿势不当会加速软骨、半月板磨损，造成慢性劳损。</p>
+          </div>
+          <div>
+            <h4 class="font-bold text-lg flex items-center gap-2 text-warn"><i class="fa fa-users"></i>适用人群边界</h4>
+            <p class="mt-2">不建议将爬山作为日常常规锻炼；肥胖人群、膝盖不好的中老年人需谨慎参与，一周爬山频次尽量不超过1次。</p>
+          </div>
+          <div>
+            <h4 class="font-bold text-lg flex items-center gap-2 text-warn"><i class="fa fa-thermometer-full"></i>夏季附加风险</h4>
+            <p class="mt-2">山林天气多变、高温脱水、蚊虫叮咬、野生动物、植物过敏多重隐患，除运动防护外需额外做好环境风险防控。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 二、三类伤膝错误姿势自查 -->
+    <section id="wrong-pose" class="mb-16">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 rounded-full bg-warn text-white flex items-center justify-center text-lg">2</div>
+        <h3 class="text-2xl font-bold text-mountain">三类伤膝错误姿势自查</h3>
+      </div>
+      <div class="grid md:grid-cols-3 gap-4">
+        <!-- 错误1 -->
+        <div class="bg-white rounded-xl p-5 card-shadow border-l-4 border-warn">
+          <h4 class="font-bold text-lg mb-3">错误1：上山弯腰、扶腿</h4>
+          <ul class="list-disc pl-5 space-y-2 text-sm">
+            <li>过度弯腰加重腰椎负担，易腰肌劳损，运动后腰酸背痛</li>
+            <li>手扶大腿会让膝盖过度弯曲，半月板、软骨快速磨损，引发膝盖酸痛</li>
+          </ul>
+        </div>
+        <!-- 错误2 -->
+        <div class="bg-white rounded-xl p-5 card-shadow border-l-4 border-warn">
+          <h4 class="font-bold text-lg mb-3">错误2：下山直冲快跑</h4>
+          <ul class="list-disc pl-5 space-y-2 text-sm">
+            <li>平衡失控，踩空、摔倒风险翻倍</li>
+            <li>硬着地时膝盖承重达体重4～6倍，极易造成不可逆关节损伤</li>
+          </ul>
+        </div>
+        <!-- 错误3 -->
+        <div class="bg-white rounded-xl p-5 card-shadow border-l-4 border-warn">
+          <h4 class="font-bold text-lg mb-3">错误3：登山杖使用错误</h4>
+          <ul class="list-disc pl-5 space-y-2 text-sm">
+            <li>手腕不穿腕带、杖杆长度不随坡度调节</li>
+            <li>无法分担负重、缓冲冲击，反而增加关节额外负担</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 三、正确爬山姿势与登山杖用法 -->
+    <section id="correct-skill" class="mb-16">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 rounded-full bg-grass text-white flex items-center justify-center text-lg">3</div>
+        <h3 class="text-2xl font-bold text-mountain">正确登山姿势+台阶上下山实操技巧</h3>
+      </div>
+      <!-- 通用标准姿势 -->
+      <div class="bg-white rounded-xl p-6 card-shadow mb-6">
+        <h4 class="font-bold text-xl mb-4 text-grass">通用标准动作</h4>
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <h5 class="font-bold mb-2">✅ 正确上山姿势</h5>
+            <ul class="list-disc pl-5 space-y-1">
+              <li>腰背挺直微前倾，禁止大幅度弯腰弓背</li>
+              <li>减小膝盖弯曲角度，臀大肌、大腿主力发力</li>
+              <li>配合登山杖同步支撑，分担下肢负重</li>
+            </ul>
+          </div>
+          <div>
+            <h5 class="font-bold mb-2">✅ 正确下山姿势</h5>
+            <ul class="list-disc pl-5 space-y-1">
+              <li>收紧核心稳住重心，全程膝盖微弯不锁死</li>
+              <li>前脚掌先落地再过渡全脚掌，肌肉缓冲冲击力</li>
+              <li>登山杖提前探路支撑，降低膝盖承压</li>
+            </ul>
+          </div>
+        </div>
+        <div class="mt-5 pt-5 border-t">
+          <h5 class="font-bold mb-2">✅ 登山杖标准用法</h5>
+          <ul class="list-disc pl-5 space-y-1">
+            <li>手从腕带下方穿入，虎口压住腕带再握柄</li>
+            <li>上坡调短杖身；下坡调长杖身，手臂平行地面借力</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 台阶上山技巧 -->
+      <div class="bg-white rounded-xl p-6 card-shadow mb-6">
+        <h4 class="font-bold text-xl mb-4 text-mountain">多台阶路段上山省力护膝技巧</h4>
+        <ul class="space-y-3">
+          <li class="flex gap-2"><span class="text-grass font-bold">1.</span>步幅控制：一步一级台阶，严禁跨2-3级攀爬</li>
+          <li class="flex gap-2"><span class="text-grass font-bold">2.</span>重心发力：上半身微前倾，臀腿主导发力，膝盖不完全锁死</li>
+          <li class="flex gap-2"><span class="text-grass font-bold">3.</span>呼吸节奏：三步一吸三步一呼，陡坡改为两步一吸一呼，不憋气</li>
+          <li class="flex gap-2"><span class="text-grass font-bold">4.</span>登山杖借力：上坡调短，杖尖放前1-2级，分担20%-30%腿部压力</li>
+          <li class="flex gap-2"><span class="text-grass font-bold">5.</span>休息方式：靠墙站立休息，不要蹲坐台阶；每30-40分钟休息3-5分钟</li>
+        </ul>
+      </div>
+
+      <!-- 台阶下山护膝技巧 -->
+      <div class="bg-white rounded-xl p-6 card-shadow">
+        <h4 class="font-bold text-xl mb-4 text-warn">多台阶路段下山护膝重点（冲击最大）</h4>
+        <ul class="space-y-3">
+          <li class="flex gap-2"><span class="text-warn font-bold">❌ 禁忌：</span>禁止跑跳、直冲台阶，瞬间承重会撕裂半月板、韧带</li>
+          <li class="flex gap-2"><span class="text-grass font-bold">1.</span>重心后移压低，膝盖全程微弯，杜绝锁死关节</li>
+          <li class="flex gap-2"><span class="text-grass font-bold">2.</span>小步一级，脚跟轻触台阶再全脚掌落地，不硬砸地面</li>
+          <li class="flex gap-2"><span class="text-grass font-bold">3.</span>陡坡侧身螃蟹步横向交替下山，大幅减少膝盖剪切力</li>
+          <li class="flex gap-2"><span class="text-grass font-bold">4.</span>下山杖杆调长，杖尖先落地；长距离佩戴支撑护膝稳定关节</li>
+          <li class="flex gap-2"><span class="text-grass font-bold">5.</span>视线看前方3-4级台阶，提前预判高低不平路面</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 四、热身与拉伸全套流程 -->
+    <section id="warm-stretch" class="mb-16">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 rounded-full bg-grass text-white flex items-center justify-center text-lg">4</div>
+        <h3 class="text-2xl font-bold text-mountain">登山前动态热身 & 登山后静态拉伸</h3>
+      </div>
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- 热身 -->
+        <div class="bg-white rounded-xl p-6 card-shadow">
+          <h4 class="font-bold text-lg mb-3 text-grass">登山前动态热身（5-10分钟）</h4>
+          <p class="text-sm mb-3 text-gray-600">目标：润滑关节、激活肌肉，避免拉伤，微微发热即可</p>
+          <div class="space-y-3">
+            <div>
+              <h5 class="font-semibold">关节激活（从下到上）</h5>
+              <p class="text-sm">脚踝环绕、膝关节半蹲画圈、髋关节旋转、腰部转体、肩颈环绕</p>
+            </div>
+            <div>
+              <h5 class="font-semibold">动态激活动作</h5>
+              <p class="text-sm">原地提踵、30秒高抬腿、动态弓步、侧向跨步、半蹲起身10次</p>
+            </div>
+          </div>
+        </div>
+        <!-- 拉伸 -->
+        <div class="bg-white rounded-xl p-6 card-shadow">
+          <h4 class="font-bold text-lg mb-3 text-warn">登山后静态拉伸（10分钟）</h4>
+          <p class="text-sm mb-3 text-gray-600">每个动作保持20-30秒，2组，缓慢不弹震，缓解肌肉酸痛僵硬</p>
+          <ul class="text-sm space-y-2">
+            <li>1. 大腿前侧拉伸：抓脚踝贴臀部，腰背挺直</li>
+            <li>2. 大腿后侧拉伸：坐姿单腿伸直俯身</li>
+            <li>3. 臀部拉伸：盘腿坐姿前倾</li>
+            <li>4. 小腿拉伸：弓步后腿脚跟踩地</li>
+            <li>5. 腰部侧转拉伸、肩背交叉拉伸</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 五、出行准备与夏季三防 -->
+    <section class="mb-16">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 rounded-full bg-mountain text-white flex items-center justify-center text-lg">5</div>
+        <h3 class="text-2xl font-bold text-mountain">爬山出行全套准备+夏季三防</h3>
+      </div>
+      <div class="bg-white rounded-xl p-6 card-shadow space-y-6">
+        <div>
+          <h4 class="font-bold text-lg mb-2">1. 出行前三项核心准备</h4>
+          <div class="grid md:grid-cols-3 gap-4 text-sm">
+            <div class="border p-3 rounded-lg">
+              <h5 class="font-semibold">身体评估</h5>
+              <p>上下楼膝盖酸痛、爬两层楼就吃力，建议放弃登山，更换低负荷运动</p>
+            </div>
+            <div class="border p-3 rounded-lg">
+              <h5 class="font-semibold">全套装备</h5>
+              <p>中高帮防滑登山鞋、速干衣、双登山杖、支撑护膝、足量水+电解质、急救包、防晒套装</p>
+            </div>
+            <div class="border p-3 rounded-lg">
+              <h5 class="font-semibold">热身激活</h5>
+              <p>关节活动+下肢拉伸+全身轻度开合跳，充分预热再出发</p>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h4 class="font-bold text-lg mb-2">2. 夏季山林三防</h4>
+          <ul class="list-disc pl-5 space-y-1 text-sm">
+            <li>防蚊虫：长袖衣物+驱蚊液</li>
+            <li>防野生动物：木棍敲打地面驱蛇虫，留意脚下草丛</li>
+            <li>防过敏：常备抗过敏药，不触碰陌生花草</li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-lg mb-2">3. 户外安全准则</h4>
+          <ul class="list-disc pl-5 space-y-1 text-sm">
+            <li>结伴出行，禁止独自走野路、未开发陡坡</li>
+            <li>无痕山林，不乱扔垃圾、不破坏植被</li>
+            <li>林区严禁明火，遵守防火规定</li>
+            <li>手机保持有电，保证通讯畅通</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 六、中老年登山精简卡片指南 -->
+    <section id="elder-guide" class="mb-16">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 rounded-full bg-warn text-white flex items-center justify-center text-lg">6</div>
+        <h3 class="text-2xl font-bold text-mountain">中老年登山安全实操精简指南</h3>
+      </div>
+      <div class="bg-mountain/10 rounded-xl p-6 border-l-4 border-mountain">
+        <h4 class="font-bold text-xl mb-4">登山姿势六字诀</h4>
+        <div class="grid md:grid-cols-3 gap-4 mb-6">
+          <div class="bg-white p-4 rounded-lg text-center">
+            <span class="text-2xl font-bold text-mountain">上坡像虾米</span>
+            <p class="text-sm mt-2">适度前倾，脚掌全着地，稳定重心</p>
+          </div>
+          <div class="bg-white p-4 rounded-lg text-center">
+            <span class="text-2xl font-bold text-warn">下山像螃蟹</span>
+            <p class="text-sm mt-2">侧身横向走，登山杖先探路，减少膝磨损</p>
+          </div>
+          <div class="bg-white p-4 rounded-lg text-center">
+            <span class="text-2xl font-bold text-grass">平地换节奏</span>
+            <p class="text-sm mt-2">每30分钟站立休息，缓冲关节压力</p>
+          </div>
+        </div>
+        <h4 class="font-bold text-lg mb-3">突发状况简易处理</h4>
+        <div class="grid md:grid-cols-2 gap-4 mb-6">
+          <div class="bg-white p-4 rounded-lg">
+            <h5 class="font-semibold">崴脚处置</h5>
+            <p class="text-sm">1.手杖/布条固定脚踝制动；2.溪水冷敷不超过10分钟，避免肿胀加重</p>
+          </div>
+          <div class="bg-white p-4 rounded-lg">
+            <h5 class="font-semibold">腿部抽筋</h5>
+            <p class="text-sm">平地停下休息，反向牵拉脚踝脚趾，保持20秒缓解痉挛</p>
+          </div>
+        </div>
+        <div class="bg-warn/10 p-4 rounded-lg border border-warn/30">
+          <h4 class="font-bold mb-2">⚠️ 两条中老年安全红线</h4>
+          <ul class="space-y-2">
+            <li>1.台阶高度超过15cm谨慎通行，禁止大步跨级</li>
+            <li>2.运动心率上限：170 - 自身年龄，超过立即停下休息，防范心血管风险</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 七、迷路摔倒遇险应急方案 -->
+    <section id="emergency" class="mb-10">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 rounded-full bg-warn text-white flex items-center justify-center text-lg">7</div>
+        <h3 class="text-2xl font-bold text-mountain">迷路、摔倒、野外遇险完整应急方案</h3>
+      </div>
+      <div class="bg-white rounded-xl p-6 card-shadow space-y-5">
+        <div>
+          <h4 class="font-bold text-lg">核心处置原则</h4>
+          <p>遇险保持冷静，减少体力消耗，原地等待救援，不盲目乱走陌生野路，第一时间报警求救</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-lg">SOS国际求救信号（三短三长三短）</h4>
+          <ul class="list-disc pl-5 text-sm space-y-1">
+            <li>夜间：手电遮挡打出三短三长三短灯光</li>
+            <li>白天：镜子反射阳光，同步长短光信号</li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-lg">野外自救技巧</h4>
+          <ul class="list-disc pl-5 text-sm space-y-1">
+            <li>寻水：山谷低处、茂密绿植、动物足迹处大概率有水源；塑料袋套树叶收集蒸腾水</li>
+            <li>庇护所：树枝石块搭建简易遮挡，防雨、防野兽</li>
+          </ul>
+        </div>
+        <div class="bg-warn/10 p-4 rounded-lg">
+          <h4 class="font-bold text-lg">摔倒重伤禁忌</h4>
+          <p class="text-sm">疑似腰椎、骨盆骨折，严禁拖拽、背负伤者，保持平躺不动等待专业救援</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 底部页脚 -->
+  <footer class="bg-darkwood text-white py-8 mt-10">
+    <div class="container mx-auto px-4 text-center">
+      <h3 class="text-lg font-bold mb-2">2026夏季爬山护膝避险全攻略</h3>
+      <p class="text-sm text-gray-300">科学登山、量力而行、安全第一｜适合中老年、徒步新手、周末山野出行</p>
+      <p class="text-xs mt-4 text-gray-400">全文来源：户外徒步专业防护指南 | 移动端自适应网页</p>
+    </div>
+  </footer>
+
+  <!-- 移动端菜单JS -->
+  <script>
+    const menuBtn = document.getElementById('menuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    menuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    })
+    // 点击导航链接自动关闭移动端菜单
+    const links = mobileMenu.querySelectorAll('a');
+    links.forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.add('hidden');
+      })
+    })
+  </script>
+</body>
+</html>
