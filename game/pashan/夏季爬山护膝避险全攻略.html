@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>夏季爬山护膝避险全攻略</title>
+    <style>
+        :root {
+            --primary-color: #2E7D32; /* Forest Green */
+            --secondary-color: #81C784; /* Light Green */
+            --accent-color: #FF5722; /* Warning Orange */
+            --text-color: #333333;
+            --bg-color: #F5F7FA;
+            --card-bg: #FFFFFF;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), #1B5E20);
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        header p {
+            font-size: 1rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Navigation / Tabs */
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: white;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active, .tab-btn:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Sections */
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .card.warning {
+            border-left-color: var(--accent-color);
+        }
+
+        .card h2 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card h3 {
+            color: #555;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        li::before {
+            content: "•";
+            color: var(--primary-color);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        .highlight-box {
+            background-color: #E8F5E9;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .warning-box {
+            background-color: #FFEBEE;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border: 1px solid #FFCDD2;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Specific Styles for Techniques */
+        .technique-step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .step-number {
+            background: var(--primary-color);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .sos-signal {
+            font-family: monospace;
+            background: #333;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            margin: 5px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+            font-size: 0.9rem;
+            margin-top: 40px;
+        }
+
+        /* Icon placeholders using emoji for simplicity */
+        .icon { font-style: normal; }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🏔️ 夏季爬山护膝避险全攻略</h1>
+    <p>科学登山，保护关节，安全享受山野乐趣</p>
+</header>
+
+<div class="container">
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="showSection('basics')">核心原理 & 准备</button>
+        <button class="tab-btn" onclick="showSection('uphill')">上山技巧</button>
+        <button class="tab-btn" onclick="showSection('downhill')">下山技巧</button>
+        <button class="tab-btn" onclick="showSection('emergency')">应急 & 安全</button>
+    </div>
+
+    <!-- Section 1: Basics -->
+    <div id="basics" class="content-section active">
+        <div class="card warning">
+            <h2><span class="icon">⚠️</span> 重要提醒：爬山不是日常锻炼</h2>
+            <p>爬山属于高下肢关节负荷运动。上山时膝关节承受约3倍体重压力，下山时可达4-6倍。</p>
+            <ul>
+                <li><strong>不建议人群：</strong>肥胖人群、膝关节基础较差的中老年人。</li>
+                <li><strong>频次建议：</strong>一周尽量不超过1次。</li>
+                <li><strong>劝退标准：</strong>若平时上下楼梯膝盖酸痛，或爬两层楼就吃力，请放弃登山。</li>
+            </ul>
+        </div>
+
+        <div class="grid-2">
+            <div class="card">
+                <h2><span class="icon">🎒</span> 装备选配</h2>
+                <ul>
+                    <li><strong>鞋子：</strong>严禁皮鞋！选择抓地力强、脚踝支撑好的专业登山鞋（中高帮最佳）。</li>
+                    <li><strong>衣物：</strong>内层速干排汗，外层防风防寒冲锋衣。避免棉质衣物。</li>
+                    <li><strong>辅助：</strong>双登山杖（必备）、支撑型护膝。</li>
+                    <li><strong>其他：</strong>足量饮用水、电解质、急救包、防晒用品。</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h2><span class="icon">🔥</span> 热身激活 (5-10分钟)</h2>
+                <p><strong>目标：</strong>身体微微发热，心跳略微加快。</p>
+                <ul>
+                    <li><strong>关节活动：</strong>手腕、脚踝旋转，髋部环绕，腰部扭转。</li>
+                    <li><strong>肌肉激活：</strong>原地提踵 (2组×15次)，高抬腿 (30秒)，动态弓步压腿。</li>
+                    <li><strong>全身激活：</strong>30秒开合跳，速度由慢到快。</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 2: Uphill -->
+    <div id="uphill" class="content-section">
+        <div class="card">
+            <h2><span class="icon">⬆️</span> 正确上山姿势：省力护膝</h2>
+            <div class="technique-step">
+                <div class="step-number">1</div>
+                <div>
+                    <h3>步幅控制：一步一级</h3>
+                    <p>禁止跨2-3级台阶！小步幅能大幅减少膝盖弯曲角度和承重压力。</p>
+                </div>
+            </div>
+            <div class="technique-step">
+                <div class="step-number">2</div>
+                <div>
+                    <h3>重心与发力：臀腿主导</h3>
+                    <p>上半身微前倾，重心落在脚掌中部。起身时感受<strong>臀大肌</strong>和<strong>股四头肌</strong>发力，膝盖保持微弯，不要完全锁死。</p>
+                </div>
+            </div>
+            <div class="technique-step">
+                <div class="step-number">3</div>
+                <div>
+                    <h3>呼吸节奏</h3>
+                    <p>采用“三步一吸、三步一呼”，坡度陡时改为两步。全程避免憋气。</p>
+                </div>
+            </div>
+            <div class="highlight-box">
+                <strong>💡 登山杖用法 (上山)：</strong>调短一格，杖尖落在身前1-2级台阶，手臂同步发力撑杖，可分担20%-30%腿部负重。
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 3: Downhill -->
+    <div id="downhill" class="content-section">
+        <div class="card warning">
+            <h2><span class="icon">⬇️</span> 正确下山姿势：重点防护</h2>
+            <p>下山是膝关节损伤的高发期，冲击力极大。核心原则：<strong>慢、缓冲、不锁膝</strong>。</p>
+            
+            <div class="technique-step">
+                <div class="step-number">1</div>
+                <div>
+                    <h3>绝对禁忌</h3>
+                    <p>严禁跑跳、冲台阶！这会导致半月板和韧带严重磨损。</p>
+                </div>
+            </div>
+            
+            <div class="technique-step">
+                <div class="step-number">2</div>
+                <div>
+                    <h3>姿势标准</h3>
+                    <p>上半身微微后仰，重心压低。<strong>膝盖全程保持微弯</strong>，绝对不要伸直锁死。前脚掌先落地再过渡全脚掌，肌肉缓冲冲击力。</p>
+                </div>
+            </div>
+
+            <div class="technique-step">
+                <div class="step-number">3</div>
+                <div>
+                    <h3>陡坡省力法：侧身下山</h3>
+                    <p>遇到长陡台阶，身体侧对台阶，横向一步一级向下移动。这能降低膝关节侧向剪切力。</p>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <strong>💡 登山杖用法 (下山)：</strong>调长一格，使手臂与地面平行。杖尖先于脚落在下一级台阶，增加支撑面，削减冲击。
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 4: Emergency & Safety -->
+    <div id="emergency" class="content-section">
+        <div class="grid-2">
+            <div class="card">
+                <h2><span class="icon">🆘</span> 遇险应急方案</h2>
+                <h3>SOS 国际求救信号</h3>
+                <p>摩尔斯电码：三点三横三点 (... --- ...)</p>
+                <ul>
+                    <li><strong>夜间：</strong>手电三短三长三短闪光。</li>
+                    <li><strong>白天：</strong>镜面反射阳光，同节奏。</li>
+                </ul>
+                
+                <h3>摔倒处理</h3>
+                <ul>
+                    <li>不要急于起身，先活动四肢确认伤势。</li>
+                    <li>若疑似骨折，<strong>严禁移动</strong>，保持平躺等待救援。</li>
+                </ul>
+
+                <h3>野外寻水</h3>
+                <p>山谷底部、茂密植被下、动物足迹频繁处可能有水。可用塑料袋套在树木嫩叶上收集蒸腾水。</p>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon">🛡️</span> 夏日三防与安全</h2>
+                <ul>
+                    <li><strong>防蚊虫：</strong>穿长袖，带驱蚊液。</li>
+                    <li><strong>防野生动物：</strong>用棍子敲打地面驱赶小型动物。</li>
+                    <li><strong>防过敏：</strong>易过敏者常备药物，避开致敏植物。</li>
+                    <li><strong>防火：</strong>严格遵守林区规定，不动明火。</li>
+                    <li><strong>结伴：</strong>不独自攀爬未开发区域。</li>
+                </ul>
+                
+                <div class="warning-box">
+                    <strong>心率警戒线：</strong>运动中若心率超过 <code>170 - 年龄</code>，必须立即休息！
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2><span class="icon">🧘</span> 登山后静态拉伸 (10分钟)</h2>
+            <p>每个动作保持20-30秒，做2组，缓解肌肉紧张。</p>
+            <div class="grid-2">
+                <ul>
+                    <li><strong>大腿前侧：</strong>单脚站立，手拉脚踝向臀部靠拢。</li>
+                    <li><strong>大腿后侧：</strong>坐姿，一腿伸直，身体前倾。</li>
+                    <li><strong>臀部：</strong>坐姿翘二郎腿，身体前倾。</li>
+                </ul>
+                <ul>
+                    <li><strong>小腿：</strong>面对墙，后腿伸直脚跟踩地，身体前倾。</li>
+                    <li><strong>腰部：</strong>坐姿转体，保持背部挺直。</li>
+                    <li><strong>肩背：</strong>手臂横过胸前，另一只手辅助拉伸。</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>© 2026 夏季爬山安全指南 | 数据来源：专业户外运动建议</p>
+</footer>
+
+<script>
+    function showSection(sectionId) {
+        // Hide all sections
+        const sections = document.querySelectorAll('.content-section');
+        sections.forEach(section => {
+            section.classList.remove('active');
+        });
+
+        // Remove active class from all buttons
+        const buttons = document.querySelectorAll('.tab-btn');
+        buttons.forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // Show selected section
+        document.getElementById(sectionId).classList.add('active');
+
+        // Add active class to clicked button
+        // Find the button that calls this function with the specific ID
+        const activeBtn = Array.from(buttons).find(btn => btn.getAttribute('onclick').includes(sectionId));
+        if (activeBtn) {
+            activeBtn.classList.add('active');
+        }
+    }
+</script>
+
+</body>
+</html>
