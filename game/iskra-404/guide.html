@@ -1,0 +1,735 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#EFECE3" />
+<title>OPERATOR GUIDE — OVERPRINT / ISKRA.GRAPHICS</title>
+<link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper: #EFECE3;
+    --paper-card: #E5E1D5;
+    --paper-dark: #DDD8CB;
+    --ink: #161513;
+    --ink-dim: rgba(22, 21, 19, 0.65);
+    --ink-faint: rgba(22, 21, 19, 0.35);
+    --ink-line: rgba(22, 21, 19, 0.15);
+    --cyan: #12A3DA;
+    --magenta: #EC0A63;
+    --yellow: #F7CF16;
+    --green: #00A651;
+    --violet: #4A44A0;
+    --red: #E40808;
+    --font-mono: "IBM Plex Mono", "SF Mono", Monaco, Menlo, Consolas, "Liberation Mono", monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-mono);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    padding: 0 16px 80px;
+    position: relative;
+    min-height: 100vh;
+  }
+
+  /* 印刷背景噪点与十字标 */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    background-image: 
+      radial-gradient(var(--ink-faint) 0.75px, transparent 0.75px);
+    background-size: 24px 24px;
+    opacity: 0.18;
+    z-index: 1;
+  }
+
+  .container {
+    max-width: 980px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* 顶部导航与印标 */
+  header {
+    padding: 32px 0 24px;
+    border-bottom: 2px solid var(--ink);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .brand-block {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .brand-title {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .brand-title .badge {
+    background: var(--magenta);
+    color: var(--paper);
+    font-size: 11px;
+    padding: 2px 6px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+  }
+
+  .brand-subtitle {
+    font-size: 11px;
+    color: var(--ink-dim);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: 0;
+    transition: all 0.15s ease;
+  }
+
+  .btn-primary {
+    background: var(--magenta);
+    color: var(--paper);
+    border: 1px solid var(--magenta);
+  }
+
+  .btn-primary:hover {
+    background: #c80050;
+    border-color: #c80050;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(236, 10, 99, 0.25);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--ink);
+  }
+
+  .btn-outline:hover {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  /* 章节标题 */
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 40px 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px dashed var(--ink-line);
+    margin-bottom: 24px;
+  }
+
+  .section-title::before {
+    content: '//';
+    color: var(--magenta);
+    font-weight: 700;
+  }
+
+  /* 核心目标大卡片 */
+  .hero-card {
+    background: var(--paper-card);
+    border: 2px solid var(--ink);
+    padding: 32px;
+    margin-top: 28px;
+    position: relative;
+  }
+
+  .hero-card .mark-corner {
+    position: absolute;
+    width: 8px; height: 8px;
+    border-color: var(--ink);
+    border-style: solid;
+  }
+  .mark-tl { top: 4px; left: 4px; border-width: 2px 0 0 2px; }
+  .mark-tr { top: 4px; right: 4px; border-width: 2px 2px 0 0; }
+  .mark-bl { bottom: 4px; left: 4px; border-width: 0 0 2px 2px; }
+  .mark-br { bottom: 4px; right: 4px; border-width: 0 2px 2px 0; }
+
+  .hero-heading {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
+    line-height: 1.3;
+  }
+
+  .hero-desc {
+    font-size: 14px;
+    color: var(--ink-dim);
+    margin-bottom: 24px;
+    max-width: 780px;
+  }
+
+  /* 状态码序列流 */
+  .status-ladder {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .status-step {
+    background: var(--paper);
+    border: 1px solid var(--ink-line);
+    padding: 12px 10px;
+    text-align: center;
+    position: relative;
+  }
+
+  .status-step.initial {
+    border-color: var(--ink);
+    border-width: 2px;
+  }
+
+  .status-step.victory {
+    background: var(--magenta);
+    color: var(--paper);
+    border-color: var(--magenta);
+    font-weight: 700;
+  }
+
+  .status-code {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    display: block;
+  }
+
+  .status-text {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.8;
+  }
+
+  /* 键位控制面板 */
+  .controls-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .control-card {
+    background: var(--paper-card);
+    border: 1px solid var(--ink);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .control-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--ink-line);
+    padding-bottom: 8px;
+  }
+
+  .key-badge {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+  }
+
+  .key-badge.accent {
+    background: var(--magenta);
+  }
+
+  .control-action {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+  }
+
+  .control-detail {
+    font-size: 12px;
+    color: var(--ink-dim);
+    line-height: 1.5;
+  }
+
+  /* 战术机制卡片 (三列) */
+  .tactics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .tactic-card {
+    background: var(--paper-card);
+    border: 1px solid var(--ink);
+    padding: 22px;
+    position: relative;
+    border-left: 5px solid var(--ink);
+  }
+
+  .tactic-card.tactic-magenta { border-left-color: var(--magenta); }
+  .tactic-card.tactic-cyan { border-left-color: var(--cyan); }
+  .tactic-card.tactic-yellow { border-left-color: var(--yellow); }
+
+  .tactic-title {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+
+  .tactic-body {
+    font-size: 12px;
+    color: var(--ink-dim);
+  }
+
+  /* 武器库展示 */
+  .weapons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    gap: 16px;
+  }
+
+  .weapon-card {
+    background: var(--paper-card);
+    border: 1px solid var(--ink);
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .weapon-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .weapon-name {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .weapon-dot {
+    width: 10px; height: 10px;
+    display: inline-block;
+  }
+
+  .weapon-tag {
+    font-size: 10px;
+    padding: 2px 6px;
+    background: var(--paper-dark);
+    letter-spacing: 0.1em;
+  }
+
+  .weapon-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    background: var(--paper);
+    padding: 8px 10px;
+    border: 1px solid var(--ink-line);
+    font-size: 11px;
+  }
+
+  .stat-item span {
+    display: block;
+    color: var(--ink-faint);
+    font-size: 9px;
+  }
+
+  .weapon-feature {
+    font-size: 12px;
+    color: var(--ink-dim);
+  }
+
+  /* 敌对目标 */
+  .enemies-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+  }
+
+  .enemy-card {
+    background: var(--paper-card);
+    border: 1px solid var(--ink);
+    padding: 18px;
+  }
+
+  .enemy-name {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    margin-bottom: 4px;
+  }
+
+  .enemy-role {
+    font-size: 10px;
+    color: var(--magenta);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .enemy-desc {
+    font-size: 12px;
+    color: var(--ink-dim);
+    line-height: 1.5;
+  }
+
+  /* 底部 CTA */
+  .footer-cta {
+    margin-top: 60px;
+    padding: 40px;
+    background: var(--ink);
+    color: var(--paper);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .footer-cta h3 {
+    font-size: 22px;
+    letter-spacing: 0.14em;
+  }
+
+  .footer-cta p {
+    font-size: 13px;
+    color: rgba(239, 236, 227, 0.7);
+    max-width: 600px;
+  }
+
+  @media (max-width: 640px) {
+    body { padding: 0 12px 60px; }
+    .hero-card { padding: 20px; }
+    .hero-heading { font-size: 20px; }
+    .status-ladder { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- 顶部导航 -->
+  <header>
+    <div class="brand-block">
+      <div class="brand-title">
+        ISKRA.GRAPHICS
+        <span class="badge">OVERPRINT</span>
+      </div>
+      <div class="brand-subtitle">SYS.DOC // OPERATOR FIELD MANUAL // 404 RESTORATION</div>
+    </div>
+    <div class="header-actions">
+      <a href="./index.html" class="btn btn-primary">▶ LAUNCH GAME</a>
+    </div>
+  </header>
+
+  <!-- 核心目标与隐喻 -->
+  <section class="hero-card">
+    <div class="mark-corner mark-tl"></div>
+    <div class="mark-corner mark-tr"></div>
+    <div class="mark-corner mark-bl"></div>
+    <div class="mark-corner mark-br"></div>
+    
+    <div style="font-size: 11px; color: var(--magenta); font-weight: 600; letter-spacing: 0.18em; margin-bottom: 6px;">// MISSION BRIEFING</div>
+    <h1 class="hero-heading">将 404 故障版面一路杀向 200 OK</h1>
+    <p class="hero-desc">
+      整个游戏是一张遭受几何污染与油墨杂质侵蚀的胶印版面。错误计数器从 <b>404 NOT FOUND</b> 启动，每歼灭一个敌人，故障代号将逐步下降。清除楼层所有障碍、穿越 EXIT 通往深处，直至计数器归零达成 <b>200 OK</b>，版面即刻完成修复！
+    </p>
+
+    <div class="status-ladder">
+      <div class="status-step initial">
+        <span class="status-code">404</span>
+        <span class="status-text">NOT FOUND (开局)</span>
+      </div>
+      <div class="status-step">
+        <span class="status-code">403</span>
+        <span class="status-text">FORBIDDEN</span>
+      </div>
+      <div class="status-step">
+        <span class="status-code">401</span>
+        <span class="status-text">UNAUTHORIZED</span>
+      </div>
+      <div class="status-step">
+        <span class="status-code">308</span>
+        <span class="status-text">REDIRECT</span>
+      </div>
+      <div class="status-step">
+        <span class="status-code">204</span>
+        <span class="status-text">NO CONTENT</span>
+      </div>
+      <div class="status-step victory">
+        <span class="status-code">200</span>
+        <span class="status-text">OK (404 修复)</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 操作指南 -->
+  <div class="section-title">01 // 操控系统 (CONTROLS)</div>
+  <div class="controls-grid">
+    <div class="control-card">
+      <div class="control-header">
+        <div class="control-action">战术移动 (MOVE)</div>
+        <div class="key-badge">W / A / S / D</div>
+      </div>
+      <div class="control-detail">全向 8 轴移动。保持身法走位，利用立柱和墙体分割敌方视线（Line of Sight）。</div>
+    </div>
+
+    <div class="control-card">
+      <div class="control-header">
+        <div class="control-action">瞄准与开火 (FIRE)</div>
+        <div class="key-badge">MOUSE 0 (左键)</div>
+      </div>
+      <div class="control-detail">鼠标光标精确定位准星。单点点射控枪，长按全自动压制。</div>
+    </div>
+
+    <div class="control-card">
+      <div class="control-header">
+        <div class="control-action">无敌冲刺 (DASH)</div>
+        <div class="key-badge accent">SPACE (空格)</div>
+      </div>
+      <div class="control-detail">瞬间爆发极速穿梭。自带短暂无敌帧，可穿透密集弹幕、破门、碎窗突击。</div>
+    </div>
+
+    <div class="control-card">
+      <div class="control-header">
+        <div class="control-action">掷出武器 / 抢枪 (THROW)</div>
+        <div class="key-badge">Q 键 / 右键</div>
+      </div>
+      <div class="control-detail">将手中武器强力扔向敌人造成眩晕或击杀，并顺势自动拾起地面上的满弹新枪。</div>
+    </div>
+
+    <div class="control-card">
+      <div class="control-header">
+        <div class="control-action">重试本层 (RESTART)</div>
+        <div class="key-badge">BACKSPACE</div>
+      </div>
+      <div class="control-detail">阵亡或战局不利时，按退格键立即重新挑战当前楼层，无需重新开局。</div>
+    </div>
+
+    <div class="control-card">
+      <div class="control-header">
+        <div class="control-action">静音切换 (MUTE)</div>
+        <div class="key-badge">M 键</div>
+      </div>
+      <div class="control-detail">实时开启或静音纯代码合成的 WebAudio 物理枪械音效引擎。</div>
+    </div>
+  </div>
+
+  <!-- 核心战术机制 -->
+  <div class="section-title">02 // 核心战斗法则 (TACTICAL MECHANICS)</div>
+  <div class="tactics-grid">
+    <div class="tactic-card tactic-magenta">
+      <div class="tactic-title">⚡ 击杀刷新冲刺 (KILL = DASH REFILL)</div>
+      <div class="tactic-body">
+        默认拥有 2 格冲刺槽。<b>每当你成功击杀一名敌人，系统将立即返还 1 格完整冲刺！</b> 只要保持连续消灭敌人，就能实现无限冲刺链，在敌群中来回穿梭收割！
+      </div>
+    </div>
+
+    <div class="tactic-card tactic-cyan">
+      <div class="tactic-title">🎯 武器投掷击晕 (EMPTY MAG? THROW IT!)</div>
+      <div class="tactic-body">
+        打空弹夹不要换弹——直接按 <b>Q 键或鼠标右键</b> 将空枪砸向敌方！掷出的枪支带有高额物理动能，可击倒强敌并让你直接掠夺对手手中的武器。
+      </div>
+    </div>
+
+    <div class="tactic-card tactic-yellow">
+      <div class="tactic-title">🚪 破门与碎窗 (DOOR BREACH & WINDOWS)</div>
+      <div class="tactic-body">
+        利用冲刺或球棒猛击房门，门板将以冲击波形式弹开并击晕门后的敌人！玻璃窗不仅能提前观察室内敌情，更能直接射穿或冲刺碎窗突袭。
+      </div>
+    </div>
+  </div>
+
+  <!-- 武器库指南 -->
+  <div class="section-title">03 // CMYK 专色武器图鉴 (ARSENAL)</div>
+  <div class="weapons-grid">
+    <div class="weapon-card">
+      <div class="weapon-top">
+        <div class="weapon-name"><span class="weapon-dot" style="background: var(--cyan);"></span>KNIFE (匕首)</div>
+        <div class="weapon-tag">CYAN #12A3DA</div>
+      </div>
+      <div class="weapon-stats">
+        <div class="stat-item"><span>类型</span>近战刺杀</div>
+        <div class="stat-item"><span>攻速</span>0.17s 极速</div>
+        <div class="stat-item"><span>投掷</span>必杀伤害</div>
+      </div>
+      <div class="weapon-feature">无声暗杀利器，近距离快速连刺，强力投掷可远距离秒杀无盾目标。</div>
+    </div>
+
+    <div class="weapon-card">
+      <div class="weapon-top">
+        <div class="weapon-name"><span class="weapon-dot" style="background: var(--yellow);"></span>BAT (球棒)</div>
+        <div class="weapon-tag">YELLOW #F7CF16</div>
+      </div>
+      <div class="weapon-stats">
+        <div class="stat-item"><span>类型</span>重型近战</div>
+        <div class="stat-item"><span>范围</span>54px 扇区</div>
+        <div class="stat-item"><span>特性</span>强力击退</div>
+      </div>
+      <div class="weapon-feature">大攻击半径横扫，一击直接击飞敌人，破门效果极佳。</div>
+    </div>
+
+    <div class="weapon-card">
+      <div class="weapon-top">
+        <div class="weapon-name"><span class="weapon-dot" style="background: var(--green);"></span>PISTOL (手枪)</div>
+        <div class="weapon-tag">GREEN #00A651</div>
+      </div>
+      <div class="weapon-stats">
+        <div class="stat-item"><span>弹夹</span>7 发</div>
+        <div class="stat-item"><span>弹速</span>1150 px/s</div>
+        <div class="stat-item"><span>精度</span>极高准度</div>
+      </div>
+      <div class="weapon-feature">中远距离高精准点杀，后坐力适中，适合走位点射清怪。</div>
+    </div>
+
+    <div class="weapon-card">
+      <div class="weapon-top">
+        <div class="weapon-name"><span class="weapon-dot" style="background: var(--red);"></span>REVOLVER (左轮枪)</div>
+        <div class="weapon-tag">RED #E40808</div>
+      </div>
+      <div class="weapon-stats">
+        <div class="stat-item"><span>弹夹</span>6 发</div>
+        <div class="stat-item"><span>穿透</span>3 人贯穿</div>
+        <div class="stat-item"><span>破甲</span>穿门/破盾</div>
+      </div>
+      <div class="weapon-feature">大口径穿甲杀伤！子弹不仅能穿透多名敌人，更能<b>直接射穿门板</b>击毙门后目标！</div>
+    </div>
+
+    <div class="weapon-card">
+      <div class="weapon-top">
+        <div class="weapon-name"><span class="weapon-dot" style="background: var(--violet);"></span>SMG (冲锋枪)</div>
+        <div class="weapon-tag">VIOLET #4A44A0</div>
+      </div>
+      <div class="weapon-stats">
+        <div class="stat-item"><span>弹夹</span>28 发</div>
+        <div class="stat-item"><span>射速</span>0.07s 超高频</div>
+        <div class="stat-item"><span>弹幕</span>广角压制</div>
+      </div>
+      <div class="weapon-feature">暴雨般的倾泻火力，适合在多通道或开阔地带进行火力覆盖压制。</div>
+    </div>
+
+    <div class="weapon-card">
+      <div class="weapon-top">
+        <div class="weapon-name"><span class="weapon-dot" style="background: var(--magenta);"></span>SHOTGUN (散弹枪)</div>
+        <div class="weapon-tag">MAGENTA #EC0A63</div>
+      </div>
+      <div class="weapon-stats">
+        <div class="stat-item"><span>弹丸</span>8 弹丸/发</div>
+        <div class="stat-item"><span>弹夹</span>2 发大口径</div>
+        <div class="stat-item"><span>威能</span>贴脸秒杀</div>
+      </div>
+      <div class="weapon-feature">近距离毁灭性霰弹面杀伤，近身一发即摧毁一切目标！</div>
+    </div>
+  </div>
+
+  <!-- 敌对目标分析 -->
+  <div class="section-title">04 // 敌对目标与克制战术 (THREAT INTEL)</div>
+  <div class="enemies-grid">
+    <div class="enemy-card">
+      <div class="enemy-name">THUG (暴徒)</div>
+      <div class="enemy-role">近战冲锋</div>
+      <div class="enemy-desc">移动迅捷的近战单位。一旦察觉玩家会直线冲锋挥击。对策：保持距离点射，或迎面冲刺击倒。</div>
+    </div>
+
+    <div class="enemy-card">
+      <div class="enemy-name">GUNNER (枪手)</div>
+      <div class="enemy-role">中程射击</div>
+      <div class="enemy-desc">佩戴手枪或冲锋枪的巡逻射手。会与玩家保持距离射击。对策：卡墙角切入，或用冲刺规避弹道。</div>
+    </div>
+
+    <div class="enemy-card">
+      <div class="enemy-name">HOUND (猎犬)</div>
+      <div class="enemy-role">超高速突袭</div>
+      <div class="enemy-desc">移速极高（250 px/s）的敏捷生物。对策：第一优先级消灭，切忌在开阔地带被其贴身缠住。</div>
+    </div>
+
+    <div class="enemy-card">
+      <div class="enemy-name">SHIELD (盾牌防暴兵)</div>
+      <div class="enemy-role">正面无敌重装</div>
+      <div class="enemy-desc">正面配备分段重型圆弧盾牌，免疫一切正面普通攻击！<b>对策：冲刺绕后背刺、使用左轮枪穿甲、或持续重击剥离护盾。</b></div>
+    </div>
+  </div>
+
+  <!-- 游戏模式说明 -->
+  <div class="section-title">05 // 模式体系 (BOARD MODES)</div>
+  <div class="tactics-grid">
+    <div class="tactic-card">
+      <div class="tactic-title">📅 DAILY (每日挑战)</div>
+      <div class="tactic-body">每天 UTC 00:00 自动更新全网同一张种子地图，所有人打同一套楼层，是速度跑（Speedrun）日常对决的最佳竞技场。</div>
+    </div>
+    <div class="tactic-card">
+      <div class="tactic-title">🏛️ SEED 404 (经典永久榜)</div>
+      <div class="tactic-body">恒定不变的 404 永恒种子关卡，记录着各路顶尖选手的全天候历史巅峰通关战绩。</div>
+    </div>
+    <div class="tactic-card">
+      <div class="tactic-title">🎲 FREE (自由沙盒)</div>
+      <div class="tactic-body">每次开始都随机演算一个全新的 procedural 宇宙，适合自由练习身法与枪法。</div>
+    </div>
+  </div>
+
+  <!-- 底部行动唤起 -->
+  <div class="footer-cta">
+    <h3>READY TO RESTORE 404?</h3>
+    <p>深吸一口气，保持手指在 WASD 和 SPACE 上。消灭版面上的所有故障几何体，将它彻底恢复为 200 OK！</p>
+    <div style="display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;">
+      <a href="./index.html" class="btn btn-primary" style="padding: 14px 28px; font-size: 14px;">▶ 进入游戏 START PLAYING</a>
+      <a href="https://iskra.graphics/" target="_blank" class="btn btn-outline" style="color: #EFECE3; border-color: #EFECE3;">VISIT ISKRA.GRAPHICS →</a>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
