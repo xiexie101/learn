@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI 姿势推荐 - 灵感拍摄助手</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- MediaPipe Pose -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- 相机预览区域 -->
+        <div class="camera-wrapper">
+            <video id="input_video" autoplay playsinline></video>
+            <canvas id="output_canvas"></canvas>
+            
+            <!-- AR 辅助线覆盖层 (由 JS 绘制到上面的 canvas) -->
+            
+            <!-- 状态提示 -->
+            <div id="pose-hint" class="hint-text">请移动至画面中</div>
+        </div>
+
+        <!-- 顶部状态栏 -->
+        <div class="top-bar">
+            <div class="mode-indicator">灵感模式</div>
+            <div class="scene-tag" id="scene-tag">场景: 室内</div>
+        </div>
+
+        <!-- 底部控制区 -->
+        <div class="bottom-controls">
+            <!-- 灵感画廊 -->
+            <div class="gallery-container">
+                <div class="gallery-scroll" id="pose-gallery">
+                    <!-- 动态生成姿势卡片 -->
+                </div>
+            </div>
+
+            <!-- 快门区域 -->
+            <div class="shutter-row">
+                <div class="side-btn" id="gallery-btn">
+                    <div class="icon-placeholder">🖼️</div>
+                </div>
+                <button id="shutter-btn" class="shutter-button">
+                    <div class="shutter-inner"></div>
+                </button>
+                <div class="side-btn" id="switch-camera">
+                    <div class="icon-placeholder">🔄</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 启动遮罩 -->
+        <div id="splash-screen">
+            <h1>AI POSE</h1>
+            <p>正在初始化环境感知引擎...</p>
+            <button id="start-btn">开始拍摄</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

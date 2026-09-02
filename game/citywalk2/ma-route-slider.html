@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>三坊七巷“马”字 Citywalk 打卡指南</title>
+    <style>
+        html, body, #container { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: "Microsoft YaHei", sans-serif; }
+        
+        /* 顶部状态提示卡片 */
+        .status-card {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 30px;
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            z-index: 1000;
+            text-align: center;
+            border: 2px solid #00B16A; /* 两步路风格绿 */
+            pointer-events: none; /* 让鼠标事件穿透，不影响底下地图拖拽 */
+        }
+        .status-text {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin: 0;
+            min-width: 280px;
+        }
+        
+        /* 底部控制台 */
+        .control-panel {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+            z-index: 1000;
+            width: 85%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .controls-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        /* 播放按钮 */
+        .play-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background-color: #00B16A;
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0, 177, 106, 0.4);
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .play-btn:hover:not(:disabled) { background-color: #00995c; transform: scale(1.05); }
+        .play-btn:disabled { background-color: #ccc; cursor: not-allowed; box-shadow: none; }
+        .play-btn svg { width: 20px; height: 20px; fill: currentColor; margin-left: 2px; }
+        .play-btn.playing svg { margin-left: 0; }
+        
+        /* 滑块包装器 */
+        .slider-wrapper {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 5px;
+            padding: 0 2px;
+        }
+        /* 原生滑块美化 */
+        input[type=range] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            background: transparent;
+            margin: 0;
+            cursor: pointer;
+        }
+        input[type=range]:focus { outline: none; }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            border: none;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: #00B16A;
+            margin-top: -8px; /* (8-24)/2 */
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            border: 2px solid white;
+            transition: transform 0.1s;
+        }
+        input[type=range]:not(:disabled)::-webkit-slider-thumb:hover { transform: scale(1.1); }
+        input[type=range]:not(:disabled):active::-webkit-slider-thumb { transform: scale(0.95); background: #00995c; }
+        input[type=range]:disabled::-webkit-slider-thumb { background: #ccc; cursor: not-allowed; }
+        
+        /* 针对 Firefox 的滑块样式 */
+        input[type=range]::-moz-range-track { width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; }
+        input[type=range]::-moz-range-thumb { height: 22px; width: 22px; border-radius: 50%; background: #00B16A; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+        input[type=range]:disabled::-moz-range-thumb { background: #ccc; cursor: not-allowed; }
+        
+        /* 自定义地标气泡 */
+        .custom-marker {
+            background: #fff;
+            border: 2px solid #333;
+            border-radius: 20px;
+            padding: 4px 10px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #333;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            white-space: nowrap;
+            position: relative;
+        }
+        .custom-marker.start { background: #00B16A; color: white; border-color: #fff; }
+        .custom-marker.end { background: #E60000; color: white; border-color: #fff; }
+        .custom-marker::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px 6px 0;
+            border-style: solid;
+            border-color: #333 transparent transparent transparent;
+        }
+        .custom-marker.start::after { border-color: #fff transparent transparent transparent; }
+        .custom-marker.end::after { border-color: #fff transparent transparent transparent; }
+
+    </style>
+</head>
+<body>
+
+    <div id="container"></div>
+
+    <!-- 顶部状态栏 -->
+    <div class="status-card">
+        <p class="status-text" id="statusText">准备出发：从杏仁豆腐开始</p>
+    </div>
+
+    <!-- 底部控制面板 -->
+    <div class="control-panel">
+        <div class="controls-row">
+            <button class="play-btn" id="playBtn" title="播放/暂停">
+                <!-- 播放图标 -->
+                <svg id="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                <!-- 暂停图标 (初始隐藏) -->
+                <svg id="icon-pause" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+            </button>
+            
+            <div class="slider-wrapper">
+                <div class="progress-labels">
+                    <span>起: 宫巷/杏仁豆腐</span>
+                    <span><span id="distanceText">0.00</span> / 2.71 km</span>
+                    <span>终: 郎官巷</span>
+                </div>
+                <input type="range" id="routeSlider" min="0" max="100" value="0" step="0.5">
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        window._AMapSecurityConfig = { securityJsCode: 'e817c327910b4cbfdb857c88f329a132' }
+    </script>
+    <script type="text/javascript" src="https://webapi.amap.com/maps?v=2.0&key=e384e0926091268d5f7d3039d84a10fe&plugin=AMap.Walking"></script>
+
+    <script type="text/javascript">
+        // 1. 初始化地图
+        // 三坊七巷中心大概在 [119.297, 26.084]
+        const map = new AMap.Map('container', {
+            zoom: 17.5, // 放大级别，适合步行街巷
+            center: [119.297, 26.0835], 
+            mapStyle: 'amap://styles/normal' // 标准明亮风格，能看清小红书风绿地
+        });
+
+        // ================= 数据准备：精细化提取马字经纬度 =================
+        // 这里基于草图相对位置和三坊七巷路网人工拟合出的关键拐点
+        
+        const POIs = {
+            P_01_GONG_W: [119.2952, 26.0820], // 宫巷西端 (起: 靠近杏仁豆腐)
+            P_02_GONG_E: [119.2995, 26.0820], // 宫巷东端 (刘冠雄/吴石/沈葆桢故居)
+            P_03_ANMIN_E: [119.2995, 26.0835], // 安民巷东口
+            P_04_ANMIN_W: [119.2952, 26.0835], // 安民巷西口 (南后街)
+            P_05_HUANG_W: [119.2952, 26.0848], // 黄巷西口 (南后街)
+            P_06_HUANG_E: [119.2990, 26.0848], // 黄巷东 (郭柏荫/立本弄)
+            P_07_TA_E: [119.2990, 26.0858], // 塔巷东 (折返后入塔巷)
+            P_08_TA_W: [119.2952, 26.0858], // 塔巷西口 (南后街)
+            P_XIAOHUANGLOU: [119.2970, 26.0858], // 小黄楼后门 (塔巷中段)
+            P_09_LANG_W: [119.2952, 26.0870], // 郎官巷西口 (南后街)
+            P_10_LANG_E: [119.2995, 26.0870]  // 郎官巷东 (林祥谦/严复/二梅书屋) (终)
+        };
+
+        // 按用户提供的详细路线顺序
+        const rawRoutePoints = [
+            // 阶段1: 马底 (宫巷 -> 安民巷)
+            { coords: POIs.P_01_GONG_W, desc: "起点：杏仁豆腐 -> 进入宫巷", distRatio: 0 },
+            { coords: POIs.P_02_GONG_E, desc: "宫巷：刘冠雄、吴石、沈葆桢故居", distRatio: 15 },
+            { coords: POIs.P_03_ANMIN_E, desc: "往北到达安民巷", distRatio: 20 },
+            
+            // 阶段2: 右钩基底 (安民巷 -> 南后街主街 -> 黄巷)
+            { coords: POIs.P_04_ANMIN_W, desc: "安民巷向西至南后街主街", distRatio: 35 },
+            { coords: POIs.P_05_HUANG_W, desc: "沿南后街主街向北至黄巷", distRatio: 45 },
+            
+            // 阶段3: 中间横与折角 (黄巷 -> 立本弄 -> 塔巷)
+            { coords: POIs.P_06_HUANG_E, desc: "黄巷向东：郭柏荫故居、立本弄折返", distRatio: 60 },
+            { coords: POIs.P_07_TA_E, desc: "折返进入塔巷", distRatio: 65 },
+            
+            // 阶段4: (塔巷 -> 南后街主街 -> 郎官巷)
+            { coords: POIs.P_08_TA_W, desc: "塔巷向西：小黄楼进出至南后街", distRatio: 80 },
+            { coords: POIs.P_09_LANG_W, desc: "沿南后街主街向北至郎官巷", distRatio: 85 },
+            
+            // 阶段5: 顶部横 (郎官巷)
+            { coords: POIs.P_10_LANG_E, desc: "终点：郎官巷(严复故居、二梅书屋)", distRatio: 100 }
+        ];
+
+        // ================= 页面元素与图层控制 =================
+        const slider = document.getElementById('routeSlider');
+        const statusText = document.getElementById('statusText');
+        const distanceText = document.getElementById('distanceText');
+        const playBtn = document.getElementById('playBtn');
+        const iconPlay = document.getElementById('icon-play');
+        const iconPause = document.getElementById('icon-pause');
+        
+        let isPlaying = false;
+        let playInterval = null;
+
+        map.on('complete', function() {
+            // 4. 固定关键地标
+            addLandmark(POIs.P_01_GONG_W, "杏仁豆腐(起)", 'start');
+            addLandmark(POIs.P_10_LANG_E, "二梅书屋(终)", 'end');
+            addLandmark(POIs.P_06_HUANG_E, "郭柏荫故居", '');
+            addLandmark(POIs.P_XIAOHUANGLOU, "小黄楼", '');
+            
+            function addLandmark(coord, text, cls) {
+                new AMap.Marker({
+                    map: map,
+                    position: coord,
+                    content: `<div class="custom-marker ${cls}">${text}</div>`,
+                    offset: new AMap.Pixel(0, -35)
+                });
+            }
+
+            // ================= 步行导航真实路径请求 =================
+            const walking = new AMap.Walking({ map: null, hideMarkers: true });
+            let interpolatedPath = [];
+
+            // 递归或依次请求每个两点之间的路径
+            function requestWalkingRoute(index) {
+                if (index >= rawRoutePoints.length - 1) {
+                    // 所有路段请求完毕，开始渲染
+                    renderRouteElements();
+                    return;
+                }
+                
+                const startNode = rawRoutePoints[index];
+                const endNode = rawRoutePoints[index + 1];
+                
+                walking.search(startNode.coords, endNode.coords, function(status, result) {
+                    if (status === 'complete' && result.routes && result.routes.length) {
+                        let segmentPoints = [];
+                        result.routes[0].steps.forEach(step => {
+                            segmentPoints = segmentPoints.concat(step.path);
+                        });
+                        
+                        // 为每个点分配进度描述
+                        if (segmentPoints.length === 0) {
+                             segmentPoints.push(startNode.coords);
+                        }
+                        
+                        segmentPoints.forEach((pt, pIdx) => {
+                             const ratio = pIdx / segmentPoints.length;
+                             const currentProgress = startNode.distRatio + (endNode.distRatio - startNode.distRatio) * ratio;
+                             
+                             // 兼容 AMap.LngLat 对象和数组
+                             const pLng = typeof pt.getLng === 'function' ? pt.getLng() : (pt.lng !== undefined ? pt.lng : pt[0]);
+                             const pLat = typeof pt.getLat === 'function' ? pt.getLat() : (pt.lat !== undefined ? pt.lat : pt[1]);
+                             
+                             interpolatedPath.push({ coords: [pLng, pLat], desc: startNode.desc, percent: currentProgress });
+                        });
+                        
+                    } else {
+                        // 兜底：如果这段规划失败，用两点直接凑合连线
+                        console.warn('规划失败，使用直线段兜底', index);
+                        interpolatedPath.push({ coords: startNode.coords, desc: startNode.desc, percent: startNode.distRatio });
+                        interpolatedPath.push({ coords: endNode.coords, desc: startNode.desc, percent: (startNode.distRatio + endNode.distRatio) / 2 });
+                    }
+                    
+                    // 请求下一段
+                    requestWalkingRoute(index + 1);
+                });
+            }
+
+            function renderRouteElements() {
+                // 推入最后一个点
+                const lastP = rawRoutePoints[rawRoutePoints.length - 1];
+                interpolatedPath.push({ coords: lastP.coords, desc: lastP.desc, percent: 100 });
+
+                // 1. 添加背景全部轨迹的灰色衬底（暗示要走的大致轮廓，可防迷路）
+                const bgLine = new AMap.Polyline({
+                    map: map,
+                    path: interpolatedPath.map(p => p.coords),
+                    strokeColor: '#ccc',
+                    strokeWeight: 8,
+                    strokeStyle: 'dashed', // 虚线的底子，更像"计划的足迹"
+                    strokeDasharray: [10, 8]
+                });
+
+                // 2. 添加实际进度的红色主轨迹 (两步路App同款橘红色粗笔触)
+                const activeLine = new AMap.Polyline({
+                    map: map,
+                    path: [], // 初始为空
+                    strokeColor: '#FF4500', 
+                    strokeWeight: 10,
+                    lineJoin: 'round',
+                    lineCap: 'round',
+                    showDir: true, // 箭头方向针
+                    dirColor: "#FFFFFF"
+                });
+
+                // 3. 当前位置的呼吸光圈/指针
+                const locationMarker = new AMap.Marker({
+                    map: map,
+                    position: interpolatedPath[0].coords,
+                    content: '<div style="width:16px;height:16px;background:#FF4500;border:3px solid white;border-radius:50%;box-shadow:0 0 10px rgba(255,69,0,0.8);"></div>',
+                    offset: new AMap.Pixel(-11, -11)
+                });
+                
+                slider.disabled = false;
+                playBtn.disabled = false;
+
+                // ================= 核心滑块驱动逻辑 =================
+                function updateRouteBySlider() {
+                    const currentVal = parseFloat(slider.value); // 0-100
+                    
+                    // 根据当前滑块值，找到 interpolatedPath 中应该显示到哪一个点
+                    let targetIndex = 0;
+                    for (let i = 0; i < interpolatedPath.length; i++) {
+                        if (interpolatedPath[i].percent >= currentVal) {
+                            targetIndex = i;
+                            break;
+                        }
+                    }
+                    if (targetIndex === 0 && currentVal === 100) targetIndex = interpolatedPath.length - 1;
+
+                    // 截取应该显示的路径段
+                    const currentPathSlice = interpolatedPath.slice(0, targetIndex + 1);
+                    if (currentPathSlice.length > 1) {
+                        activeLine.setPath(currentPathSlice.map(p => p.coords));
+                        activeLine.show();
+                    } else {
+                        activeLine.hide();
+                    }
+                    
+                    // 移动当前光标位置
+                    const currentPoint = interpolatedPath[targetIndex];
+                    if (currentPoint) {
+                        locationMarker.setPosition(currentPoint.coords);
+                        // 更新顶部状态栏文字
+                        statusText.innerText = currentPoint.desc;
+                    }
+                    
+                    // 更新里程数字
+                    distanceText.innerText = ((currentVal / 100) * 2.71).toFixed(2);
+                }
+
+                // 监听滑块改动
+                slider.addEventListener('input', () => {
+                    if (isPlaying) togglePlay(); // 手动拖拽时暂停自动播放
+                    updateRouteBySlider();
+                });
+
+                // ================= 播放控制逻辑 =================
+                function togglePlay() {
+                    isPlaying = !isPlaying;
+                    if (isPlaying) {
+                        playBtn.classList.add('playing');
+                        iconPlay.style.display = 'none';
+                        iconPause.style.display = 'block';
+                        
+                        // 如果已经到底了，从头开始
+                        if (parseFloat(slider.value) >= 100) {
+                            slider.value = 0;
+                        }
+
+                        playInterval = setInterval(() => {
+                            let val = parseFloat(slider.value);
+                            val += 0.5; // 控制播放速度
+                            if (val > 100) {
+                                val = 100;
+                                togglePlay(); // 到达终点自动停止
+                            }
+                            slider.value = val;
+                            updateRouteBySlider();
+                        }, 50); // 每50ms走0.5%
+                    } else {
+                        playBtn.classList.remove('playing');
+                        iconPlay.style.display = 'block';
+                        iconPause.style.display = 'none';
+                        clearInterval(playInterval);
+                    }
+                }
+
+                playBtn.addEventListener('click', togglePlay);
+                
+                // 初始化渲染一次
+                updateRouteBySlider();
+            }
+            
+            // 默认禁用控件，等待路网规划完成
+            slider.disabled = true;
+            playBtn.disabled = true;
+            statusText.innerText = "正在向高德请求真实步行路网...";
+            
+            requestWalkingRoute(0);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>八段锦每日追踪 | Baduanjin Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@500;700&family=Roboto+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- 顶部导航栏 -->
+        <header class="main-header glass-panel">
+            <div class="logo-section">
+                <div class="logo-icon">☯️</div>
+                <h1 class="app-title">八段锦 · 修行</h1>
+            </div>
+            <div class="header-controls">
+                <div class="level-badge" id="level-badge">
+                    <span class="level-icon">🪨</span>
+                    <span class="level-text">Lv.1 初学者</span>
+                </div>
+                <button class="icon-btn" id="achievements-btn" aria-label="成就">🏆</button>
+                <button class="icon-btn" id="settings-btn" aria-label="设置">⚙️</button>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- 禅意花园 (MVP占位) -->
+            <section class="zen-garden-container glass-panel" id="zen-garden">
+                <div class="garden-header">
+                    <h2 class="section-title">禅意花园</h2>
+                    <span class="garden-level">Lv.1 荒芜石地</span>
+                </div>
+                <div class="garden-visual-placeholder">
+                    <!-- 这里后续会替换为SVG动画 -->
+                    <div class="garden-message">
+                        <p>坚持练习，培育您的心灵花园</p>
+                        <div class="garden-progress">
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" style="width: 0%"></div>
+                            </div>
+                            <span class="progress-text">0/7 天 (下一阶段: 青苔)</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 今日练习卡片 -->
+            <section class="daily-card glass-panel">
+                <div class="card-header">
+                    <div class="date-display">
+                        <span class="current-date" id="current-date">2025年11月19日</span>
+                        <span class="current-weekday" id="current-weekday">星期二</span>
+                    </div>
+                    <div class="quote-display" id="daily-quote">
+                        "调理脾胃须单举，五劳七伤往后瞧。"
+                    </div>
+                </div>
+
+                <div class="exercise-list" id="exercise-list">
+                    <!-- 动作列表将由JS动态生成 -->
+                </div>
+
+                <div class="daily-progress-section">
+                    <div class="progress-info">
+                        <span>今日进度</span>
+                        <span id="daily-progress-text">0%</span>
+                    </div>
+                    <div class="main-progress-bar">
+                        <div class="main-progress-fill" id="daily-progress-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <button class="complete-btn" id="complete-all-btn">
+                    ✨ 完成今日练习
+                </button>
+            </section>
+
+            <!-- 统计面板 -->
+            <section class="stats-panel">
+                <div class="stat-card glass-panel">
+                    <div class="stat-icon">🔥</div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="streak-days">0</span>
+                        <span class="stat-label">连续天数</span>
+                    </div>
+                </div>
+                <div class="stat-card glass-panel">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="total-days">0</span>
+                        <span class="stat-label">总练习天数</span>
+                    </div>
+                </div>
+                <div class="stat-card glass-panel">
+                    <div class="stat-icon">⭐</div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="current-level-name">初学者</span>
+                        <span class="stat-label">当前等级</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 月度日历 -->
+            <section class="calendar-section glass-panel" id="calendar-container">
+                <!-- 日历将由JS生成 -->
+            </section>
+        </main>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/garden.js"></script>
+    <script src="js/sound.js"></script>
+    <script src="js/calendar.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('SW registered'))
+                    .catch(err => console.log('SW registration failed', err));
+            });
+        }
+    </script>
+</body>
+
+</html>

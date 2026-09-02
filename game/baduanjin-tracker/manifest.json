@@ -1,0 +1,21 @@
+{
+    "name": "八段锦每日追踪",
+    "short_name": "八段锦",
+    "description": "八段锦每日运动追踪器 - 传统养生与现代科技的结合",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#E8F5E9",
+    "theme_color": "#2E7D32",
+    "icons": [
+        {
+            "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☯️</text></svg>",
+            "sizes": "192x192",
+            "type": "image/svg+xml"
+        },
+        {
+            "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☯️</text></svg>",
+            "sizes": "512x512",
+            "type": "image/svg+xml"
+        }
+    ]
+}

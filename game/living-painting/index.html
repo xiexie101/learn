@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>画中游 - 清明上河图</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div id="app">
+        <!-- 引导提示 -->
+        <div id="guide" class="guide">
+            <div class="guide-content">
+                <div class="guide-icon">👆</div>
+                <p>用手指触摸画面<br>唤醒千年古画</p>
+            </div>
+        </div>
+
+        <div id="painting-container">
+            <!-- Layer 1: 动画层 (底层，带动效) -->
+            <div id="animated-layer">
+                <video id="video-layer" loop muted playsinline autoplay>
+                    <source src="assets/video/jimeng-2025-12-24-8454.mp4" type="video/mp4">
+                </video>
+            </div>
+            <!-- Layer 2: 静态层 (上层，古画原图) -->
+            <img id="static-layer" src="assets/static/qingming.jpg" alt="清明上河图">
+            <!-- Layer 3: 遮罩层 (用于在静态层上挖洞露出动画层) -->
+            <canvas id="mask-layer"></canvas>
+        </div>
+    </div>
+    <script src="js/gesture.js"></script>
+    <script src="js/mask.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>三县洲大桥施工绕行动画 - 白马中路至六一南路</title>
+    <style>
+        html, body, #container { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: "Microsoft YaHei", sans-serif; }
+        
+        /* 顶部信息卡片 */
+        .info-card {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            z-index: 1000;
+            text-align: center;
+            border-top: 5px solid #E60000;
+            width: 90%;
+            max-width: 500px;
+        }
+        .info-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #333;
+            margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .info-desc {
+            font-size: 16px;
+            color: #555;
+            margin: 0 0 15px 0;
+            line-height: 1.5;
+        }
+        .route-highlight {
+            color: #0033FF;
+            font-weight: bold;
+        }
+        .bridge-blocked {
+            color: #E60000;
+            font-weight: bold;
+        }
+        
+        /* 重新播放按钮 */
+        .replay-btn {
+            background-color: #0033FF;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-weight: bold;
+        }
+        .replay-btn:hover { background-color: #0022cc; }
+
+        /* 左下角图例 */
+        .legend {
+            position: absolute;
+            bottom: 30px;
+            left: 30px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 999;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .legend-item { display: flex; align-items: center; margin-bottom: 12px; }
+        .legend-item:last-child { margin-bottom: 0; }
+        .color-box-red { width: 40px; height: 10px; background: repeating-linear-gradient(45deg, #E60000, #E60000 5px, #ff4d4d 5px, #ff4d4d 10px); margin-right: 15px; }
+        .color-box-blue { width: 40px; height: 8px; background-color: #0033FF; margin-right: 15px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <div id="container"></div>
+
+    <div class="info-card">
+        <h1 class="info-title">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E60000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            三县洲大桥封闭施工绕行指南
+        </h1>
+        <p class="info-desc">
+            请避开 <span class="bridge-blocked">三县洲大桥</span><br>
+            推荐绕行线路：<span class="route-highlight">白马中路 &rarr; 工业路 &rarr; 国货路 &rarr; 六一中路 &rarr; 六一南路</span>
+        </p>
+        <button class="replay-btn" id="replayBtn">再次观看路线演示</button>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item"><div class="color-box-red"></div><span style="color: #E60000;">封闭施工道路 (三县洲大桥)</span></div>
+        <div class="legend-item"><div class="color-box-blue"></div><span style="color: #0033FF;">推荐绕行路线</span></div>
+    </div>
+
+    <script type="text/javascript">
+        window._AMapSecurityConfig = {
+            securityJsCode: 'e817c327910b4cbfdb857c88f329a132', 
+        }
+    </script>
+    <script type="text/javascript" src="https://webapi.amap.com/maps?v=2.0&key=e384e0926091268d5f7d3039d84a10fe&plugin=AMap.Driving"></script>
+
+    <script type="text/javascript">
+        // 1. 初始化地图：明亮风格，中心点居中于白马南路附近，容纳整个路线
+        const map = new AMap.Map('container', {
+            zoom: 13.8, 
+            center: [119.308, 26.052], 
+            mapStyle: 'amap://styles/normal' 
+        });
+
+        // 2. 静态绘制：封闭的三县洲大桥
+        const closedBridgePath = [
+            [119.299169, 26.050631], [119.295551, 26.040580]
+        ];
+        // 用带有透明度或特殊样式的粗红线表示封闭
+        const closedBridge = new AMap.Polyline({ 
+            path: closedBridgePath, 
+            strokeColor: "#E60000", 
+            strokeWeight: 12, 
+            zIndex: 50,
+            strokeOpacity: 0.8
+        });
+        map.add(closedBridge);
+
+        // 3. 绘制文字标签，明确指示道路名称
+        const labels = [
+            { text: '三县洲大桥（封闭）', pos: [119.290, 26.046], color: '#E60000', rot: 0, bg: 'rgba(255,255,255,0.8)' },
+            { text: '白马中路',   pos: [119.293, 26.066], color: '#333', rot: 0 },
+            { text: '工业路',     pos: [119.300, 26.062], color: '#333', rot: 0 },
+            { text: '国货路',     pos: [119.312, 26.060], color: '#333', rot: 0 },
+            { text: '六一中路',   pos: [119.318, 26.053], color: '#333', rot: 0 },
+            { text: '六一南路 (过闽江大桥)', pos: [119.324, 26.035], color: '#333', rot: 0 }
+        ];
+
+        labels.forEach(item => {
+            const textObj = new AMap.Text({
+                text: `  ${item.text}  `, 
+                position: item.pos, 
+                angle: item.rot,
+                style: {
+                    'font-size': '16px', 
+                    'font-weight': 'bold', 
+                    'color': item.color,
+                    'background-color': item.bg || 'transparent',
+                    'border': 'none',
+                    'text-shadow': item.bg ? 'none' : '2px 2px 0 #FFF, -2px -2px 0 #FFF, 2px -2px 0 #FFF, -2px 2px 0 #FFF, 0 2px 0 #FFF, 0 -2px 0 #FFF, 2px 0 0 #FFF, -2px 0 0 #FFF'
+                }
+            });
+            map.add(textObj);
+        });
+
+        // ================= 核心：动态路线生长与常亮 =================
+        let dynamicLine = null;
+        let animationFrameId = null;
+        let routePathData = []; // 缓存真实路网坐标
+
+        map.on('complete', function() {
+            const driving = new AMap.Driving({ map: null, hideMarkers: true });
+
+            // 起点：白马中路
+            const startNode = [119.293157, 26.070467]; 
+            // 途径点：工业路 -> 国货路 -> 六一中路
+            const waypoints = [
+                [119.294591, 26.060714], // 工业路口附近
+                [119.308253, 26.061405], // 国货路
+                [119.317536, 26.059337], // 转六一中路
+                [119.318566, 26.043632]  // 闽江大桥
+            ];
+            // 终点：六一南路南岸
+            const endNode = [119.320144, 26.035111];
+
+            // 发起路径规划请求，获取贴合路网的真实坐标点
+            driving.search(startNode, endNode, { waypoints: waypoints }, function(status, result) {
+                if (status === 'complete' && result.routes && result.routes.length) {
+                    
+                    // 将所有细碎的路段连接成一条完整路径
+                    result.routes[0].steps.forEach(step => {
+                        routePathData = routePathData.concat(step.path);
+                    });
+
+                    // 创建动态线对象
+                    dynamicLine = new AMap.Polyline({
+                        map: map, 
+                        path: [], // 初始为空
+                        strokeColor: "#0033FF", 
+                        strokeWeight: 10, 
+                        strokeOpacity: 0.9,
+                        lineJoin: 'round',
+                        lineCap: 'round',
+                        showDir: true, // 高德原生支持在线上显示流动方向小箭头
+                        dirColor: "#FFFFFF"
+                    });
+                    
+                    // 开始播放动画
+                    startGrowingAnimation();
+                } else {
+                    console.error("路线规划失败！", result);
+                    alert("获取路线失败，请检查网络。");
+                }
+            });
+        });
+
+        let startMarker = null;
+        let endMarker = null;
+
+        function startGrowingAnimation() {
+            if (!dynamicLine || routePathData.length === 0) return;
+            
+            // 每次重新播放前先清理
+            cancelAnimationFrame(animationFrameId);
+            dynamicLine.setPath([]);
+            
+            if (endMarker) {
+                map.remove(endMarker);
+                endMarker = null;
+            }
+
+            let currentPointIndex = 0;
+            const pointsPerFrame = 2; // 调整动画播放速度
+
+            // 添加起点标记
+            if (!startMarker) {
+                startMarker = new AMap.Marker({
+                    position: routePathData[0],
+                    content: '<div style="background:#0033FF;color:#fff;padding:4px 8px;border-radius:20px;font-weight:bold;font-size:12px;box-shadow:0 2px 6px rgba(0,0,0,0.3);">起点</div>',
+                    offset: new AMap.Pixel(-20, -10),
+                    map: map
+                });
+            }
+
+            function animateStep() {
+                if (currentPointIndex < routePathData.length) {
+                    // 每次取当前步数对应的一段路径进行渲染，形成“生长”效果
+                    const currentPathSegment = routePathData.slice(0, currentPointIndex + 1);
+                    dynamicLine.setPath(currentPathSegment);
+                    
+                    currentPointIndex += pointsPerFrame;
+                    animationFrameId = requestAnimationFrame(animateStep);
+                } else {
+                    // 画完了，把路线设置为完整路线
+                    dynamicLine.setPath(routePathData);
+                    
+                    // 添加终点标记
+                    endMarker = new AMap.Marker({
+                        position: routePathData[routePathData.length - 1],
+                        content: '<div style="background:#0033FF;color:#fff;padding:4px 8px;border-radius:20px;font-weight:bold;font-size:12px;box-shadow:0 2px 6px rgba(0,0,0,0.3);">终点</div>',
+                        offset: new AMap.Pixel(-20, -10),
+                        map: map
+                    });
+                }
+            }
+            animateStep();
+        }
+
+        // 重新播放按钮事件
+        document.getElementById('replayBtn').addEventListener('click', () => {
+            startGrowingAnimation();
+        });
+
+    </script>
+</body>
+</html>

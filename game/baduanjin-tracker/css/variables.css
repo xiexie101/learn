@@ -1,0 +1,61 @@
+:root {
+    /* 主色调 - 中国传统色 */
+    --primary-jade: #2E7D32;        /* 青玉色 */
+    --primary-jade-light: #4CAF50;
+    --primary-jade-dark: #1B5E20;
+    --primary-gold: #D4AF37;        /* 金色 */
+    --primary-gold-light: #FBC02D;
+    
+    /* 背景色 */
+    --bg-gradient-start: #E8F5E9;   /* 浅绿 */
+    --bg-gradient-end: #FFF8E1;     /* 米黄 */
+    --card-bg: rgba(255, 255, 255, 0.85);
+    --card-bg-hover: rgba(255, 255, 255, 0.95);
+    
+    /* 功能色 */
+    --success: #4CAF50;
+    --warning: #FF9800;
+    --error: #F44336;
+    --neutral: #E0E0E0;
+    
+    /* 文字色 */
+    --text-primary: #2C3E50;
+    --text-secondary: #546E7A;
+    --text-light: #90A4AE;
+    
+    /* 字体 */
+    --font-title: 'Ma Shan Zheng', 'Noto Serif SC', serif;
+    --font-body: 'Noto Sans SC', -apple-system, sans-serif;
+    --font-mono: 'Roboto Mono', monospace;
+    
+    /* 阴影 */
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 8px rgba(0,0,0,0.1);
+    --shadow-lg: 0 8px 16px rgba(0,0,0,0.15);
+    --shadow-glow: 0 0 15px rgba(212,175,55,0.3);
+    
+    /* 圆角 */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-full: 50%;
+    
+    /* 间距 */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+}
+
+/* 深色模式支持 (预留) */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-gradient-start: #1a2e1a;
+        --bg-gradient-end: #2c2a1e;
+        --card-bg: rgba(30, 30, 30, 0.85);
+        --card-bg-hover: rgba(40, 40, 40, 0.95);
+        --text-primary: #E0E0E0;
+        --text-secondary: #B0BEC5;
+    }
+}

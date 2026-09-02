@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D粒子系统 - 手势交互</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="gesture-guide.css">
+</head>
+
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">正在初始化...</div>
+    </div>
+
+    <!-- Canvas Container -->
+    <div id="canvas-container"></div>
+
+    <!-- Video Element for Hand Tracking -->
+    <video id="video" autoplay playsinline></video>
+
+    <!-- Status Indicator -->
+    <div class="status-indicator">
+        <div class="status-dot"></div>
+        <span class="status-text">未检测到手势</span>
+    </div>
+
+    <!-- Control Panel -->
+    <div class="control-panel">
+        <h2>粒子控制</h2>
+
+        <!-- Model Selector -->
+        <div class="control-section">
+            <label>选择模型</label>
+            <div class="model-selector">
+                <button class="model-btn active" data-model="tree">
+                    <span class="icon">🎄</span>
+                    <span>圣诞树</span>
+                </button>
+                <button class="model-btn" data-model="star">
+                    <span class="icon">⭐</span>
+                    <span>星星</span>
+                </button>
+                <button class="model-btn" data-model="fireworks">
+                    <span class="icon">🎆</span>
+                    <span>烟花</span>
+                </button>
+                <button class="model-btn" data-model="heart">
+                    <span class="icon">❤️</span>
+                    <span>爱心</span>
+                </button>
+                <button class="model-btn" data-model="earth">
+                    <span class="icon">🌍</span>
+                    <span>地球</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Color Picker -->
+        <div class="control-section">
+            <label>粒子颜色</label>
+            <div class="color-picker-wrapper">
+                <input type="color" id="colorPicker" value="#8a2be2">
+            </div>
+        </div>
+    </div>
+
+    <!-- Gesture Feedback -->
+    <div class="gesture-feedback">
+        <div class="label">当前手势</div>
+        <div class="value">👋 等待手势</div>
+    </div>
+
+    <!-- Gesture Guide -->
+    <div class="gesture-guide">
+        <div class="guide-title">手势指南</div>
+        <div class="guide-item">
+            <span class="guide-icon">✊</span>
+            <span class="guide-text">握拳 → 收缩</span>
+        </div>
+        <div class="guide-item">
+            <span class="guide-icon">🖐️</span>
+            <span class="guide-text">张开 → 扩散</span>
+        </div>
+        <div class="guide-item">
+            <span class="guide-icon">✌️</span>
+            <span class="guide-text">V手势 → 暂停</span>
+        </div>
+    </div>
+
+    <!-- Fullscreen Button -->
+    <button class="fullscreen-btn" title="全屏">
+        <span>⛶</span>
+    </button>
+
+    <!-- Three.js -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.150.0/build/three.min.js"></script>
+
+    <!-- MediaPipe Hands -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <!-- Main Application -->
+    <script src="main.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐦 鸟来了 - Bird Magic</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #1a1a2e;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Press Start 2P', monospace;
+            overflow: hidden;
+        }
+
+        .container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .start-screen h1 {
+            font-size: 48px;
+            color: #fbbf24;
+            text-shadow: 4px 4px 0 #92400e;
+            margin-bottom: 20px;
+            animation: bounce 1s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .start-screen .subtitle {
+            font-size: 16px;
+            color: #94a3b8;
+            margin-bottom: 40px;
+        }
+
+        .start-btn {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 16px;
+            padding: 20px 40px;
+            background: #fbbf24;
+            color: #1a1a2e;
+            border: 4px solid #92400e;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 4px 4px 0 #92400e;
+        }
+
+        .start-btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 #92400e;
+        }
+
+        .start-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0 #92400e;
+        }
+
+        .status-bar {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px 20px;
+            border: 3px solid #fbbf24;
+            color: #ffffff;
+            font-size: 12px;
+            z-index: 10;
+            display: flex;
+            gap: 20px;
+        }
+
+        .hint-bar {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px 30px;
+            border: 3px solid #fbbf24;
+            color: #ffffff;
+            font-size: 11px;
+            z-index: 10;
+            display: flex;
+            gap: 30px;
+        }
+
+        .rare-bird-alert {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            border: 4px solid #fbbf24;
+            padding: 20px 40px;
+            color: #fbbf24;
+            font-size: 14px;
+            text-align: center;
+            animation: pulse 0.5s ease-in-out infinite;
+            display: none;
+            z-index: 50;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            50% {
+                transform: translate(-50%, -50%) scale(1.05);
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 开始屏幕 -->
+    <div class="start-screen" id="startScreen">
+        <h1>🐦 鸟来了</h1>
+        <p class="subtitle">Bird Magic</p>
+        <button class="start-btn" id="startBtn">开始体验</button>
+    </div>
+
+    <!-- 主容器 -->
+    <div class="container">
+        <video id="video" autoplay playsinline></video>
+        <canvas id="canvas"></canvas>
+
+        <!-- 状态栏 -->
+        <div class="status-bar hidden" id="statusBar">
+            <div>🐦 小鸟: <span id="birdCount">0</span></div>
+            <div>💩 鸟屎: <span id="poopCount">0</span></div>
+        </div>
+
+        <!-- 提示栏 -->
+        <div class="hint-bar hidden" id="hintBar">
+            <span>👋 挥手驱赶</span>
+            <span>🤏 抹掉鸟屎</span>
+        </div>
+
+        <!-- 稀有鸟提示 -->
+        <div class="rare-bird-alert" id="rareBirdAlert">
+            ✨ 稀有鸟出现了！✨
+        </div>
+    </div>
+
+    <!-- MediaPipe 库 -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/holistic/holistic.js" crossorigin="anonymous"></script>
+
+    <script>
+        // ============================================
+        // 配置常量
+        // ============================================
+        const CONFIG = {
+            MAX_BIRDS: 8,
+            MIN_BIRDS: 5,
+            BIRD_SPAWN_INTERVAL: 800,
+            POOP_CHANCE: 0.15,
+            CROW_POOP_CHANCE: 0.3,
+            BIRD_STAY_TIME: { min: 5000, max: 15000 },
+            PIXEL_SIZE: 4
+        };
+
+        // 小鸟类型配置
+        const BIRD_TYPES = {
+            sparrow: {
+                name: '麻雀',
+                probability: 0.5,
+                colors: ['#8B4513', '#A0522D', '#D2691E', '#F4A460'],
+                poopChance: CONFIG.POOP_CHANCE,
+                flightSpeed: 12
+            },
+            pigeon: {
+                name: '鸽子',
+                probability: 0.3,
+                colors: ['#708090', '#A9A9A9', '#C0C0C0', '#DCDCDC'],
+                poopChance: CONFIG.POOP_CHANCE,
+                flightSpeed: 8
+            },
+            crow: {
+                name: '乌鸦',
+                probability: 0.15,
+                colors: ['#1a1a1a', '#2d2d2d', '#404040', '#1a1a1a'],
+                poopChance: CONFIG.CROW_POOP_CHANCE,
+                flightSpeed: 10
+            },
+            rare: {
+                name: '彩虹鸟',
+                probability: 0.05,
+                colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96E6A1', '#DDA0DD', '#FFD93D'],
+                poopChance: 0,
+                flightSpeed: 15,
+                isRare: true
+            }
+        };
+
+        // ============================================
+        // 工具函数
+        // ============================================
+        function randomBetween(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        function randomInt(min, max) {
+            return Math.floor(randomBetween(min, max + 1));
+        }
+
+        function distance(p1, p2) {
+            return Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
+        }
+
+        function selectBirdType() {
+            const rand = Math.random();
+            let cumulative = 0;
+            for (const [type, config] of Object.entries(BIRD_TYPES)) {
+                cumulative += config.probability;
+                if (rand <= cumulative) return type;
+            }
+            return 'sparrow';
+        }
+
+        // ============================================
+        // 小鸟类
+        // ============================================
+        class Bird {
+            constructor(canvas, targetPos, type = null, perchType = 'head') {
+                this.canvas = canvas;
+                this.type = type || selectBirdType();
+                this.config = BIRD_TYPES[this.type];
+                this.perchType = perchType;
+
+                // 从屏幕边缘开始
+                const side = randomInt(0, 3);
+                const margin = 50;
+                switch (side) {
+                    case 0: this.x = randomBetween(0, canvas.width); this.y = -margin; break;
+                    case 1: this.x = canvas.width + margin; this.y = randomBetween(0, canvas.height); break;
+                    case 2: this.x = randomBetween(0, canvas.width); this.y = canvas.height + margin; break;
+                    case 3: this.x = -margin; this.y = randomBetween(0, canvas.height); break;
+                }
+
+                this.targetPos = targetPos;
+                this.state = 'flying';
+                this.frame = 0;
+                this.animationTimer = 0;
+                this.stayTimer = 0;
+                this.stayDuration = randomBetween(CONFIG.BIRD_STAY_TIME.min, CONFIG.BIRD_STAY_TIME.max);
+                this.hasPoop = false;
+                this.poopPosition = null;
+                this.facingRight = this.targetPos.x > this.x;
+                this.size = randomBetween(20, 30);
+                this.perchOffset = this.calculatePerchOffset();
+            }
+
+            calculatePerchOffset() {
+                if (this.perchType === 'head') {
+                    // 头部光环分布
+                    const angle = this.slotAngle !== undefined ? this.slotAngle : randomBetween(-Math.PI * 0.8, Math.PI * 0.8);
+                    const radius = randomBetween(80, 130);
+                    return {
+                        x: Math.sin(angle) * radius,
+                        y: -Math.abs(Math.cos(angle)) * radius * 0.6 - 50
+                    };
+                } else if (this.perchType === 'hand') {
+                    return { x: 0, y: 0 };
+                } else {
+                    return { x: randomBetween(-25, 25), y: randomBetween(-15, 5) };
+                }
+            }
+
+            update(deltaTime, targetPos, isScared) {
+                this.animationTimer += deltaTime;
+                if (this.animationTimer > 100) {
+                    this.frame = (this.frame + 1) % 4;
+                    this.animationTimer = 0;
+                }
+
+                if (targetPos) {
+                    if (this.perchType === 'hand' && targetPos.fingerPoints && this.fingerIndex !== undefined) {
+                        const fp = targetPos.fingerPoints[this.fingerIndex];
+                        if (fp) {
+                            this.targetPos = { x: fp.x, y: fp.y - 20 };
+                        }
+                    } else {
+                        this.targetPos = {
+                            x: targetPos.x + this.perchOffset.x,
+                            y: targetPos.y + this.perchOffset.y
+                        };
+                    }
+                }
+
+                switch (this.state) {
+                    case 'flying': this.flyToTarget(); break;
+                    case 'landing': this.state = 'perched'; break;
+                    case 'perched':
+                        if (isScared) {
+                            this.state = 'leaving';
+                            this.targetPos = {
+                                x: Math.random() > 0.5 ? -100 : this.canvas.width + 100,
+                                y: randomBetween(-100, this.canvas.height / 2)
+                            };
+                        } else {
+                            this.perch(deltaTime);
+                        }
+                        break;
+                    case 'leaving': this.leave(); break;
+                }
+
+                if (this.state === 'flying' || this.state === 'leaving') {
+                    this.facingRight = this.targetPos.x > this.x;
+                }
+            }
+
+            flyToTarget() {
+                const dx = this.targetPos.x - this.x;
+                const dy = this.targetPos.y - this.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 10) { this.state = 'landing'; return; }
+                const speed = this.config.flightSpeed;
+                this.x += (dx / dist) * speed;
+                this.y += (dy / dist) * speed;
+            }
+
+            perch(deltaTime) {
+                this.stayTimer += deltaTime;
+                if (this.targetPos) {
+                    this.x += (this.targetPos.x - this.x) * 0.1;
+                    this.y += (this.targetPos.y - this.y) * 0.1;
+                }
+                if (!this.hasPoop && this.stayTimer > 3000 && Math.random() < this.config.poopChance) {
+                    this.hasPoop = true;
+                    this.poopPosition = { x: this.x, y: this.y + this.size };
+                }
+                if (this.stayTimer > this.stayDuration) {
+                    this.state = 'leaving';
+                    this.targetPos = {
+                        x: Math.random() > 0.5 ? -100 : this.canvas.width + 100,
+                        y: randomBetween(-100, this.canvas.height / 2)
+                    };
+                }
+            }
+
+            leave() {
+                const dx = this.targetPos.x - this.x;
+                const dy = this.targetPos.y - this.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                const speed = this.config.flightSpeed * 3;
+                this.x += (dx / dist) * speed;
+                this.y += (dy / dist) * speed;
+            }
+
+            isOffScreen() {
+                const margin = 150;
+                return this.x < -margin || this.x > this.canvas.width + margin ||
+                    this.y < -margin || this.y > this.canvas.height + margin;
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                if (!this.facingRight) ctx.scale(-1, 1);
+
+                const p = CONFIG.PIXEL_SIZE;
+                const colors = this.config.colors;
+                const isFlying = this.state === 'flying' || this.state === 'leaving';
+                const wingUp = this.frame % 2 === 0;
+
+                // 身体
+                ctx.fillStyle = colors[0];
+                ctx.fillRect(-2 * p, 0, 4 * p, 3 * p);
+
+                // 头
+                ctx.fillStyle = colors[1];
+                ctx.fillRect(1 * p, -2 * p, 3 * p, 3 * p);
+
+                // 眼睛
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(2 * p, -1 * p, p, p);
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(2.5 * p, -0.5 * p, p * 0.5, p * 0.5);
+
+                // 嘴巴
+                ctx.fillStyle = '#FFA500';
+                ctx.fillRect(4 * p, -1 * p, p, p);
+
+                // 翅膀
+                ctx.fillStyle = colors[2];
+                if (isFlying) {
+                    ctx.fillRect(-1 * p, wingUp ? -2 * p : 2 * p, 2 * p, 2 * p);
+                } else {
+                    ctx.fillRect(-1 * p, 1 * p, 2 * p, 2 * p);
+                }
+
+                // 尾巴
+                ctx.fillStyle = colors[3];
+                ctx.fillRect(-4 * p, 0, 2 * p, 2 * p);
+
+                // 腿
+                if (!isFlying) {
+                    ctx.fillStyle = '#FFA500';
+                    ctx.fillRect(0, 3 * p, p, 2 * p);
+                    ctx.fillRect(1 * p, 3 * p, p, 2 * p);
+                }
+
+                // 稀有鸟发光
+                if (this.config.isRare) {
+                    ctx.shadowColor = '#FFD700';
+                    ctx.shadowBlur = 20;
+                }
+
+                ctx.restore();
+            }
+        }
+
+        // ============================================
+        // 鸟屎系统
+        // ============================================
+        class PoopSystem {
+            constructor() {
+                this.poops = [];
+            }
+
+            add(x, y, perchType, basePos) {
+                const offsetX = basePos ? x - basePos.x : 0;
+                const offsetY = basePos ? y - basePos.y : 0;
+                this.poops.push({
+                    x, y, perchType,
+                    offset: { x: offsetX, y: offsetY },
+                    createdAt: Date.now()
+                });
+            }
+
+            update(perchPoints) {
+                this.poops.forEach(poop => {
+                    if (perchPoints && poop.perchType) {
+                        let basePos = perchPoints[poop.perchType];
+                        if (basePos) {
+                            poop.x = basePos.x + poop.offset.x;
+                            poop.y = basePos.y + poop.offset.y;
+                        }
+                    }
+                });
+            }
+
+            checkWipe(handPos, radius = 60) {
+                const before = this.poops.length;
+                this.poops = this.poops.filter(p => distance(p, handPos) > radius);
+                return before - this.poops.length;
+            }
+
+            draw(ctx) {
+                this.poops.forEach(poop => {
+                    // 圆形鸟屎
+                    ctx.beginPath();
+                    ctx.arc(poop.x, poop.y, 8, 0, Math.PI * 2);
+                    ctx.fillStyle = '#8B7355';
+                    ctx.fill();
+                    // 高光
+                    ctx.beginPath();
+                    ctx.arc(poop.x - 2, poop.y - 2, 3, 0, Math.PI * 2);
+                    ctx.fillStyle = '#A89880';
+                    ctx.fill();
+                });
+            }
+
+            get count() { return this.poops.length; }
+        }
+
+        // ============================================
+        // 手势检测器
+        // ============================================
+        class GestureDetector {
+            constructor() {
+                this.handHistory = [];
+                this.historyLength = 20;
+                this.lastWaveTime = 0;
+            }
+
+            update(handPos) {
+                if (handPos) {
+                    this.handHistory.push({ ...handPos, time: Date.now() });
+                    if (this.handHistory.length > this.historyLength) {
+                        this.handHistory.shift();
+                    }
+                }
+            }
+
+            isWaving() {
+                if (this.handHistory.length < 3) return false;
+                const now = Date.now();
+                const recent = this.handHistory.filter(p => now - p.time < 500);
+                if (recent.length < 2) return false;
+
+                let movement = 0;
+                for (let i = 1; i < recent.length; i++) {
+                    movement += distance(recent[i], recent[i - 1]);
+                }
+
+                if (movement > 50 && now - this.lastWaveTime > 300) {
+                    this.lastWaveTime = now;
+                    return true;
+                }
+                return false;
+            }
+        }
+
+        // ============================================
+        // 小鸟管理器
+        // ============================================
+        class BirdManager {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.birds = [];
+                this.lastSpawnTime = 0;
+                this.headSlots = [-0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75].map(v => v * Math.PI);
+                this.usedSlots = new Set();
+            }
+
+            getSlot() {
+                const available = this.headSlots.filter((_, i) => !this.usedSlots.has(i));
+                if (available.length === 0) return null;
+                const idx = this.headSlots.indexOf(available[randomInt(0, available.length - 1)]);
+                this.usedSlots.add(idx);
+                return { angle: this.headSlots[idx], index: idx };
+            }
+
+            releaseSlot(idx) { this.usedSlots.delete(idx); }
+
+            update(deltaTime, perchPoints, isScared) {
+                const now = Date.now();
+
+                if (this.birds.length < CONFIG.MAX_BIRDS && now - this.lastSpawnTime > CONFIG.BIRD_SPAWN_INTERVAL) {
+                    const { point, type } = this.selectPerch(perchPoints);
+                    if (point) {
+                        const bird = new Bird(this.canvas, point, null, type);
+                        if (type === 'head') {
+                            const slot = this.getSlot();
+                            if (slot) {
+                                bird.slotAngle = slot.angle;
+                                bird.slotIndex = slot.index;
+                                bird.perchOffset = bird.calculatePerchOffset();
+                            }
+                        } else if (type === 'hand') {
+                            bird.fingerIndex = randomInt(0, 4);
+                        }
+                        this.birds.push(bird);
+                        this.lastSpawnTime = now;
+                        if (bird.config.isRare) this.onRareBird?.();
+                    }
+                }
+
+                this.birds.forEach(bird => {
+                    const target = this.getTarget(perchPoints, bird.perchType);
+                    bird.update(deltaTime, target, isScared);
+                });
+
+                this.birds = this.birds.filter(bird => {
+                    if (bird.state === 'leaving' && bird.isOffScreen()) {
+                        if (bird.slotIndex !== undefined) this.releaseSlot(bird.slotIndex);
+                        return false;
+                    }
+                    return true;
+                });
+            }
+
+            getTarget(points, type) {
+                if (!points) return null;
+                return points[type] || points.head;
+            }
+
+            selectPerch(points) {
+                if (!points) return { point: null, type: 'head' };
+                const rand = Math.random();
+                if (rand < 0.6 && points.head) return { point: points.head, type: 'head' };
+                if (rand < 0.9 && points.hand) return { point: points.hand, type: 'hand' };
+                if (points.leftShoulder) return { point: points.leftShoulder, type: 'leftShoulder' };
+                if (points.rightShoulder) return { point: points.rightShoulder, type: 'rightShoulder' };
+                return { point: points.head, type: 'head' };
+            }
+
+            getPoopEvents() {
+                const events = [];
+                this.birds.forEach(bird => {
+                    if (bird.hasPoop && bird.poopPosition) {
+                        events.push({ ...bird.poopPosition, perchType: bird.perchType });
+                        bird.poopPosition = null;
+                    }
+                });
+                return events;
+            }
+
+            draw(ctx) { this.birds.forEach(b => b.draw(ctx)); }
+            get count() { return this.birds.length; }
+        }
+
+        // ============================================
+        // 主应用程序
+        // ============================================
+        class BirdMagicApp {
+            constructor() {
+                this.video = document.getElementById('video');
+                this.canvas = document.getElementById('canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.startScreen = document.getElementById('startScreen');
+                this.startBtn = document.getElementById('startBtn');
+                this.statusBar = document.getElementById('statusBar');
+                this.hintBar = document.getElementById('hintBar');
+                this.birdCountEl = document.getElementById('birdCount');
+                this.poopCountEl = document.getElementById('poopCount');
+                this.rareBirdAlert = document.getElementById('rareBirdAlert');
+
+                this.birdManager = new BirdManager(this.canvas);
+                this.poopSystem = new PoopSystem();
+                this.gestureDetector = new GestureDetector();
+
+                this.lastTime = 0;
+                this.isRunning = false;
+                this.currentPose = null;
+                this.currentHands = null;
+
+                this.startBtn.addEventListener('click', () => this.start());
+                this.birdManager.onRareBird = () => this.showRareBirdAlert();
+            }
+
+            async start() {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({
+                        video: { width: 1280, height: 720, facingMode: 'user' }
+                    });
+                    this.video.srcObject = stream;
+                    await this.video.play();
+
+                    this.canvas.width = this.video.videoWidth;
+                    this.canvas.height = this.video.videoHeight;
+
+                    this.initMediaPipe();
+                    this.startScreen.classList.add('hidden');
+                    this.statusBar.classList.remove('hidden');
+                    this.hintBar.classList.remove('hidden');
+
+                    this.isRunning = true;
+                    this.lastTime = performance.now();
+                    this.gameLoop();
+                } catch (error) {
+                    console.error('启动失败:', error);
+                    alert('无法访问摄像头，请确保已授予权限。');
+                }
+            }
+
+            initMediaPipe() {
+                this.holistic = new Holistic({
+                    locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`
+                });
+                this.holistic.setOptions({
+                    modelComplexity: 1,
+                    smoothLandmarks: true,
+                    minDetectionConfidence: 0.5,
+                    minTrackingConfidence: 0.5
+                });
+                this.holistic.onResults(results => {
+                    this.currentPose = results.poseLandmarks;
+                    this.currentHands = { left: results.leftHandLandmarks, right: results.rightHandLandmarks };
+                });
+                this.camera = new Camera(this.video, {
+                    onFrame: async () => await this.holistic.send({ image: this.video }),
+                    width: 1280, height: 720
+                });
+                this.camera.start();
+            }
+
+            gameLoop() {
+                if (!this.isRunning) return;
+                const now = performance.now();
+                const deltaTime = now - this.lastTime;
+                this.lastTime = now;
+                this.update(deltaTime);
+                this.draw();
+                requestAnimationFrame(() => this.gameLoop());
+            }
+
+            update(deltaTime) {
+                const perchPoints = this.getPerchPoints();
+                const handPos = perchPoints.hand;
+
+                this.gestureDetector.update(handPos);
+                const isWaving = this.gestureDetector.isWaving();
+
+                this.birdManager.update(deltaTime, perchPoints, isWaving);
+
+                const poopEvents = this.birdManager.getPoopEvents();
+                poopEvents.forEach(e => {
+                    let base = perchPoints[e.perchType];
+                    this.poopSystem.add(e.x, e.y, e.perchType, base);
+                });
+
+                this.poopSystem.update(perchPoints);
+
+                if (handPos && isWaving) {
+                    this.poopSystem.checkWipe(handPos);
+                }
+
+                this.birdCountEl.textContent = this.birdManager.count;
+                this.poopCountEl.textContent = this.poopSystem.count;
+            }
+
+            getPerchPoints() {
+                const points = {};
+                if (this.currentPose) {
+                    const w = this.canvas.width, h = this.canvas.height;
+                    const nose = this.currentPose[0];
+                    if (nose) points.head = { x: (1 - nose.x) * w, y: nose.y * h - 50 };
+                    const ls = this.currentPose[11];
+                    if (ls) points.leftShoulder = { x: (1 - ls.x) * w, y: ls.y * h };
+                    const rs = this.currentPose[12];
+                    if (rs) points.rightShoulder = { x: (1 - rs.x) * w, y: rs.y * h };
+                }
+                const hands = this.currentHands;
+                if (hands) {
+                    const hand = hands.right || hands.left;
+                    if (hand && hand.length >= 21) {
+                        const w = this.canvas.width, h = this.canvas.height;
+                        points.hand = {
+                            x: (1 - hand[0].x) * w,
+                            y: hand[0].y * h,
+                            fingerPoints: [4, 8, 12, 16, 20].map(i => ({
+                                x: (1 - hand[i].x) * w,
+                                y: hand[i].y * h
+                            }))
+                        };
+                    }
+                }
+                return points;
+            }
+
+            draw() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.poopSystem.draw(this.ctx);
+                this.birdManager.draw(this.ctx);
+            }
+
+            showRareBirdAlert() {
+                this.rareBirdAlert.style.display = 'block';
+                setTimeout(() => { this.rareBirdAlert.style.display = 'none'; }, 2000);
+            }
+        }
+
+        // 启动应用
+        const app = new BirdMagicApp();
+    </script>
+</body>
+
+</html>

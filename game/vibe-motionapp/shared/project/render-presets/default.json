@@ -1,0 +1,11 @@
+{
+  "text": "RollingText",
+  "darkMode": false,
+  "videoWidth": 1280,
+  "videoHeight": 720,
+  "durationSeconds": 3,
+  "speed": 1,
+  "accentHue": 210,
+  "linesCount": 4,
+  "fontSize": 15
+}

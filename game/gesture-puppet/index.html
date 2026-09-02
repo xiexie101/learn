@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>手势表情木偶</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- MediaPipe Hands -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div id="start-screen">
+        <h1>🎭 手势表情木偶</h1>
+        <p>请允许摄像头权限，点击开始体验！</p>
+        <button id="start-btn">开始互动</button>
+    </div>
+
+    <div id="app" style="display: none;">
+        <div class="camera-container">
+            <video id="video" autoplay playsinline></video>
+            <canvas id="canvas"></canvas>
+        </div>
+        
+        <div class="puppet-stage">
+            <div id="emoji-puppet">😴</div>
+        </div>
+
+        <div id="status-panel">
+            <div id="finger-count">手指数量: 0</div>
+            <div id="current-state">状态: 待机</div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

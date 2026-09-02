@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>福州三县洲大桥 - 宏观远端绕行动画</title>
+    <style>
+        html, body, #container { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: "Microsoft YaHei", sans-serif; }
+        .legend { position: absolute; bottom: 30px; left: 30px; background: white; padding: 15px 20px; border-radius: 8px; border: 1px solid #ddd; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 999; font-size: 16px; font-weight: bold; }
+        .legend-item { display: flex; align-items: center; margin-bottom: 12px; }
+        .legend-item:last-child { margin-bottom: 0; }
+        .color-box-red { width: 40px; height: 10px; background-color: #E60000; margin-right: 15px; }
+        .color-box-blue { width: 30px; height: 6px; background-color: #0033FF; position: relative; margin-right: 25px; }
+        .color-box-blue::after { content: ''; position: absolute; right: -10px; top: -7px; border-top: 10px solid transparent; border-bottom: 10px solid transparent; border-left: 15px solid #0033FF; }
+    </style>
+</head>
+<body>
+
+    <div id="container"></div>
+
+    <div class="legend">
+        <div class="legend-item"><div class="color-box-red"></div><span style="color: #E60000;">封闭施工道路</span></div>
+        <div class="legend-item"><div class="color-box-blue"></div><span style="color: #0033FF;">绕行线路</span></div>
+    </div>
+
+    <script type="text/javascript">
+        window._AMapSecurityConfig = {
+            securityJsCode: 'e817c327910b4cbfdb857c88f329a132', 
+        }
+    </script>
+    
+    <script type="text/javascript" src="https://webapi.amap.com/maps?v=2.0&key=e384e0926091268d5f7d3039d84a10fe&plugin=AMap.Driving"></script>
+
+    <script type="text/javascript">
+        // 3. 调整视野：稍微拉高，中心点北移一点，容纳更广的路网
+        const map = new AMap.Map('container', {
+            zoom: 13.5, 
+            center: [119.300, 26.052], 
+            mapStyle: 'amap://styles/normal' 
+        });
+
+        // 静态红线：三县洲大桥封闭路段
+        const closedBridgePath = [
+            [119.299169, 26.050631], [119.295551, 26.040580]
+        ];
+        map.add(new AMap.Polyline({ path: closedBridgePath, strokeColor: "#E60000", strokeWeight: 10, zIndex: 50 }));
+
+        // 4. 全新配置文字标签 (匹配新 GIF 的位置和倾斜角)
+        const labels = [
+            { text: '三县洲大桥', pos: [119.299, 26.046], color: '#E60000', rot: -75 },
+            { text: '尤溪洲大桥', pos: [119.282, 26.044], color: '#0033FF', rot: -70 },
+            { text: '闽江大桥',   pos: [119.319, 26.043], color: '#0033FF', rot: -75 },
+            { text: '白马中路',   pos: [119.293, 26.062], color: '#000',    rot: 75 },
+            { text: '白马南路',   pos: [119.296, 26.053], color: '#000',    rot: 65 },
+            { text: '工业路',     pos: [119.287, 26.061], color: '#000',    rot: -5 },
+            { text: '西二环路',   pos: [119.278, 26.055], color: '#000',    rot: -80 },
+            { text: '国货路',     pos: [119.312, 26.060], color: '#000',    rot: -10 },
+            { text: '六一中路',   pos: [119.318, 26.053], color: '#000',    rot: -80 },
+            { text: '六一南路',   pos: [119.320, 26.035], color: '#000',    rot: -80 }
+        ];
+
+        labels.forEach(item => {
+            map.add(new AMap.Text({
+                text: item.text, position: item.pos, angle: item.rot,
+                style: {
+                    'font-size': '18px', 'font-weight': '900', 'color': item.color,
+                    'text-shadow': '2px 2px 0 #FFF, -2px -2px 0 #FFF, 2px -2px 0 #FFF, -2px 2px 0 #FFF, 0 2px 0 #FFF, 0 -2px 0 #FFF, 2px 0 0 #FFF, -2px 0 0 #FFF'
+                },
+                backgroundColor: 'transparent', borderColor: 'transparent'
+            }));
+        });
+
+        // ================= 核心：宏观路线请求与生长动画 =================
+
+        map.on('complete', function() {
+            const driving = new AMap.Driving({ map: null, hideMarkers: true });
+
+            function drawGrowingRoute(start, waypoints, end, speedMulti = 1) {
+                driving.search(start, end, { waypoints: waypoints }, function(status, result) {
+                    if (status === 'complete' && result.routes && result.routes.length) {
+                        let fullPath = [];
+                        result.routes[0].steps.forEach(step => fullPath = fullPath.concat(step.path));
+
+                        const dynamicLine = new AMap.Polyline({
+                            map: map, path: [], 
+                            strokeColor: "#0033FF", strokeWeight: 8, strokeOpacity: 0.8,
+                            showDir: true, dirColor: "#FFFFFF"
+                        });
+
+                        let currentPointIndex = 0;
+                        // 通过乘数调整不同路线的生长速度，让它们差不多同时画完
+                        const pointsPerFrame = 3 * speedMulti; 
+
+                        function animateStep() {
+                            if (currentPointIndex < fullPath.length) {
+                                dynamicLine.setPath(fullPath.slice(0, currentPointIndex + 1));
+                                currentPointIndex += pointsPerFrame;
+                                requestAnimationFrame(animateStep);
+                            } else {
+                                setTimeout(() => {
+                                    currentPointIndex = 0;
+                                    dynamicLine.setPath([]); 
+                                    animateStep(); 
+                                }, 2500); // 画完停顿 2.5 秒
+                            }
+                        }
+                        animateStep();
+                    }
+                });
+            }
+
+            // 1. 大西环线 (白马中路 -> 工业路 -> 西二环 -> 尤溪洲大桥 -> 南岸)
+            const startWest = [119.294157, 26.066467]; // 白马中路起点
+            const waypointsWest = [
+                [119.288591, 26.060714], // 强制拐入工业路
+                [119.278551, 26.060965], // 强制拐入西二环
+                [119.281662, 26.047814]  // 强制过尤溪洲大桥
+            ];
+            const endWest = [119.295551, 26.040580]; // 三县洲大桥南段周边
+            drawGrowingRoute(startWest, waypointsWest, endWest, 1.2); // 路线长，稍微画快点
+
+            // 2. 大东环线 (国货路 -> 六一中路 -> 闽江大桥 -> 六一南路 -> 南岸)
+            const startEast = [119.308253, 26.061405]; // 国货路起点附近
+            const waypointsEast = [
+                [119.317536, 26.059337], // 强制拐入六一中路
+                [119.318566, 26.043632], // 强制过闽江大桥
+                [119.320144, 26.035111]  // 强制顺着六一南路往下
+            ];
+            const endEast = [119.303117, 26.039660]; // 仓前路周边接应
+            drawGrowingRoute(startEast, waypointsEast, endEast, 1.0);
+        });
+    </script>
+</body>
+</html>

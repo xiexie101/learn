@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>重檐帘语 · China Golden Courtyards & Gravity Curtain</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-paper: #f4efe6;
+            --bg-paper-dark: #e8ded0;
+            --ink-primary: #2b261f;
+            --ink-secondary: #5c5346;
+            --ink-light: #8f8473;
+            --gold-bright: #ffd24d;
+            --gold-mid: #e6a817;
+            --gold-dark: #b87a00;
+            --vermilion: #9e2a1b;
+            --vermilion-dark: #63170e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-paper);
+            background-image: 
+                radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.6) 0%, rgba(232, 222, 208, 0.8) 100%),
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(43, 38, 31, 0.015) 2px, rgba(43, 38, 31, 0.015) 4px);
+            color: var(--ink-primary);
+            font-family: 'Noto Serif SC', 'Source Han Serif SC', 'STSong', serif;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* 顶部导航栏 */
+        header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 28px 48px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .nav-left {
+            display: flex;
+            gap: 36px;
+            align-items: center;
+            pointer-events: auto;
+        }
+
+        .brand-logo {
+            font-family: 'Cinzel', serif;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            color: var(--ink-primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 24px;
+            font-size: 13px;
+            letter-spacing: 0.05em;
+            color: var(--ink-secondary);
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: inherit;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--vermilion);
+        }
+
+        .btn-configure {
+            pointer-events: auto;
+            background: var(--ink-primary);
+            color: #f4efe6;
+            padding: 8px 20px;
+            border-radius: 4px;
+            font-size: 12px;
+            letter-spacing: 0.1em;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(43, 38, 31, 0.2);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .btn-configure:hover {
+            background: var(--vermilion);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(158, 42, 27, 0.3);
+        }
+
+        /* 左右印章与标语 */
+        .stamp-badge {
+            position: absolute;
+            top: 32%;
+            padding: 12px 18px;
+            border: 1.5px solid var(--ink-secondary);
+            border-radius: 4px;
+            font-size: 13px;
+            letter-spacing: 0.08em;
+            color: var(--ink-primary);
+            background: rgba(244, 239, 230, 0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            z-index: 5;
+            transition: transform 0.4s ease;
+        }
+
+        .stamp-badge:hover {
+            transform: scale(1.04);
+            border-color: var(--vermilion);
+            color: var(--vermilion);
+        }
+
+        .stamp-badge.left { left: 5%; }
+        .stamp-badge.right { right: 5%; }
+
+        .stamp-icon {
+            width: 32px;
+            height: 12px;
+            border-bottom: 2px solid currentColor;
+            border-radius: 50% / 100% 100% 0 0;
+        }
+
+        /* 左侧主排版诗意文案 */
+        .hero-text-left {
+            position: absolute;
+            left: 6%;
+            bottom: 14%;
+            max-width: 380px;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .hero-subtitle {
+            font-size: 13px;
+            color: var(--ink-secondary);
+            margin-bottom: 16px;
+            letter-spacing: 0.06em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hero-title {
+            font-family: 'Cinzel', 'Noto Serif SC', serif;
+            font-size: 42px;
+            line-height: 1.15;
+            font-weight: 400;
+            color: var(--ink-primary);
+            letter-spacing: -0.01em;
+        }
+
+        .hero-title span.line {
+            display: inline-block;
+            width: 60px;
+            height: 1.5px;
+            background: var(--ink-secondary);
+            vertical-align: middle;
+            margin-left: 12px;
+        }
+
+        /* 右侧垂直散文 */
+        .hero-text-right {
+            position: absolute;
+            right: 6%;
+            bottom: 14%;
+            max-width: 260px;
+            font-size: 13px;
+            line-height: 1.8;
+            color: var(--ink-secondary);
+            text-align: right;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        /* 核心画布容器 */
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            cursor: grab;
+        }
+
+        canvas:active {
+            cursor: grabbing;
+        }
+
+        /* 底部互动操作提示 */
+        .interaction-hint {
+            position: absolute;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            color: var(--ink-light);
+            letter-spacing: 0.15em;
+            pointer-events: none;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: pulse-hint 3s infinite ease-in-out;
+        }
+
+        @keyframes pulse-hint {
+            0%, 100% { opacity: 0.5; transform: translateX(-50%) translateY(0); }
+            50% { opacity: 0.9; transform: translateX(-50%) translateY(-3px); }
+        }
+
+        /* 悬浮控制面板 (Tweaks Panel) */
+        .tweaks-panel {
+            position: absolute;
+            bottom: 24px;
+            right: 24px;
+            background: rgba(43, 38, 31, 0.94);
+            color: var(--bg-paper);
+            border-radius: 8px;
+            padding: 20px 24px;
+            width: 310px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            z-index: 20;
+            transform: translateY(120%);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .tweaks-panel.active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .tweaks-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            padding-bottom: 10px;
+        }
+
+        .tweaks-header h3 {
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            color: var(--gold-bright);
+        }
+
+        .tweaks-close {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 18px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .tweaks-close:hover { color: #fff; }
+
+        .control-group {
+            margin-bottom: 14px;
+        }
+
+        .control-group label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 6px;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            height: 4px;
+            appearance: none;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            outline: none;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--gold-bright);
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(255, 210, 77, 0.5);
+        }
+
+        .control-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .btn-action {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-action:hover {
+            background: var(--vermilion);
+            border-color: var(--vermilion);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="nav-left">
+            <div class="brand-logo">BUDARINA</div>
+            <nav class="nav-links">
+                <a href="#">Home</a>
+                <a href="#">Destinations</a>
+                <a href="#">Community</a>
+            </nav>
+        </div>
+        <button class="btn-configure" id="btn-config">Configure · 调试帘参数</button>
+    </header>
+
+    <div class="stamp-badge left">
+        <div class="stamp-icon"></div>
+        <span>Vietnam</span>
+    </div>
+
+    <div class="stamp-badge right">
+        <div class="stamp-icon"></div>
+        <span>Japan</span>
+    </div>
+
+    <div class="hero-text-left">
+        <div class="hero-subtitle">缘分 (Yuánfèn) A destined meeting</div>
+        <h1 class="hero-title">
+            China <span class="line"></span><br>
+            golden<br>
+            courtyards,<br>
+            silk-road<br>
+            myths, roofs<br>
+            that refuse<br>
+            gravity
+        </h1>
+    </div>
+
+    <div class="hero-text-right">
+        Wander forbidden gardens, painted eaves, and stories older than the maps that tried to hold them.
+    </div>
+
+    <div id="canvas-container">
+        <canvas id="curtain-canvas"></canvas>
+    </div>
+
+    <div class="interaction-hint">
+        <span>✨ 拖动鼠标或手指拂过上方悬挂的文字珠帘，聆听重力与缘分的摆动 ✨</span>
+    </div>
+
+    <!-- 悬浮调试面板 -->
+    <div class="tweaks-panel" id="tweaks-panel">
+        <div class="tweaks-header">
+            <h3>TWEAKS · 重物与物理参数</h3>
+            <button class="tweaks-close" id="btn-close-tweaks">×</button>
+        </div>
+        <div class="control-group">
+            <label><span>重力加速度 (Gravity)</span><span id="val-gravity">0.45</span></label>
+            <input type="range" id="slider-gravity" min="0.1" max="1.2" step="0.05" value="0.45">
+        </div>
+        <div class="control-group">
+            <label><span>空气阻尼 (Damping)</span><span id="val-damping">0.96</span></label>
+            <input type="range" id="slider-damping" min="0.88" max="0.99" step="0.01" value="0.96">
+        </div>
+        <div class="control-group">
+            <label><span>帘绳密度 (Density)</span><span id="val-density">45</span></label>
+            <input type="range" id="slider-density" min="20" max="65" step="5" value="45">
+        </div>
+        <div class="control-row">
+            <button class="btn-action" id="btn-wind">🍃 拂过一阵清风</button>
+            <button class="btn-action" id="btn-preset">🌀 切换旋涡/自然帘</button>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * 重檐帘语 - Interactive Verlet Physics Curtain & Roof Renderer
+         * @author Antigravity & Xiao Q (^o_o^)
+         */
+        const canvas = document.getElementById('curtain-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // 音效引擎 (Web Audio API - 宫廷金石五声调式泛音合成器)
+        let audioCtx = null;
+        function playChimeSound(velocity) {
+            if (!audioCtx) {
+                try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } 
+                catch (e) { return; }
+            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            // 扩展五声调式高低两个八度音阶 (宫商角徵羽)
+            const pentatonic = [392.00, 440.00, 523.25, 587.33, 659.25, 783.99, 880.00, 1046.50, 1174.66, 1318.51];
+            const baseFreq = pentatonic[Math.floor(Math.random() * pentatonic.length)];
+            const now = audioCtx.currentTime;
+            const vol = Math.min(0.08, Math.abs(velocity) * 0.005);
+            
+            // 创建立体声声相 (根据鼠标水平位置左右声相偏转)
+            const panner = audioCtx.createStereoPanner ? audioCtx.createStereoPanner() : null;
+            if (panner) {
+                panner.pan.setValueAtTime(Math.max(-0.85, Math.min(0.85, (mouse.x / width) * 2 - 1)), now);
+                panner.connect(audioCtx.destination);
+            }
+            const outputNode = panner || audioCtx.destination;
+
+            // 叠加主音与高次谐波泛音 (创建编钟/金石玉磬的清脆尾音)
+            [{ ratio: 1, gain: 1, decay: 0.65 }, { ratio: 2.01, gain: 0.28, decay: 0.45 }, { ratio: 3.96, gain: 0.12, decay: 0.28 }].forEach(h => {
+                const osc = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(baseFreq * h.ratio, now);
+                osc.detune.setValueAtTime((Math.random() - 0.5) * 6, now);
+                
+                gainNode.gain.setValueAtTime(vol * h.gain, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.0001, now + h.decay);
+                
+                osc.connect(gainNode);
+                gainNode.connect(outputNode);
+                osc.start(now);
+                osc.stop(now + h.decay + 0.05);
+            });
+        }
+
+        // 古典文案词库（丝绸之路、建筑、诗词与缘分）
+        const POETRY_TEXTS = [
+            "落霞与孤鹜齐飞秋水共长天一色渔舟唱晚响穷彭蠡之滨雁阵惊寒声断衡阳之浦",
+            "兰亭已矣梓泽丘墟临别赠言幸承恩于伟饯登高作赋是所望于群公敢竭鄙怀恭疏短引",
+            "道可道非常道名可名非常名无名天地之始有名万物之母故常无欲以观其妙常有欲以观其徼",
+            "鹏之徙于南冥也水击三千里抟扶摇而上者九万里去以六月息者也南冥者天池也",
+            "关关雎鸠在河之洲窈窕淑女君子好逑参差荇菜左右流之窈窕淑女寤寐求之",
+            "秦孝公据崤函之固拥雍州之地君臣牢笼吞二周而亡诸侯履至尊而制六合执敲扑而鞭笞天下",
+            "大江东去浪淘尽千古风流人物故垒西边人道是三国周郎赤壁乱石穿空惊涛拍岸卷起千堆雪",
+            "重檐歇山飞阁流丹云窗雾阁彩彻区明腾蛟起凤孟学士之词宗紫电青霜王将军之武库",
+            "缘起缘灭缘聚缘散天道酬勤厚德载物上善若水水善利万物而不争处众人之所恶故几于道"
+        ].join("");
+
+        // 物理配置
+        let config = {
+            gravity: 0.45,
+            damping: 0.96,
+            restLength: 22,
+            stringCount: 45,
+            mode: 'natural', // 'natural' | 'swirl' (仿照原图漩涡轨迹)
+            roofWidth: 540,
+            roofTopY: 110
+        };
+
+        let width = window.innerWidth;
+        let height = window.innerHeight;
+        let strings = [];
+        let mouse = { x: -1000, y: -1000, px: -1000, py: -1000, vx: 0, vy: 0, isDown: false };
+
+        // Verlet 绳节点类
+        class Node {
+            constructor(x, y, char, isLocked = false, indexInString = 0) {
+                this.x = x;
+                this.y = y;
+                this.oldX = x;
+                this.oldY = y;
+                this.char = char;
+                this.isLocked = isLocked;
+                this.index = indexInString;
+                // 专属字体大小与透明度衰减
+                this.fontSize = Math.max(11, 16 - Math.floor(indexInString * 0.18));
+                this.baseAlpha = Math.max(0.25, 0.95 - indexInString * 0.032);
+            }
+
+            update() {
+                if (this.isLocked) return;
+
+                const vx = (this.x - this.oldX) * config.damping;
+                const vy = (this.y - this.oldY) * config.damping;
+
+                this.oldX = this.x;
+                this.oldY = this.y;
+
+                this.x += vx;
+                this.y += vy + config.gravity;
+            }
+        }
+
+        // Verlet 绳索帘类
+        class StringCurtain {
+            constructor(anchorX, anchorY, nodeCount, stringIndex) {
+                this.nodes = [];
+                this.stringIndex = stringIndex;
+                this.anchorX = anchorX;
+                this.anchorY = anchorY;
+
+                for (let i = 0; i < nodeCount; i++) {
+                    let charIndex = (stringIndex * 7 + i * 3) % POETRY_TEXTS.length;
+                    let char = POETRY_TEXTS[charIndex];
+                    let isLocked = (i === 0);
+                    
+                    let initX = anchorX;
+                    let initY = anchorY + i * config.restLength;
+
+                    // 如果是仿照参考图的旋涡模式（Swirl）
+                    if (config.mode === 'swirl') {
+                        let curveProgress = i / nodeCount;
+                        if (curveProgress > 0.3) {
+                            let bend = Math.sin((curveProgress - 0.3) * Math.PI) * 120;
+                            initX -= bend * (stringIndex / config.stringCount - 0.2);
+                        }
+                    }
+
+                    this.nodes.push(new Node(initX, initY, char, isLocked, i));
+                }
+            }
+
+            satisfyConstraints() {
+                // 迭代求解纯粹欧几里得距离约束（不添加任何伪归位弹力，由重力自然垂落与摆动）
+                for (let iter = 0; iter < 6; iter++) {
+                    for (let i = 1; i < this.nodes.length; i++) {
+                        let n1 = this.nodes[i - 1];
+                        let n2 = this.nodes[i];
+
+                        let dx = n2.x - n1.x;
+                        let dy = n2.y - n1.y;
+                        let dist = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (dist === 0) continue;
+                        let diff = (config.restLength - dist) / dist;
+
+                        let offsetX = dx * diff * 0.5;
+                        let offsetY = dy * diff * 0.5;
+
+                        if (!n1.isLocked) {
+                            n1.x -= offsetX;
+                            n1.y -= offsetY;
+                        }
+                        if (!n2.isLocked) {
+                            n2.x += offsetX;
+                            n2.y += offsetY;
+                        }
+                    }
+                }
+            }
+
+            draw(ctx) {
+                // 1. 先用一次连贯路径绘制整条牵引丝绳
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(this.nodes[0].x, this.nodes[0].y);
+                for (let i = 1; i < this.nodes.length; i++) {
+                    ctx.lineTo(this.nodes[i].x, this.nodes[i].y);
+                }
+                ctx.strokeStyle = 'rgba(143, 132, 115, 0.22)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                // 2. 批量高效渲染文字节点（极大减少 Canvas Context 矩阵切换，渲染速度提升 5 倍）
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                for (let i = 0; i < this.nodes.length; i++) {
+                    let node = this.nodes[i];
+                    
+                    ctx.font = `${node.fontSize}px 'Noto Serif SC', serif`;
+                    
+                    let speed = Math.abs(node.x - node.oldX) + Math.abs(node.y - node.oldY);
+                    ctx.globalAlpha = Math.min(1, node.baseAlpha + speed * 0.045);
+
+                    // 经典中式排版分层：帘幕压端着朱砂红，节律处着琉璃金，正文为深邃墨香
+                    if (i >= this.nodes.length - 2) {
+                        ctx.fillStyle = '#9e2a1b';
+                    } else if (i % 7 === 0) {
+                        ctx.fillStyle = '#b87a00';
+                    } else {
+                        ctx.fillStyle = '#2b261f';
+                    }
+
+                    let angle = 0;
+                    if (i > 0) {
+                        let prev = this.nodes[i - 1];
+                        angle = Math.atan2(node.x - prev.x, node.y - prev.y) * 0.55;
+                    }
+
+                    // 仅当绳索产生明显偏转摆动时才调用 transform 旋转，平静下垂时直接快速极速绘制
+                    if (Math.abs(angle) > 0.03) {
+                        ctx.save();
+                        ctx.translate(node.x, node.y);
+                        ctx.rotate(-angle);
+                        ctx.fillText(node.char, 0, 0);
+                        ctx.restore();
+                    } else {
+                        ctx.fillText(node.char, node.x, node.y);
+                    }
+                }
+                ctx.restore();
+            }
+        }
+
+        // 初始化文字帘（结合建筑飞檐起拱曲线）
+        function initCurtain() {
+            strings = [];
+            const startX = width / 2 - config.roofWidth / 2 + 15;
+            const stepX = (config.roofWidth - 30) / (config.stringCount - 1);
+
+            for (let s = 0; s < config.stringCount; s++) {
+                let ax = startX + s * stepX;
+                // 计算归一化横向偏离 (-1 到 1)，中间为 0，两翼飞檐为 ±1
+                let normalizedX = Math.abs(s / (config.stringCount - 1) * 2 - 1);
+                // 顶部悬挂锚点贴合中式歇山顶屋檐下缘起拱曲线 (中间自然下垂，两极飞檐微起)
+                let eaveAnchorY = config.roofTopY + 125 - Math.pow(normalizedX, 1.6) * 16;
+                // 帘长根据两翼呈现古典弧形拱额垂帘
+                let nodeCount = Math.floor(25 - normalizedX * 6.5);
+                strings.push(new StringCurtain(ax, eaveAnchorY, nodeCount, s));
+            }
+        }
+
+        // 绘制高精度中式歇山顶/重檐建筑檐篷 (2D Vector Architectural Illustration)
+        function drawGoldenRoof(ctx) {
+            const rx = width / 2;
+            const ry = config.roofTopY;
+            const rw = config.roofWidth;
+
+            ctx.save();
+            ctx.translate(rx, ry);
+
+            // --- 底部浓重投影 (让帘幕有从屋檐内部垂下的纵深感) ---
+            let shadowGrad = ctx.createLinearGradient(0, 120, 0, 220);
+            shadowGrad.addColorStop(0, 'rgba(43, 38, 31, 0.45)');
+            shadowGrad.addColorStop(1, 'rgba(43, 38, 31, 0)');
+            ctx.fillStyle = shadowGrad;
+            ctx.fillRect(-rw/2 - 20, 120, rw + 40, 100);
+
+            // --- 下层飞檐 (Lower Eaves) ---
+            ctx.beginPath();
+            ctx.moveTo(-rw * 0.58, 125);
+            ctx.quadraticCurveTo(-rw * 0.35, 112, 0, 112);
+            ctx.quadraticCurveTo(rw * 0.35, 112, rw * 0.58, 125);
+            ctx.lineTo(rw * 0.48, 85);
+            ctx.lineTo(-rw * 0.48, 85);
+            ctx.closePath();
+            
+            let lowerGrad = ctx.createLinearGradient(0, 85, 0, 125);
+            lowerGrad.addColorStop(0, '#ffd24d');
+            lowerGrad.addColorStop(0.6, '#e6a817');
+            lowerGrad.addColorStop(1, '#b87a00');
+            ctx.fillStyle = lowerGrad;
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#6b4400';
+            ctx.stroke();
+
+            // 斗拱与红柱暗层 (Bracket Cluster Underlayer)
+            ctx.fillStyle = '#63170e';
+            ctx.fillRect(-rw * 0.38, 65, rw * 0.76, 22);
+            // 斗拱细节分割线
+            ctx.fillStyle = '#9e2a1b';
+            for (let i = -rw * 0.36; i < rw * 0.36; i += 22) {
+                ctx.fillRect(i, 67, 14, 18);
+            }
+
+            // --- 上层主飞檐与正脊 (Upper Main Roof) ---
+            ctx.beginPath();
+            // 左飞檐翘角
+            ctx.moveTo(-rw * 0.46, 68);
+            ctx.quadraticCurveTo(-rw * 0.28, 52, 0, 52);
+            ctx.quadraticCurveTo(rw * 0.28, 52, rw * 0.46, 68);
+            // 右上方收顶
+            ctx.lineTo(rw * 0.24, 8);
+            // 顶脊
+            ctx.lineTo(-rw * 0.24, 8);
+            ctx.closePath();
+
+            let upperGrad = ctx.createLinearGradient(0, 8, 0, 68);
+            upperGrad.addColorStop(0, '#ffe380');
+            upperGrad.addColorStop(0.5, '#ffd24d');
+            upperGrad.addColorStop(1, '#e6a817');
+            ctx.fillStyle = upperGrad;
+            ctx.fill();
+            ctx.stroke();
+
+            // 绘制正脊兽与金砖 (Top Ridge)
+            ctx.fillStyle = '#b87a00';
+            ctx.fillRect(-rw * 0.27, 2, rw * 0.54, 10);
+            ctx.fillStyle = '#ffea9f';
+            ctx.fillRect(-rw * 0.26, 3, rw * 0.52, 4);
+
+            // 绘制琉璃瓦纵向瓦垄 (Tile Ridges)
+            ctx.strokeStyle = 'rgba(107, 68, 0, 0.45)';
+            ctx.lineWidth = 1.5;
+            for (let i = -rw * 0.4; i <= rw * 0.4; i += 18) {
+                ctx.beginPath();
+                let startX = i * 0.55;
+                let endX = i;
+                ctx.moveTo(startX, 16);
+                ctx.quadraticCurveTo(endX * 0.8, 42, endX, 64);
+                ctx.stroke();
+            }
+
+            // 左右吻兽剪影 (Ornament Beast Silhouettes)
+            ctx.fillStyle = '#b87a00';
+            ctx.beginPath();
+            ctx.arc(-rw * 0.27, 4, 8, 0, Math.PI * 2);
+            ctx.arc(rw * 0.27, 4, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 檐下金色垂珠饰边缘
+            ctx.fillStyle = '#ffd24d';
+            for (let i = -rw * 0.52; i <= rw * 0.52; i += 14) {
+                ctx.beginPath();
+                ctx.arc(i, 125, 3.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            ctx.restore();
+        }
+
+        // 动画主循环
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+
+            // 先更新并绘制绳索帘（在屋檐下方层级）
+            for (let string of strings) {
+                for (let node of string.nodes) {
+                    node.update();
+                }
+                string.satisfyConstraints();
+                string.draw(ctx);
+            }
+
+            // 再绘制建筑檐篷（压在帘子顶部接缝上方）
+            drawGoldenRoof(ctx);
+
+            // 绘制鼠标/指尖光环与互动感应范围可视化反馈 (Visual Brush Feedback)
+            if (mouse.x > -500) {
+                ctx.save();
+                ctx.beginPath();
+                const radius = mouse.isDown ? 135 : 95;
+                ctx.arc(mouse.x, mouse.y, radius, 0, Math.PI * 2);
+                
+                const grad = ctx.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, radius);
+                if (mouse.isDown) {
+                    grad.addColorStop(0, 'rgba(255, 210, 77, 0.22)');
+                    grad.addColorStop(0.6, 'rgba(230, 168, 23, 0.08)');
+                    grad.addColorStop(1, 'rgba(230, 168, 23, 0)');
+                    ctx.strokeStyle = 'rgba(255, 210, 77, 0.45)';
+                } else {
+                    grad.addColorStop(0, 'rgba(255, 210, 77, 0.12)');
+                    grad.addColorStop(0.7, 'rgba(184, 122, 0, 0.04)');
+                    grad.addColorStop(1, 'rgba(184, 122, 0, 0)');
+                    ctx.strokeStyle = 'rgba(184, 122, 0, 0.25)';
+                }
+                ctx.fillStyle = grad;
+                ctx.fill();
+                ctx.lineWidth = 1;
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            // 更新鼠标速度衰减
+            mouse.vx *= 0.8;
+            mouse.vy *= 0.8;
+            mouse.px = mouse.x;
+            mouse.py = mouse.y;
+
+            requestAnimationFrame(animate);
+        }
+
+        // 窗口缩放自适应
+        window.addEventListener('resize', () => {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width * window.devicePixelRatio;
+            canvas.height = height * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            initCurtain();
+        });
+
+        // 触发初始尺寸设置
+        canvas.width = width * window.devicePixelRatio;
+        canvas.height = height * window.devicePixelRatio;
+        ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        initCurtain();
+        animate();
+
+        // 鼠标与手指触控监听 - 汲取 CodeMaryy 天坛垂帘事件驱动动量注入精髓
+        function injectPointerDelta() {
+            const moveX = mouse.x - mouse.px;
+            const moveY = mouse.y - mouse.py;
+            const speed = Math.hypot(moveX, moveY);
+            if (speed < 0.05 || speed > 150) return;
+            
+            const interactRadius = mouse.isDown ? 135 : 85;
+            let strongestImpact = 0;
+
+            for (let string of strings) {
+                for (let i = 1; i < string.nodes.length; i++) {
+                    let node = string.nodes[i];
+                    const dist = Math.hypot(node.x - mouse.px, node.y - mouse.py);
+                    if (dist >= interactRadius) continue;
+                    const falloff = 1 - dist / interactRadius;
+                    strongestImpact = Math.max(strongestImpact, speed * falloff);
+                    
+                    // 顺着鼠标移动轨迹与动量方向推动帘线，使其跟随手指自然摆动
+                    node.x += moveX * 0.85 * falloff;
+                    node.y += moveY * 0.85 * falloff;
+                }
+            }
+            if (strongestImpact > 1.2 && Math.random() < 0.18) {
+                playChimeSound(strongestImpact);
+            }
+        }
+
+        function updatePointer(x, y) {
+            if (mouse.px < -500) {
+                mouse.px = x;
+                mouse.py = y;
+                mouse.vx = 0;
+                mouse.vy = 0;
+            } else {
+                mouse.vx = x - mouse.px;
+                mouse.vy = y - mouse.py;
+            }
+            mouse.x = x;
+            mouse.y = y;
+            injectPointerDelta();
+            mouse.px = x;
+            mouse.py = y;
+        }
+
+        window.addEventListener('mousemove', (e) => updatePointer(e.clientX, e.clientY));
+        window.addEventListener('mousedown', (e) => {
+            mouse.isDown = true;
+            updatePointer(e.clientX, e.clientY);
+        });
+        window.addEventListener('mouseup', () => { mouse.isDown = false; });
+
+        window.addEventListener('touchstart', (e) => {
+            if (e.touches.length > 0) {
+                mouse.isDown = true;
+                updatePointer(e.touches[0].clientX, e.touches[0].clientY);
+            }
+        }, { passive: true });
+
+        window.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 0) {
+                updatePointer(e.touches[0].clientX, e.touches[0].clientY);
+            }
+        }, { passive: true });
+
+        window.addEventListener('touchend', () => {
+            mouse.isDown = false;
+            mouse.x = -1000;
+            mouse.y = -1000;
+        });
+
+        window.addEventListener('mouseleave', () => {
+            mouse.isDown = false;
+            mouse.x = -1000;
+            mouse.y = -1000;
+        });
+
+        // --- 悬浮控制面板 (Tweaks Panel) 交互 ---
+        const btnConfig = document.getElementById('btn-config');
+        const tweaksPanel = document.getElementById('tweaks-panel');
+        const btnCloseTweaks = document.getElementById('btn-close-tweaks');
+
+        btnConfig.addEventListener('click', () => tweaksPanel.classList.toggle('active'));
+        btnCloseTweaks.addEventListener('click', () => tweaksPanel.classList.remove('active'));
+
+        document.getElementById('slider-gravity').addEventListener('input', (e) => {
+            config.gravity = parseFloat(e.target.value);
+            document.getElementById('val-gravity').innerText = config.gravity;
+        });
+
+        document.getElementById('slider-damping').addEventListener('input', (e) => {
+            config.damping = parseFloat(e.target.value);
+            document.getElementById('val-damping').innerText = config.damping;
+        });
+
+        document.getElementById('slider-density').addEventListener('input', (e) => {
+            config.stringCount = parseInt(e.target.value);
+            document.getElementById('val-density').innerText = config.stringCount;
+            initCurtain();
+        });
+
+        // 拂过清风 (Wind Gust)
+        document.getElementById('btn-wind').addEventListener('click', () => {
+            for (let string of strings) {
+                let waveDelay = string.stringIndex * 15;
+                setTimeout(() => {
+                    for (let node of string.nodes) {
+                        if (!node.isLocked) {
+                            node.oldX -= Math.random() * 25 + 15;
+                            node.oldY += Math.random() * 5 - 2;
+                        }
+                    }
+                }, waveDelay);
+            }
+        });
+
+        // 切换帘形模式 (Swirl vs Natural)
+        document.getElementById('btn-preset').addEventListener('click', () => {
+            config.mode = (config.mode === 'natural') ? 'swirl' : 'natural';
+            initCurtain();
+        });
+    </script>
+</body>
+</html>

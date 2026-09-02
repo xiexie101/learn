@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>CloudRoam Active - 云游·不老松</title>
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- MediaPipe Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <!-- Container -->
+    <div id="game-container">
+        <!-- Input Video (Hidden or Debug) -->
+        <video class="input_video" style="display: none;"></video>
+
+        <!-- Game Canvas -->
+        <canvas class="output_canvas"></canvas>
+
+        <!-- UI Overlay -->
+        <div id="ui-layer">
+            <div id="score-board">分数: <span id="score">0</span></div>
+            <div id="debug-info">初始化中...</div>
+
+            <div id="start-screen" class="active">
+                <h1>云游·不老松</h1>
+                <p>请站在距离屏幕 1.5 米处</p>
+                <button id="start-btn">开始旅程</button>
+            </div>
+
+            <div id="game-over-screen">
+                <h2>今日旅程结束</h2>
+                <p>最终得分: <span id="final-score">0</span></p>
+                <button id="restart-btn">再次出发</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Scripts -->
+    <script type="module" src="js/main.js"></script>
+</body>
+
+</html>
