@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cursor & Hand Tracking Video Player · 隔空激光逗猫插帧播放器</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- MediaPipe Dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+  <style>
+    :root {
+      --bg: #090a0f;
+      --card-bg: rgba(18, 20, 29, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent-cyan: #06b6d4;
+      --accent-indigo: #6366f1;
+      --accent-red: #ff1144;
+      --accent-glow: rgba(6, 182, 212, 0.35);
+      --text-main: #f3f4f6;
+      --text-muted: #94a3b8;
+      --font-ui: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: var(--font-ui);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+      padding: 24px;
+      position: relative;
+    }
+
+    /* Ambient Glow */
+    .ambient-glow {
+      position: fixed;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 17, 68, 0.12) 0%, rgba(6, 182, 212, 0.08) 40%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 0;
+      filter: blur(80px);
+    }
+
+    /* Header */
+    header {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .title-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 4px 12px;
+      border-radius: 100px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--accent-red);
+      margin-bottom: 8px;
+    }
+
+    .title-badge .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-red);
+      box-shadow: 0 0 8px var(--accent-red);
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #ffffff 40%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* Main Stage */
+    .stage {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 960px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Viewport Frame */
+    .viewport-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #ffffff;
+      border-radius: 14px;
+      overflow: hidden;
+      cursor: none; /* custom laser pointer handles cursor */
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    canvas#screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    video#nativeVideo {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+      object-fit: cover;
+    }
+
+    /* Top HUD Overlays */
+    .hud-top {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      right: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+      z-index: 20;
+    }
+
+    .hud-chip {
+      background: rgba(10, 12, 18, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(12px);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .hud-chip .val {
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .hud-chip .tag {
+      color: var(--accent-cyan);
+    }
+
+    .hud-speed {
+      font-weight: 700;
+      color: #10b981;
+    }
+
+    .hud-speed.backward {
+      color: #f59e0b;
+    }
+
+    /* Camera PIP Window (Right Bottom) */
+    .camera-pip {
+      position: absolute;
+      bottom: 14px;
+      right: 14px;
+      width: 160px;
+      aspect-ratio: 4 / 3;
+      background: rgba(15, 17, 26, 0.9);
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+      z-index: 25;
+      display: none;
+      flex-direction: column;
+    }
+
+    .camera-pip.active {
+      display: flex;
+    }
+
+    .camera-video-wrap {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    video#cameraFeed {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1); /* mirror */
+    }
+
+    canvas#cameraOverlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      transform: scaleX(-1);
+    }
+
+    .camera-status {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 9px;
+      font-family: var(--font-mono);
+      color: #10b981;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .camera-status .status-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 6px #10b981;
+    }
+
+    /* Scrubber Track Bar */
+    .timeline-bar {
+      position: relative;
+      height: 36px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+    }
+
+    .timeline-rail {
+      position: relative;
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 100px;
+      overflow: visible;
+    }
+
+    .timeline-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-red), var(--accent-cyan));
+      border-radius: 100px;
+      width: 0%;
+      box-shadow: 0 0 12px rgba(255, 17, 68, 0.4);
+    }
+
+    .timeline-thumb {
+      position: absolute;
+      top: 50%;
+      left: 0%;
+      width: 16px;
+      height: 16px;
+      background: #ffffff;
+      border: 3px solid var(--accent-red);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 12px rgba(255, 17, 68, 0.8);
+      pointer-events: none;
+      transition: transform 0.1s ease;
+    }
+
+    /* Controls Bar */
+    .controls-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 4px 4px 0 4px;
+    }
+
+    .action-group {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .cam-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 17, 68, 0.15);
+      border: 1px solid rgba(255, 17, 68, 0.35);
+      color: #ff3366;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 7px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .cam-btn:hover {
+      background: rgba(255, 17, 68, 0.25);
+      border-color: #ff3366;
+      transform: translateY(-1px);
+    }
+
+    .cam-btn.active {
+      background: var(--accent-red);
+      color: #ffffff;
+      border-color: var(--accent-red);
+      box-shadow: 0 0 16px rgba(255, 17, 68, 0.6);
+    }
+
+    .mode-tabs {
+      display: flex;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 3px;
+      gap: 3px;
+    }
+
+    .mode-tab {
+      padding: 6px 12px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .mode-tab:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .mode-tab.active {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Floating Tweaks Panel */
+    .tweaks-trigger {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 100;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(20px);
+      padding: 10px 18px;
+      border-radius: 100px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      transition: all 0.2s;
+      color: #fff;
+    }
+
+    .tweaks-trigger:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .tweaks-panel {
+      position: fixed;
+      bottom: 74px;
+      right: 24px;
+      width: 320px;
+      background: rgba(15, 17, 26, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      backdrop-filter: blur(24px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      padding: 18px;
+      z-index: 100;
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .tweaks-panel.open {
+      display: flex;
+    }
+
+    .tweaks-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .tweaks-title {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .tweaks-close {
+      cursor: pointer;
+      font-size: 16px;
+      color: var(--text-muted);
+    }
+
+    .tweak-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .tweak-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .tweak-label .curr {
+      color: var(--accent-red);
+      font-family: var(--font-mono);
+    }
+
+    .tweak-slider {
+      width: 100%;
+      accent-color: var(--accent-red);
+      cursor: pointer;
+    }
+
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 22px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider-switch {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(255, 255, 255, 0.15);
+      border-radius: 34px;
+      transition: .3s;
+    }
+
+    .slider-switch:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      border-radius: 50%;
+      transition: .3s;
+    }
+
+    input:checked + .slider-switch {
+      background-color: var(--accent-red);
+    }
+
+    input:checked + .slider-switch:before {
+      transform: translateX(18px);
+    }
+
+    /* Preloader */
+    .loader-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(9, 10, 15, 0.95);
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      border-radius: 14px;
+      transition: opacity 0.4s ease;
+    }
+
+    .loader-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      border-top-color: var(--accent-red);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loader-text {
+      font-size: 13px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+    }
+
+    .loader-bar {
+      width: 220px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .loader-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--accent-red);
+      transition: width 0.1s;
+    }
+
+    /* Help text */
+    .tips-card {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    .tips-card kbd {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-family: var(--font-mono);
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient-glow"></div>
+
+  <header>
+    <div class="title-badge">
+      <span class="dot"></span>
+      Laser Teaser & Hand Tracking Mode
+    </div>
+    <h1>光标 & 隔空手部追踪激光逗猫播放器</h1>
+    <p class="subtitle">参考实拍逗猫交互：红色激光笔光芒与拖尾跟随手指 · 亚帧像素级平滑插帧</p>
+  </header>
+
+  <div class="stage">
+    <!-- Viewport Area -->
+    <div class="viewport-wrap" id="viewport">
+      <!-- Loading Screen -->
+      <div class="loader-overlay" id="loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text" id="loaderText">正在载入 240 帧超清序列... 0%</div>
+        <div class="loader-bar"><div class="loader-bar-fill" id="loaderBar"></div></div>
+      </div>
+
+      <!-- Canvas for sub-frame crossfade & laser rendering -->
+      <canvas id="screen"></canvas>
+
+      <!-- Native video tag (hidden, used as backup) -->
+      <video id="nativeVideo" src="./video.mp4" muted playsinline preload="auto"></video>
+
+      <!-- Camera Picture-in-Picture (Right Bottom) -->
+      <div class="camera-pip" id="cameraPip">
+        <div class="camera-video-wrap">
+          <video id="cameraFeed" playsinline muted></video>
+          <canvas id="cameraOverlay"></canvas>
+          <div class="camera-status">
+            <span class="status-dot"></span>
+            <span id="camStatusText">食指追踪中</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- HUD Overlays -->
+      <div class="hud-top">
+        <div class="hud-chip">
+          <span class="tag">FRAME</span>
+          <span class="val" id="hudFrame">0.00 / 240</span>
+          <span style="color:rgba(255,255,255,0.2)">|</span>
+          <span class="tag">TIME</span>
+          <span class="val" id="hudTime">00:00.00</span>
+        </div>
+
+        <div class="hud-chip">
+          <span class="tag">INPUT</span>
+          <span class="val" id="hudInput" style="color:var(--accent-red)">🖱️ 光标模式</span>
+          <span style="color:rgba(255,255,255,0.2)">|</span>
+          <span class="tag">SPEED</span>
+          <span class="val hud-speed" id="hudSpeed">0.0x</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline Scrubber -->
+    <div class="timeline-bar" id="timelineBar">
+      <div class="timeline-rail">
+        <div class="timeline-fill" id="timelineFill"></div>
+        <div class="timeline-thumb" id="timelineThumb"></div>
+      </div>
+    </div>
+
+    <!-- Controls Bar -->
+    <div class="controls-bar">
+      <div class="action-group">
+        <button class="cam-btn" id="camToggleBtn">
+          <span>📷 开启手势隔空逗猫 (MediaPipe)</span>
+        </button>
+      </div>
+
+      <div class="mode-tabs">
+        <div class="mode-tab active" data-mode="lock">
+          <span>🎯 视线咬合锁定 (猫追红点)</span>
+        </div>
+        <div class="mode-tab" data-mode="chase">
+          <span>🏃 动态引逗狂奔</span>
+        </div>
+        <div class="mode-tab" data-mode="horizontal">
+          <span>⇄ 水平左右滑动</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tips-card">
+      🔴 <strong>激光逗猫玩法</strong>：开启摄像头后伸出<strong>食指 ☝️</strong>在空中画圈，红光激光笔与拖尾会跟随指尖游走，猫咪将随着你的画圈旋转追逐红点！
+    </div>
+  </div>
+
+  <!-- Floating Tweaks Button & Panel -->
+  <div class="tweaks-trigger" id="tweaksBtn">
+    <span>⚙️ 调优与特效 (Tweaks)</span>
+  </div>
+
+  <div class="tweaks-panel" id="tweaksPanel">
+    <div class="tweaks-header">
+      <span class="tweaks-title">交互参数调整 (Tweaks)</span>
+      <span class="tweaks-close" id="tweaksClose">✕</span>
+    </div>
+
+    <div class="toggle-row">
+      <span>红色激光笔与光芒拖尾</span>
+      <label class="switch">
+        <input type="checkbox" id="tweakLaser" checked>
+        <span class="slider-switch"></span>
+      </label>
+    </div>
+
+    <div class="toggle-row">
+      <span>亚帧像素插值 (Sub-Frame Blend)</span>
+      <label class="switch">
+        <input type="checkbox" id="tweakInterpolate" checked>
+        <span class="slider-switch"></span>
+      </label>
+    </div>
+
+    <div class="tweak-item">
+      <div class="tweak-label">
+        <span>光标物理惯性 (Damping / Smoothing)</span>
+        <span class="curr" id="dampingVal">0.14 (丝滑)</span>
+      </div>
+      <input type="range" class="tweak-slider" id="tweakDamping" min="0.02" max="1.0" step="0.02" value="0.14">
+    </div>
+
+    <div class="tweak-item">
+      <div class="tweak-label">
+        <span>激光拖尾长度</span>
+        <span class="curr" id="trailLenVal">18 点</span>
+      </div>
+      <input type="range" class="tweak-slider" id="tweakTrailLen" min="5" max="40" step="1" value="18">
+    </div>
+
+    <div class="tweak-item">
+      <div class="tweak-label">
+        <span>追随朝向微调 (Lead Angle)</span>
+        <span class="curr" id="leadAngleVal">0° (精准正对)</span>
+      </div>
+      <input type="range" class="tweak-slider" id="tweakLeadAngle" min="-60" max="60" step="5" value="0">
+    </div>
+
+    <div class="toggle-row">
+      <span>显示画中画摄像头 (PIP)</span>
+      <label class="switch">
+        <input type="checkbox" id="tweakShowPip" checked>
+        <span class="slider-switch"></span>
+      </label>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const TOTAL_FRAMES = 240;
+      const DURATION = 10.0;
+
+      // DOM Elements
+      const viewport = document.getElementById('viewport');
+      const canvas = document.getElementById('screen');
+      const ctx = canvas.getContext('2d', { alpha: false });
+      const loader = document.getElementById('loader');
+      const loaderText = document.getElementById('loaderText');
+      const loaderBar = document.getElementById('loaderBar');
+
+      const hudFrame = document.getElementById('hudFrame');
+      const hudTime = document.getElementById('hudTime');
+      const hudSpeed = document.getElementById('hudSpeed');
+      const hudInput = document.getElementById('hudInput');
+
+      const timelineBar = document.getElementById('timelineBar');
+      const timelineFill = document.getElementById('timelineFill');
+      const timelineThumb = document.getElementById('timelineThumb');
+      const camToggleBtn = document.getElementById('camToggleBtn');
+      const cameraPip = document.getElementById('cameraPip');
+      const cameraFeed = document.getElementById('cameraFeed');
+      const cameraOverlay = document.getElementById('cameraOverlay');
+      const camStatusText = document.getElementById('camStatusText');
+
+      const modeTabs = document.querySelectorAll('.mode-tab');
+      const tweaksBtn = document.getElementById('tweaksBtn');
+      const tweaksPanel = document.getElementById('tweaksPanel');
+      const tweaksClose = document.getElementById('tweaksClose');
+      const tweakInterpolate = document.getElementById('tweakInterpolate');
+      const tweakLaser = document.getElementById('tweakLaser');
+      const tweakDamping = document.getElementById('tweakDamping');
+      const dampingVal = document.getElementById('dampingVal');
+      const tweakTrailLen = document.getElementById('tweakTrailLen');
+      const trailLenVal = document.getElementById('trailLenVal');
+      const tweakShowPip = document.getElementById('tweakShowPip');
+
+      // State
+      let currentProgress = 0.5;   // smoothed playhead
+      let targetProgress = 0.5;
+      let currentPhase = 0.5;      // 0.0 ~ 1.0 (phase in the 120-frame full turn circle)
+      let targetPhase = 0.5;
+      let damping = 0.16;
+      let activeMode = 'lock';     // 'lock' (猫追红点) | 'chase' (引逗狂奔) | 'horizontal'
+      let useInterpolation = true;
+      let showLaser = true;
+      let maxTrailLen = 18;
+      let showPip = true;
+      let leadAngleDeg = 0;        // 逗猫超前角微调 (-45 ~ +45)
+
+      // Laser Pointer & Trail State
+      let laserPos = { x: 0, y: 0, active: false };
+      let targetLaserPos = { x: 0, y: 0 };
+      const laserTrail = []; // [{x, y, alpha}]
+
+      let lastTime = performance.now();
+      let lastProgress = 0.0;
+      let currentSpeed = 0.0;
+
+      // MediaPipe & Camera State
+      let isCameraActive = false;
+      let cameraInstance = null;
+      let mpHands = null;
+      let isTrackingHand = false;
+
+      // Frames sequence
+      const frames = new Array(TOTAL_FRAMES);
+      let loadedCount = 0;
+
+      function resizeCanvas() {
+        const rect = viewport.getBoundingClientRect();
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        if (!laserPos.active) {
+          laserPos.x = canvas.width * 0.75;
+          laserPos.y = canvas.height * 0.5;
+          targetLaserPos.x = laserPos.x;
+          targetLaserPos.y = laserPos.y;
+        }
+      }
+      window.addEventListener('resize', resizeCanvas);
+
+      // Preload frames
+      function preloadFrames() {
+        for (let i = 1; i <= TOTAL_FRAMES; i++) {
+          const img = new Image();
+          const frameIndex = i - 1;
+          img.src = `./frames/frame_${String(i).padStart(4, '0')}.jpg`;
+          img.onload = () => {
+            frames[frameIndex] = img;
+            loadedCount++;
+            const pct = Math.round((loadedCount / TOTAL_FRAMES) * 100);
+            loaderBar.style.width = pct + '%';
+            loaderText.innerText = `正在载入 240 帧超清序列... ${pct}% (${loadedCount}/${TOTAL_FRAMES})`;
+            if (loadedCount === TOTAL_FRAMES) {
+              setTimeout(() => {
+                loader.style.opacity = '0';
+                setTimeout(() => loader.style.display = 'none', 400);
+                resizeCanvas();
+                renderDualFrame(120, 120, 0.0);
+              }, 150);
+            }
+          };
+        }
+      }
+
+      // Draw Laser Pointer & Light Streak
+      function drawLaserPointer() {
+        if (!showLaser || !laserPos.active) return;
+
+        // Smooth laser position towards target
+        laserPos.x += (targetLaserPos.x - laserPos.x) * 0.5;
+        laserPos.y += (targetLaserPos.y - laserPos.y) * 0.5;
+
+        // Update trail
+        laserTrail.push({ x: laserPos.x, y: laserPos.y });
+        while (laserTrail.length > maxTrailLen) {
+          laserTrail.shift();
+        }
+
+        // 1. Draw glowing light trail (streak)
+        if (laserTrail.length > 2) {
+          ctx.save();
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          for (let i = 1; i < laserTrail.length; i++) {
+            const p1 = laserTrail[i - 1];
+            const p2 = laserTrail[i];
+            const ratio = i / laserTrail.length; // 0.0 ~ 1.0
+
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = `rgba(255, 20, 60, ${ratio * 0.8})`;
+            ctx.lineWidth = 3.5 * ratio * (canvas.width / 960);
+            ctx.shadowColor = '#ff0033';
+            ctx.shadowBlur = 10 * ratio;
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+
+        // 2. Draw glowing laser dot
+        const lx = laserPos.x;
+        const ly = laserPos.y;
+        const scale = canvas.width / 960;
+
+        ctx.save();
+        // Outer halo glow
+        const outerGrad = ctx.createRadialGradient(lx, ly, 0, lx, ly, 26 * scale);
+        outerGrad.addColorStop(0, 'rgba(255, 20, 60, 0.95)');
+        outerGrad.addColorStop(0.3, 'rgba(255, 0, 50, 0.6)');
+        outerGrad.addColorStop(0.7, 'rgba(255, 0, 40, 0.15)');
+        outerGrad.addColorStop(1, 'rgba(255, 0, 0, 0)');
+        ctx.fillStyle = outerGrad;
+        ctx.beginPath();
+        ctx.arc(lx, ly, 26 * scale, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Mid vibrant core
+        ctx.fillStyle = '#ff1144';
+        ctx.shadowColor = '#ff0033';
+        ctx.shadowBlur = 16 * scale;
+        ctx.beginPath();
+        ctx.arc(lx, ly, 6.5 * scale, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Center white hot dot
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowBlur = 6 * scale;
+        ctx.shadowColor = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(lx, ly, 2.5 * scale, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // Render Dual Frame (with Sub-Frame Interpolation)
+      function renderDualFrame(f1, f2, blendAlpha) {
+        if (loadedCount < TOTAL_FRAMES) return;
+
+        f1 = Math.max(0, Math.min(TOTAL_FRAMES - 1, f1));
+        f2 = Math.max(0, Math.min(TOTAL_FRAMES - 1, f2));
+
+        const floatFrame = f1 + blendAlpha;
+        const prog = floatFrame / (TOTAL_FRAMES - 1);
+
+        // Update Timeline UI
+        const pct = (prog * 100).toFixed(2) + '%';
+        timelineFill.style.width = pct;
+        timelineThumb.style.left = pct;
+
+        const timeSec = prog * DURATION;
+        const mins = Math.floor(timeSec / 60);
+        const secs = (timeSec % 60).toFixed(2);
+        hudFrame.innerText = `${floatFrame.toFixed(1)} / ${TOTAL_FRAMES}`;
+        hudTime.innerText = `${String(mins).padStart(2, '0')}:${String(secs).padStart(5, '0')}`;
+
+        const img1 = frames[f1];
+        const img2 = frames[f2];
+
+        if (img1 && img1.complete) {
+          ctx.globalAlpha = 1.0;
+          ctx.drawImage(img1, 0, 0, canvas.width, canvas.height);
+
+          if (useInterpolation && blendAlpha > 0.005 && img2 && img2.complete) {
+            ctx.globalAlpha = blendAlpha;
+            ctx.drawImage(img2, 0, 0, canvas.width, canvas.height);
+            ctx.globalAlpha = 1.0;
+          }
+        }
+
+        // Draw Laser Pointer with trail on top of the cat video
+        drawLaserPointer();
+      }
+
+      // Physics & Main Loop
+      function tick(now) {
+        const dt = Math.min((now - lastTime) / 1000, 0.1);
+        lastTime = now;
+
+        let f1 = 120, f2 = 120, blendAlpha = 0.0;
+
+        if (activeMode === 'lock') {
+          // 🎯 视线咬合锁定：猫咪朝向与小红点绝对角度 1:1 咬合
+          let diff = targetPhase - currentPhase;
+          while (diff < -0.5) diff += 1.0;
+          while (diff > 0.5) diff -= 1.0;
+
+          currentPhase = (currentPhase + diff * (1.0 - Math.exp(-damping * dt * 45)) + 1.0) % 1.0;
+
+          // 核心 120 帧 360° 旋转区间 (Frame 60 ~ 180)
+          let floatLoop = currentPhase * 120.0;
+          let idxInLoop = Math.floor(floatLoop);
+          f1 = 60 + idxInLoop;
+          f2 = 60 + ((idxInLoop + 1) % 120);
+          blendAlpha = floatLoop - idxInLoop;
+
+        } else if (activeMode === 'chase') {
+          // 🏃 动态引逗狂奔：猫咪主动奔向小红点
+          let diff = targetPhase - currentPhase;
+          while (diff < -0.5) diff += 1.0;
+          while (diff > 0.5) diff -= 1.0;
+
+          const chaseSpeed = 0.5 + Math.abs(diff) * 2.0;
+          const step = Math.sign(diff) * Math.min(Math.abs(diff), chaseSpeed * dt);
+          currentPhase = (currentPhase + step + 1.0) % 1.0;
+
+          let floatLoop = currentPhase * 120.0;
+          let idxInLoop = Math.floor(floatLoop);
+          f1 = 60 + idxInLoop;
+          f2 = 60 + ((idxInLoop + 1) % 120);
+          blendAlpha = floatLoop - idxInLoop;
+
+        } else {
+          // ⇄ 水平时间轴滑动 (0 ~ 240 帧)
+          currentProgress += (targetProgress - currentProgress) * (1.0 - Math.exp(-damping * dt * 45));
+          let floatFrame = currentProgress * (TOTAL_FRAMES - 1);
+          f1 = Math.floor(floatFrame);
+          f2 = Math.min(TOTAL_FRAMES - 1, f1 + 1);
+          blendAlpha = floatFrame - f1;
+        }
+
+        // Speed calculation
+        if (dt > 0.001) {
+          const deltaProg = (f1 + blendAlpha) / TOTAL_FRAMES - lastProgress;
+          const instSpeed = (deltaProg / dt) * DURATION;
+          currentSpeed += (instSpeed - currentSpeed) * 0.25;
+          lastProgress = (f1 + blendAlpha) / TOTAL_FRAMES;
+
+          const absSpeed = Math.abs(currentSpeed);
+          hudSpeed.innerText = (currentSpeed >= 0 ? '+' : '') + currentSpeed.toFixed(1) + 'x';
+          hudSpeed.className = 'val hud-speed' + (currentSpeed < -0.1 ? ' backward' : '') + (absSpeed > 2.0 ? ' fast' : '');
+        }
+
+        renderDualFrame(f1, f2, blendAlpha);
+        requestAnimationFrame(tick);
+      }
+
+      // Handle Coordinate Updates (Cursor or Hand)
+      function handleCoordinate(viewportX, viewportY, isHand = false) {
+        const rect = viewport.getBoundingClientRect();
+        const dpr = canvas.width / rect.width;
+
+        laserPos.active = true;
+        targetLaserPos.x = viewportX * dpr;
+        targetLaserPos.y = viewportY * dpr;
+
+        if (activeMode === 'lock' || activeMode === 'chase') {
+          // 计算红点相对于猫咪中心 (画面中心) 的几何绝对夹角
+          const cx = rect.width / 2;
+          const cy = rect.height / 2;
+          const dx = viewportX - cx;
+          const dy = viewportY - cy;
+          const angle = Math.atan2(dy, dx); // -PI ~ +PI
+
+          // 角度与 360° 猫咪旋转严格对齐：
+          // -PI (左) -> Phase 0.0 (Frame 60)
+          // -PI/2 (上) -> Phase 0.25 (Frame 90)
+          // 0 (右) -> Phase 0.5 (Frame 120)
+          // +PI/2 (下) -> Phase 0.75 (Frame 150)
+          // +PI (左) -> Phase 1.0 (Frame 180)
+          const basePhase = (angle + Math.PI) / (2 * Math.PI);
+          const leadOffset = leadAngleDeg / 360.0;
+          targetPhase = (basePhase + leadOffset + 1.0) % 1.0;
+
+        } else {
+          targetProgress = Math.max(0, Math.min(1, viewportX / rect.width));
+        }
+      }
+
+      // Mouse Listener
+      viewport.addEventListener('mousemove', (e) => {
+        if (isTrackingHand) return; // Prioritize hand if active
+        const rect = viewport.getBoundingClientRect();
+        handleCoordinate(e.clientX - rect.left, e.clientY - rect.top, false);
+      });
+
+      viewport.addEventListener('mouseleave', () => {
+        if (!isTrackingHand) {
+          lastAngle = null;
+        }
+      });
+
+      // Touch Listener
+      viewport.addEventListener('touchmove', (e) => {
+        if (e.touches.length > 0) {
+          const touch = e.touches[0];
+          const rect = viewport.getBoundingClientRect();
+          handleCoordinate(touch.clientX - rect.left, touch.clientY - rect.top, false);
+        }
+      }, { passive: true });
+
+      // Timeline Scrubber
+      let isTimelineDragging = false;
+      function onTimelineSeek(e) {
+        const rect = timelineBar.getBoundingClientRect();
+        targetProgress = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      }
+      timelineBar.addEventListener('mousedown', (e) => {
+        isTimelineDragging = true;
+        onTimelineSeek(e);
+      });
+      window.addEventListener('mousemove', (e) => {
+        if (isTimelineDragging) onTimelineSeek(e);
+      });
+      window.addEventListener('mouseup', () => isTimelineDragging = false);
+
+      // MediaPipe Hands Initialization
+      async function initMediaPipe() {
+        if (mpHands) return;
+
+        mpHands = new Hands({
+          locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+        });
+
+        mpHands.setOptions({
+          maxNumHands: 1,
+          modelComplexity: 1,
+          minDetectionConfidence: 0.55,
+          minTrackingConfidence: 0.5
+        });
+
+        mpHands.onResults(onHandResults);
+      }
+
+      // Hand Results Callback
+      function onHandResults(results) {
+        const overlayCtx = cameraOverlay.getContext('2d');
+        overlayCtx.clearRect(0, 0, cameraOverlay.width, cameraOverlay.height);
+
+        if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+          const landmarks = results.multiHandLandmarks[0];
+          isTrackingHand = true;
+          camStatusText.innerText = '☝️ 食指追踪中';
+          camStatusText.style.color = '#10b981';
+          hudInput.innerText = '✋ 手势追踪中';
+          hudInput.style.color = '#10b981';
+
+          // Index Fingertip is Landmark 8
+          const indexTip = landmarks[8];
+
+          // Draw fingertip indicator on camera preview
+          const pipX = indexTip.x * cameraOverlay.width;
+          const pipY = indexTip.y * cameraOverlay.height;
+          overlayCtx.beginPath();
+          overlayCtx.arc(pipX, pipY, 6, 0, Math.PI * 2);
+          overlayCtx.fillStyle = '#ff1144';
+          overlayCtx.fill();
+          overlayCtx.strokeStyle = '#ffffff';
+          overlayCtx.lineWidth = 2;
+          overlayCtx.stroke();
+
+          // Map normalized coordinates (mirrored X) to viewport
+          const rect = viewport.getBoundingClientRect();
+          const targetX = (1 - indexTip.x) * rect.width;
+          const targetY = indexTip.y * rect.height;
+
+          handleCoordinate(targetX, targetY, true);
+        } else {
+          isTrackingHand = false;
+          camStatusText.innerText = '未检测到手势';
+          camStatusText.style.color = '#f59e0b';
+          hudInput.innerText = '🖱️ 光标等待';
+          hudInput.style.color = 'var(--text-muted)';
+        }
+      }
+
+      // Camera Toggle
+      async function toggleCamera() {
+        if (isCameraActive) {
+          // Stop camera
+          if (cameraInstance) {
+            cameraInstance.stop();
+            cameraInstance = null;
+          }
+          if (cameraFeed.srcObject) {
+            cameraFeed.srcObject.getTracks().forEach(t => t.stop());
+            cameraFeed.srcObject = null;
+          }
+          isCameraActive = false;
+          isTrackingHand = false;
+          camToggleBtn.classList.remove('active');
+          camToggleBtn.innerHTML = '<span>📷 开启手势隔空逗猫 (MediaPipe)</span>';
+          cameraPip.classList.remove('active');
+          hudInput.innerText = '🖱️ 光标模式';
+          hudInput.style.color = 'var(--accent-red)';
+        } else {
+          try {
+            camToggleBtn.innerText = '⏳ 正在启动摄像头与 AI 模型...';
+            await initMediaPipe();
+
+            const stream = await navigator.mediaDevices.getUserMedia({
+              video: { width: 640, height: 480, facingMode: 'user' }
+            });
+
+            cameraFeed.srcObject = stream;
+            await cameraFeed.play();
+
+            cameraOverlay.width = cameraFeed.videoWidth || 640;
+            cameraOverlay.height = cameraFeed.videoHeight || 480;
+
+            cameraInstance = new Camera(cameraFeed, {
+              onFrame: async () => {
+                if (isCameraActive && mpHands) {
+                  await mpHands.send({ image: cameraFeed });
+                }
+              },
+              width: 640,
+              height: 480
+            });
+            await cameraInstance.start();
+
+            isCameraActive = true;
+            camToggleBtn.classList.add('active');
+            camToggleBtn.innerHTML = '<span>🟢 手势隔空逗猫已开启 (点击关闭)</span>';
+            if (showPip) cameraPip.classList.add('active');
+            hudInput.innerText = '✋ 等待食指进入镜头';
+          } catch (err) {
+            console.error('Camera activation failed:', err);
+            alert('无法启动摄像头：请确保在浏览器中允许访问摄像头，或在 localhost 环境下运行。');
+            camToggleBtn.innerHTML = '<span>📷 开启手势隔空逗猫 (MediaPipe)</span>';
+            isCameraActive = false;
+          }
+        }
+      }
+
+      camToggleBtn.addEventListener('click', toggleCamera);
+
+      // Mode Tabs
+      modeTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          modeTabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          activeMode = tab.dataset.mode;
+          lastAngle = null;
+        });
+      });
+
+      // Tweaks Panel Toggle
+      tweaksBtn.addEventListener('click', () => tweaksPanel.classList.toggle('open'));
+      tweaksClose.addEventListener('click', () => tweaksPanel.classList.remove('open'));
+
+      tweakInterpolate.addEventListener('change', (e) => {
+        useInterpolation = e.target.checked;
+      });
+
+      tweakLaser.addEventListener('change', (e) => {
+        showLaser = e.target.checked;
+      });
+
+      tweakDamping.addEventListener('input', (e) => {
+        damping = parseFloat(e.target.value);
+        if (damping >= 0.8) dampingVal.innerText = `${damping.toFixed(2)} (瞬时)`;
+        else if (damping >= 0.2) dampingVal.innerText = `${damping.toFixed(2)} (灵敏)`;
+        else dampingVal.innerText = `${damping.toFixed(2)} (丝滑物理惯性)`;
+      });
+
+      tweakTrailLen.addEventListener('input', (e) => {
+        maxTrailLen = parseInt(e.target.value, 10);
+        trailLenVal.innerText = `${maxTrailLen} 点`;
+      });
+
+      tweakShowPip.addEventListener('change', (e) => {
+        showPip = e.target.checked;
+        if (isCameraActive) {
+          cameraPip.style.display = showPip ? 'flex' : 'none';
+        }
+      });
+
+      const tweakLeadAngle = document.getElementById('tweakLeadAngle');
+      const leadAngleVal = document.getElementById('leadAngleVal');
+      tweakLeadAngle.addEventListener('input', (e) => {
+        leadAngleDeg = parseInt(e.target.value, 10);
+        leadAngleVal.innerText = `${leadAngleDeg}°` + (leadAngleDeg > 0 ? ' (红点领先)' : (leadAngleDeg < 0 ? ' (红点滞后)' : ' (精准正对)'));
+      });
+
+      // Init
+      preloadFrames();
+      requestAnimationFrame(tick);
+    })();
+  </script>
+</body>
+</html>
