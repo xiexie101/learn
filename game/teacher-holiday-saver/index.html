@@ -1,0 +1,2541 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>拯救数学老师的假期 —— 班主任精神状态模拟器</title>
+  <style>
+    /* ================= 基础与布局 ================= */
+    :root {
+      --primary: #4F46E5;
+      --accent: #F43F5E;
+      --chalkboard: #1E382B;
+      --wood: #8B5A2B;
+      --paper: #FFFDF9;
+      --bg-warm: #FEF3C7;
+      --text-dark: #1F2937;
+      --text-muted: #6B7280;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    body {
+      background: #111827;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      min-height: 100dvh;
+      color: var(--text-dark);
+    }
+    /* 移动端沉浸容器，PC端自适应手机画幅 */
+    #app-container {
+      width: 100%;
+      max-width: 430px;
+      height: 100vh;
+      height: 100dvh;
+      max-height: 932px;
+      background: #F3E8FF;
+      transition: background-color 0.4s ease;
+      position: relative;
+      overflow: hidden;
+      display: block;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+    @media (min-width: 480px) {
+      #app-container {
+        height: 92vh;
+        max-height: 880px;
+        border-radius: 40px;
+        border: 10px solid #2D3748;
+      }
+    }
+
+    /* ================= 顶栏控件：静音 & 头像戳戳乐 ================= */
+    .top-controls {
+      position: absolute;
+      top: max(14px, env(safe-area-inset-top, 14px));
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      pointer-events: none;
+    }
+    .top-btn {
+      pointer-events: auto;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1.5px solid rgba(0, 0, 0, 0.08);
+      border-radius: 20px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+    .top-btn:active {
+      transform: scale(0.92);
+    }
+
+    /* 头像戳戳乐挂件 */
+    .avatar-pendant-wrap {
+      position: relative;
+      pointer-events: auto;
+      cursor: pointer;
+    }
+    .avatar-circle {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      border: 3px solid #FFF;
+      box-shadow: 0 6px 18px rgba(244, 63, 94, 0.35);
+      background: #FED7AA;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .avatar-circle img, .avatar-circle svg {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .avatar-hat {
+      position: absolute;
+      top: -10px;
+      right: -6px;
+      font-size: 20px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+      transform: rotate(15deg);
+      pointer-events: none;
+    }
+    .combo-badge {
+      position: absolute;
+      bottom: -4px;
+      right: -2px;
+      background: #F43F5E;
+      color: #FFF;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 1px 5px;
+      border-radius: 10px;
+      border: 1.5px solid #FFF;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    }
+
+    /* 戳戳乐冒出的解压气泡 */
+    .pop-bubble {
+      position: absolute;
+      right: 60px;
+      top: 6px;
+      max-width: min(240px, calc(100vw - 110px));
+      background: rgba(30, 41, 59, 0.92);
+      color: #FFF;
+      font-size: 12px;
+      line-height: 1.45;
+      padding: 8px 12px;
+      border-radius: 14px;
+      border-bottom-right-radius: 2px;
+      white-space: normal;
+      word-break: break-word;
+      pointer-events: none;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+      animation: bubbleFloat 2.6s forwards ease-out;
+      z-index: 200;
+    }
+    @keyframes bubbleFloat {
+      0% { opacity: 0; transform: translateY(6px) scale(0.85); }
+      15% { opacity: 1; transform: translateY(0) scale(1); }
+      80% { opacity: 1; transform: translateY(-12px) scale(1); }
+      100% { opacity: 0; transform: translateY(-24px) scale(0.9); }
+    }
+
+    /* ================= 场景 1: 办公室敲门沉浸开场 ================= */
+    .screen {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      min-height: 100%;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 10;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+    .screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+      visibility: hidden;
+      z-index: 0;
+    }
+
+    #door-screen {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      min-height: 100%;
+      box-sizing: border-box;
+      background: linear-gradient(180deg, #F3E8FF 0%, #E0E7FF 100%);
+      z-index: 10;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      padding: max(24px, env(safe-area-inset-top, 24px)) 16px max(24px, env(safe-area-inset-bottom, 24px)) 16px;
+    }
+    .door-frame {
+      width: 100%;
+      max-width: 320px;
+      height: min(480px, 60vh);
+      background: #8B4513;
+      border-radius: 18px;
+      padding: 10px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.25), inset 0 0 15px rgba(0,0,0,0.4);
+      perspective: 1000px;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .door-leaf {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #A0522D 0%, #8B4513 100%);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 30px 20px;
+      position: relative;
+      box-shadow: inset 0 0 30px rgba(0,0,0,0.3);
+      transform-origin: left center;
+      transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+      cursor: pointer;
+    }
+    .door-plate {
+      background: linear-gradient(145deg, #FFE082, #FFB300);
+      border: 3px solid #FFF8E1;
+      border-radius: 10px;
+      padding: 12px 24px;
+      text-align: center;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    }
+    .door-plate h2 {
+      font-size: 17px;
+      color: #5D4037;
+      letter-spacing: 2px;
+      font-weight: 800;
+    }
+    .door-plate p {
+      font-size: 11px;
+      color: #8D6E63;
+      margin-top: 4px;
+      font-weight: 600;
+    }
+    .door-sticky {
+      background: #FEF08A;
+      color: #854D0E;
+      padding: 14px 18px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.5;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      transform: rotate(-3deg);
+      border-left: 4px solid #EAB308;
+    }
+    .door-handle {
+      position: absolute;
+      right: 22px;
+      top: 50%;
+      width: 18px;
+      height: 60px;
+      background: linear-gradient(90deg, #F59E0B, #D97706);
+      border-radius: 8px;
+      box-shadow: 2px 4px 8px rgba(0,0,0,0.3);
+    }
+    .knock-hint {
+      margin-top: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: #4F46E5;
+      font-weight: 700;
+      font-size: 14px;
+      animation: pulseKnock 1.6s infinite ease-in-out;
+    }
+    @keyframes pulseKnock {
+      0%, 100% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.06); opacity: 1; }
+    }
+
+    /* ================= 场景 2: 班主任精神状态模拟器 (黑板风) ================= */
+    #game-screen {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      min-height: 100%;
+      box-sizing: border-box;
+      background-color: #19382B;
+      background: #19382B radial-gradient(circle at center, #244C3A 0%, #152E23 100%);
+      color: #F3F4F6;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 10px;
+      padding: max(66px, calc(env(safe-area-inset-top, 0px) + 58px)) 16px max(18px, env(safe-area-inset-bottom, 16px)) 16px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      box-shadow: inset 0 0 0 4px #152E23, inset 0 0 0 12px #8B5A2B, inset 0 0 18px rgba(0, 0, 0, 0.45);
+      border-radius: inherit;
+      z-index: 10;
+    }
+    /* 黑板边框木纹感：使用固定的 inset box-shadow 替代原有随页面滚动的绝对定位边框 */
+    #game-screen::before {
+      display: none;
+    }
+
+    .chalk-header {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 0;
+      flex-shrink: 0;
+    }
+    .level-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      align-self: flex-start;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px dashed rgba(255, 255, 255, 0.4);
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-size: 11.5px;
+      color: #FDE047;
+      font-family: monospace;
+    }
+    .chalk-title {
+      font-size: 19px;
+      font-weight: 800;
+      color: #FFFFFF;
+      text-shadow: 0 0 6px rgba(255,255,255,0.3);
+      line-height: 1.3;
+    }
+
+    /* 剧情卡片 */
+    .scenario-card {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      color: #1F2937;
+      border-radius: 18px;
+      padding: 13px 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+      margin-bottom: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .scenario-badge {
+      font-size: 11px;
+      color: #4F46E5;
+      font-weight: 700;
+      background: #EEF2FF;
+      padding: 3px 8px;
+      border-radius: 6px;
+      align-self: flex-start;
+    }
+    .scenario-text {
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: #374151;
+      font-weight: 500;
+    }
+
+    /* 选项组 */
+    .options-group {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      margin-bottom: 0;
+      flex-shrink: 0;
+    }
+    .option-btn {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1.5px solid rgba(255, 255, 255, 0.25);
+      border-radius: 13px;
+      padding: 11px 13px;
+      color: #F9FAFB;
+      font-size: 13px;
+      line-height: 1.4;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(4px);
+    }
+    .option-btn:active {
+      transform: scale(0.98);
+      background: rgba(255, 255, 255, 0.25);
+      border-color: #FDE047;
+    }
+    .option-key {
+      background: #FDE047;
+      color: #1E382B;
+      font-weight: 800;
+      font-size: 12px;
+      border-radius: 6px;
+      padding: 2px 7px;
+      flex-shrink: 0;
+    }
+
+    /* 黑板底部：粉笔彩蛋按钮 */
+    .blackboard-footer {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 4px;
+      margin-top: auto;
+      flex-shrink: 0;
+    }
+    .chalk-egg-btn {
+      background: none;
+      border: none;
+      color: #A7F3D0;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      opacity: 0.85;
+      transition: opacity 0.2s;
+    }
+    .chalk-egg-btn:active {
+      opacity: 1;
+      transform: scale(0.96);
+    }
+
+    @media (max-width: 350px), (max-height: 580px) {
+      #game-screen {
+        gap: 8px;
+        padding-top: max(56px, calc(env(safe-area-inset-top, 0px) + 50px));
+        padding-bottom: max(12px, env(safe-area-inset-bottom, 10px));
+      }
+      .scenario-card {
+        padding: 10px 12px;
+        gap: 6px;
+      }
+      .option-btn {
+        padding: 8px 10px;
+        font-size: 12.5px;
+      }
+    }
+
+    /* 反馈弹窗（批改大红勾动效） */
+    #feedback-modal {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 120;
+      opacity: 0;
+      pointer-events: none;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    #feedback-modal.active {
+      opacity: 1;
+      pointer-events: auto;
+      visibility: visible;
+    }
+    .feedback-box {
+      width: 100%;
+      background: #FFFDF9;
+      border-radius: 24px;
+      padding: 26px 20px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      transform: scale(0.9);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    #feedback-modal.active .feedback-box {
+      transform: scale(1);
+    }
+    .red-check-icon {
+      width: 60px;
+      height: 60px;
+      stroke: #EF4444;
+      stroke-width: 8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      stroke-dasharray: 100;
+      stroke-dashoffset: 100;
+    }
+    #feedback-modal.active .red-check-icon {
+      animation: drawCheck 0.6s 0.1s forwards cubic-bezier(0.65, 0, 0.45, 1);
+    }
+    #feedback-modal:not(.active) .red-check-icon {
+      animation: none;
+      stroke-dashoffset: 100;
+    }
+    @keyframes drawCheck {
+      to { stroke-dashoffset: 0; }
+    }
+    .feedback-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #1F2937;
+    }
+    .feedback-desc {
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: #4B5563;
+      margin-bottom: 8px;
+    }
+    .next-btn {
+      background: linear-gradient(135deg, #4F46E5, #6366F1);
+      color: #FFF;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
+      transition: transform 0.15s ease;
+    }
+    .next-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* ================= 场景 3: 终极通关盛典 (弹幕 + 奶茶 + 刮刮乐 + 海报) ================= */
+    #celebration-screen {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      min-height: 100%;
+      box-sizing: border-box;
+      background: linear-gradient(180deg, #FFF7ED 0%, #FEF2F2 100%);
+      overflow-y: auto;
+      justify-content: flex-start;
+      padding: max(68px, calc(env(safe-area-inset-top, 0px) + 60px)) 16px max(40px, env(safe-area-inset-bottom, 24px)) 16px;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      z-index: 10;
+    }
+    /* 全屏彩带 Canvas */
+    #confetti-canvas {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 10;
+    }
+    /* 弹幕浮动容器 */
+    .danmaku-container {
+      position: absolute;
+      top: 60px;
+      left: 0;
+      right: 0;
+      height: 180px;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 15;
+    }
+    .danmaku-item {
+      position: absolute;
+      left: 0;
+      white-space: nowrap;
+      padding: 5px 12px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 700;
+      transform: translateX(min(450px, 100vw));
+      animation: danmakuFly 6.5s linear infinite both;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    }
+    @keyframes danmakuFly {
+      from { transform: translateX(min(450px, 100vw)); }
+      to { transform: translateX(-120%); }
+    }
+
+    .celeb-header {
+      text-align: center;
+      margin-bottom: 20px;
+      z-index: 20;
+    }
+    .score-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #F59E0B, #EF4444);
+      color: #FFF;
+      font-size: 26px;
+      font-weight: 900;
+      padding: 6px 18px;
+      border-radius: 30px;
+      box-shadow: 0 8px 20px rgba(239, 68, 68, 0.35);
+      margin-bottom: 8px;
+    }
+    .score-subtitle {
+      font-size: 13px;
+      color: #6B7280;
+      font-weight: 600;
+    }
+
+    /* 互动奶茶杯卡片 */
+    .milktea-card {
+      width: 100%;
+      background: #FFFFFF;
+      border-radius: 24px;
+      padding: 20px 16px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      margin-bottom: 20px;
+      z-index: 20;
+      border: 1px solid rgba(0,0,0,0.04);
+    }
+    .milktea-cup-wrap {
+      width: 120px;
+      height: 160px;
+      position: relative;
+      cursor: pointer;
+      margin: 10px 0 14px 0;
+    }
+    .cup-body {
+      width: 100%;
+      height: 100%;
+      background: #F3F4F6;
+      border: 4px solid #374151;
+      border-radius: 12px 12px 36px 36px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+    }
+    .tea-liquid {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 75%;
+      background: linear-gradient(180deg, #A855F7 0%, #7E22CE 100%);
+      transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .boba {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background: #2E1065;
+      border-radius: 50%;
+      bottom: 6px;
+    }
+    .straw {
+      position: absolute;
+      top: -24px;
+      left: 65px;
+      width: 12px;
+      height: 90px;
+      background: #F43F5E;
+      border: 3px solid #374151;
+      border-radius: 6px;
+      transform: rotate(14deg);
+      z-index: 5;
+    }
+    .drink-hint {
+      font-size: 13px;
+      color: #9333EA;
+      font-weight: 700;
+      animation: pulseKnock 1.5s infinite ease-in-out;
+    }
+
+    /* 手写信纸卡片 */
+    .letter-card {
+      width: 100%;
+      background: #FFFDF7;
+      border: 1.5px solid #FDE68A;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 10px 25px rgba(245, 158, 11, 0.12);
+      margin-bottom: 24px;
+      position: relative;
+      z-index: 20;
+    }
+    .letter-card::before {
+      content: "✉️ 来自老铁的真诚密信";
+      position: absolute;
+      top: -12px;
+      left: 20px;
+      background: #FEF3C7;
+      color: #B45309;
+      font-size: 11.5px;
+      font-weight: 800;
+      padding: 3px 10px;
+      border-radius: 12px;
+      border: 1px solid #FCD34D;
+    }
+    .letter-body {
+      font-size: 13.5px;
+      line-height: 1.8;
+      color: #374151;
+      margin-top: 8px;
+      white-space: pre-line;
+      text-align: justify;
+    }
+    .letter-sign {
+      margin-top: 14px;
+      text-align: right;
+      font-size: 13px;
+      font-weight: 700;
+      color: #4F46E5;
+    }
+
+    /* ================= 教师节专属“心愿护身符”刮刮乐 ================= */
+    .talisman-section {
+      width: 100%;
+      background: #FFFFFF;
+      border-radius: 24px;
+      padding: 20px min(16px, 3vw);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+      margin-bottom: 24px;
+      z-index: 20;
+      text-align: center;
+    }
+    .talisman-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #B91C1C;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+    .talisman-subtitle {
+      font-size: 12px;
+      color: #6B7280;
+      margin-bottom: 14px;
+    }
+    .scratch-wrapper {
+      position: relative;
+      width: 280px;
+      max-width: 100%;
+      height: 140px;
+      margin: 0 auto;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+      background: linear-gradient(135deg, #FEF2F2, #FEE2E2);
+      border: 2px dashed #EF4444;
+    }
+    .talisman-content {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      color: #991B1B;
+    }
+    .talisman-content h3 {
+      font-size: 18px;
+      font-weight: 900;
+      margin-bottom: 4px;
+    }
+    .talisman-content p {
+      font-size: 12px;
+      color: #B91C1C;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+    #scratch-canvas {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      cursor: grab;
+      touch-action: none;
+    }
+
+    /* 底部操作按钮：生成海报与重玩 */
+    .celeb-actions {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 20;
+      margin-bottom: 20px;
+    }
+    .share-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #F43F5E, #FB7185);
+      color: #FFF;
+      border: none;
+      padding: 14px;
+      border-radius: 16px;
+      font-size: 15px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 6px 20px rgba(244, 63, 94, 0.4);
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+    .share-btn:active {
+      transform: scale(0.97);
+    }
+    .restart-link {
+      background: none;
+      border: none;
+      color: #6B7280;
+      font-size: 12.5px;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    /* ================= 战报海报弹窗 ================= */
+    #poster-modal {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 300;
+      opacity: 0;
+      pointer-events: none;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    #poster-modal.active {
+      opacity: 1;
+      pointer-events: auto;
+      visibility: visible;
+    }
+    .poster-preview-wrap {
+      width: 100%;
+      max-width: 340px;
+      max-height: min(90vh, 90dvh);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      background: #FFF;
+      border-radius: 20px;
+      padding: 14px;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      -webkit-touch-callout: default;
+    }
+    #poster-img {
+      width: 100%;
+      max-height: 64vh;
+      object-fit: contain;
+      border-radius: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      user-select: auto;
+      -webkit-user-select: auto;
+      -webkit-touch-callout: default !important;
+      pointer-events: auto;
+    }
+    .poster-tip {
+      font-size: 12px;
+      color: #4B5563;
+      font-weight: 700;
+      text-align: center;
+    }
+    .poster-btn-row {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      margin-top: 4px;
+    }
+    .download-poster-btn {
+      flex: 1;
+      background: linear-gradient(135deg, #4F46E5, #6366F1);
+      color: #FFF;
+      text-decoration: none;
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-size: 13.5px;
+      font-weight: 700;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      box-shadow: 0 3px 10px rgba(79, 70, 229, 0.3);
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+    .download-poster-btn:active {
+      transform: scale(0.96);
+    }
+    .close-poster-btn {
+      background: #F3F4F6;
+      border: none;
+      color: #374151;
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+    .close-poster-btn:active {
+      transform: scale(0.96);
+    }
+
+    /* ================= 数学心形线彩蛋全屏弹窗 ================= */
+    #math-egg-modal {
+      position: absolute;
+      inset: 0;
+      background: rgba(17, 24, 39, 0.92);
+      backdrop-filter: blur(10px);
+      z-index: 250;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    #math-egg-modal.active {
+      opacity: 1;
+      pointer-events: auto;
+      visibility: visible;
+    }
+    #heart-canvas {
+      width: 280px;
+      max-width: min(280px, 75vw);
+      max-height: min(280px, 75vw);
+      height: 280px;
+    }
+    .math-formula-tag {
+      color: #A7F3D0;
+      font-family: monospace;
+      font-size: 15px;
+      margin-top: 14px;
+      letter-spacing: 1px;
+    }
+    .math-egg-desc {
+      color: #F3F4F6;
+      font-size: 13px;
+      margin-top: 8px;
+      text-align: center;
+      line-height: 1.6;
+    }
+    .close-math-btn {
+      margin-top: 20px;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: #FFF;
+      padding: 8px 20px;
+      border-radius: 12px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div id="app-container">
+  <!-- 顶栏控件：静音 & 头像戳戳乐 -->
+  <div class="top-controls">
+    <button class="top-btn" id="mute-btn" aria-label="切换静音">
+      <span id="mute-icon">🔊</span>
+      <span id="mute-text">音效开启</span>
+    </button>
+
+    <!-- 头像戳戳乐挂件 -->
+    <div class="avatar-pendant-wrap" id="avatar-pendant" title="戳戳我解压！">
+      <div class="avatar-circle" id="avatar-circle">
+        <!-- 默认手绘女老师SVG兜底，可通过 CONFIG.avatarUrl 替换 -->
+        <img id="avatar-img" src="" alt="头像" style="display:none;">
+        <svg id="avatar-default-svg" viewBox="0 0 100 100" width="100%" height="100%">
+          <circle cx="50" cy="50" r="48" fill="#FDE68A" />
+          <!-- 头发 -->
+          <path d="M22,50 C20,25 35,16 50,16 C65,16 80,25 78,50 C78,65 72,75 72,75 L28,75 C28,75 22,65 22,50 Z" fill="#4B2C20" />
+          <!-- 脸蛋 -->
+          <circle cx="50" cy="54" r="26" fill="#FCE7D0" />
+          <!-- 眼睛与腮红 -->
+          <circle cx="41" cy="52" r="3" fill="#1F2937" />
+          <circle cx="59" cy="52" r="3" fill="#1F2937" />
+          <circle cx="36" cy="58" r="4" fill="#FCA5A5" opacity="0.6" />
+          <circle cx="64" cy="58" r="4" fill="#FCA5A5" opacity="0.6" />
+          <!-- 微笑与可爱的老师黑框眼镜 -->
+          <path d="M44,63 Q50,68 56,63" stroke="#1F2937" stroke-width="2" fill="none" stroke-linecap="round" />
+          <rect x="33" y="46" width="16" height="12" rx="3" fill="none" stroke="#374151" stroke-width="2" />
+          <rect x="51" y="46" width="16" height="12" rx="3" fill="none" stroke="#374151" stroke-width="2" />
+          <line x1="49" y1="52" x2="51" y2="52" stroke="#374151" stroke-width="2" />
+        </svg>
+      </div>
+      <div class="avatar-hat">🎓</div>
+      <div class="combo-badge" id="combo-badge">戳我</div>
+    </div>
+  </div>
+
+  <!-- 场景 1: 办公室敲门沉浸开场 -->
+  <div class="screen" id="door-screen">
+    <div class="door-frame">
+      <div class="door-leaf" id="door-leaf">
+        <div class="door-plate">
+          <h2 id="door-teacher-title">三年级数学组</h2>
+          <p id="door-subtitle">小学数学班主任闭关室 · 闲人退散</p>
+        </div>
+        <div class="door-sticky">
+          📝 告示牌：<br>
+          今日教师节！<br>
+          拒绝批改作业，只想早点下班！
+        </div>
+        <div class="door-handle"></div>
+      </div>
+    </div>
+    <div class="knock-hint" id="knock-hint">
+      <span id="knock-hint-msg">✊ 轻敲 3 下房门，拯救班主任！</span>
+      <span id="knock-count-text" style="font-size:12px; color:#6B7280;">(已敲 0 / 3)</span>
+    </div>
+  </div>
+
+  <!-- 场景 2: 班主任精神状态模拟器 (黑板风) -->
+  <div class="screen hidden" id="game-screen">
+    <div class="chalk-header">
+      <div class="level-tag">
+        <span>📐</span>
+        <span id="level-indicator">第 1 / 3 题 · 早读突发</span>
+      </div>
+      <h1 class="chalk-title" id="game-title">消失的数学作业大调查</h1>
+    </div>
+
+    <!-- 剧情卡片 -->
+    <div class="scenario-card">
+      <div class="scenario-badge" id="scenario-time">⏰ 07:50 早自习</div>
+      <div class="scenario-text" id="scenario-text">
+        小神兽眼眶红红，拿着一本被撕得稀烂的本子冲进办公室：“老师！我家小狗真的把我的《小学数学天天练》啃烂了！我发誓我真的写完了！”
+      </div>
+    </div>
+
+    <!-- 选项 -->
+    <div class="options-group" id="options-group">
+      <!-- 动态注入 -->
+    </div>
+
+    <!-- 黑板底部小彩蛋 -->
+    <div class="blackboard-footer">
+      <button class="chalk-egg-btn" id="open-math-btn">
+        <span>✏️</span>
+        <span>理科生浪漫：笛卡尔心形线</span>
+      </button>
+      <span style="font-size: 11px; color: #9CA3AF;">点击右上角头像随时解压</span>
+    </div>
+
+    <!-- 批改红勾弹窗 -->
+    <div id="feedback-modal">
+      <div class="feedback-box">
+        <svg class="red-check-icon" viewBox="0 0 52 52">
+          <path d="M14 27 L22 35 L38 17"/>
+        </svg>
+        <h3 class="feedback-title" id="feedback-title">神级班主任应变！</h3>
+        <p class="feedback-desc" id="feedback-desc">反转爆笑文字</p>
+        <button class="next-btn" id="next-level-btn">下一关 ➔</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 场景 3: 终极通关盛典 (弹幕 + 奶茶 + 刮刮乐 + 海报) -->
+  <div class="screen hidden" id="celebration-screen">
+    <canvas id="confetti-canvas"></canvas>
+    <div class="danmaku-container" id="danmaku-box"></div>
+
+    <div class="celeb-header">
+      <div class="score-badge">+∞ 分</div>
+      <p class="score-subtitle">🏆 荣获：特级情绪管理大师 · 宇宙无敌神仙老师</p>
+    </div>
+
+    <!-- 互动奶茶杯 -->
+    <div class="milktea-card">
+      <h3 style="font-size: 15px; color: #1F2937; margin-bottom: 2px;" id="milktea-name-label">班主任专属续命大杯</h3>
+      <p style="font-size: 11.5px; color: #6B7280;" id="milktea-sub-label">老友特供 · 全糖去冰多肉葡萄</p>
+      
+      <div class="milktea-cup-wrap" id="milktea-cup" title="猛吸一口！">
+        <div class="straw"></div>
+        <div class="cup-body">
+          <div class="tea-liquid" id="tea-liquid">
+            <div class="boba" style="left: 14px;"></div>
+            <div class="boba" style="left: 42px; bottom: 12px;"></div>
+            <div class="boba" style="left: 70px;"></div>
+            <div class="boba" style="left: 92px; bottom: 8px;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="drink-hint" id="drink-hint">🥤 点击吸管，大口吸奶茶解压！</div>
+    </div>
+
+    <!-- 手写信纸卡片 -->
+    <div class="letter-card">
+      <div class="letter-body" id="letter-body-text">
+        亲爱的陈老师：
+        见信如晤！
+        每天看着你面对四五十个精力充沛的小神兽，一边讲着鸡兔同笼，一边还要做班级里无所不能的“大家长”，真觉得你又神圣又辛苦！
+        在这个属于你的节日里，卸下班主任的铠甲，做回那个无忧无虑的大朋友吧！
+        祝你：讲课不费嗓子、批卷不费眼力、神兽天天听话、放学光速打卡！
+      </div>
+      <div class="letter-sign" id="letter-sign-text">—— 你的老铁 · 敬上</div>
+    </div>
+
+    <!-- 教师节专属“心愿护身符”刮刮乐 -->
+    <div class="talisman-section">
+      <div class="talisman-title">
+        <span>🧧</span>
+        <span>教师节神仙护身符</span>
+        <span>🧧</span>
+      </div>
+      <div class="talisman-subtitle">动动手指刮开涂层，领取新学期专属好运！</div>
+      
+      <div class="scratch-wrapper">
+        <div class="talisman-content">
+          <h3 id="talisman-title">🎴【拖堂免疫符】</h3>
+          <p id="talisman-desc">神力加持：下课铃一响，知识点刚好讲完！全学期绝不拖堂一秒，放学走得比学生还快！</p>
+        </div>
+        <canvas id="scratch-canvas" width="280" height="140"></canvas>
+      </div>
+    </div>
+
+    <!-- 底部操作按钮 -->
+    <div class="celeb-actions">
+      <button class="share-btn" id="gen-poster-btn">
+        <span>📸</span>
+        <span>生成朋友圈专属战报海报</span>
+      </button>
+      <button class="restart-link" id="restart-game-btn">再玩一次班主任模拟器</button>
+    </div>
+  </div>
+
+  <!-- 战报海报弹窗 -->
+  <div id="poster-modal">
+    <div class="poster-preview-wrap">
+      <img id="poster-img" src="" alt="专属战报">
+      <div class="poster-tip">👆 手机长按上方图片保存，或点击下方直接下载</div>
+      <div class="poster-btn-row">
+        <a id="download-poster-btn" class="download-poster-btn" href="#" download="2026教师节战报.png">💾 保存图片</a>
+        <button class="close-poster-btn" id="close-poster-btn">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 笛卡尔心形线全屏彩蛋 -->
+  <div id="math-egg-modal">
+    <canvas id="heart-canvas" width="280" height="280"></canvas>
+    <div class="math-formula-tag">r = a(1 - sinθ)</div>
+    <div class="math-egg-desc">
+      “理科生的浪漫，藏在最严谨的坐标系里。<br>
+      祝最优秀的数学老师，快乐定义域为整个宇宙，幸福单调递增无上限！”
+    </div>
+    <button class="close-math-btn" id="close-math-btn">收起心形线</button>
+  </div>
+</div>
+
+<script>
+/**
+ * =========================================================
+ * ⚙️ CONFIG 专属个性化配置区
+ * 你可以随时修改这里的名字、头像、署名和祝福文案！
+ * =========================================================
+ */
+
+ const CONFIG = {
+  // 1. 老师与好友称呼
+  teacherName: "小花老师",               // 老师尊称（如“陈老师”、“林老师”）
+  friendName: "锦子",          // 好友署名（如“你的十年铁哥们”）
+  schoolSubject: "小学数学",           // 任教学科
+  doorTitle: "小年数学组",          // 门牌文字
+
+  // 2. 真实头像路径 (若放置 avatar.jpg 则优先展示，否则优雅降级为精美手绘女老师SVG)
+  avatarUrl: "./tile_19.gif",
+
+  // 3. 专属奶茶名称
+  milkTeaName: "班主任续命·全糖多肉葡萄",
+
+  // 4. 走心长文信（支持换行符）
+  letterContent: `亲爱的小花老师：
+
+教师节快乐！见信如晤～
+
+今天是属于你的大日子：
+把教案先放一放，把红笔先收一收！
+祝你：讲课不费嗓、改卷不熬夜、神兽天天懂事、下班光速打卡！
+新学期，每天都要开开心心，咖啡奶茶不断档！`,
+
+  // 5. 解压戳戳乐随机气泡词库（班主任日常梗 + 数学极客梗）
+  bubbleQuotes: [
+    "默念：是亲生的，是亲生的……💆‍♀️",
+    "血压+1，但情绪依旧保持端庄优雅 ☕",
+    "今日耐心余额：已透支，需大杯奶茶续命 🧋",
+    "已知：今天过节；求证：必须快乐；证明：显然成立！📐",
+    "今天不解一元一次方程，只负责解压～✨",
+    "心平气和，像平行线一样永远不跟捣蛋鬼产生交集 📏",
+    "世界如此美妙，我不暴躁，我很高尚 🧘‍♀️",
+    "超出实数集定义范围的优秀！💯",
+    "别慌！距离打铃放学还有最后一点点！🏃‍♀️",
+    "今天谁敢拖堂？老师第一个不同意！🎉"
+  ],
+
+  // 6. 教师节神仙护身符候选池（每次随机抽取一张刮奖）
+  talismans: [
+    {
+      title: "🎴【拖堂免疫神符】",
+      desc: "神力加持：下课铃响瞬间，刚好讲完最后一题！全学期零拖堂，下班步速全校第一！"
+    },
+    {
+      title: "🎴【静音结界神符】",
+      desc: "神力加持：踏入教室的一刹那，四五十只小神兽自动安静如绵羊，全班乖巧听讲！"
+    },
+    {
+      title: "🎴【发量茂密神符】",
+      desc: "神力加持：任凭批改几百本作业练习册，发量依然如瀑布般蓬松浓密、光彩照人！"
+    }
+  ],
+
+  // 7. 学生彩色弹幕库
+  danmakus: [
+    "祝陈老师教师节快乐！！🌸",
+    "老师今天简直美若天仙！✨",
+    "数学课最喜欢听老师讲段子啦！😆",
+    "今天作业能少留两道题吗呜呜呜 🥺",
+    "祝老师天天准时下班！🧋",
+    "全校最飒数学班主任！！💯",
+    "老师辛苦啦，今天多喝热水多吃肉！🍖",
+    "期末数学我们一定全班及格！💪"
+  ]
+};
+
+/**
+ * =========================================================
+ * 🎵 Web Audio 极简音频合成引擎（纯原生零依赖，移动端解锁优化）
+ * =========================================================
+ */
+class SoundEngine {
+  constructor() {
+    this.ctx = null;
+    this.isMuted = false;
+    this.unlocked = false;
+  }
+  init() {
+    if (!this.ctx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) {
+        try {
+          this.ctx = new AudioCtx();
+        } catch (e) {
+          console.warn("AudioContext init error:", e);
+        }
+      }
+    }
+    if (this.ctx && this.ctx.state === "suspended") {
+      this.ctx.resume().catch(() => {});
+    }
+  }
+  // 移动端 Safari / 微信 Web Audio 必须由用户手势解锁
+  unlock() {
+    this.init();
+    if (!this.ctx) return;
+    try {
+      if (this.ctx.state === "suspended") {
+        this.ctx.resume().catch(() => {});
+      }
+      const buffer = this.ctx.createBuffer(1, 1, 22050);
+      const source = this.ctx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(this.ctx.destination);
+      source.start(0);
+      if (this.ctx.state === "running") {
+        this.unlocked = true;
+      }
+    } catch (e) {}
+  }
+  // 敲门声（浑厚低沉碰撞）
+  playKnock() {
+    if (this.isMuted) return;
+    this.init();
+    if (!this.ctx) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(140, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(30, this.ctx.currentTime + 0.12);
+      gain.gain.setValueAtTime(0.7, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.13);
+    } catch (e) {}
+  }
+  // 戳戳乐泡泡音（清脆上升调）
+  playPop() {
+    if (this.isMuted) return;
+    this.init();
+    if (!this.ctx) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = "sine";
+      const freq = 450 + Math.random() * 250;
+      osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(freq * 1.6, this.ctx.currentTime + 0.1);
+      gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.1);
+    } catch (e) {}
+  }
+  // 答对成功音（明快和弦）
+  playSuccess() {
+    if (this.isMuted) return;
+    this.init();
+    if (!this.ctx) return;
+    try {
+      [523.25, 659.25, 783.99].forEach((freq, i) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime + i * 0.08);
+        gain.gain.setValueAtTime(0.25, this.ctx.currentTime + i * 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + i * 0.08 + 0.35);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(this.ctx.currentTime + i * 0.08);
+        osc.stop(this.ctx.currentTime + i * 0.08 + 0.36);
+      });
+    } catch (e) {}
+  }
+  // 吸管咕咚声
+  playSlurp() {
+    if (this.isMuted) return;
+    this.init();
+    if (!this.ctx) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(200, this.ctx.currentTime);
+      osc.frequency.linearRampToValueAtTime(320, this.ctx.currentTime + 0.08);
+      osc.frequency.linearRampToValueAtTime(220, this.ctx.currentTime + 0.18);
+      gain.gain.setValueAtTime(0.35, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.2);
+    } catch (e) {}
+  }
+}
+const sound = new SoundEngine();
+
+// 全局监听用户触摸/点击以解除浏览器音频播放限制
+const unlockAudioHandler = () => {
+  sound.unlock();
+  if (sound.ctx && sound.ctx.state === "running") {
+    ['click', 'touchstart', 'touchend'].forEach(evt => {
+      window.removeEventListener(evt, unlockAudioHandler);
+    });
+  }
+};
+['click', 'touchstart', 'touchend'].forEach(evt => {
+  window.addEventListener(evt, unlockAudioHandler, { passive: true });
+});
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && sound.ctx && sound.ctx.state === "suspended") {
+    sound.ctx.resume().catch(() => {});
+  }
+});
+
+/**
+ * =========================================================
+ * 🎮 关卡数据定义
+ * =========================================================
+ */
+const LEVELS = [
+  {
+    title: "消失的数学作业大调查",
+    indicator: "第 1 / 3 关 · 早读突发",
+    time: "⏰ 07:50 早自习",
+    scenario: "小神兽两手空空，眼眶红红地冲进办公室哭诉：“老师！昨晚我家小狗真的把我的《数学大练习册》嚼得粉碎吃进肚子里了！我发誓我真的写完了！”",
+    options: [
+      {
+        text: "“拿来让我闻闻，到底有没有小狗口水味？”",
+        reply: "小神兽当场眼神飘忽，后退三步：“老师您鼻子比缉毒犬还灵……”（精神状态防御成功！情绪损耗：0）"
+      },
+      {
+        text: "“明天把你家这只爱吃算术题的学霸神犬带到讲台替你听课！”",
+        reply: "隔壁班主任笑得咖啡喷了一桌！全班小神兽瞬间坐得笔直，尊师重道值拉满！"
+      },
+      {
+        text: "“没关系，老师抽屉里刚好有一本全新加厚典藏版，拿去重新写吧。”",
+        reply: "小神兽瞳孔发生剧烈八级地震，瞬间化作一道闪电回座位飞速狂补作业！"
+      }
+    ]
+  },
+  {
+    title: "进水与放水的宿命哲学",
+    indicator: "第 2 / 3 关 · 上午课堂",
+    time: "⏰ 10:15 数学课讲台",
+    scenario: "正讲到典型小学应用题：“一个游泳池，单开进水管4小时注满，单开排水管6小时排空……”，底下天真可爱的小朋友高高举手：“老师！这个泳池管理员一边放水一边灌水，是不是闲得慌？他家里水费不花钱吗？”",
+    options: [
+      {
+        text: "“他不是闲，他是在用自己的一生给全国小学生编算术题！”",
+        reply: "台下响起了雷鸣般的掌声！不仅解构了经典数学题，还让小学生感受到了出题人的良苦用心！"
+      },
+      {
+        text: "“问得好！今晚留下来你来当管理员，拿吸管把多出来的水给我喝光！”",
+        reply: "小神兽立马乖乖捂住嘴巴，并在草稿纸上认真写下了：设总水量为单位1……"
+      },
+      {
+        text: "“在数学的宇宙里，没有无缘无故的水流，只有想测出你们智商上限的老师。”",
+        reply: "金句一出，全班顿时对数学老师投来了看哲学家的崇拜目光！"
+      }
+    ]
+  },
+  {
+    title: "放学前的夺命绝杀1分钟",
+    indicator: "第 3 / 3 关 · 傍晚下班",
+    time: "⏰ 16:59 办公室门口",
+    scenario: "包已经拎好，脚尖已经迈出办公室门框，距离准时下班还剩5秒！两个小神兽突然拉拉扯扯冲进来：“报告老师！他刚才在走廊故意踩我的影子！我的影子疼哭了！”",
+    options: [
+      {
+        text: "“科普时间：根据光的直线传播，踩到影子的概率为100%，无罪释放！”",
+        reply: "不仅用光学和几何知识光速结案，还成功在17:00整准时踏出校门！"
+      },
+      {
+        text: "“光速判决：现在闭上眼睛，谁先睁开眼睛谁留下来互相擦黑板！”",
+        reply: "两只神兽瞬间石化不敢眨眼，你趁机脚底抹油，成功完成班主任大撤退！"
+      },
+      {
+        text: "“老师要施展数学移形换影大法了，明天早自习再审影子案！”",
+        reply: "咻的一声！你已光速瞬移到校门口奶茶店，今日精神状态保卫战大获全胜！"
+      }
+    ]
+  }
+];
+
+/**
+ * =========================================================
+ * 🕹️ 页面主逻辑与交互绑定
+ * =========================================================
+ */
+let currentLevel = 0;
+let pokeCombo = 0;
+let pokeTimer = null;
+let milkTeaDrunk = 0; // 奶茶饮用点击次数
+
+// DOM 元素缓存
+const appContainer = document.getElementById("app-container");
+const doorScreen = document.getElementById("door-screen");
+const gameScreen = document.getElementById("game-screen");
+const celebrationScreen = document.getElementById("celebration-screen");
+const doorLeaf = document.getElementById("door-leaf");
+const knockHint = document.getElementById("knock-hint");
+const knockCountText = document.getElementById("knock-count-text");
+
+// 场景主题底色动态协同（确保任何过冲、滚动回弹或转场均无缝契合，杜绝白边泄露）
+function setAppTheme(theme) {
+  if (!appContainer) return;
+  if (theme === "chalkboard") {
+    appContainer.style.backgroundColor = "#19382B";
+  } else if (theme === "celebration") {
+    appContainer.style.backgroundColor = "#FFF7ED";
+  } else {
+    appContainer.style.backgroundColor = "#F3E8FF";
+  }
+}
+
+// 初始化个人信息与页面文案
+function initConfigData() {
+  if (CONFIG.doorTitle) {
+    document.getElementById("door-teacher-title").innerText = CONFIG.doorTitle;
+  }
+  const doorSub = document.getElementById("door-subtitle");
+  if (doorSub) {
+    const subj = CONFIG.schoolSubject || "小学数学";
+    doorSub.innerText = `${subj}班主任闭关室 · 闲人退散`;
+  }
+  document.getElementById("letter-body-text").innerText = CONFIG.letterContent;
+  document.getElementById("letter-sign-text").innerText = `—— ${CONFIG.friendName} · 敬上`;
+  document.getElementById("milktea-name-label").innerText = `${CONFIG.teacherName}专属续命杯`;
+  if (CONFIG.milkTeaName) {
+    const milkTeaSub = document.getElementById("milktea-sub-label");
+    if (milkTeaSub) milkTeaSub.innerText = `老友特供 · ${CONFIG.milkTeaName}`;
+  }
+
+  // 尝试加载用户真实头像 (跨域支持与优雅降级)
+  const avatarImgEl = document.getElementById("avatar-img");
+  const defaultSvg = document.getElementById("avatar-default-svg");
+  if (CONFIG.avatarUrl) {
+    avatarImgEl.crossOrigin = "anonymous";
+    avatarImgEl.onload = () => {
+      avatarImgEl.style.display = "block";
+      defaultSvg.style.display = "none";
+    };
+    avatarImgEl.onerror = () => {
+      avatarImgEl.style.display = "none";
+      defaultSvg.style.display = "block";
+    };
+    avatarImgEl.src = CONFIG.avatarUrl;
+    if (avatarImgEl.complete && avatarImgEl.naturalWidth > 0) {
+      avatarImgEl.style.display = "block";
+      defaultSvg.style.display = "none";
+    }
+  } else {
+    avatarImgEl.style.display = "none";
+    defaultSvg.style.display = "block";
+  }
+  setAppTheme("door");
+}
+initConfigData();
+
+// 1. 静音开关
+const muteBtn = document.getElementById("mute-btn");
+const muteIcon = document.getElementById("mute-icon");
+const muteText = document.getElementById("mute-text");
+muteBtn.addEventListener("click", () => {
+  sound.isMuted = !sound.isMuted;
+  if (sound.isMuted) {
+    muteIcon.innerText = "🔇";
+    muteText.innerText = "静音中";
+    muteBtn.style.background = "#FEE2E2";
+  } else {
+    muteIcon.innerText = "🔊";
+    muteText.innerText = "音效开启";
+    muteBtn.style.background = "rgba(255, 255, 255, 0.85)";
+    sound.playPop();
+  }
+});
+
+// 2. 头像戳戳乐互动
+const avatarPendant = document.getElementById("avatar-pendant");
+const avatarCircle = document.getElementById("avatar-circle");
+const comboBadge = document.getElementById("combo-badge");
+
+avatarPendant.addEventListener("click", (e) => {
+  sound.playPop();
+  if (navigator.vibrate) navigator.vibrate(15); // 微触觉
+
+  pokeCombo++;
+  comboBadge.innerText = `x${pokeCombo}`;
+  comboBadge.style.transform = "scale(1.2)";
+  avatarCircle.style.transform = "scale(0.88)";
+  setTimeout(() => {
+    avatarCircle.style.transform = "scale(1)";
+    comboBadge.style.transform = "scale(1)";
+  }, 150);
+
+  // 冒气泡
+  createPokeBubble(e);
+
+  // 重置连击计数器
+  clearTimeout(pokeTimer);
+  pokeTimer = setTimeout(() => {
+    pokeCombo = 0;
+    comboBadge.innerText = "戳我";
+  }, 3500);
+});
+
+function createPokeBubble(e) {
+  // 移除旧气泡，避免连续点击时文字叠层遮挡
+  const oldBubbles = avatarPendant.querySelectorAll(".pop-bubble");
+  oldBubbles.forEach(b => b.remove());
+
+  // 随机取词库
+  const quote = CONFIG.bubbleQuotes[Math.floor(Math.random() * CONFIG.bubbleQuotes.length)];
+  const bubble = document.createElement("div");
+  bubble.className = "pop-bubble";
+  bubble.innerText = quote;
+  avatarPendant.appendChild(bubble);
+  setTimeout(() => {
+    if (bubble.parentNode) bubble.remove();
+  }, 2600);
+}
+
+// 3. 敲门交互 (开场)
+let knockCount = 0;
+const knockHintMsg = document.getElementById("knock-hint-msg");
+doorLeaf.addEventListener("click", () => {
+  if (knockCount >= 3) return;
+  knockCount++;
+  sound.playKnock();
+  if (navigator.vibrate) navigator.vibrate(25);
+
+  doorLeaf.style.transform = "rotateY(-10deg)";
+  setTimeout(() => {
+    if (knockCount < 3) doorLeaf.style.transform = "rotateY(0deg)";
+  }, 160);
+
+  knockCountText.innerText = `(已敲 ${knockCount} / 3)`;
+
+  if (knockCount === 3) {
+    if (knockHintMsg) knockHintMsg.innerText = "🎉 门开啦！班主任闪亮登场～";
+    knockCountText.style.display = "none";
+    sound.playSuccess();
+    doorLeaf.style.transform = "rotateY(-80deg)";
+    setTimeout(() => {
+      doorScreen.classList.add("hidden");
+      gameScreen.classList.remove("hidden");
+      setAppTheme("chalkboard");
+      renderLevel(currentLevel);
+    }, 700);
+  }
+});
+
+// 4. 渲染关卡
+function renderLevel(index) {
+  const data = LEVELS[index];
+  document.getElementById("level-indicator").innerText = data.indicator;
+  document.getElementById("game-title").innerText = data.title;
+  document.getElementById("scenario-time").innerText = data.time;
+  document.getElementById("scenario-text").innerText = data.scenario;
+
+  const optionsContainer = document.getElementById("options-group");
+  optionsContainer.innerHTML = "";
+
+  data.options.forEach((opt, idx) => {
+    const btn = document.createElement("button");
+    btn.className = "option-btn";
+    btn.innerHTML = `<span class="option-key">${String.fromCharCode(65 + idx)}</span><span>${opt.text}</span>`;
+    btn.addEventListener("click", () => {
+      showFeedback(opt.reply);
+    });
+    optionsContainer.appendChild(btn);
+  });
+}
+
+// 5. 显示红勾反馈弹窗
+const feedbackModal = document.getElementById("feedback-modal");
+const feedbackDesc = document.getElementById("feedback-desc");
+const nextLevelBtn = document.getElementById("next-level-btn");
+
+function showFeedback(text) {
+  sound.playSuccess();
+  if (navigator.vibrate) navigator.vibrate([20, 50, 20]);
+  feedbackDesc.innerText = text;
+
+  // 最后一关完成时，按钮文案变为进入终极盛典
+  if (currentLevel === LEVELS.length - 1) {
+    nextLevelBtn.innerText = "进入通关盛典 🎉";
+  } else {
+    nextLevelBtn.innerText = "下一关 ➔";
+  }
+
+  feedbackModal.classList.add("active");
+}
+
+nextLevelBtn.addEventListener("click", () => {
+  feedbackModal.classList.remove("active");
+  currentLevel++;
+  if (currentLevel < LEVELS.length) {
+    renderLevel(currentLevel);
+  } else {
+    // 通关！进入盛典场景
+    gameScreen.classList.add("hidden");
+    celebrationScreen.classList.remove("hidden");
+    setAppTheme("celebration");
+    startCelebration();
+  }
+});
+
+// 6. 通关盛典：礼花、弹幕、吸奶茶
+function startCelebration() {
+  sound.playSuccess();
+  startConfetti();
+  initDanmaku();
+  initScratchCard();
+}
+
+// 弹幕系统
+function initDanmaku() {
+  const box = document.getElementById("danmaku-box");
+  box.innerHTML = "";
+  const colors = [
+    { bg: "#FEE2E2", text: "#991B1B" },
+    { bg: "#FEF3C7", text: "#92400E" },
+    { bg: "#E0E7FF", text: "#3730A3" },
+    { bg: "#DCFCE7", text: "#166534" },
+    { bg: "#F3E8FF", text: "#6B21A8" }
+  ];
+  CONFIG.danmakus.forEach((text, i) => {
+    const item = document.createElement("div");
+    item.className = "danmaku-item";
+    const c = colors[i % colors.length];
+    item.style.background = c.bg;
+    item.style.color = c.text;
+    item.style.top = `${(i % 4) * 40 + 10}px`;
+    item.style.animationDelay = `${i * 1.1}s`;
+    item.innerText = text.replace(/X老师|陈老师/g, CONFIG.teacherName);
+    box.appendChild(item);
+  });
+}
+
+// 互动奶茶杯（支持循环畅饮彩蛋）
+const milkTeaCup = document.getElementById("milktea-cup");
+const teaLiquid = document.getElementById("tea-liquid");
+const drinkHint = document.getElementById("drink-hint");
+
+milkTeaCup.addEventListener("click", () => {
+  sound.playSlurp();
+  if (navigator.vibrate) navigator.vibrate(20);
+  milkTeaDrunk++;
+
+  if (milkTeaDrunk === 1) {
+    teaLiquid.style.height = "50%";
+    drinkHint.innerText = "😋 好喝！再猛吸一大口～";
+  } else if (milkTeaDrunk === 2) {
+    teaLiquid.style.height = "25%";
+    drinkHint.innerText = "✨ 咕咚咕咚！还剩最后一口珍珠！";
+  } else if (milkTeaDrunk === 3) {
+    teaLiquid.style.height = "8%";
+    drinkHint.innerText = "🎉 续命奶茶喝光光！快乐值已充满！";
+    sound.playSuccess();
+  } else {
+    // 自动续杯彩蛋
+    milkTeaDrunk = 0;
+    teaLiquid.style.height = "75%";
+    drinkHint.innerText = "🥤 老友又给你续满了一大杯！继续吸！";
+    sound.playSuccess();
+    if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
+  }
+});
+
+// 7. 教师节专属“心愿护身符”刮刮乐
+let scratchInitialized = false;
+let isAutoCleared = false;
+let scratchLastX = null;
+let scratchLastY = null;
+let isScratchDrawing = false;
+let scratchCheckTimer = null;
+
+function initScratchCard() {
+  isAutoCleared = false;
+  scratchLastX = null;
+  scratchLastY = null;
+  isScratchDrawing = false;
+  if (scratchCheckTimer) {
+    clearTimeout(scratchCheckTimer);
+    scratchCheckTimer = null;
+  }
+
+  // 随机抽取一张护身符
+  const randomTalisman = CONFIG.talismans[Math.floor(Math.random() * CONFIG.talismans.length)];
+  document.getElementById("talisman-title").innerText = randomTalisman.title;
+  document.getElementById("talisman-desc").innerText = randomTalisman.desc;
+
+  // 移除旧印章提示
+  const oldStamp = document.getElementById("talisman-stamp");
+  if (oldStamp) oldStamp.remove();
+
+  const canvas = document.getElementById("scratch-canvas");
+  canvas.style.pointerEvents = "auto";
+  canvas.style.transition = "none";
+  canvas.style.opacity = "1";
+
+  // 高清 Retina 屏适配
+  const dpr = Math.min(window.devicePixelRatio || 1, 3);
+  const w = 280;
+  const h = 140;
+  canvas.width = Math.round(w * dpr);
+  canvas.height = Math.round(h * dpr);
+  canvas.style.width = "100%";
+  canvas.style.height = "100%";
+
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.scale(dpr, dpr);
+
+  // 绘制银色金属质感渐变涂层
+  const grad = ctx.createLinearGradient(0, 0, w, h);
+  grad.addColorStop(0, "#D1D5DB");
+  grad.addColorStop(0.5, "#E5E7EB");
+  grad.addColorStop(1, "#9CA3AF");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, w, h);
+
+  // 磨砂颗粒质感
+  ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+  for (let i = 0; i < 200; i++) {
+    ctx.fillRect(Math.random() * w, Math.random() * h, 2, 2);
+  }
+  ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
+  for (let i = 0; i < 200; i++) {
+    ctx.fillRect(Math.random() * w, Math.random() * h, 2, 2);
+  }
+
+  // 涂层提示文字
+  const FONT_STACK = "-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif";
+  ctx.fillStyle = "#374151";
+  ctx.font = "bold 15px " + FONT_STACK;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("✨ 动动手指刮开有惊喜 ✨", w / 2, h / 2 - 4);
+
+  ctx.fillStyle = "#6B7280";
+  ctx.font = "11px " + FONT_STACK;
+  ctx.fillText("2026 教师节心愿护身符", w / 2, h / 2 + 18);
+
+  if (!scratchInitialized) {
+    bindScratchEvents(canvas);
+    scratchInitialized = true;
+  }
+}
+
+function bindScratchEvents(canvas) {
+  let scratchCount = 0;
+
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const touch = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]);
+    const clientX = touch ? touch.clientX : e.clientX;
+    const clientY = touch ? touch.clientY : e.clientY;
+    const scaleX = 280 / (rect.width || 280);
+    const scaleY = 140 / (rect.height || 140);
+    return {
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top) * scaleY
+    };
+  }
+
+  function scratchAt(x, y) {
+    if (isAutoCleared) return;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    ctx.save();
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.lineWidth = 36;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = "rgba(0,0,0,1)";
+    ctx.fillStyle = "rgba(0,0,0,1)";
+
+    if (scratchLastX !== null && scratchLastY !== null) {
+      ctx.beginPath();
+      ctx.moveTo(scratchLastX, scratchLastY);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+    } else {
+      ctx.beginPath();
+      ctx.arc(x, y, 18, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+
+    scratchLastX = x;
+    scratchLastY = y;
+
+    scratchCount++;
+    if (scratchCount % 5 === 0) {
+      sound.playPop();
+      if (navigator.vibrate) navigator.vibrate(12);
+    }
+
+    // 节流检查刮开比例
+    if (!scratchCheckTimer) {
+      scratchCheckTimer = setTimeout(() => {
+        scratchCheckTimer = null;
+        checkScratchRatio(canvas);
+      }, 150);
+    }
+  }
+
+  // 鼠标事件绑定
+  canvas.addEventListener("mousedown", (e) => {
+    if (isAutoCleared) return;
+    isScratchDrawing = true;
+    scratchLastX = null;
+    scratchLastY = null;
+    const p = getPos(e);
+    scratchAt(p.x, p.y);
+  });
+  window.addEventListener("mousemove", (e) => {
+    if (!isScratchDrawing || isAutoCleared) return;
+    const p = getPos(e);
+    scratchAt(p.x, p.y);
+  });
+  window.addEventListener("mouseup", () => {
+    if (isScratchDrawing) {
+      isScratchDrawing = false;
+      scratchLastX = null;
+      scratchLastY = null;
+      checkScratchRatio(canvas);
+    }
+  });
+
+  // 移动端 Touch 事件 (阻止滑动冲突，确保丝滑刮奖)
+  canvas.addEventListener("touchstart", (e) => {
+    if (isAutoCleared) return;
+    isScratchDrawing = true;
+    scratchLastX = null;
+    scratchLastY = null;
+    const p = getPos(e);
+    scratchAt(p.x, p.y);
+    if (e.cancelable) e.preventDefault();
+  }, { passive: false });
+
+  canvas.addEventListener("touchmove", (e) => {
+    if (!isScratchDrawing || isAutoCleared) return;
+    const p = getPos(e);
+    scratchAt(p.x, p.y);
+    if (e.cancelable) e.preventDefault();
+  }, { passive: false });
+
+  canvas.addEventListener("touchend", () => {
+    if (isScratchDrawing) {
+      isScratchDrawing = false;
+      scratchLastX = null;
+      scratchLastY = null;
+      checkScratchRatio(canvas);
+    }
+  });
+  canvas.addEventListener("touchcancel", () => {
+    isScratchDrawing = false;
+    scratchLastX = null;
+    scratchLastY = null;
+    checkScratchRatio(canvas);
+  });
+}
+
+function checkScratchRatio(canvas) {
+  if (isAutoCleared) return;
+  try {
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imgData.data;
+    let transparent = 0;
+    let totalSamples = 0;
+    // 跨步采样算法，瞬时计算耗时 < 0.2ms
+    const step = 32;
+    for (let i = 3; i < data.length; i += step) {
+      totalSamples++;
+      if (data[i] < 128) {
+        transparent++;
+      }
+    }
+    const ratio = transparent / totalSamples;
+    // 达到 45% 阈值，触发自动完全揭晓！
+    if (ratio >= 0.45) {
+      triggerAutoClear(canvas);
+    }
+  } catch (err) {
+    console.warn("Scratch ratio check error:", err);
+  }
+}
+
+function triggerAutoClear(canvas) {
+  if (isAutoCleared) return;
+  isAutoCleared = true;
+  sound.playSuccess();
+  if (navigator.vibrate) navigator.vibrate([25, 50, 30]);
+
+  // 柔和淡出涂层并禁用其拦截触摸，确保用户可自由划屏与复制文字
+  canvas.style.transition = "opacity 0.6s ease-out";
+  canvas.style.opacity = "0";
+  canvas.style.pointerEvents = "none";
+
+  const descEl = document.getElementById("talisman-desc");
+  if (descEl && !document.getElementById("talisman-stamp")) {
+    const stamp = document.createElement("div");
+    stamp.id = "talisman-stamp";
+    stamp.innerText = "✨ 护身符神力已全面激活！✨";
+    stamp.style.cssText = "color: #EF4444; font-weight: 800; font-size: 13px; margin-top: 6px; animation: pulseKnock 1.2s infinite;";
+    descEl.parentNode.appendChild(stamp);
+  }
+
+  setTimeout(() => {
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }, 600);
+}
+
+// 8. 笛卡尔心形线全屏彩蛋 (Retina高清与动画防泄漏)
+const openMathBtn = document.getElementById("open-math-btn");
+const mathEggModal = document.getElementById("math-egg-modal");
+const closeMathBtn = document.getElementById("close-math-btn");
+const heartCanvas = document.getElementById("heart-canvas");
+let heartAnimId = null;
+
+openMathBtn.addEventListener("click", () => {
+  sound.playSuccess();
+  mathEggModal.classList.add("active");
+  drawHeartAnimation();
+});
+closeMathBtn.addEventListener("click", () => {
+  if (heartAnimId) cancelAnimationFrame(heartAnimId);
+  mathEggModal.classList.remove("active");
+});
+
+function drawHeartAnimation() {
+  if (heartAnimId) cancelAnimationFrame(heartAnimId);
+  const dpr = Math.min(window.devicePixelRatio || 1, 3);
+  const size = 280;
+  heartCanvas.width = size * dpr;
+  heartCanvas.height = size * dpr;
+  heartCanvas.style.width = size + "px";
+  heartCanvas.style.height = size + "px";
+
+  const ctx = heartCanvas.getContext("2d");
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.scale(dpr, dpr);
+
+  const w = size;
+  const h = size;
+  const a = 62;
+  const points = [];
+  const totalPoints = 140;
+
+  for (let i = 0; i <= totalPoints; i++) {
+    const angle = (i / totalPoints) * Math.PI * 2;
+    const r = a * (1 - Math.sin(angle));
+    points.push({
+      x: w / 2 + r * Math.cos(angle),
+      y: h / 2 - r * Math.sin(angle) + 22
+    });
+  }
+
+  let progress = 1;
+  function step() {
+    ctx.clearRect(0, 0, size, size);
+
+    ctx.save();
+    ctx.strokeStyle = "#F43F5E";
+    ctx.lineWidth = 3.5;
+    ctx.shadowColor = "rgba(244, 63, 94, 0.6)";
+    ctx.shadowBlur = 10;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < progress; i++) {
+      ctx.lineTo(points[i].x, points[i].y);
+    }
+
+    if (progress >= points.length) {
+      ctx.closePath();
+      ctx.fillStyle = "rgba(244, 63, 94, 0.2)";
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+      return;
+    }
+
+    ctx.stroke();
+    ctx.restore();
+
+    progress += 3;
+    if (progress > points.length) progress = points.length;
+    heartAnimId = requestAnimationFrame(step);
+  }
+  step();
+}
+
+// 9. 纯前端 Canvas 礼花系统
+let confettiAnimId = null;
+function startConfetti() {
+  if (confettiAnimId) cancelAnimationFrame(confettiAnimId);
+  const canvas = document.getElementById("confetti-canvas");
+  const ctx = canvas.getContext("2d");
+  canvas.width = canvas.parentElement.clientWidth || 360;
+  canvas.height = canvas.parentElement.clientHeight || 640;
+
+  const pieces = [];
+  const colors = ["#EF4444", "#F59E0B", "#10B981", "#3B82F6", "#8B5CF6", "#EC4899"];
+
+  for (let i = 0; i < 60; i++) {
+    pieces.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height * 0.4,
+      size: Math.random() * 8 + 4,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      vx: Math.random() * 4 - 2,
+      vy: Math.random() * 3 + 2,
+      angle: Math.random() * 360,
+      vAngle: Math.random() * 6 - 3
+    });
+  }
+
+  let frame = 0;
+  function updateConfetti() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.angle += p.vAngle;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate((p.angle * Math.PI) / 180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+      ctx.restore();
+    });
+    frame++;
+    if (frame < 220) {
+      confettiAnimId = requestAnimationFrame(updateConfetti);
+    } else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  }
+  updateConfetti();
+}
+
+// 10. 生成朋友圈专属战报海报 (高清Retina导出、优雅矢量卡通降级、CORS安全兜底)
+const genPosterBtn = document.getElementById("gen-poster-btn");
+const posterModal = document.getElementById("poster-modal");
+const posterImg = document.getElementById("poster-img");
+const closePosterBtn = document.getElementById("close-poster-btn");
+
+genPosterBtn.addEventListener("click", () => {
+  sound.playSuccess();
+  generatePosterImage();
+});
+closePosterBtn.addEventListener("click", () => {
+  posterModal.classList.remove("active");
+});
+
+function generatePosterImage() {
+  const FONT_STACK = "-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', sans-serif";
+  const pCanvas = document.createElement("canvas");
+  const W = 750;
+  const H = 1160;
+  pCanvas.width = W;
+  pCanvas.height = H;
+  const pCtx = pCanvas.getContext("2d");
+
+  // 1. 拍立得底纸高级暖米/柔粉微渐变
+  const bgGrad = pCtx.createLinearGradient(0, 0, W, H);
+  bgGrad.addColorStop(0, "#FFFDF9");
+  bgGrad.addColorStop(0.6, "#FFF7ED");
+  bgGrad.addColorStop(1, "#FDF2F8");
+  pCtx.fillStyle = bgGrad;
+  pCtx.fillRect(0, 0, W, H);
+
+  // 外部精致双重边框
+  pCtx.save();
+  pCtx.strokeStyle = "#FBCFE8";
+  pCtx.lineWidth = 12;
+  pCtx.strokeRect(20, 20, W - 40, H - 40);
+
+  pCtx.strokeStyle = "#F472B6";
+  pCtx.lineWidth = 2;
+  pCtx.setLineDash([8, 8]);
+  pCtx.strokeRect(32, 32, W - 64, H - 64);
+  pCtx.restore();
+
+  // 2. 标题区
+  pCtx.textAlign = "center";
+  pCtx.fillStyle = "#BE185D";
+  pCtx.font = "bold 44px " + FONT_STACK;
+  pCtx.fillText("2026 教师节 · 战报勋章", W / 2, 98);
+
+  pCtx.fillStyle = "#6B7280";
+  pCtx.font = "600 20px " + FONT_STACK;
+  const subjText = CONFIG.schoolSubject ? `${CONFIG.schoolSubject}班主任` : "班主任";
+  pCtx.fillText(`✦ 全国特级治愈系${subjText} · 官方荣誉认证 ✦`, W / 2, 138);
+
+  // 3. 中间拍立得照片卡槽
+  pCtx.save();
+  pCtx.fillStyle = "#FFFFFF";
+  pCtx.shadowColor = "rgba(0, 0, 0, 0.1)";
+  pCtx.shadowBlur = 24;
+  pCtx.shadowOffsetY = 8;
+  const rx = 100, ry = 175, rw = 550, rh = 430, rRadius = 24;
+  pCtx.beginPath();
+  pCtx.moveTo(rx + rRadius, ry);
+  pCtx.lineTo(rx + rw - rRadius, ry);
+  pCtx.quadraticCurveTo(rx + rw, ry, rx + rw, ry + rRadius);
+  pCtx.lineTo(rx + rw, ry + rh - rRadius);
+  pCtx.quadraticCurveTo(rx + rw, ry + rh, rx + rw - rRadius, ry + rh);
+  pCtx.lineTo(rx + rRadius, ry + rh);
+  pCtx.quadraticCurveTo(rx, ry + rh, rx, ry + rh - rRadius);
+  pCtx.lineTo(rx, ry + rRadius);
+  pCtx.quadraticCurveTo(rx, ry, rx + rRadius, ry);
+  pCtx.closePath();
+  pCtx.fill();
+  pCtx.restore();
+
+  // 头像圆心与尺寸
+  const avatarCenterX = W / 2;
+  const avatarCenterY = 350;
+  const avatarRadius = 135;
+
+  // 头像背景底圈
+  pCtx.fillStyle = "#FDE68A";
+  pCtx.beginPath();
+  pCtx.arc(avatarCenterX, avatarCenterY, avatarRadius, 0, Math.PI * 2);
+  pCtx.fill();
+
+  // 判断是否有外部头像且成功加载
+  const avatarImgEl = document.getElementById("avatar-img");
+  let hasRealPhoto = false;
+  if (avatarImgEl && avatarImgEl.style.display !== "none" && avatarImgEl.complete && avatarImgEl.naturalWidth > 0) {
+    try {
+      pCtx.save();
+      pCtx.beginPath();
+      pCtx.arc(avatarCenterX, avatarCenterY, avatarRadius, 0, Math.PI * 2);
+      pCtx.clip();
+
+      // Object-fit: cover 计算，绝不压扁拉伸任何尺寸的照片
+      const nw = avatarImgEl.naturalWidth;
+      const nh = avatarImgEl.naturalHeight;
+      const minDim = Math.min(nw, nh);
+      const sx = (nw - minDim) / 2;
+      const sy = (nh - minDim) / 2;
+      pCtx.drawImage(
+        avatarImgEl,
+        sx, sy, minDim, minDim,
+        avatarCenterX - avatarRadius, avatarCenterY - avatarRadius, avatarRadius * 2, avatarRadius * 2
+      );
+      pCtx.restore();
+      hasRealPhoto = true;
+    } catch (e) {
+      console.warn("Avatar draw error, falling back to vector cartoon:", e);
+      hasRealPhoto = false;
+    }
+  }
+
+  // 若无真实头像或加载失败，绘制高颜值专属卡通女教师矢量画
+  if (!hasRealPhoto) {
+    pCtx.save();
+    pCtx.beginPath();
+    pCtx.arc(avatarCenterX, avatarCenterY, avatarRadius, 0, Math.PI * 2);
+    pCtx.clip();
+
+    // 浅金底色
+    pCtx.fillStyle = "#FDE68A";
+    pCtx.fillRect(avatarCenterX - avatarRadius, avatarCenterY - avatarRadius, avatarRadius * 2, avatarRadius * 2);
+
+    // 老师深棕色头发
+    pCtx.fillStyle = "#4B2C20";
+    pCtx.beginPath();
+    pCtx.arc(avatarCenterX, avatarCenterY - 15, 95, Math.PI, Math.PI * 2);
+    pCtx.fill();
+    pCtx.fillRect(avatarCenterX - 95, avatarCenterY - 15, 45, 120);
+    pCtx.fillRect(avatarCenterX + 50, avatarCenterY - 15, 45, 120);
+
+    // 脸部
+    pCtx.fillStyle = "#FCE7D0";
+    pCtx.beginPath();
+    pCtx.arc(avatarCenterX, avatarCenterY + 10, 72, 0, Math.PI * 2);
+    pCtx.fill();
+
+    // 刘海
+    pCtx.fillStyle = "#4B2C20";
+    pCtx.beginPath();
+    pCtx.moveTo(avatarCenterX - 72, avatarCenterY - 15);
+    pCtx.quadraticCurveTo(avatarCenterX, avatarCenterY + 15, avatarCenterX + 72, avatarCenterY - 15);
+    pCtx.lineTo(avatarCenterX + 72, avatarCenterY - 40);
+    pCtx.lineTo(avatarCenterX - 72, avatarCenterY - 40);
+    pCtx.closePath();
+    pCtx.fill();
+
+    // 腮红
+    pCtx.fillStyle = "#FCA5A5";
+    pCtx.beginPath();
+    pCtx.arc(avatarCenterX - 42, avatarCenterY + 28, 12, 0, Math.PI * 2);
+    pCtx.arc(avatarCenterX + 42, avatarCenterY + 28, 12, 0, Math.PI * 2);
+    pCtx.fill();
+
+    // 眼睛
+    pCtx.fillStyle = "#1F2937";
+    pCtx.beginPath();
+    pCtx.arc(avatarCenterX - 26, avatarCenterY + 8, 7, 0, Math.PI * 2);
+    pCtx.arc(avatarCenterX + 26, avatarCenterY + 8, 7, 0, Math.PI * 2);
+    pCtx.fill();
+    // 眼神光
+    pCtx.fillStyle = "#FFFFFF";
+    pCtx.beginPath();
+    pCtx.arc(avatarCenterX - 28, avatarCenterY + 6, 2.5, 0, Math.PI * 2);
+    pCtx.arc(avatarCenterX + 24, avatarCenterY + 6, 2.5, 0, Math.PI * 2);
+    pCtx.fill();
+
+    // 治愈微笑
+    pCtx.strokeStyle = "#1F2937";
+    pCtx.lineWidth = 4;
+    pCtx.lineCap = "round";
+    pCtx.beginPath();
+    pCtx.arc(avatarCenterX, avatarCenterY + 32, 16, 0.15 * Math.PI, 0.85 * Math.PI);
+    pCtx.stroke();
+
+    // 老师专属知性眼镜
+    pCtx.strokeStyle = "#374151";
+    pCtx.lineWidth = 4;
+    pCtx.strokeRect(avatarCenterX - 52, avatarCenterY - 8, 42, 32);
+    pCtx.strokeRect(avatarCenterX + 10, avatarCenterY - 8, 42, 32);
+    pCtx.beginPath();
+    pCtx.moveTo(avatarCenterX - 10, avatarCenterY + 8);
+    pCtx.lineTo(avatarCenterX + 10, avatarCenterY + 8);
+    pCtx.stroke();
+
+    pCtx.restore();
+  }
+
+  // 头像精致白色外框线
+  pCtx.strokeStyle = "#FFFFFF";
+  pCtx.lineWidth = 8;
+  pCtx.beginPath();
+  pCtx.arc(avatarCenterX, avatarCenterY, avatarRadius, 0, Math.PI * 2);
+  pCtx.stroke();
+
+  // 头像右上角：学士帽小装饰
+  pCtx.font = "52px " + FONT_STACK;
+  pCtx.textAlign = "center";
+  pCtx.fillText("🎓", avatarCenterX + avatarRadius - 15, avatarCenterY - avatarRadius + 30);
+
+  // 照片框下方老师尊称
+  pCtx.fillStyle = "#831843";
+  pCtx.font = "bold 30px " + FONT_STACK;
+  pCtx.textAlign = "center";
+  pCtx.fillText(`✨ ${CONFIG.teacherName} · 宇宙无敌掌门人 ✨`, W / 2, 565);
+
+  // 4. 战绩雷达标签 (4项黄金评价)
+  const tags = [
+    "✨ 情绪稳定度：超越全校 99.9% 老师",
+    "📐 数学魅力值：+∞（超越实数集）",
+    "☕ 今日血压损耗：0%（身心舒畅）",
+    "🏃‍♀️ 下班打卡步速：闪电侠级别"
+  ];
+  pCtx.textAlign = "left";
+  pCtx.font = "bold 23px " + FONT_STACK;
+  tags.forEach((tag, idx) => {
+    const cardY = 635 + idx * 62;
+    pCtx.fillStyle = "#EEF2FF";
+    pCtx.beginPath();
+    const bx = 80, by = cardY, bw = 590, bh = 50, br = 14;
+    pCtx.moveTo(bx + br, by);
+    pCtx.lineTo(bx + bw - br, by);
+    pCtx.quadraticCurveTo(bx + bw, by, bx + bw, by + br);
+    pCtx.lineTo(bx + bw, by + bh - br);
+    pCtx.quadraticCurveTo(bx + bw, by + bh, bx + bw - br, by + bh);
+    pCtx.lineTo(bx + br, by + bh);
+    pCtx.quadraticCurveTo(bx, by + bh, bx, by + bh - br);
+    pCtx.lineTo(bx, by + br);
+    pCtx.quadraticCurveTo(bx, by, bx + br, by);
+    pCtx.closePath();
+    pCtx.fill();
+
+    pCtx.fillStyle = "#4338CA";
+    pCtx.fillText(tag, 105, cardY + 34);
+  });
+
+  // 5. 底部好友真诚落款与祝福
+  pCtx.textAlign = "center";
+  pCtx.fillStyle = "#9D174D";
+  pCtx.font = "bold 24px " + FONT_STACK;
+  pCtx.fillText(`祝 ${CONFIG.teacherName} 教师节快乐！永远率真开怀！`, W / 2, 940);
+
+  pCtx.fillStyle = "#4B5563";
+  pCtx.font = "600 18px " + FONT_STACK;
+  pCtx.fillText(`老友 [${CONFIG.friendName}] 倾情认证 · 终身有效`, W / 2, 980);
+
+  pCtx.fillStyle = "#9CA3AF";
+  pCtx.font = "14px " + FONT_STACK;
+  pCtx.fillText("2026.09.10 教师节专属定制 · 班主任假期拯救计划", W / 2, 1020);
+
+  // 6. 2026教师节官方认证大红印章 (盖章质感)
+  pCtx.save();
+  pCtx.translate(580, 975);
+  pCtx.rotate(-0.16);
+  pCtx.strokeStyle = "rgba(220, 38, 38, 0.85)";
+  pCtx.fillStyle = "rgba(220, 38, 38, 0.85)";
+  pCtx.lineWidth = 3.5;
+
+  pCtx.beginPath();
+  pCtx.arc(0, 0, 52, 0, Math.PI * 2);
+  pCtx.stroke();
+  pCtx.beginPath();
+  pCtx.arc(0, 0, 46, 0, Math.PI * 2);
+  pCtx.stroke();
+
+  pCtx.font = "20px " + FONT_STACK;
+  pCtx.textAlign = "center";
+  pCtx.textBaseline = "middle";
+  pCtx.fillText("★", 0, -18);
+
+  pCtx.font = "bold 13px " + FONT_STACK;
+  pCtx.fillText("官方特批", 0, 2);
+  pCtx.font = "bold 12px " + FONT_STACK;
+  pCtx.fillText("绝不拖堂", 0, 18);
+  pCtx.font = "9px " + FONT_STACK;
+  pCtx.fillText("· 终身有效 ·", 0, 32);
+  pCtx.restore();
+
+  // 导出图片并绑定下载链接
+  try {
+    const dataUrl = pCanvas.toDataURL("image/png");
+    posterImg.src = dataUrl;
+    const downloadBtn = document.getElementById("download-poster-btn");
+    if (downloadBtn) {
+      downloadBtn.href = dataUrl;
+      downloadBtn.download = `${CONFIG.teacherName}-教师节专属战报.png`;
+    }
+    posterModal.classList.add("active");
+  } catch (err) {
+    console.error("Poster export failed:", err);
+    // 若因图片跨域受污染，以纯卡通降级方案强制重新生成
+    if (hasRealPhoto) {
+      const avatarEl = document.getElementById("avatar-img");
+      if (avatarEl) avatarEl.style.display = "none";
+      generatePosterImage();
+    } else {
+      alert("海报生成遇到浏览器限制，请尝试长按或刷新页面重试～");
+    }
+  }
+}
+
+// 移动端 / 微信下载引导处理
+const downloadPosterBtn = document.getElementById("download-poster-btn");
+if (downloadPosterBtn) {
+  downloadPosterBtn.addEventListener("click", (e) => {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const isWeChat = /MicroMessenger/i.test(navigator.userAgent);
+    if (isIOS || isWeChat) {
+      e.preventDefault();
+      const posterTip = document.querySelector(".poster-tip");
+      if (posterTip) {
+        posterTip.innerText = "💡 微信/iOS端请长按上方海报，选择【保存图片】到相册哦！";
+        posterTip.style.color = "#EF4444";
+      }
+      posterImg.style.transition = "transform 0.2s, box-shadow 0.2s";
+      posterImg.style.transform = "scale(0.97)";
+      posterImg.style.boxShadow = "0 0 20px rgba(239, 68, 68, 0.6)";
+      setTimeout(() => {
+        posterImg.style.transform = "scale(1)";
+        posterImg.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+      }, 400);
+    }
+  });
+}
+
+// 弹窗背景点击关闭优化
+posterModal.addEventListener("click", (e) => {
+  if (e.target === posterModal) {
+    posterModal.classList.remove("active");
+  }
+});
+mathEggModal.addEventListener("click", (e) => {
+  if (e.target === mathEggModal) {
+    if (heartAnimId) cancelAnimationFrame(heartAnimId);
+    mathEggModal.classList.remove("active");
+  }
+});
+feedbackModal.addEventListener("click", (e) => {
+  if (e.target === feedbackModal) {
+    feedbackModal.classList.remove("active");
+    nextLevelBtn.click();
+  }
+});
+
+// 11. 重新游玩（全量状态干净重置）
+document.getElementById("restart-game-btn").addEventListener("click", () => {
+  currentLevel = 0;
+  knockCount = 0;
+  milkTeaDrunk = 0;
+  teaLiquid.style.height = "75%";
+  drinkHint.innerText = "🥤 点击吸管，大口吸奶茶解压！";
+
+  doorLeaf.style.transform = "rotateY(0deg)";
+  if (knockHintMsg) knockHintMsg.innerText = "✊ 轻敲 3 下房门，拯救班主任！";
+  knockCountText.style.display = "inline";
+  knockCountText.innerText = "(已敲 0 / 3)";
+
+  // 停止礼花动画并清理画布
+  if (confettiAnimId) {
+    cancelAnimationFrame(confettiAnimId);
+    confettiAnimId = null;
+  }
+  const confettiCanvas = document.getElementById("confetti-canvas");
+  if (confettiCanvas) {
+    const cCtx = confettiCanvas.getContext("2d");
+    cCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+  }
+
+  // 停止笛卡尔心形线动画
+  if (heartAnimId) {
+    cancelAnimationFrame(heartAnimId);
+    heartAnimId = null;
+  }
+
+  // 移除护身符印章
+  const stamp = document.getElementById("talisman-stamp");
+  if (stamp) stamp.remove();
+
+  // 重置刮刮乐状态、透明度与指针事件
+  if (scratchCheckTimer) {
+    clearTimeout(scratchCheckTimer);
+    scratchCheckTimer = null;
+  }
+  const scratchCanvas = document.getElementById("scratch-canvas");
+  scratchCanvas.style.transition = "none";
+  scratchCanvas.style.opacity = "1";
+  scratchCanvas.style.pointerEvents = "auto";
+  isAutoCleared = false;
+  scratchLastX = null;
+  scratchLastY = null;
+  isScratchDrawing = false;
+
+  celebrationScreen.classList.add("hidden");
+  doorScreen.classList.remove("hidden");
+  setAppTheme("door");
+});
+</script>
+
+</body>
+</html>
