@@ -63,3 +63,4 @@ const CONFIG = {
 ## 🚀 本地快速预览
 
 双击 `index.html` 即可在电脑或手机浏览器中直接打开。
+good
