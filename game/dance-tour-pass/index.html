@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="format-detection" content="telephone=no">
+  <title>Dance Tour Pass 🎟️🔥 · 夜校嘻哈导师巡演票夹</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+
+  <!-- ==================== 金色彩带粒子画布 ==================== -->
+  <canvas id="confettiCanvas"></canvas>
+
+  <!-- ==================== 顶部状态栏与黑胶播放器 ==================== -->
+  <header class="top-bar">
+    <div class="brand-badge">
+      <span class="pill">VIP PASS</span>
+      <div class="tour-title">
+        <span class="live-dot"></span>
+        <span>DANCE TOUR 2026</span>
+      </div>
+    </div>
+
+    <!-- 黑胶唱片 BGM 控制组件 -->
+    <div class="vinyl-widget" id="vinylToggle" title="点击播放/静音背景律动">
+      <div class="vinyl-disc" id="vinylDisc"></div>
+      <div class="vinyl-info">
+        <span class="bgm-title">BOOM-BAP</span>
+        <span class="bgm-status" id="bgmStatusText">READY</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== 1. 开机仪式：DROP THE BEAT (CRT 复古卡带机) ==================== -->
+  <section class="intro-overlay" id="introOverlay">
+    <div class="crt-scanlines"></div>
+    <div class="boombox-card">
+      <div class="boombox-header">
+        <span class="boombox-model">RETRO BEATBOX-808</span>
+        <div class="boombox-leds">
+          <span class="led g"></span>
+          <span class="led y"></span>
+          <span class="led r"></span>
+        </div>
+      </div>
+
+      <!-- 磁带视窗 -->
+      <div class="cassette-window">
+        <div class="cassette-label" id="introCassetteLabel">TAPE: 2026 教师节特别企划 · K-Rock 专场</div>
+        <div class="tape-reel rotating" id="reelLeft"></div>
+        <div class="tape-reel rotating" id="reelRight"></div>
+      </div>
+
+      <!-- 点火启动按键 -->
+      <div class="ignite-btn-wrapper">
+        <button class="ignite-btn" id="igniteBtn">
+          <span>⚡ DROP THE BEAT ⚡</span>
+          <span class="btn-sub">开启夜校专场巡演 · TAP TO IGNITE</span>
+        </button>
+      </div>
+
+      <div class="headphone-tip">
+        <span>🎧 佩戴耳机体验 808 重低音与 DJ 搓碟</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 2. 主页面票夹架构 ==================== -->
+  <main class="main-content" id="mainContent">
+    <!-- 工牌夹与巡演编号 -->
+    <div class="lanyard-clip">
+      <div class="clip-hole"></div>
+      <div class="clip-tag" id="ticketSerialTag">#HIPHOP-2026-VIP-PASS</div>
+    </div>
+
+    <!-- 三联票根切换器 -->
+    <nav class="ticket-tabs">
+      <button class="tab-btn active" data-tab="0" id="tab0">
+        <span class="tab-num">PASS 01</span>
+        <span>排练档案</span>
+      </button>
+      <button class="tab-btn" data-tab="1" id="tab1">
+        <span class="tab-num">PASS 02</span>
+        <span>齐舞主秀</span>
+      </button>
+      <button class="tab-btn" data-tab="2" id="tab2">
+        <span class="tab-num">PASS 03</span>
+        <span>学员告白</span>
+      </button>
+    </nav>
+
+    <!-- 票根内容视口 -->
+    <div class="ticket-deck">
+
+      <!-- ==================== 票根一：排练档案票 (Rehearsal Pass) ==================== -->
+      <section class="ticket-panel active" id="panel0">
+        <article class="ticket-wrapper">
+          <div class="hologram-strip"></div>
+          <div class="ticket-punch-left"></div>
+          <div class="ticket-punch-right"></div>
+
+          <div class="ticket-head">
+            <span class="ticket-serial">NO. #REHEARSAL-01</span>
+            <span class="ticket-category-tag">ARCHIVE VIP</span>
+            <div class="stamp-confidential">CONFIDENTIAL 内部绝密</div>
+          </div>
+
+          <div class="ticket-body">
+            <div class="ticket-title-row">
+              <div>
+                <h2 class="ticket-main-title" id="rehearsalTitle">排练花絮 · 从顺拐到卡点</h2>
+                <p class="ticket-sub-desc" id="rehearsalDesc">记录我们从手忙脚乱到渐入佳境的夜校练舞日常</p>
+              </div>
+            </div>
+
+            <!-- 视频播放区 (含 VHS 滤镜及 Canvas 动效回退) -->
+            <!-- 视频播放区 (含 VHS 滤镜及 Canvas 动效回退) -->
+            <div class="video-player-box" id="rehearsalVideoContainer">
+              <video 
+                id="rehearsalVideo" 
+                playsinline 
+                webkit-playsinline 
+                x5-video-player-type="h5-page" 
+                x5-video-player-fullscreen="false"
+                preload="metadata"
+              ></video>
+              <div class="rehearsal-canvas-fallback" id="rehearsalFallback">
+                <canvas id="rehearsalCanvas" width="560" height="315"></canvas>
+              </div>
+              <div class="video-play-overlay" id="rehearsalPlayOverlay">
+                <button class="center-play-btn" id="rehearsalPlayBtn" aria-label="播放排练花絮">▶</button>
+              </div>
+              <div class="vhs-filter" id="vhsFilter"></div>
+              <div class="vhs-badge"><span>● REC</span> <span id="vhsTimer">00:09:10</span></div>
+            </div>
+
+            <div class="video-control-bar">
+              <div class="video-ctrl-left">
+                <button class="video-toggle-play-btn" id="rehearsalTogglePlayBtn">▶ 播放花絮</button>
+                <button class="vhs-toggle-btn active" id="vhsToggleBtn">📼 VHS 复古滤镜: 开</button>
+              </div>
+              <span style="font-size: 11px; color: var(--text-muted);">夜校舞房机位 #01</span>
+            </div>
+
+            <!-- 排练翻车名场面卡片 -->
+            <div class="rehearsal-highlights">
+              <h4>🔥 排练高光与翻车大赏</h4>
+              <div class="highlight-item">
+                <span>1.</span>
+                <span><b>基本功马步蹲：</b>大腿狂抖也要坚持数完最后两个八拍，老师口头禅“还有最后一组！”</span>
+              </div>
+              <div class="highlight-item">
+                <span>2.</span>
+                <span><b>顺拐名场面：</b>左脚跨出时左手也坚定地甩了出去，四肢拥有独立的灵魂。</span>
+              </div>
+              <div class="highlight-item">
+                <span>3.</span>
+                <span><b>卡点大抓包：</b>偷偷划水零点五秒，被老师鹰眼精准口哨抓现行：“后排同学节拍慢半拍哦！”</span>
+              </div>
+            </div>
+
+            <div class="ticket-barcode-footer">
+              <div class="barcode-lines">
+                <span style="width: 2px;"></span><span style="width: 4px;"></span>
+                <span style="width: 1px;"></span><span style="width: 3px;"></span>
+                <span style="width: 5px;"></span><span style="width: 2px;"></span>
+                <span style="width: 2px;"></span><span style="width: 4px;"></span>
+                <span style="width: 6px;"></span><span style="width: 1px;"></span>
+              </div>
+              <span class="barcode-text">PASS 1/3 · REHEARSAL OK</span>
+            </div>
+          </div>
+        </article>
+
+        <div class="ticket-action-bar">
+          <button class="next-pass-btn" data-next="1">
+            <span>前往第二联：齐舞主秀票</span>
+            <span>⏩</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ==================== 票根二：齐舞主秀票 (Main Show Pass) ==================== -->
+      <section class="ticket-panel" id="panel1">
+        <article class="ticket-wrapper">
+          <div class="hologram-strip"></div>
+          <div class="ticket-punch-left"></div>
+          <div class="ticket-punch-right"></div>
+
+          <div class="ticket-head">
+            <span class="ticket-serial" style="color: var(--accent-volt);">NO. #MAIN-STAGE-02</span>
+            <span class="ticket-category-tag" style="background: rgba(204,255,0,0.15); color: var(--accent-volt);">STAGE VIP</span>
+          </div>
+
+          <div class="ticket-body">
+            <div class="ticket-title-row">
+              <div>
+                <h2 class="ticket-main-title" id="mainShowTitle">齐舞正片 · 舞房最终大秀</h2>
+                <p class="ticket-sub-desc" id="mainShowDesc">期末终极呈现！全班卡点齐舞，属于我们的舞台高光时刻</p>
+              </div>
+            </div>
+
+            <!-- 主秀舞台区（支持任意点击喷射打 Call 粒子弹幕） -->
+            <div class="cheer-stage-container" id="cheerStage">
+              <video 
+                id="mainShowVideo" 
+                playsinline 
+                webkit-playsinline 
+                x5-video-player-type="h5-page" 
+                x5-video-player-fullscreen="false"
+                preload="metadata"
+              ></video>
+              <div class="rehearsal-canvas-fallback" id="mainShowFallback">
+                <canvas id="stageCanvas" width="560" height="315"></canvas>
+              </div>
+
+              <!-- 齐舞大片播放/暂停浮层控制 -->
+              <div class="stage-video-control" id="stageVideoControl">
+                <button class="stage-play-btn" id="mainShowPlayBtn">▶ 播放齐舞大秀</button>
+              </div>
+
+              <!-- Combo HUD 计次 -->
+              <div class="combo-hud" id="comboHud">
+                <div class="combo-count" id="comboCountText">x0</div>
+                <div class="combo-badge" id="comboBadgeText">GET LIT!</div>
+              </div>
+
+              <!-- 打 Call 交互透明感应层 -->
+              <div class="cheer-tap-zone" id="cheerTapZone">
+                <span class="tap-guide-chip">🔥 点击屏幕任意位置 · 狂轰打 Call 弹幕！</span>
+              </div>
+            </div>
+
+            <div style="margin-top: 14px; font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
+              <span style="color: var(--accent-cyan); font-weight: 700;">★ 街舞气氛组特权：</span> 
+              在视频上方连续点击，即可向舞台喷射 <code>RESPECT</code>、<code>SWAG</code>、<code>SHEESH</code> 等发光打 Call 粒子！
+            </div>
+
+            <div class="ticket-barcode-footer">
+              <div class="barcode-lines">
+                <span style="width: 3px;"></span><span style="width: 2px;"></span>
+                <span style="width: 5px;"></span><span style="width: 1px;"></span>
+                <span style="width: 4px;"></span><span style="width: 2px;"></span>
+                <span style="width: 6px;"></span><span style="width: 3px;"></span>
+                <span style="width: 2px;"></span><span style="width: 4px;"></span>
+              </div>
+              <span class="barcode-text">PASS 2/3 · STAGE CLEARED</span>
+            </div>
+          </div>
+        </article>
+
+        <div class="ticket-action-bar">
+          <button class="next-pass-btn" data-next="2">
+            <span>前往第三联：学员告白票</span>
+            <span>🎟️</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ==================== 票根三：学员告白票 (Respect VIP Pass) ==================== -->
+      <section class="ticket-panel" id="panel2">
+        <article class="ticket-wrapper respect-ticket-card">
+          <div class="hologram-strip"></div>
+          <div class="ticket-punch-left"></div>
+          <div class="ticket-punch-right"></div>
+
+          <!-- 待撕副券票头 -->
+          <div class="stub-top" id="stubTop">
+            <div class="ticket-head">
+              <span class="ticket-serial" style="color: var(--accent-gold);">NO. #RESPECT-VIP-FINAL</span>
+              <span class="ticket-category-tag" style="background: rgba(255, 183, 0, 0.2); color: var(--accent-gold);" id="checkinStatusBadge">WAITING ADMISSION</span>
+            </div>
+
+            <div class="ticket-body" style="padding-bottom: 8px;">
+              <div class="ticket-title-row">
+                <div>
+                  <h2 class="ticket-main-title">学员告白 · 终身名誉导师票</h2>
+                  <p class="ticket-sub-desc">撕开副券完成检票，开启全体学员亲笔心声</p>
+                </div>
+              </div>
+
+              <!-- 票根详细参数 -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px; margin-top: 10px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px;">
+                <div>
+                  <span style="color: var(--text-muted);">特邀导师：</span>
+                  <b style="color: #fff;" id="stubTeacherName">K-Rock 导师</b>
+                </div>
+                <div>
+                  <span style="color: var(--text-muted);">所属班级：</span>
+                  <b style="color: #fff;" id="stubClassName">夜校嘻哈进阶一期</b>
+                </div>
+                <div>
+                  <span style="color: var(--text-muted);">演出日期：</span>
+                  <b style="color: var(--accent-gold);" id="stubDate">2026.09.10</b>
+                </div>
+                <div>
+                  <span style="color: var(--text-muted);">席位等级：</span>
+                  <b style="color: var(--accent-volt);">01 排 01 座 · 首席 C 位</b>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 锯齿裁切虚线 -->
+          <div class="tear-divider">
+            <div class="tear-dashed-line"></div>
+            <div class="scissors-icon">
+              <span>✂️</span>
+              <span style="font-size: 10px; font-family: var(--font-mono);">TEAR HERE</span>
+            </div>
+          </div>
+
+          <!-- 撕票与检票交互按钮 -->
+          <div class="ticket-body" style="padding-top: 0;">
+            <div class="tear-action-box" id="tearActionBox">
+              <button class="tear-btn" id="tearBtn">
+                <span>✂️ 点击撕票检票 · STAMP RESPECT</span>
+              </button>
+              <div class="scroll-down-hint">
+                <span>👇 向下滑动即可即刻浏览全班手写祝福墙 (Wishes Wall)</span>
+              </div>
+            </div>
+
+            <!-- 终极认证印章 (由 808 轰鸣震动盖下) -->
+            <div class="stamp-container" id="stampContainer">
+              <div class="respect-seal">
+                <span class="seal-star">★ ★ ★</span>
+                <span class="seal-main">STAMPED</span>
+                <span class="seal-main" style="color: #ffd700;">RESPECT</span>
+                <span class="seal-sub">2026.09.10 · 终身导师</span>
+              </div>
+            </div>
+
+            <!-- ================= 撕票后缓缓抽出的心意内容 ================= -->
+            <div class="revealed-tribute-section" id="revealedSection">
+              
+              <!-- 拍立得大合照卡片 -->
+              <div class="polaroid-frame">
+                <div class="polaroid-tape"></div>
+                <img src="" alt="全班齐舞大合照" class="polaroid-img" id="polaroidImg">
+                <div class="polaroid-caption" id="polaroidCaption">📸 夜校进阶一期 · 齐舞毕业大合照 · 教师节快乐！</div>
+              </div>
+
+              <!-- 学员亲笔手写风祝福卡片墙 -->
+              <h3 style="font-size: 14px; color: var(--accent-volt); margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                <span>💌</span>
+                <span>全班手写祝福墙 (Wishes Wall)</span>
+              </h3>
+              <div class="wishes-masonry" id="wishesContainer">
+                <!-- 动态由 config.js 注入 -->
+              </div>
+
+              <!-- 导师集体献礼长信 -->
+              <div class="tribute-letter-card">
+                <div class="letter-title" id="letterTitle">TO OUR FAVORITE DANCE MENTOR</div>
+                <div class="letter-content" id="letterParagraphs">
+                  <!-- 动态注入 -->
+                </div>
+                <div class="letter-sign" id="letterSign">—— 夜校嘻哈舞进阶一期全体学员 敬上</div>
+              </div>
+
+              <!-- 压轴彩蛋：潮流杂志 MVP 奖状生成器唤起 -->
+              <div class="grand-finale-launcher">
+                <button class="open-magazine-btn" id="openMagazineBtn">
+                  <span>🏆 打印潮流杂志封面奖状 📸</span>
+                  <span class="btn-sub">生成专属街舞杂志 MVP 封面 · 手机长按保存</span>
+                </button>
+              </div>
+
+            </div>
+
+            <div class="ticket-barcode-footer">
+              <div class="barcode-lines">
+                <span style="width: 4px;"></span><span style="width: 2px;"></span>
+                <span style="width: 3px;"></span><span style="width: 5px;"></span>
+                <span style="width: 1px;"></span><span style="width: 4px;"></span>
+                <span style="width: 3px;"></span><span style="width: 2px;"></span>
+                <span style="width: 6px;"></span><span style="width: 3px;"></span>
+              </div>
+              <span class="barcode-text" id="finalBarcodeText">VERIFIED // RESPECT FOREVER</span>
+            </div>
+          </div>
+        </article>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ==================== 3. 压轴彩蛋：潮流杂志封面生成器 Modal ==================== -->
+  <div class="magazine-modal" id="magazineModal">
+    <div class="magazine-container">
+      <div class="magazine-modal-header">
+        <div class="magazine-modal-title">
+          <span>🔥</span>
+          <span>潮流杂志封面 MVP 奖状生成器</span>
+        </div>
+        <button class="close-modal-btn" id="closeModalBtn">✖</button>
+      </div>
+
+      <div class="magazine-modal-body">
+        <!-- 封面模式双模切换 -->
+        <div class="mode-switch-group">
+          <button class="mode-btn active" data-mode="teacher" id="modeTeacherBtn">
+            🏆 模式 A: MVP 导师封面
+          </button>
+          <button class="mode-btn" data-mode="crew" id="modeCrewBtn">
+            👥 模式 B: 厂牌大合照封面
+          </button>
+        </div>
+
+        <!-- 动态海报图片产物展示区 (支持手机端长按保存) -->
+        <div class="poster-preview-box">
+          <div class="poster-loading-spinner" id="posterLoadingSpinner">
+            <span class="spinner-ring"></span>
+            <span class="spinner-text">GENERATING POSTER...</span>
+          </div>
+          <img id="posterResultImg" alt="潮流杂志封面奖状">
+        </div>
+
+        <!-- 微信保存指引 -->
+        <div class="save-instructions">
+          👆 <b>手机端请长按上方图片</b> 即可「保存到手机相册」或发朋友圈/小红书打 Call！
+        </div>
+
+        <!-- 动作操作栏 -->
+        <div class="modal-actions">
+          <button class="download-poster-btn" id="downloadPosterBtn">
+            <span>📥 下载高清海报</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 离屏 Canvas，用于合成 2x 高清海报 -->
+  <canvas id="posterCanvas" width="800" height="1200" style="display: none;"></canvas>
+
+  <!-- 配置文件 & 核心逻辑脚本 -->
+  <script src="./config.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

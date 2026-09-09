@@ -1271,6 +1271,8 @@ class SoundEngine {
     this.ctx = null;
     this.isMuted = false;
     this.unlocked = false;
+    this.htmlAudio = null;
+    this.iosMuteUnlocked = false;
   }
   init() {
     if (!this.ctx) {
@@ -1287,9 +1289,35 @@ class SoundEngine {
       this.ctx.resume().catch(() => {});
     }
   }
+
+  // 穿透 iOS 硬件物理静音开关（播放极短无声音频将系统 AVAudioSession 提升为 Playback 级别）
+  unlockIosMute() {
+    if (this.iosMuteUnlocked && this.htmlAudio && !this.htmlAudio.paused) return;
+    try {
+      if (!this.htmlAudio) {
+        const audio = document.createElement("audio");
+        audio.setAttribute("x-webkit-airplay", "deny");
+        audio.preload = "auto";
+        audio.loop = true;
+        // 8 采样点 8-bit mono 静音 WAV (Base64)，零体积无锁屏控件干扰
+        audio.src = "data:audio/wav;base64,UklGRiwAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQgAAACAgICAgICAgA==";
+        this.htmlAudio = audio;
+      }
+      const p = this.htmlAudio.play();
+      if (p && p.then) {
+        p.then(() => {
+          this.iosMuteUnlocked = true;
+        }).catch(() => {});
+      } else {
+        this.iosMuteUnlocked = true;
+      }
+    } catch (e) {}
+  }
+
   // 移动端 Safari / 微信 Web Audio 必须由用户手势解锁
   unlock() {
     this.init();
+    this.unlockIosMute();
     if (!this.ctx) return;
     try {
       if (this.ctx.state === "suspended") {
@@ -1305,103 +1333,124 @@ class SoundEngine {
       }
     } catch (e) {}
   }
+
+  // 统一异步音频环境就绪执行器，解决 iOS Suspended 状态下 0.13 秒短音效提前过期静音问题
+  ensureRun(fn) {
+    if (this.isMuted) return;
+    this.init();
+    this.unlockIosMute();
+    if (!this.ctx) return;
+    if (this.ctx.state === "suspended") {
+      this.ctx.resume().then(() => {
+        if (!this.isMuted) fn();
+      }).catch(() => {});
+    } else {
+      fn();
+    }
+  }
+
   // 敲门声（浑厚低沉碰撞）
   playKnock() {
-    if (this.isMuted) return;
-    this.init();
-    if (!this.ctx) return;
-    try {
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = "triangle";
-      osc.frequency.setValueAtTime(140, this.ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(30, this.ctx.currentTime + 0.12);
-      gain.gain.setValueAtTime(0.7, this.ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start();
-      osc.stop(this.ctx.currentTime + 0.13);
-    } catch (e) {}
-  }
-  // 戳戳乐泡泡音（清脆上升调）
-  playPop() {
-    if (this.isMuted) return;
-    this.init();
-    if (!this.ctx) return;
-    try {
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = "sine";
-      const freq = 450 + Math.random() * 250;
-      osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(freq * 1.6, this.ctx.currentTime + 0.1);
-      gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start();
-      osc.stop(this.ctx.currentTime + 0.1);
-    } catch (e) {}
-  }
-  // 答对成功音（明快和弦）
-  playSuccess() {
-    if (this.isMuted) return;
-    this.init();
-    if (!this.ctx) return;
-    try {
-      [523.25, 659.25, 783.99].forEach((freq, i) => {
+    this.ensureRun(() => {
+      try {
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         osc.type = "triangle";
-        osc.frequency.setValueAtTime(freq, this.ctx.currentTime + i * 0.08);
-        gain.gain.setValueAtTime(0.25, this.ctx.currentTime + i * 0.08);
-        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + i * 0.08 + 0.35);
+        osc.frequency.setValueAtTime(140, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(30, this.ctx.currentTime + 0.12);
+        gain.gain.setValueAtTime(0.7, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
         osc.connect(gain);
         gain.connect(this.ctx.destination);
-        osc.start(this.ctx.currentTime + i * 0.08);
-        osc.stop(this.ctx.currentTime + i * 0.08 + 0.36);
-      });
-    } catch (e) {}
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.13);
+      } catch (e) {}
+    });
+  }
+  // 戳戳乐泡泡音（清脆上升调）
+  playPop() {
+    this.ensureRun(() => {
+      try {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = "sine";
+        const freq = 450 + Math.random() * 250;
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(freq * 1.6, this.ctx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.1);
+      } catch (e) {}
+    });
+  }
+  // 答对成功音（明快和弦）
+  playSuccess() {
+    this.ensureRun(() => {
+      try {
+        [523.25, 659.25, 783.99].forEach((freq, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime + i * 0.08);
+          gain.gain.setValueAtTime(0.25, this.ctx.currentTime + i * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + i * 0.08 + 0.35);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(this.ctx.currentTime + i * 0.08);
+          osc.stop(this.ctx.currentTime + i * 0.08 + 0.36);
+        });
+      } catch (e) {}
+    });
   }
   // 吸管咕咚声
   playSlurp() {
-    if (this.isMuted) return;
-    this.init();
-    if (!this.ctx) return;
-    try {
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(200, this.ctx.currentTime);
-      osc.frequency.linearRampToValueAtTime(320, this.ctx.currentTime + 0.08);
-      osc.frequency.linearRampToValueAtTime(220, this.ctx.currentTime + 0.18);
-      gain.gain.setValueAtTime(0.35, this.ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start();
-      osc.stop(this.ctx.currentTime + 0.2);
-    } catch (e) {}
+    this.ensureRun(() => {
+      try {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(200, this.ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(320, this.ctx.currentTime + 0.08);
+        osc.frequency.linearRampToValueAtTime(220, this.ctx.currentTime + 0.18);
+        gain.gain.setValueAtTime(0.35, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.2);
+      } catch (e) {}
+    });
   }
 }
 const sound = new SoundEngine();
 
-// 全局监听用户触摸/点击以解除浏览器音频播放限制
+// 全局监听用户触摸/点击以解除浏览器音频播放限制并穿透 iOS 静音模式
 const unlockAudioHandler = () => {
   sound.unlock();
-  if (sound.ctx && sound.ctx.state === "running") {
+  if (sound.ctx && sound.ctx.state === "running" && sound.iosMuteUnlocked) {
     ['click', 'touchstart', 'touchend'].forEach(evt => {
-      window.removeEventListener(evt, unlockAudioHandler);
+      window.removeEventListener(evt, unlockAudioHandler, { capture: true });
     });
   }
 };
 ['click', 'touchstart', 'touchend'].forEach(evt => {
-  window.addEventListener(evt, unlockAudioHandler, { passive: true });
+  window.addEventListener(evt, unlockAudioHandler, { capture: true, passive: true });
 });
 document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible" && sound.ctx && sound.ctx.state === "suspended") {
-    sound.ctx.resume().catch(() => {});
+  if (document.visibilityState === "visible") {
+    if (sound.ctx && sound.ctx.state === "suspended") {
+      sound.ctx.resume().catch(() => {});
+    }
+    if (sound.htmlAudio && !sound.isMuted) {
+      sound.htmlAudio.play().catch(() => {});
+    }
+  } else {
+    if (sound.htmlAudio) {
+      sound.htmlAudio.pause();
+    }
   }
 });
 
@@ -1558,10 +1607,12 @@ muteBtn.addEventListener("click", () => {
     muteIcon.innerText = "🔇";
     muteText.innerText = "静音中";
     muteBtn.style.background = "#FEE2E2";
+    if (sound.htmlAudio) sound.htmlAudio.pause();
   } else {
     muteIcon.innerText = "🔊";
     muteText.innerText = "音效开启";
     muteBtn.style.background = "rgba(255, 255, 255, 0.85)";
+    if (sound.htmlAudio) sound.htmlAudio.play().catch(() => {});
     sound.playPop();
   }
 });

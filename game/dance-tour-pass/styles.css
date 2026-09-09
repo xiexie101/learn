@@ -1,0 +1,1729 @@
+/* ==========================================================================
+   Dance Tour Pass - 巡演票夹核心样式 (Cyberpunk & Hip-Hop Streetwear Aesthetic)
+   ========================================================================== */
+
+:root {
+  --bg-main: #08090d;
+  --bg-card: #12141c;
+  --bg-card-elevated: #1a1d28;
+  --bg-ticket-light: #222636;
+  
+  /* 街头潮牌专色 */
+  --accent-volt: #ccff00;       /* 荧光绿/酸性黄 */
+  --accent-cyan: #00f0ff;       /* 电光青蓝 */
+  --accent-magenta: #ff0055;    /* 朋克洋红 */
+  --accent-gold: #ffb700;       /* 闪耀金 */
+  --accent-purple: #9d4edd;     /* 潮流紫 */
+
+  --text-primary: #f5f6fa;
+  --text-secondary: #9aa0b4;
+  --text-muted: #595f73;
+  --border-light: rgba(255, 255, 255, 0.08);
+  --border-glow: rgba(204, 255, 0, 0.4);
+
+  --font-display: 'Impact', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'SF Mono', 'Courier New', Courier, monospace;
+  --font-body: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  
+  --safe-bottom: env(safe-area-inset-bottom, 20px);
+}
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100%;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 背景纹理与暗黑网格 */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 屏幕震动特效 (用于 808 击打或盖章) */
+.shake-screen {
+  animation: screenVibrate 0.35s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes screenVibrate {
+  10%, 90% { transform: translate3d(-2px, 2px, 0) rotate(-0.5deg); }
+  20%, 80% { transform: translate3d(3px, -2px, 0) rotate(0.8deg); }
+  30%, 50%, 70% { transform: translate3d(-4px, 3px, 0) rotate(-1deg); }
+  40%, 60% { transform: translate3d(4px, -3px, 0) rotate(1deg); }
+}
+
+/* ==========================================================================
+   1. 顶部状态栏与黑胶播放器
+   ========================================================================== */
+
+.top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 58px;
+  background: rgba(10, 11, 16, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--border-light);
+  z-index: 100;
+}
+
+.brand-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand-badge .pill {
+  background: var(--accent-volt);
+  color: #000;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 900;
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: 1px;
+}
+
+.brand-badge .tour-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.brand-badge .tour-title .live-dot {
+  width: 7px;
+  height: 7px;
+  background: #ff0055;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #ff0055;
+  animation: pulseDot 1.4s infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.4; }
+}
+
+/* 黑胶唱片控制钮 */
+.vinyl-widget {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-light);
+  padding: 4px 10px 4px 6px;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.vinyl-widget:active {
+  transform: scale(0.94);
+}
+
+.vinyl-disc {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #2a2a2a 20%, #111 25%, #2a2a2a 50%, #0d0d0d 52%, #1a1a1a 80%, #000 100%);
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vinyl-disc.spinning {
+  animation: spinVinyl 3.5s linear infinite;
+}
+
+.vinyl-disc::before {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent-volt);
+  box-shadow: 0 0 5px var(--accent-volt);
+}
+
+.vinyl-disc::after {
+  content: '';
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #000;
+}
+
+@keyframes spinVinyl {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.vinyl-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.vinyl-info .bgm-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent-volt);
+  font-family: var(--font-mono);
+}
+
+.vinyl-info .bgm-status {
+  font-size: 9px;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   2. 开机仪式：DROP THE BEAT (CRT 复古卡带机)
+   ========================================================================== */
+
+.intro-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, #1b1d28 0%, #090a0f 85%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 200;
+  transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.intro-overlay.dismissed {
+  opacity: 0;
+  transform: scale(1.06);
+  pointer-events: none;
+}
+
+/* CRT 扫描线与颗粒滤镜 */
+.crt-scanlines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%);
+  background-size: 100% 4px;
+  pointer-events: none;
+  opacity: 0.65;
+}
+
+.boombox-card {
+  width: 100%;
+  max-width: 400px;
+  background: #151722;
+  border: 2px solid #2e3448;
+  border-radius: 16px;
+  padding: 24px 20px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.boombox-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent-magenta), var(--accent-volt), var(--accent-cyan));
+}
+
+.boombox-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+  padding-bottom: 12px;
+  margin-bottom: 20px;
+}
+
+.boombox-model {
+  font-family: var(--font-display);
+  font-size: 15px;
+  letter-spacing: 2px;
+  color: var(--accent-cyan);
+}
+
+.boombox-leds {
+  display: flex;
+  gap: 4px;
+}
+
+.led {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #252836;
+}
+
+.led.g { background: #00ff66; box-shadow: 0 0 6px #00ff66; animation: blinkLed 1s infinite; }
+.led.y { background: #ffcc00; box-shadow: 0 0 6px #ffcc00; animation: blinkLed 1.2s infinite; }
+.led.r { background: #ff0055; box-shadow: 0 0 6px #ff0055; animation: blinkLed 0.8s infinite; }
+
+@keyframes blinkLed {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+/* 卡带机磁带视窗 */
+.cassette-window {
+  width: 100%;
+  height: 110px;
+  background: #0c0e14;
+  border: 2px solid #282c3c;
+  border-radius: 8px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 30px;
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+
+.cassette-label {
+  position: absolute;
+  top: 6px;
+  left: 10px;
+  right: 10px;
+  height: 24px;
+  background: #ff0055;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 1px;
+  border-radius: 3px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+
+.tape-reel {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #333 30%, #1a1a1a 70%);
+  border: 3px solid #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: inset 0 0 8px #000;
+}
+
+.tape-reel::after {
+  content: '';
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #000;
+  border: 3px solid var(--accent-volt);
+}
+
+.tape-reel.rotating {
+  animation: spinVinyl 4s linear infinite;
+}
+
+/* 巨幅点火按键 */
+.ignite-btn-wrapper {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.ignite-btn {
+  width: 100%;
+  height: 64px;
+  background: linear-gradient(135deg, #ccff00, #95cc00);
+  border: none;
+  border-radius: 12px;
+  color: #000;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(204, 255, 0, 0.4), inset 0 2px 0 rgba(255, 255, 255, 0.6);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ignite-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 10px rgba(204, 255, 0, 0.3);
+}
+
+.ignite-btn .btn-sub {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  opacity: 0.85;
+}
+
+.ignite-btn::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(60deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  transform: rotate(25deg);
+  animation: btnSheen 2.5s infinite;
+}
+
+@keyframes btnSheen {
+  0% { transform: translateX(-100%) rotate(25deg); }
+  100% { transform: translateX(100%) rotate(25deg); }
+}
+
+.headphone-tip {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: 0.5px;
+}
+
+/* ==========================================================================
+   3. 主页面框架与三联导航条
+   ========================================================================== */
+
+.main-content {
+  padding-top: 66px;
+  padding-bottom: calc(var(--safe-bottom) + 30px);
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 10;
+}
+
+/* 巡演票夹顶部挂绳/工牌夹装饰 */
+.lanyard-clip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.clip-hole {
+  width: 50px;
+  height: 10px;
+  background: #000;
+  border: 2px solid #2d3142;
+  border-radius: 6px;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.8);
+}
+
+.clip-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--accent-volt);
+  background: rgba(204, 255, 0, 0.1);
+  border: 1px solid rgba(204, 255, 0, 0.25);
+  padding: 2px 10px;
+  border-radius: 10px;
+  margin-top: 6px;
+  letter-spacing: 1px;
+}
+
+/* 三联选项卡控制器 */
+.ticket-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+  padding: 0 16px;
+  margin-bottom: 16px;
+}
+
+.tab-btn {
+  background: #141620;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 8px 4px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.tab-btn .tab-num {
+  font-size: 10px;
+  opacity: 0.6;
+}
+
+.tab-btn.active {
+  background: #1f2333;
+  color: var(--accent-volt);
+  border-color: var(--accent-volt);
+  box-shadow: 0 4px 12px rgba(204, 255, 0, 0.15);
+}
+
+.tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  width: 16px;
+  height: 2px;
+  background: var(--accent-volt);
+  box-shadow: 0 0 6px var(--accent-volt);
+}
+
+/* 票根卡片视口 */
+.ticket-deck {
+  padding: 0 16px;
+  flex: 1;
+}
+
+.ticket-panel {
+  display: none;
+  animation: fadeInTicket 0.35s ease-out;
+}
+
+.ticket-panel.active {
+  display: block;
+}
+
+@keyframes fadeInTicket {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   4. 拟物票根通用质感 (Skeuomorphic Ticket Design)
+   ========================================================================== */
+
+.ticket-wrapper {
+  background: var(--bg-card);
+  border-radius: 16px;
+  border: 1px solid #232738;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 激光防伪镭射反光条 */
+.hologram-strip {
+  height: 8px;
+  width: 100%;
+  background: linear-gradient(90deg, 
+    #ff0077 0%, 
+    #ffb700 25%, 
+    #ccff00 50%, 
+    #00f0ff 75%, 
+    #ff0077 100%
+  );
+  background-size: 200% 100%;
+  animation: foilShimmer 5s linear infinite;
+}
+
+@keyframes foilShimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+/* 左右两侧半圆打孔缺口 (Ticket Punches) */
+.ticket-punch-left, .ticket-punch-right {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  background-color: var(--bg-main);
+  border-radius: 50%;
+  top: 100px;
+  z-index: 5;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.9);
+}
+
+.ticket-punch-left {
+  left: -11px;
+}
+
+.ticket-punch-right {
+  right: -11px;
+}
+
+/* 票头设计 */
+.ticket-head {
+  padding: 16px 18px 12px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.12);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+.ticket-serial {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent-cyan);
+  letter-spacing: 1px;
+  font-weight: 700;
+}
+
+.ticket-category-tag {
+  font-family: var(--font-display);
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 1px;
+}
+
+/* 票身内容 */
+.ticket-body {
+  padding: 18px;
+}
+
+.ticket-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.ticket-main-title {
+  font-size: 19px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+
+.ticket-sub-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+/* 条形码 & 防伪水印 */
+.ticket-barcode-footer {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.barcode-lines {
+  display: flex;
+  align-items: flex-end;
+  height: 28px;
+  gap: 2px;
+}
+
+.barcode-lines span {
+  background: rgba(255, 255, 255, 0.6);
+  height: 100%;
+  display: inline-block;
+}
+
+.barcode-text {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* 底部操作换页按钮 */
+.ticket-action-bar {
+  margin-top: 16px;
+}
+
+.next-pass-btn {
+  width: 100%;
+  padding: 14px;
+  background: #1c202d;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.next-pass-btn:active {
+  background: #272d40;
+  transform: scale(0.98);
+}
+
+/* ==========================================================================
+   5. 票根一：排练档案票 (Rehearsal Pass) 特性
+   ========================================================================== */
+
+/* 绝密档案复古印章 */
+.stamp-confidential {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  border: 2px dashed #ff0055;
+  color: #ff0055;
+  font-family: var(--font-display);
+  font-size: 11px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  transform: rotate(8deg);
+  opacity: 0.85;
+  pointer-events: none;
+  letter-spacing: 1px;
+  text-shadow: 0 0 8px rgba(255, 0, 85, 0.5);
+}
+
+/* 视频播放器容器与 VHS 效果 */
+.video-player-box {
+  width: 100%;
+  border-radius: 10px;
+  background: #000;
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  border: 1px solid #2d3246;
+}
+
+.video-player-box video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 拟真排练画布回退演示模式 */
+.rehearsal-canvas-fallback {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: #0d1017;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* VHS 滤镜蒙层 */
+.vhs-filter {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15), rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px);
+  mix-blend-mode: overlay;
+  display: block;
+}
+
+.vhs-filter.hidden {
+  display: none;
+}
+
+.vhs-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid var(--accent-volt);
+  color: var(--accent-volt);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.video-control-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.vhs-toggle-btn {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-secondary);
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.vhs-toggle-btn.active {
+  border-color: var(--accent-volt);
+  color: var(--accent-volt);
+}
+
+/* 视频中心播放悬浮按钮与遮罩 */
+.video-play-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 8;
+  cursor: pointer;
+  transition: opacity 0.25s ease;
+}
+
+.video-play-overlay.playing {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.center-play-btn {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-volt), #95cc00);
+  border: none;
+  color: #000;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 4px;
+  cursor: pointer;
+  box-shadow: 0 0 24px rgba(204, 255, 0, 0.6);
+  transition: transform 0.2s ease;
+}
+
+.center-play-btn:active {
+  transform: scale(0.92);
+}
+
+.video-ctrl-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.video-toggle-play-btn {
+  background: rgba(204, 255, 0, 0.15);
+  border: 1px solid var(--accent-volt);
+  color: var(--accent-volt);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.video-toggle-play-btn:active {
+  transform: scale(0.95);
+}
+
+/* 排练翻车亮点卡片 */
+.rehearsal-highlights {
+  margin-top: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.rehearsal-highlights h4 {
+  font-size: 12px;
+  color: var(--accent-gold);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.highlight-item {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  line-height: 1.4;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.highlight-item:last-child {
+  margin-bottom: 0;
+}
+
+/* ==========================================================================
+   6. 票根二：齐舞主秀票 (Main Show Pass) & 连击打 Call 气氛组
+   ========================================================================== */
+
+.cheer-stage-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid #2b3145;
+  cursor: pointer;
+  user-select: none;
+}
+
+.cheer-stage-container.active-hit {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+}
+
+/* 齐舞大片舞台专属播放控制 */
+.stage-video-control {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  z-index: 25; /* 高于 cheer-tap-zone (10) 与 comboHud (15) */
+}
+
+.stage-play-btn {
+  background: rgba(0, 0, 0, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1.5px solid var(--accent-cyan);
+  color: var(--accent-cyan);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 6px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 240, 255, 0.35);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.stage-play-btn.playing {
+  border-color: var(--accent-volt);
+  color: var(--accent-volt);
+  box-shadow: 0 4px 14px rgba(204, 255, 0, 0.35);
+}
+
+.stage-play-btn:active {
+  transform: scale(0.94);
+}
+
+.cheer-tap-zone {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 12px;
+}
+
+.tap-guide-chip {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  border: 1px solid var(--accent-cyan);
+  color: var(--accent-cyan);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  pointer-events: none;
+  animation: pulseGuide 2s infinite;
+}
+
+@keyframes pulseGuide {
+  0%, 100% { opacity: 0.8; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-3px); }
+}
+
+/* Combo 计数器浮层 */
+.combo-hud {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 15;
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid var(--accent-volt);
+  border-radius: 8px;
+  padding: 4px 10px;
+  text-align: center;
+  pointer-events: none;
+  transform: scale(0);
+  transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.combo-hud.visible {
+  transform: scale(1);
+}
+
+.combo-count {
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--accent-volt);
+  text-shadow: 0 0 8px rgba(204, 255, 0, 0.8);
+  line-height: 1;
+}
+
+.combo-badge {
+  font-size: 9px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+/* 连击打 Call 喷射粒子 (Slang Particles) */
+.cheer-particle {
+  position: absolute;
+  pointer-events: none;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  z-index: 30;
+  animation: floatPop 0.85s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
+  text-shadow: 0 0 12px currentColor, 0 2px 4px #000;
+}
+
+@keyframes floatPop {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.6) rotate(var(--rot, 0deg));
+  }
+  30% {
+    transform: translate(calc(-50% + var(--dx, 0px)), calc(-50% - 35px)) scale(1.25) rotate(var(--rot, 0deg));
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--dx, 0px)), calc(-50% - 90px)) scale(0.9) rotate(var(--rot, 0deg));
+  }
+}
+
+/* ==========================================================================
+   7. 票根三：学员告白票 (Respect VIP Pass) & 撕票盖章系统
+   ========================================================================== */
+
+.respect-ticket-card {
+  position: relative;
+}
+
+/* 撕票锯齿裁切线 */
+.tear-divider {
+  width: 100%;
+  position: relative;
+  padding: 14px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tear-dashed-line {
+  width: 100%;
+  height: 2px;
+  background-image: linear-gradient(to right, #ffb700 50%, transparent 50%);
+  background-size: 12px 2px;
+}
+
+.scissors-icon {
+  position: absolute;
+  background: var(--bg-card);
+  padding: 0 8px;
+  color: var(--accent-gold);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 撕票操作按键 */
+.tear-action-box {
+  margin: 10px 0 16px;
+  text-align: center;
+}
+
+.scroll-down-hint {
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--accent-volt);
+  letter-spacing: 0.5px;
+  opacity: 0.85;
+  animation: bounceHint 2s infinite ease-in-out;
+}
+
+@keyframes bounceHint {
+  0%, 100% { transform: translateY(0); opacity: 0.85; }
+  50% { transform: translateY(3px); opacity: 1; }
+}
+
+.tear-btn {
+  width: 100%;
+  height: 52px;
+  background: linear-gradient(135deg, #ff0055, #d90429);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 16px;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 8px 20px rgba(255, 0, 85, 0.4);
+  transition: all 0.2s ease;
+}
+
+.tear-btn:active {
+  transform: scale(0.98);
+}
+
+/* 撕票后撕裂断开动效 */
+.stub-top {
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease;
+}
+
+.stub-top.torn {
+  transform: translateY(-8px) rotate(-1.5deg);
+  border-bottom: 2px dashed rgba(255, 0, 85, 0.6);
+}
+
+/* 盖章 Stamp 特效 */
+.stamp-container {
+  display: none;
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  z-index: 40;
+}
+
+.stamp-container.stamped {
+  display: block;
+  animation: slamStamp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes slamStamp {
+  0% {
+    opacity: 0;
+    transform: scale(3.5) rotate(25deg);
+  }
+  100% {
+    opacity: 0.95;
+    transform: scale(1) rotate(-12deg);
+  }
+}
+
+.respect-seal {
+  width: 130px;
+  height: 130px;
+  border: 4px double #ff0055;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #ff0055;
+  background: rgba(255, 0, 85, 0.08);
+  box-shadow: inset 0 0 15px rgba(255, 0, 85, 0.3), 0 0 15px rgba(255, 0, 85, 0.4);
+  padding: 8px;
+  text-align: center;
+  user-select: none;
+}
+
+.respect-seal .seal-star {
+  font-size: 12px;
+}
+
+.respect-seal .seal-main {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: 1px;
+}
+
+.respect-seal .seal-sub {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+/* 最后一幕内容区 (学员留言墙与拍立得大合照) - 默认完全可见，支持顺畅上下滑动浏览 */
+.revealed-tribute-section {
+  display: block;
+  opacity: 1;
+  pointer-events: auto;
+  margin-top: 20px;
+  transition: opacity 0.4s ease;
+}
+
+.revealed-tribute-section.expanded {
+  /* 撕票后加冕高光动画效果 */
+  animation: tributeGlowPulse 1.2s ease-out;
+}
+
+@keyframes tributeGlowPulse {
+  0% { filter: drop-shadow(0 0 0 rgba(255, 215, 0, 0)); }
+  50% { filter: drop-shadow(0 0 16px rgba(255, 215, 0, 0.45)); }
+  100% { filter: drop-shadow(0 0 0 rgba(255, 215, 0, 0)); }
+}
+
+/* 拍立得大合照卡片 */
+.polaroid-frame {
+  background: #fff;
+  padding: 10px 10px 24px;
+  border-radius: 4px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  transform: rotate(-1.5deg);
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.polaroid-tape {
+  position: absolute;
+  top: -10px;
+  left: 35%;
+  width: 90px;
+  height: 22px;
+  background: rgba(255, 230, 100, 0.65);
+  transform: rotate(2deg);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.polaroid-img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background: #111;
+  display: block;
+  border-radius: 2px;
+}
+
+.polaroid-caption {
+  font-family: 'PingFang SC', sans-serif;
+  font-size: 13px;
+  color: #222;
+  font-weight: 700;
+  text-align: center;
+  margin-top: 10px;
+  letter-spacing: 1px;
+}
+
+/* 学员留言卡片网格 */
+.wishes-masonry {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.wish-card {
+  background: #161822;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 14px;
+  position: relative;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.wish-card:hover {
+  border-color: rgba(204, 255, 0, 0.3);
+}
+
+.wish-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.wish-author {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wish-avatar {
+  font-size: 18px;
+}
+
+.wish-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.wish-tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+.wish-body {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.wish-footer {
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.like-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.like-btn.liked {
+  color: #ff0055;
+  border-color: rgba(255, 0, 85, 0.4);
+  background: rgba(255, 0, 85, 0.1);
+}
+
+/* 全班集体献礼信 */
+.tribute-letter-card {
+  background: linear-gradient(180deg, #181b26 0%, #11131b 100%);
+  border: 1px solid rgba(255, 183, 0, 0.3);
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.tribute-letter-card::before {
+  content: '“';
+  position: absolute;
+  top: 4px;
+  left: 12px;
+  font-family: Georgia, serif;
+  font-size: 48px;
+  color: rgba(255, 183, 0, 0.2);
+  line-height: 1;
+}
+
+.letter-title {
+  font-family: var(--font-display);
+  font-size: 13px;
+  color: var(--accent-gold);
+  letter-spacing: 1.5px;
+  margin-bottom: 12px;
+}
+
+.letter-content p {
+  font-size: 13px;
+  color: #cfd3e2;
+  line-height: 1.65;
+  margin-bottom: 10px;
+}
+
+.letter-content p:last-child {
+  margin-bottom: 0;
+}
+
+.letter-sign {
+  text-align: right;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent-gold);
+  margin-top: 14px;
+}
+
+/* 压轴彩蛋唤起大按键 */
+.grand-finale-launcher {
+  margin-top: 20px;
+  padding: 10px 0;
+}
+
+.open-magazine-btn {
+  width: 100%;
+  height: 60px;
+  background: linear-gradient(135deg, #ffd700, #ff8800);
+  border: none;
+  border-radius: 12px;
+  color: #000;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 30px rgba(255, 136, 0, 0.4);
+  animation: pulseGold 2s infinite;
+}
+
+.open-magazine-btn .btn-sub {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  opacity: 0.85;
+}
+
+@keyframes pulseGold {
+  0%, 100% {
+    box-shadow: 0 10px 30px rgba(255, 136, 0, 0.4);
+    filter: brightness(1);
+  }
+  50% {
+    box-shadow: 0 16px 42px rgba(255, 136, 0, 0.75);
+    filter: brightness(1.08);
+  }
+}
+
+/* ==========================================================================
+   8. 潮流杂志封面 MVP 奖状生成器 (Canvas Dynamic Poster Modal)
+   ========================================================================== */
+
+.magazine-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.magazine-modal.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.magazine-container {
+  width: 100%;
+  max-width: 440px;
+  max-height: 90vh;
+  background: #151824;
+  border: 1px solid #2e3448;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+}
+
+.magazine-modal-header {
+  padding: 14px 18px;
+  background: #1a1e2c;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.magazine-modal-title {
+  font-size: 14px;
+  font-weight: 900;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.close-modal-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.magazine-modal-body {
+  padding: 14px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* 模式双模切换按钮 */
+.mode-switch-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  gap: 8px;
+}
+
+.mode-btn {
+  background: #1d2130;
+  border: 1px solid var(--border-light);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.mode-btn.active {
+  background: var(--accent-volt);
+  color: #000;
+  border-color: var(--accent-volt);
+  box-shadow: 0 2px 10px rgba(204, 255, 0, 0.3);
+}
+
+/* Canvas 渲染产物图片展示区 */
+.poster-preview-box {
+  width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #090a0f;
+  border: 1px solid #30374e;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.poster-preview-box img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* 海报生成加载状态 */
+.poster-loading-spinner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #0d1017;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  z-index: 5;
+  transition: opacity 0.3s ease;
+}
+
+.poster-loading-spinner.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.spinner-ring {
+  width: 42px;
+  height: 42px;
+  border: 3px solid rgba(0, 240, 255, 0.2);
+  border-top-color: var(--accent-cyan);
+  border-right-color: var(--accent-volt);
+  border-radius: 50%;
+  animation: spinRing 0.8s linear infinite;
+}
+
+@keyframes spinRing {
+  to { transform: rotate(360deg); }
+}
+
+.spinner-text {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--accent-cyan);
+}
+
+/* 微信长按保存提示 */
+.save-instructions {
+  font-size: 11px;
+  color: var(--accent-cyan);
+  text-align: center;
+  background: rgba(0, 240, 255, 0.08);
+  border: 1px dashed rgba(0, 240, 255, 0.3);
+  padding: 6px 12px;
+  border-radius: 6px;
+  width: 100%;
+}
+
+/* 动作操作栏 */
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.download-poster-btn {
+  flex: 1;
+  height: 44px;
+  background: linear-gradient(135deg, #00f0ff, #0099ff);
+  border: none;
+  border-radius: 8px;
+  color: #000;
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* ==========================================================================
+   9. 金色彩带纸雨特效 (Confetti Canvas)
+   ========================================================================== */
+
+#confettiCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 250;
+}
+
+/* ==========================================================================
+   10. 移动端自适应调优 (Mobile & Small Screen Optimizations)
+   ========================================================================== */
+
+@media (max-width: 360px) {
+  .ticket-tabs .tab-btn {
+    padding: 8px 4px;
+    font-size: 11px;
+  }
+  .tab-num {
+    font-size: 9px;
+  }
+  .ticket-main-title {
+    font-size: 17px;
+  }
+  .ignite-btn {
+    font-size: 18px;
+    height: 56px;
+  }
+  .ignite-btn .btn-sub {
+    font-size: 10px;
+  }
+  .respect-seal {
+    width: 110px;
+    height: 110px;
+  }
+  .respect-seal .seal-main {
+    font-size: 14px;
+  }
+  .stage-play-btn {
+    font-size: 10px;
+    padding: 5px 10px;
+  }
+}
+
+@media (min-width: 600px) {
+  .main-content {
+    max-width: 520px;
+    margin: 0 auto;
+  }
+  .top-bar {
+    max-width: 520px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 1px solid var(--border-light);
+    border-right: 1px solid var(--border-light);
+  }
+}
+
