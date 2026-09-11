@@ -107,6 +107,20 @@ html, body {
     transform: scale(0.96);
 }
 
+.btn-start-top {
+    background: linear-gradient(135deg, #ff4554 0%, #e52521 100%);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    box-shadow: 0 2px 10px rgba(229, 37, 33, 0.45);
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 0.5px;
+}
+
+.btn-start-top:hover {
+    background: linear-gradient(135deg, #ff5e6d 0%, #f03330 100%);
+    box-shadow: 0 4px 14px rgba(229, 37, 33, 0.6);
+}
+
 /* Switch Console Frame (Authentic OLED Bezel & Joy-Cons) */
 .switch-wrapper {
     display: flex;
@@ -264,7 +278,7 @@ body.bezel-mode .switch-screen {
     position: relative;
     display: flex;
     flex-direction: column;
-    background: #fffcee;
+    background: #000;
 }
 
 /* Switch Instruction Bar & Header */
@@ -359,14 +373,7 @@ body.bezel-mode .switch-screen {
 
 /* Bottom Hint & Practice Instructions (Matching Original Video) */
 .screen-footer {
-    height: 60px;
-    background: #ffffff;
-    border-top: 2px solid #e8e4d2;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 18px;
-    z-index: 10;
+    display: none !important;
 }
 
 .rule-tips {
@@ -431,46 +438,47 @@ body.bezel-mode .switch-screen {
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 64px;
+    bottom: 24px;
     height: 140px;
     pointer-events: none;
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    padding: 0 24px;
+    padding: 0 20px;
     z-index: 30;
 }
 
 /* Virtual Joystick */
 .joystick-zone {
-    width: 100px;
-    height: 100px;
+    width: 110px;
+    height: 110px;
     position: relative;
     pointer-events: auto;
 }
 
 .joystick-base {
-    width: 90px;
-    height: 90px;
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.22);
-    backdrop-filter: blur(6px);
-    border: 2px solid rgba(255, 255, 255, 0.5);
+    background: rgba(15, 20, 30, 0.45);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 2px solid rgba(0, 195, 227, 0.55);
     position: absolute;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
     touch-action: none;
 }
 
 .joystick-stick {
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
-    background: radial-gradient(circle at 35% 35%, #00d2ff 0%, #0077aa 100%);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-    border: 2px solid rgba(255, 255, 255, 0.7);
+    background: radial-gradient(circle at 35% 35%, #00e5ff 0%, #0088cc 100%);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(255, 255, 255, 0.85);
     pointer-events: none;
     transition: transform 0.05s ease-out;
 }
@@ -485,14 +493,16 @@ body.bezel-mode .switch-screen {
 }
 
 .btn-hammer {
-    width: 82px;
-    height: 82px;
+    width: 86px;
+    height: 86px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #ff4e5e 0%, #d62235 100%);
-    border: 3px solid #ffffff;
-    box-shadow: 0 8px 20px rgba(214, 34, 53, 0.5);
+    background: linear-gradient(135deg, rgba(255, 69, 84, 0.88) 0%, rgba(229, 37, 33, 0.92) 100%);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 3px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 8px 24px rgba(229, 37, 33, 0.55);
     color: #fff;
-    font-size: 26px;
+    font-size: 28px;
     font-weight: 900;
     display: flex;
     flex-direction: column;
@@ -504,13 +514,15 @@ body.bezel-mode .switch-screen {
 }
 
 .btn-hammer:active {
-    transform: scale(0.9);
+    transform: scale(0.91);
+    box-shadow: 0 4px 12px rgba(229, 37, 33, 0.7);
 }
 
 .btn-hammer span {
-    font-size: 11px;
+    font-size: 11.5px;
     font-weight: 800;
     margin-top: -2px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 
 /* Practice Mode Status Badge in Canvas */
@@ -636,6 +648,37 @@ body.bezel-mode .switch-screen {
 .btn-modal.secondary {
     background: #eee;
     color: #444;
+}
+
+/* Mode Switcher Badge & Button */
+.btn-mode-toggle {
+    background: linear-gradient(135deg, rgba(46, 204, 113, 0.35) 0%, rgba(0, 195, 227, 0.45) 100%);
+    border: 1px solid rgba(46, 204, 113, 0.6);
+    font-weight: 700;
+}
+
+.btn-mode-toggle:hover {
+    background: linear-gradient(135deg, rgba(46, 204, 113, 0.55) 0%, rgba(0, 195, 227, 0.65) 100%);
+}
+
+.mode-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 12px;
+    background: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
+    margin-left: 6px;
+    vertical-align: middle;
+    letter-spacing: 0;
+}
+
+.mode-badge.mode-8holes {
+    background: #e3f2fd;
+    color: #1565c0;
+    border-color: #90caf9;
 }
 
 /* Venting Feature Styles */
@@ -920,70 +963,100 @@ body.bezel-mode .switch-screen {
 
 /* Responsive Handling */
 @media (max-width: 768px) {
+    .app-container {
+        padding: 0;
+        overflow: hidden;
+    }
     .top-bar {
         top: 6px;
         left: 6px;
         right: 6px;
         gap: 4px;
+        padding: 0 2px;
     }
     .brand-badge {
         font-size: 11px;
         padding: 4px 8px;
         white-space: nowrap;
-        max-width: 130px;
+        max-width: 120px;
         overflow: hidden;
         text-overflow: ellipsis;
     }
     .util-buttons {
         gap: 4px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+    .util-buttons::-webkit-scrollbar {
+        display: none;
     }
     .btn-util {
         font-size: 11.5px;
-        padding: 4px 8px;
+        padding: 5px 9px;
         white-space: nowrap;
         gap: 3px;
+        border-radius: 14px;
+    }
+    .btn-start-top {
+        font-size: 12.5px;
+        padding: 5px 12px;
+    }
+    body.bezel-mode .joycon-left,
+    body.bezel-mode .joycon-right {
+        display: none !important;
+    }
+    .switch-wrapper {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        padding-top: 40px; /* Space for top-bar */
+    }
+    .switch-screen {
+        border-radius: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
     }
     .screen-header {
-        height: 42px;
+        height: 40px;
         padding: 0 10px;
     }
     .screen-title {
         font-size: 15px;
     }
     .hud-pill {
-        font-size: 14px;
-        padding: 4px 10px;
+        font-size: 13.5px;
+        padding: 4px 9px;
     }
     .screen-footer {
-        height: 52px;
-        padding: 0 8px;
+        display: none !important;
     }
-    .rule-tips {
-        font-size: 10.5px;
-        display: none; /* Hide rule tip text on mobile to give room for buttons */
-    }
-    .start-action-wrap {
-        gap: 6px;
+    .canvas-container {
+        flex: 1;
         width: 100%;
-        justify-content: flex-end;
-    }
-    .btn-footer-vent {
-        font-size: 12px;
-        padding: 6px 10px;
-        white-space: nowrap;
-    }
-    .btn-start-match {
-        padding: 6px 12px;
-        font-size: 13px;
-        white-space: nowrap;
+        height: 100%;
     }
     .mobile-controls {
-        bottom: 56px;
-        padding: 0 14px;
+        bottom: 18px;
+        padding: 0 16px;
+        height: 130px;
+    }
+    .joystick-zone {
+        width: 100px;
+        height: 100px;
+    }
+    .joystick-base {
+        width: 96px;
+        height: 96px;
+    }
+    .joystick-stick {
+        width: 46px;
+        height: 46px;
     }
     .btn-hammer {
-        width: 72px;
-        height: 72px;
-        font-size: 22px;
+        width: 82px;
+        height: 82px;
+        font-size: 26px;
     }
 }

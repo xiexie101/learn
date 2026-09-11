@@ -75,6 +75,59 @@
         if (badgeEl) badgeEl.textContent = ventTargets.length;
     }
 
+    // Game Mode: 5-Hole Simplified (Lower 5 Holes, Horizontal Only) vs 8-Hole Standard (Full Stage)
+    const MODE_5HOLES = '5HOLES';
+    const MODE_8HOLES = '8HOLES';
+    let currentMode = localStorage.getItem('noggin_knock_mode') || MODE_5HOLES;
+
+    function setGameMode(mode) {
+        currentMode = mode;
+        try {
+            localStorage.setItem('noggin_knock_mode', mode);
+        } catch (e) {}
+
+        if (currentMode === MODE_5HOLES) {
+            HOLES.forEach(h => {
+                if (h.tier === 'upper') {
+                    h.state = 'EMPTY';
+                    h.occupant = null;
+                    h.progress = 0;
+                }
+            });
+            mario.y = 370;
+            mario.facingY = 1;
+        }
+
+        updateModeUI();
+        updateHUD();
+    }
+
+    function toggleGameMode() {
+        setGameMode(currentMode === MODE_5HOLES ? MODE_8HOLES : MODE_5HOLES);
+        addFloatingText(currentMode === MODE_5HOLES ? '🕹️ 单排5洞模式 (纯横移)' : '🎮 全域8洞模式 (全舞台)', mario.x, mario.y - 50, '#2ecc71', 26);
+    }
+
+    function updateModeUI() {
+        const btnMode = document.getElementById('btnGameMode');
+        const badge = document.getElementById('modeBadge');
+        if (btnMode) {
+            btnMode.innerHTML = (currentMode === MODE_5HOLES)
+                ? '🕹️ 单排5洞'
+                : '🎮 全域8洞';
+            btnMode.title = (currentMode === MODE_5HOLES)
+                ? '当前：单排5洞极简 (仅左右横移)，点击切换全域8洞'
+                : '当前：全域8洞标准 (自由纵深)，点击切换单排5洞';
+        }
+        if (badge) {
+            badge.textContent = (currentMode === MODE_5HOLES) ? '单排5洞' : '全域8洞';
+            if (currentMode === MODE_5HOLES) {
+                badge.classList.remove('mode-8holes');
+            } else {
+                badge.classList.add('mode-8holes');
+            }
+        }
+    }
+
     // Camera & Screen Shake
     let shakeDuration = 0;
     let shakeIntensity = 0;
@@ -160,28 +213,61 @@
         radius: 45
     };
 
+    // Virtual Viewport Management
+    let viewWidth = V_WIDTH;   // 960
+    let viewHeight = V_HEIGHT; // 540
+    let viewX = 0;
+    let viewY = 0;
+    let isMobilePortrait = false;
+
     // Resize and DPI Management
     function resizeCanvas() {
         const container = document.getElementById('canvasContainer');
         const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
         const rect = container.getBoundingClientRect();
 
-        const aspect = V_WIDTH / V_HEIGHT;
+        // Check if device/container is in mobile portrait mode
+        isMobilePortrait = (rect.height > rect.width * 1.06 && rect.width < 768);
+
         let w = rect.width;
         let h = rect.height;
 
-        if (w / h > aspect) {
-            w = h * aspect;
+        if (isMobilePortrait) {
+            // 手机竖屏自适应：100% 充满容器高宽，彻底消灭上下黑边！
+            w = rect.width;
+            h = rect.height;
+
+            // 聚焦核心擂台（宽 680，中心 480），将视口宽度收敛到 680
+            // 相比 960 宽，整体放大 960 / 680 ≈ 1.41 倍！
+            viewWidth = 680;
+            viewHeight = viewWidth * (h / w);
+            viewX = 480 - (viewWidth / 2); // 140
+
+            // 纵向对齐：让下排洞（y=422）和警戒线（y=480）居于屏幕约 64% 视线黄金区
+            viewY = 480 - (viewHeight * 0.64);
+
+            scale = (w / viewWidth) * dpr;
         } else {
-            h = w / aspect;
+            // 桌面端 / 宽屏标准 16:9
+            viewWidth = V_WIDTH;
+            viewHeight = V_HEIGHT;
+            viewX = 0;
+            viewY = 0;
+
+            const aspect = V_WIDTH / V_HEIGHT;
+            if (w / h > aspect) {
+                w = h * aspect;
+            } else {
+                h = w / aspect;
+            }
+            scale = (w / V_WIDTH) * dpr;
         }
 
-        canvas.width = w * dpr;
-        canvas.height = h * dpr;
+        canvas.width = Math.round(w * dpr);
+        canvas.height = Math.round(h * dpr);
         canvas.style.width = `${w}px`;
         canvas.style.height = `${h}px`;
 
-        scale = (w / V_WIDTH) * dpr;
         offsetX = 0;
         offsetY = 0;
     }
@@ -335,9 +421,9 @@
     // Touch & Mouse Handling for Tap-to-Whack
     function getVirtualPos(clientX, clientY) {
         const rect = canvas.getBoundingClientRect();
-        const curScale = (rect.width / V_WIDTH);
-        const x = (clientX - rect.left) / curScale;
-        const y = (clientY - rect.top) / curScale;
+        const curScale = (rect.width / viewWidth);
+        const x = viewX + (clientX - rect.left) / curScale;
+        const y = viewY + (clientY - rect.top) / curScale;
         return { x, y };
     }
 
@@ -348,18 +434,16 @@
         }
 
         const pos = getVirtualPos(e.clientX, e.clientY);
-        if (pos.x >= 0 && pos.x <= V_WIDTH && pos.y >= 0 && pos.y <= V_HEIGHT) {
-            handleTapTarget(pos.x, pos.y);
-            // Spawn tap reticle
-            tapReticles.push({
-                x: pos.x,
-                y: pos.y,
-                radius: 12,
-                maxRadius: 36,
-                life: 0.35,
-                maxLife: 0.35
-            });
-        }
+        handleTapTarget(pos.x, pos.y);
+        // Spawn tap reticle
+        tapReticles.push({
+            x: pos.x,
+            y: pos.y,
+            radius: 12,
+            maxRadius: 36,
+            life: 0.35,
+            maxLife: 0.35
+        });
     });
 
     function handleTapTarget(vx, vy) {
@@ -367,7 +451,11 @@
 
         let tappedHole = null;
         let minDist = 999;
-        HOLES.forEach(hole => {
+        const candidateHoles = (currentMode === MODE_5HOLES)
+            ? HOLES.filter(h => h.tier === 'lower')
+            : HOLES;
+
+        candidateHoles.forEach(hole => {
             const d = Math.hypot(hole.x - vx, hole.y - vy);
             if (d < (hole.radiusX * 1.6) && d < minDist) {
                 minDist = d;
@@ -375,14 +463,27 @@
             }
         });
 
-        if (tappedHole) {
-            mario.targetX = tappedHole.x;
-            mario.targetY = (tappedHole.tier === 'lower') ? 395 : 305;
-            mario.targetHoleId = tappedHole.id;
+        if (currentMode === MODE_5HOLES) {
+            // 单排5洞模式：Y 坐标固定为 370，仅左右移动定位与敲打
+            if (tappedHole) {
+                mario.targetX = tappedHole.x;
+                mario.targetY = 370;
+                mario.targetHoleId = tappedHole.id;
+            } else {
+                mario.targetX = Math.max(235, Math.min(725, vx));
+                mario.targetY = 370;
+                mario.targetHoleId = null;
+            }
         } else {
-            mario.targetX = Math.max(235, Math.min(725, vx));
-            mario.targetY = Math.max(290, Math.min(410, vy));
-            mario.targetHoleId = null;
+            if (tappedHole) {
+                mario.targetX = tappedHole.x;
+                mario.targetY = (tappedHole.tier === 'lower') ? 395 : 305;
+                mario.targetHoleId = tappedHole.id;
+            } else {
+                mario.targetX = Math.max(235, Math.min(725, vx));
+                mario.targetY = Math.max(290, Math.min(410, vy));
+                mario.targetHoleId = null;
+            }
         }
     }
 
@@ -391,6 +492,7 @@
     const joystickStick = document.getElementById('joystickStick');
     const btnHammer = document.getElementById('btnHammer');
     const btnStart = document.getElementById('btnStart');
+    const btnStartTop = document.getElementById('btnStartTop');
     const btnMute = document.getElementById('btnMute');
     const btnSwitchFrame = document.getElementById('btnSwitchFrame');
 
@@ -408,6 +510,12 @@
         });
     }
 
+    if (btnStartTop) {
+        btnStartTop.addEventListener('click', () => {
+            startGameMatch();
+        });
+    }
+
     if (btnMute) {
         btnMute.addEventListener('click', () => {
             const enabled = window.soundEngine.toggleMute();
@@ -415,12 +523,21 @@
         });
     }
 
+    function updateSwitchFrameBtn() {
+        if (!btnSwitchFrame) return;
+        const isBezel = document.body.classList.contains('bezel-mode');
+        btnSwitchFrame.innerHTML = isBezel ? '🖥️ 纯净全屏' : '🎮 掌机外观';
+        btnSwitchFrame.title = isBezel ? '切换到纯净全屏模式' : '开启 Switch 掌机外观';
+    }
+
     if (btnSwitchFrame) {
         btnSwitchFrame.addEventListener('click', () => {
             const body = document.body;
             body.classList.toggle('bezel-mode');
+            updateSwitchFrameBtn();
             resizeCanvas();
         });
+        updateSwitchFrameBtn();
     }
 
     // Touch Joystick
@@ -504,11 +621,15 @@
         // Smart proximity assist: if there is an active or rising hole in front of Mario, target it
         let bestHole = null;
         let bestDist = 999;
-        HOLES.forEach(hole => {
+        const candidateHoles = (currentMode === MODE_5HOLES)
+            ? HOLES.filter(h => h.tier === 'lower')
+            : HOLES;
+
+        candidateHoles.forEach(hole => {
             if ((hole.state === 'ACTIVE' || hole.state === 'RISING') && hole.occupant) {
                 const dx = hole.x - mario.x;
                 const dy = hole.y - mario.y;
-                const isForward = (mario.facingY >= 0 && dy >= -15) || (mario.facingY < 0 && dy <= 15);
+                const isForward = (currentMode === MODE_5HOLES) || (mario.facingY >= 0 && dy >= -15) || (mario.facingY < 0 && dy <= 15);
                 const d = Math.hypot(dx, dy * 1.35);
                 if (isForward && d < 110 && d < bestDist) {
                     bestDist = d;
@@ -520,7 +641,7 @@
         if (bestHole) {
             impactX = bestHole.x;
             impactY = bestHole.y;
-            mario.facingY = (bestHole.y >= mario.y) ? 1 : -1;
+            mario.facingY = (currentMode === MODE_5HOLES) ? 1 : ((bestHole.y >= mario.y) ? 1 : -1);
             if (Math.abs(bestHole.x - mario.x) > 15) {
                 mario.facingX = (bestHole.x > mario.x) ? 1 : -1;
                 mario.facing = mario.facingX;
@@ -533,7 +654,7 @@
 
         let hitSomething = false;
 
-        HOLES.forEach(hole => {
+        candidateHoles.forEach(hole => {
             const dx = impactX - hole.x;
             const dy = impactY - hole.y;
             const dist = Math.hypot(dx, dy * 1.4);
@@ -678,7 +799,10 @@
     }
 
     function spawnRandomMole() {
-        const emptyHoles = HOLES.filter(h => h.state === 'EMPTY');
+        const candidateHoles = (currentMode === MODE_5HOLES)
+            ? HOLES.filter(h => h.tier === 'lower')
+            : HOLES;
+        const emptyHoles = candidateHoles.filter(h => h.state === 'EMPTY');
         if (emptyHoles.length === 0) return;
 
         const hole = emptyHoles[Math.floor(Math.random() * emptyHoles.length)];
@@ -692,7 +816,7 @@
 
         let ventName = null;
         if (type === 'MOLE' || type === 'MEGA_MOLE') {
-            const activeVentNames = HOLES.map(h => h.occupant && h.occupant.ventName).filter(Boolean);
+            const activeVentNames = candidateHoles.map(h => h.occupant && h.occupant.ventName).filter(Boolean);
             const availableTargets = remainingVentTargets.filter(t => !activeVentNames.includes(t));
             if (availableTargets.length > 0) {
                 if (Math.random() < 0.85 || availableTargets.length >= emptyHoles.length) {
@@ -741,7 +865,12 @@
         particles = [];
         floatingTexts = [];
         mario.x = 480;
-        mario.y = 355;
+        if (currentMode === MODE_5HOLES) {
+            mario.y = 370;
+            mario.facingY = 1;
+        } else {
+            mario.y = 355;
+        }
         mario.targetX = null;
         mario.targetY = null;
         mario.isStunned = false;
@@ -945,26 +1074,31 @@
 
         if (keys.left) mx -= 1;
         if (keys.right) mx += 1;
-        if (keys.up) my -= 1;
-        if (keys.down) my += 1;
+        if (keys.up && currentMode !== MODE_5HOLES) my -= 1;
+        if (keys.down && currentMode !== MODE_5HOLES) my += 1;
 
         if (joystick.active) {
             mx = joystick.dx;
-            my = joystick.dy;
+            my = (currentMode === MODE_5HOLES) ? 0 : joystick.dy;
         }
 
         if (mario.targetX !== null && mario.targetY !== null && !joystick.active && mx === 0 && my === 0) {
+            if (currentMode === MODE_5HOLES) mario.targetY = 370;
             const dx = mario.targetX - mario.x;
-            const dy = mario.targetY - mario.y;
-            const dist = Math.hypot(dx, dy);
+            const dy = (currentMode === MODE_5HOLES) ? 0 : (mario.targetY - mario.y);
+            const dist = (currentMode === MODE_5HOLES) ? Math.abs(dx) : Math.hypot(dx, dy);
 
             if (dist > 14) {
-                mx = dx / dist;
-                my = dy / dist;
+                mx = (currentMode === MODE_5HOLES) ? Math.sign(dx) : (dx / dist);
+                my = (currentMode === MODE_5HOLES) ? 0 : (dy / dist);
                 if (dx > 6) { mario.facing = 1; mario.facingX = 1; }
                 else if (dx < -6) { mario.facing = -1; mario.facingX = -1; }
-                if (dy > 6) mario.facingY = 1;
-                else if (dy < -6) mario.facingY = -1;
+                if (currentMode !== MODE_5HOLES) {
+                    if (dy > 6) mario.facingY = 1;
+                    else if (dy < -6) mario.facingY = -1;
+                } else {
+                    mario.facingY = 1;
+                }
             } else {
                 mario.targetX = null;
                 mario.targetY = null;
@@ -975,13 +1109,17 @@
             }
         }
 
+        if (currentMode === MODE_5HOLES) {
+            my = 0;
+        }
+
         const len = Math.hypot(mx, my);
         if (len > 0.05) {
             const normX = mx / Math.max(1, len);
-            const normY = my / Math.max(1, len);
+            const normY = (currentMode === MODE_5HOLES) ? 0 : (my / Math.max(1, len));
 
             mario.vx = normX * mario.speed;
-            mario.vy = normY * mario.speed * 0.75;
+            mario.vy = (currentMode === MODE_5HOLES) ? 0 : (normY * mario.speed * 0.75);
             mario.isMoving = true;
 
             if (normX > 0.1) {
@@ -992,10 +1130,14 @@
                 mario.facingX = -1;
             }
 
-            if (normY > 0.15) {
+            if (currentMode === MODE_5HOLES) {
                 mario.facingY = 1;
-            } else if (normY < -0.15) {
-                mario.facingY = -1;
+            } else {
+                if (normY > 0.15) {
+                    mario.facingY = 1;
+                } else if (normY < -0.15) {
+                    mario.facingY = -1;
+                }
             }
 
             mario.walkAnimTimer += dt * 14;
@@ -1011,10 +1153,16 @@
         }
 
         mario.x += mario.vx * dt;
-        mario.y += mario.vy * dt;
+        if (currentMode === MODE_5HOLES) {
+            mario.y = 370;
+            mario.vy = 0;
+            mario.facingY = 1;
+        } else {
+            mario.y += mario.vy * dt;
+            mario.y = Math.max(285, Math.min(415, mario.y));
+        }
 
         mario.x = Math.max(230, Math.min(730, mario.x));
-        mario.y = Math.max(285, Math.min(415, mario.y));
     }
 
     function updateHUD() {
@@ -1048,9 +1196,22 @@
 
         if (statusEl) {
             if (gameState === STATE_PRACTICE) {
-                statusEl.textContent = '操作一下试试吧';
+                statusEl.textContent = (currentMode === MODE_5HOLES)
+                    ? '单排5洞模式 · 左右横移敲打'
+                    : '全域8洞模式 · 自由纵深敲打';
             } else if (gameState === STATE_PLAYING) {
                 statusEl.textContent = '';
+            }
+        }
+
+        const btnStartTop = document.getElementById('btnStartTop');
+        if (btnStartTop) {
+            if (gameState === STATE_PLAYING) {
+                btnStartTop.textContent = `⏱️ ${Math.ceil(gameTimer)}s`;
+            } else if (gameState === STATE_COUNTDOWN) {
+                btnStartTop.textContent = `倒计时...`;
+            } else {
+                btnStartTop.textContent = `▶ 开始`;
             }
         }
     }
@@ -1060,7 +1221,13 @@
     // ----------------------------------------------------
     function render() {
         ctx.save();
+
+        // Clear canvas
+        ctx.fillStyle = '#0b0610';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
         ctx.scale(scale, scale);
+        ctx.translate(-viewX, -viewY);
 
         if (shakeIntensity > 0) {
             const sx = (Math.random() - 0.5) * shakeIntensity * 2;
@@ -1098,15 +1265,17 @@
     }
 
     function drawBackground() {
+        // Extended backdrop filling for vertically stretched mobile screens
+        const grad = ctx.createRadialGradient(480, 200, 100, 480, 200, 650);
+        grad.addColorStop(0, '#2e1c3b');
+        grad.addColorStop(0.6, '#180d22');
+        grad.addColorStop(1, '#0b0610');
+        ctx.fillStyle = grad;
+        ctx.fillRect(viewX - 200, viewY - 200, viewWidth + 400, viewHeight + 400);
+
         if (bgImageLoaded) {
             ctx.drawImage(bgImage, 0, 0, V_WIDTH, 275);
         } else {
-            const grad = ctx.createRadialGradient(480, 200, 100, 480, 200, 550);
-            grad.addColorStop(0, '#2e1c3b');
-            grad.addColorStop(0.6, '#180d22');
-            grad.addColorStop(1, '#0b0610');
-            ctx.fillStyle = grad;
-            ctx.fillRect(0, 0, V_WIDTH, V_HEIGHT);
             drawGiantMoleStatue(480, 115);
         }
 
@@ -1209,23 +1378,28 @@
     function drawStage() {
         ctx.save();
 
+        const stageLeft = isMobilePortrait ? (viewX - 40) : 140;
+        const stageWidth = isMobilePortrait ? (viewWidth + 80) : 680;
+        const upperStepLeft = isMobilePortrait ? (viewX - 40) : 180;
+        const upperStepWidth = isMobilePortrait ? (viewWidth + 80) : 600;
+
         // Upper Raised Step
         ctx.fillStyle = '#d49b0e';
         ctx.beginPath();
-        ctx.moveTo(180, 255);
-        ctx.lineTo(780, 255);
-        ctx.lineTo(780, 290);
-        ctx.lineTo(180, 290);
+        ctx.moveTo(upperStepLeft, 255);
+        ctx.lineTo(upperStepLeft + upperStepWidth, 255);
+        ctx.lineTo(upperStepLeft + upperStepWidth, 290);
+        ctx.lineTo(upperStepLeft, 290);
         ctx.closePath();
         ctx.fill();
 
         // Upper Tier Top Face
         ctx.fillStyle = '#e8b11a';
-        ctx.fillRect(180, 210, 600, 48);
+        ctx.fillRect(upperStepLeft, 210, upperStepWidth, 48);
 
-        // Lower Main Arena Floor
+        // Lower Main Arena Floor (舞台主擂台)
         ctx.fillStyle = '#e2aa1c';
-        ctx.fillRect(140, 290, 680, 155);
+        ctx.fillRect(stageLeft, 290, stageWidth, 155);
 
         // Three Green Checkered Mats
         const mats = [
@@ -1252,23 +1426,26 @@
         const frontY = 445;
         const frontHeight = 35;
 
-        // Platform drop shadow
+        // Platform drop shadow & lower pedestal extension for vertical mobile screens
+        ctx.fillStyle = '#10121a';
+        ctx.fillRect(viewX - 200, frontY + frontHeight + 14, viewWidth + 400, 1500);
+
         ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-        ctx.fillRect(130, frontY + frontHeight, 700, 16);
+        ctx.fillRect(stageLeft - 10, frontY + frontHeight, stageWidth + 20, 16);
 
         // Front Face
         ctx.fillStyle = '#ca9310';
-        ctx.fillRect(140, frontY, 680, frontHeight);
+        ctx.fillRect(stageLeft, frontY, stageWidth, frontHeight);
 
         // Hazard Stripes
         ctx.save();
         ctx.beginPath();
-        ctx.rect(140, frontY, 680, frontHeight);
+        ctx.rect(stageLeft, frontY, stageWidth, frontHeight);
         ctx.clip();
 
         ctx.fillStyle = '#1c1c1c';
         const stripeW = 28;
-        for (let sx = 90; sx < 880; sx += stripeW * 2) {
+        for (let sx = stageLeft - 60; sx < stageLeft + stageWidth + 60; sx += stripeW * 2) {
             ctx.beginPath();
             ctx.moveTo(sx, frontY);
             ctx.lineTo(sx + stripeW, frontY);
@@ -1280,8 +1457,13 @@
         ctx.restore();
 
         // Corner Metal Brackets with Silver Rivets
-        drawMetalBracket(140, frontY - 8);
-        drawMetalBracket(790, frontY - 8);
+        if (!isMobilePortrait) {
+            drawMetalBracket(140, frontY - 8);
+            drawMetalBracket(790, frontY - 8);
+        } else {
+            drawMetalBracket(stageLeft, frontY - 8);
+            drawMetalBracket(stageLeft + stageWidth - 30, frontY - 8);
+        }
 
         // Draw Hole Cavities
         HOLES.forEach(hole => {
@@ -2260,7 +2442,15 @@
     }
 
     // Init Engine
+    const btnGameMode = document.getElementById('btnGameMode');
+    if (btnGameMode) {
+        btnGameMode.addEventListener('click', () => {
+            toggleGameMode();
+        });
+    }
+
     setupVentingUI();
+    setGameMode(currentMode);
     resizeCanvas();
     updateHUD();
     requestAnimationFrame(gameLoop);
@@ -2272,7 +2462,13 @@
             if (!smashedVentTargets.includes(name)) smashedVentTargets.push(name);
             const idx = remainingVentTargets.indexOf(name);
             if (idx !== -1) remainingVentTargets.splice(idx, 1);
-        }
+        },
+        setGameMode: setGameMode,
+        toggleGameMode: toggleGameMode,
+        getGameMode: () => currentMode,
+        getHoles: () => HOLES,
+        getMario: () => mario,
+        spawnRandomMole: spawnRandomMole
     };
 
 })();

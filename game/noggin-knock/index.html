@@ -8,7 +8,7 @@
     <title>敲打！机器黄鼹鼠 (Noggin Knock) · 马里奥聚会空前盛会复刻</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="bezel-mode">
+<body>
     <div class="app-container">
         <!-- Top Utility Bar -->
         <header class="top-bar">
@@ -16,11 +16,17 @@
                 <span>★</span> 马里奥聚会：空前盛会 · 敲打！机器黄鼹鼠
             </div>
             <div class="util-buttons">
+                <button id="btnStartTop" class="btn-util btn-start-top" title="开始30秒比赛">
+                    ▶ 开始
+                </button>
+                <button id="btnGameMode" class="btn-util btn-mode-toggle" title="切换游戏模式 (全域8洞 / 单排5洞极简)">
+                    🕹️ 单排5洞
+                </button>
                 <button id="btnVentSettings" class="btn-util btn-vent-nav" title="设定发泄目标 (敲扁Ta!)">
                     🎯 发泄目标 (<span id="ventTargetCount">0</span>)
                 </button>
-                <button id="btnSwitchFrame" class="btn-util" title="切换 Switch 掌机外观 / 全屏模式">
-                    🎮 掌机模式
+                <button id="btnSwitchFrame" class="btn-util" title="开启 Switch 掌机外观">
+                    🎮 掌机外观
                 </button>
                 <button id="btnMute" class="btn-util" title="音效开关">
                     🔊
@@ -46,8 +52,8 @@
                 <div class="game-viewport-wrap">
                     <!-- Screen Header -->
                     <div class="screen-header">
-                        <h1 class="screen-title">
-                            敲打！机器黄鼹鼠
+                        <h1 class="screen-title" id="screenTitle">
+                            敲打！机器黄鼹鼠 <span class="mode-badge" id="modeBadge">单排5洞</span>
                         </h1>
                         <div class="screen-header-right">
                             <div id="hudCombo" class="hud-combo">x2 COMBO!</div>
@@ -79,33 +85,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Screen Footer (Rules & Start matching original Switch layout) -->
-                    <footer class="screen-footer">
-                        <div class="rule-tips">
-                            <div>用锤子敲打不断出现的机器黄鼹鼠吧。</div>
-                            <div class="highlight-tip">击中炸弹兵会损失时间！</div>
-                        </div>
-                        <div class="start-action-wrap">
-                            <button id="btnFooterVent" class="btn-footer-vent" title="自定义发泄目标">
-                                🎯 发泄目标
-                            </button>
-                            <button id="btnStart" class="btn-start-match">
-                                <span>— / ＋</span> 开始！
-                            </button>
-                            <div class="mario-avatar-icon" title="马力欧">
-                                <svg viewBox="0 0 32 32" fill="none">
-                                    <circle cx="16" cy="16" r="15" fill="#e52521"/>
-                                    <circle cx="16" cy="13" r="7" fill="#fcd0a1"/>
-                                    <path d="M11 15C11 15 13 17 16 17C19 17 21 15 21 15" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
-                                    <circle cx="16" cy="13" r="2.5" fill="#e52521"/>
-                                    <path d="M9 10C9 6 23 6 23 10H9Z" fill="#e52521"/>
-                                    <circle cx="16" cy="8" r="3.5" fill="#ffffff"/>
-                                    <text x="16" y="10" font-size="5" font-weight="bold" fill="#e52521" text-anchor="middle">M</text>
-                                </svg>
-                            </div>
-                        </div>
-                    </footer>
                 </div>
             </section>
 
