@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>敲打！机器黄鼹鼠 (Noggin Knock) · 马里奥聚会空前盛会复刻</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bezel-mode">
+    <div class="app-container">
+        <!-- Top Utility Bar -->
+        <header class="top-bar">
+            <div class="brand-badge">
+                <span>★</span> 马里奥聚会：空前盛会 · 敲打！机器黄鼹鼠
+            </div>
+            <div class="util-buttons">
+                <button id="btnVentSettings" class="btn-util btn-vent-nav" title="设定发泄目标 (敲扁Ta!)">
+                    🎯 发泄目标 (<span id="ventTargetCount">0</span>)
+                </button>
+                <button id="btnSwitchFrame" class="btn-util" title="切换 Switch 掌机外观 / 全屏模式">
+                    🎮 掌机模式
+                </button>
+                <button id="btnMute" class="btn-util" title="音效开关">
+                    🔊
+                </button>
+            </div>
+        </header>
+
+        <!-- Switch Console Frame Wrapper -->
+        <main class="switch-wrapper">
+            <!-- Left Joy-Con (Neon Blue) -->
+            <aside class="joycon-left" aria-hidden="true">
+                <div class="btn-minus" id="joyconMinus" title="开始比赛"></div>
+                <div class="joycon-stick"></div>
+                <div class="joycon-dpad">
+                    <div></div><div class="dpad-btn"></div><div></div>
+                    <div class="dpad-btn"></div><div></div><div class="dpad-btn"></div>
+                    <div></div><div class="dpad-btn"></div><div></div>
+                </div>
+            </aside>
+
+            <!-- Center OLED Game Screen -->
+            <section class="switch-screen">
+                <div class="game-viewport-wrap">
+                    <!-- Screen Header -->
+                    <div class="screen-header">
+                        <h1 class="screen-title">
+                            敲打！机器黄鼹鼠
+                        </h1>
+                        <div class="screen-header-right">
+                            <div id="hudCombo" class="hud-combo">x2 COMBO!</div>
+                            <div id="hudScore" class="hud-pill score">🪙 00</div>
+                            <div id="hudTimer" class="hud-pill timer">• 30</div>
+                        </div>
+                    </div>
+
+                    <!-- Canvas Stage -->
+                    <div class="canvas-container" id="canvasContainer">
+                        <canvas id="gameCanvas"></canvas>
+                        <div id="hudStatus" class="canvas-banner">操作一下试试吧</div>
+
+                        <!-- On-Screen Mobile Touch Controls -->
+                        <div class="mobile-controls">
+                            <!-- Left: Virtual Joystick -->
+                            <div class="joystick-zone">
+                                <div class="joystick-base" id="joystickBase">
+                                    <div class="joystick-stick" id="joystickStick"></div>
+                                </div>
+                            </div>
+
+                            <!-- Right: Big Action Hammer Button -->
+                            <div class="action-zone">
+                                <button class="btn-hammer" id="btnHammer" aria-label="敲击">
+                                    🔨
+                                    <span>敲击 (A)</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Screen Footer (Rules & Start matching original Switch layout) -->
+                    <footer class="screen-footer">
+                        <div class="rule-tips">
+                            <div>用锤子敲打不断出现的机器黄鼹鼠吧。</div>
+                            <div class="highlight-tip">击中炸弹兵会损失时间！</div>
+                        </div>
+                        <div class="start-action-wrap">
+                            <button id="btnFooterVent" class="btn-footer-vent" title="自定义发泄目标">
+                                🎯 发泄目标
+                            </button>
+                            <button id="btnStart" class="btn-start-match">
+                                <span>— / ＋</span> 开始！
+                            </button>
+                            <div class="mario-avatar-icon" title="马力欧">
+                                <svg viewBox="0 0 32 32" fill="none">
+                                    <circle cx="16" cy="16" r="15" fill="#e52521"/>
+                                    <circle cx="16" cy="13" r="7" fill="#fcd0a1"/>
+                                    <path d="M11 15C11 15 13 17 16 17C19 17 21 15 21 15" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+                                    <circle cx="16" cy="13" r="2.5" fill="#e52521"/>
+                                    <path d="M9 10C9 6 23 6 23 10H9Z" fill="#e52521"/>
+                                    <circle cx="16" cy="8" r="3.5" fill="#ffffff"/>
+                                    <text x="16" y="10" font-size="5" font-weight="bold" fill="#e52521" text-anchor="middle">M</text>
+                                </svg>
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            </section>
+
+            <!-- Right Joy-Con (Neon Red) -->
+            <aside class="joycon-right" aria-hidden="true">
+                <div class="btn-plus" id="joyconPlus" title="开始比赛"></div>
+                <div class="joycon-abxy">
+                    <div></div><div class="abxy-btn">X</div><div></div>
+                    <div class="abxy-btn">Y</div><div></div><div class="abxy-btn" id="joyconA" style="color:#ffcc00;">A</div>
+                    <div></div><div class="abxy-btn">B</div><div></div>
+                </div>
+                <div class="joycon-stick"></div>
+            </aside>
+        </main>
+
+        <!-- Venting / Custom Target Settings Modal -->
+        <div id="ventModal" class="modal-overlay">
+            <div class="modal-content vent-modal-card">
+                <div class="modal-header-row">
+                    <h2 class="modal-title">🎯 设定发泄目标 · 敲扁Ta！</h2>
+                    <button id="btnCloseVentModal" class="btn-close-modal" aria-label="关闭">&times;</button>
+                </div>
+                <p class="modal-subtitle">设定 1~5 个想狠狠敲扁的目标名字，它们将化身机器黄鼹鼠出没！击中彻底敲扁除名！</p>
+                
+                <div class="quick-chips-wrap">
+                    <span class="chips-label">一键快捷填入：</span>
+                    <div class="chips-list">
+                        <button type="button" class="chip-item" data-name="周一">周一 😫</button>
+                        <button type="button" class="chip-item" data-name="甲方">甲方 😤</button>
+                        <button type="button" class="chip-item" data-name="BUG">BUG 🐛</button>
+                        <button type="button" class="chip-item" data-name="加班">加班 🌙</button>
+                        <button type="button" class="chip-item" data-name="早八">早八 ⏰</button>
+                        <button type="button" class="chip-item" data-name="内卷">内卷 🌀</button>
+                        <button type="button" class="chip-item" data-name="前任">前任 💔</button>
+                    </div>
+                </div>
+
+                <div class="vent-inputs-list">
+                    <div class="vent-input-row">
+                        <span class="vent-badge-num">1</span>
+                        <input type="text" maxlength="6" class="vent-input" id="ventInput0" placeholder="目标 1 (例如: 周一)">
+                        <button type="button" class="btn-clear-input" data-target="ventInput0" title="清除">&times;</button>
+                    </div>
+                    <div class="vent-input-row">
+                        <span class="vent-badge-num">2</span>
+                        <input type="text" maxlength="6" class="vent-input" id="ventInput1" placeholder="目标 2 (例如: 甲方)">
+                        <button type="button" class="btn-clear-input" data-target="ventInput1" title="清除">&times;</button>
+                    </div>
+                    <div class="vent-input-row">
+                        <span class="vent-badge-num">3</span>
+                        <input type="text" maxlength="6" class="vent-input" id="ventInput2" placeholder="目标 3 (例如: BUG)">
+                        <button type="button" class="btn-clear-input" data-target="ventInput2" title="清除">&times;</button>
+                    </div>
+                    <div class="vent-input-row">
+                        <span class="vent-badge-num">4</span>
+                        <input type="text" maxlength="6" class="vent-input" id="ventInput3" placeholder="目标 4 (选填)">
+                        <button type="button" class="btn-clear-input" data-target="ventInput3" title="清除">&times;</button>
+                    </div>
+                    <div class="vent-input-row">
+                        <span class="vent-badge-num">5</span>
+                        <input type="text" maxlength="6" class="vent-input" id="ventInput4" placeholder="目标 5 (选填)">
+                        <button type="button" class="btn-clear-input" data-target="ventInput4" title="清除">&times;</button>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button id="btnClearAllVent" class="btn-modal secondary">清空</button>
+                    <button id="btnSaveVent" class="btn-modal secondary">保存设定</button>
+                    <button id="btnSaveAndStartVent" class="btn-modal primary">保存并开局！</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Over / Time's Up Modal -->
+        <div id="gameOverModal" class="modal-overlay">
+            <div class="modal-content">
+                <h2 class="modal-title">🎉 TIME'S UP!</h2>
+                <p style="color:#666; font-weight:700; font-size:14px;">敲打！机器黄鼹鼠 · 比赛成绩</p>
+                
+                <div class="modal-score-card">
+                    <div class="modal-coins">
+                        🪙 <span id="modalFinalScore">0</span>
+                    </div>
+                    <div class="modal-stats">
+                        <div>最高连击: <b id="modalMaxCombo">0</b></div>
+                        <div>综合评级: <b id="modalRank" style="color:#e52521;">S</b></div>
+                    </div>
+                </div>
+
+                <!-- Venting Battle Report Section -->
+                <div id="modalVentReport" class="modal-vent-report">
+                    <div class="vent-report-title">🎯 本次发泄战报</div>
+                    <div class="vent-report-summary" id="ventReportSummary"></div>
+                    <div class="vent-report-groups">
+                        <div class="vent-group smashed-group">
+                            <div class="vent-group-title">🔨 已狠狠敲扁</div>
+                            <div class="vent-tags-container" id="ventTagsSmashed"></div>
+                        </div>
+                        <div class="vent-group escaped-group">
+                            <div class="vent-group-title">🏃 侥幸逃脱</div>
+                            <div class="vent-tags-container" id="ventTagsEscaped"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button id="btnBackPractice" class="btn-modal secondary">返回练习</button>
+                    <button id="btnPlayAgain" class="btn-modal primary">再来一局！</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="audio.js"></script>
+    <script src="game.js"></script>
+    <script>
+        // Hook Joy-Con bezel buttons to in-game actions
+        const joyconA = document.getElementById('joyconA');
+        if (joyconA) {
+            joyconA.addEventListener('pointerdown', () => {
+                const btn = document.getElementById('btnHammer');
+                if (btn) btn.dispatchEvent(new PointerEvent('pointerdown'));
+            });
+        }
+        const joyconPlus = document.getElementById('joyconPlus');
+        const joyconMinus = document.getElementById('joyconMinus');
+        [joyconPlus, joyconMinus].forEach(btn => {
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    const s = document.getElementById('btnStart');
+                    if (s) s.click();
+                });
+            }
+        });
+    </script>
+</body>
+</html>

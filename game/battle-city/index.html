@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>经典小霸王坦克大战 · NES Battle City 🎮</title>
+    <meta name="description" content="100%纯前端复刻小霸王红白机经典坦克大战 (Battle City)，原生Web Audio高保真8位音效，半砖摧毁、星级升级、全道具系统与自定义地图编辑器。">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="game-header">
+        <div class="brand-title">
+            <span>🎮 BATTLE CITY</span>
+            <span class="brand-badge">NES 1985 复刻版</span>
+        </div>
+        <div class="header-actions">
+            <button id="muteBtn" class="icon-btn" title="切换声音">🔊 声音</button>
+            <button id="crtBtn" class="icon-btn" title="CRT扫描线滤镜">📺 CRT</button>
+            <button id="touchBtn" class="icon-btn" title="虚拟摇杆">📱 摇杆</button>
+            <button id="helpBtn" class="icon-btn" title="游戏玩法指南">❓ 说明</button>
+        </div>
+    </header>
+
+    <!-- Main Arcade Cabinet Frame -->
+    <main class="cabinet-wrapper" id="cabinet">
+        <div class="famicom-stripe">
+            <div class="stripe-red"></div>
+            <div class="stripe-gold"></div>
+        </div>
+
+        <div class="screen-frame">
+            <canvas id="gameCanvas" width="256" height="224"></canvas>
+            <div class="crt-overlay" id="crtOverlay"></div>
+        </div>
+
+        <!-- Map Editor / Construction Mode Toolbar -->
+        <div class="editor-toolbar" id="editorControls">
+            <div class="brush-group">
+                <button class="brush-btn active" data-brush="1">🧱 砖墙</button>
+                <button class="brush-btn" data-brush="2">🛡️ 铁墙</button>
+                <button class="brush-btn" data-brush="3">🌊 水面</button>
+                <button class="brush-btn" data-brush="4">🌲 丛林</button>
+                <button class="brush-btn" data-brush="5">⛸️ 冰面</button>
+                <button class="brush-btn" data-brush="0">🧹 橡皮</button>
+            </div>
+            <div class="action-group">
+                <button id="btnPlayCustom" class="action-btn btn-play">🚀 立即试玩</button>
+                <button id="btnPreset" class="action-btn">🔄 载入关卡1 (1-5)</button>
+                <button id="btnClearMap" class="action-btn">🧼 清空地图</button>
+                <button id="btnSaveMap" class="action-btn">💾 保存</button>
+                <button id="btnLoadMap" class="action-btn">📂 读取</button>
+                <button id="btnExitEditor" class="action-btn">❌ 退出</button>
+            </div>
+        </div>
+
+        <!-- Desktop Controls Reference -->
+        <div class="desktop-controls">
+            <div><span class="key-badge">W A S D</span> / <span class="key-badge">↑ ↓ ← →</span> 移动</div>
+            <div><span class="key-badge">J</span> / <span class="key-badge">K (连发)</span> / <span class="key-badge">空格</span> 发射</div>
+            <div><span class="key-badge">← →</span> 选关 (1-5)</div>
+            <div><span class="key-badge">P</span> 暂停</div>
+            <div><span class="key-badge">M</span> 静音</div>
+        </div>
+
+        <!-- Mobile / Touch Virtual Gamepad -->
+        <div class="virtual-gamepad" id="virtualGamepad">
+            <!-- Left D-Pad -->
+            <div class="dpad">
+                <div class="dpad-btn dpad-up" id="dpadUp">▲</div>
+                <div class="dpad-btn dpad-right" id="dpadRight">►</div>
+                <div class="dpad-btn dpad-down" id="dpadDown">▼</div>
+                <div class="dpad-btn dpad-left" id="dpadLeft">◄</div>
+                <div class="dpad-center"></div>
+            </div>
+
+            <!-- Center Select / Start -->
+            <div class="center-buttons">
+                <button class="pill-btn" id="btnSelect">SELECT</button>
+                <button class="pill-btn" id="btnStart">START</button>
+            </div>
+
+            <!-- Right Action Buttons -->
+            <div class="action-buttons">
+                <button class="round-btn btn-b" id="btnTurbo">
+                    B
+                    <span class="btn-subtext">连发</span>
+                </button>
+                <button class="round-btn btn-a" id="btnFire">
+                    A
+                    <span class="btn-subtext">开火</span>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Help & Manual Modal -->
+    <div class="modal-backdrop" id="helpModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>🎮 经典小霸王坦克大战 · 操作秘籍</h2>
+                <button class="modal-close" id="modalCloseBtn">&times;</button>
+            </div>
+
+            <div class="modal-section">
+                <h3>🕹️ 操作指南</h3>
+                <p>• <strong>移动方向</strong>：键盘 <code>W / A / S / D</code> 或 <code>方向键 ↑ ↓ ← →</code>（移动时会自动进行半砖网格对齐，转向流畅不卡墙角）。</p>
+                <p>• <strong>发射炮弹</strong>：<code>J</code> 键 或 <code>空格键 Space</code>。</p>
+                <p>• <strong>暂停游戏</strong>：<code>P</code> 键 或 <code>Esc</code>。</p>
+                <p>• <strong>模式选择</strong>：主菜单按 <code>W/S</code> 选择「1 PLAYER」或「CONSTRUCTION（自定义关卡地图编辑器）」，按 <code>J</code> 或 <code>Enter</code> 确认。</p>
+            </div>
+
+            <div class="modal-section">
+                <h3>🛡️ 地形与物理特性</h3>
+                <p>• <strong>红砖墙</strong>：炮弹命中后破坏半砖（8×8像素）或整砖，支持精准半砖缺口开路。</p>
+                <p>• <strong>白铁墙</strong>：坚不可摧。普通坦克无法破坏，只有升级到 <strong>3星重型坦克</strong> 时才能击碎铁墙！</p>
+                <p>• <strong>水面</strong>：坦克无法通行，但双方炮弹可自由越过水面飞射。</p>
+                <p>• <strong>绿丛林</strong>：坦克与炮弹在丛林下隐蔽穿行，树林在顶层渲染，具有极高伏击战术价值。</p>
+                <p>• <strong>冰面</strong>：坦克行驶在冰面上时松开方向键会产生惯性漂移滑行。</p>
+                <p>• <strong>老鹰基地</strong>：位于底端正中央，若被任何一方炮弹命中即化为废墟，直接判定 Game Over！</p>
+            </div>
+
+            <div class="modal-section">
+                <h3>🎁 经典宝物道具系统 (红光闪烁敌坦掉落)</h3>
+                <div class="item-grid">
+                    <div class="item-badge">🪖 <strong>头盔 (Helmet)</strong>：获得10秒无敌护盾</div>
+                    <div class="item-badge">⏱️ <strong>时钟 (Clock)</strong>：冻结全场敌方坦克10秒</div>
+                    <div class="item-badge">⛏️ <strong>铁锹 (Shovel)</strong>：老鹰老巢砖墙变为铁墙20秒</div>
+                    <div class="item-badge">⭐ <strong>五角星 (Star)</strong>：提升坦克服役星级 (最高3星)</div>
+                    <div class="item-badge">💣 <strong>手雷 (Bomb)</strong>：瞬间全屏炸毁所有敌坦</div>
+                    <div class="item-badge">🚗 <strong>坦克 (1-UP)</strong>：增加1条生命</div>
+                    <div class="item-badge">🔫 <strong>手枪 (Gun)</strong>：瞬间升级为满级3星破铁坦克</div>
+                </div>
+            </div>
+
+            <div class="modal-section">
+                <h3>⭐ 坦克进阶升级</h3>
+                <p>• <strong>初始 0星</strong>：普通坦克，普通弹速，屏幕同屏1发炮弹。</p>
+                <p>• <strong>升级 1星</strong>：轻型坦克，高速穿甲弹，屏幕同屏1发炮弹。</p>
+                <p>• <strong>升级 2星</strong>：连发中型坦克，高速穿甲弹，支持同屏2发连续射击。</p>
+                <p>• <strong>升级 3星</strong>：终极重型坦克，双发超速重炮，<strong>可击毁铁墙</strong>，所向披靡！</p>
+            </div>
+
+            <div class="modal-section">
+                <h3>👾 敌军坦克档案 (每关共20辆)</h3>
+                <p>• <strong>普通坦克 (Basic)</strong>：速度较慢，击毁得 100 分。</p>
+                <p>• <strong>轻型装甲车 (Fast)</strong>：移动极其迅捷，击毁得 200 分。</p>
+                <p>• <strong>高炮坦克 (Power)</strong>：弹速极高火力凶猛，击毁得 300 分。</p>
+                <p>• <strong>重型装甲坦 (Armor)</strong>：拥有4格护甲值（需打中4发），随伤害变色，击毁得 400 分。</p>
+                <p>• <strong>红光闪烁坦克</strong>：消灭后必定掉落随机强力道具！</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script imports (Zero external dependencies) -->
+    <script src="audio.js"></script>
+    <script src="sprites.js"></script>
+    <script src="levels.js"></script>
+    <script src="game.js"></script>
+
+    <!-- Page Interaction Controller -->
+    <script>
+        // Mute Button
+        document.getElementById('muteBtn').addEventListener('click', () => {
+            if (window.battleCity) window.battleCity.toggleMute();
+        });
+
+        // CRT Filter Toggle
+        const crtBtn = document.getElementById('crtBtn');
+        const cabinet = document.getElementById('cabinet');
+        crtBtn.addEventListener('click', () => {
+            cabinet.classList.toggle('crt-off');
+            crtBtn.style.opacity = cabinet.classList.contains('crt-off') ? '0.5' : '1';
+        });
+
+        // Touch Gamepad Toggle
+        const touchBtn = document.getElementById('touchBtn');
+        const gamepad = document.getElementById('virtualGamepad');
+        touchBtn.addEventListener('click', () => {
+            const isVisible = window.getComputedStyle(gamepad).display === 'flex';
+            gamepad.style.display = isVisible ? 'none' : 'flex';
+            touchBtn.style.color = isVisible ? 'inherit' : '#f8b800';
+        });
+
+        // Auto-show gamepad on mobile touch screens
+        if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+            gamepad.style.display = 'flex';
+        }
+
+        // Help Modal
+        const helpBtn = document.getElementById('helpBtn');
+        const helpModal = document.getElementById('helpModal');
+        const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+        helpBtn.addEventListener('click', () => helpModal.style.display = 'flex');
+        modalCloseBtn.addEventListener('click', () => helpModal.style.display = 'none');
+        helpModal.addEventListener('click', (e) => {
+            if (e.target === helpModal) helpModal.style.display = 'none';
+        });
+
+        // Turbo Button (B)
+        let turboInterval = null;
+        const btnTurbo = document.getElementById('btnTurbo');
+        const startTurbo = () => {
+            if (window.battleCity) {
+                window.battleCity.touchControls.fire = true;
+                turboInterval = setInterval(() => {
+                    if (window.battleCity && window.battleCity.player) {
+                        window.battleCity.player.shootCooldown = 0;
+                    }
+                }, 100);
+            }
+        };
+        const stopTurbo = () => {
+            if (window.battleCity) window.battleCity.touchControls.fire = false;
+            clearInterval(turboInterval);
+        };
+        btnTurbo.addEventListener('touchstart', (e) => { e.preventDefault(); startTurbo(); });
+        btnTurbo.addEventListener('touchend', (e) => { e.preventDefault(); stopTurbo(); });
+        btnTurbo.addEventListener('mousedown', startTurbo);
+        btnTurbo.addEventListener('mouseup', stopTurbo);
+
+        // Map Editor Brush Selection
+        const brushBtns = document.querySelectorAll('.brush-btn');
+        brushBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                brushBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                if (window.battleCity) {
+                    window.battleCity.editorBrush = parseInt(btn.dataset.brush, 10);
+                }
+            });
+        });
+
+        // Map Editor Action Buttons
+        document.getElementById('btnPlayCustom').addEventListener('click', () => {
+            if (window.battleCity) window.battleCity.playCustomMap();
+        });
+
+        let currentPreset = 1;
+        const btnPreset = document.getElementById('btnPreset');
+        btnPreset.addEventListener('click', () => {
+            if (window.battleCity) {
+                currentPreset = (currentPreset % 5) + 1;
+                window.battleCity.editorMap = window.levelManager.getStage(currentPreset).map;
+                btnPreset.innerText = `🔄 载入关卡${currentPreset} (1-5)`;
+            }
+        });
+
+        document.getElementById('btnClearMap').addEventListener('click', () => {
+            if (window.battleCity) {
+                window.battleCity.editorMap = window.levelManager.createEmptyMap();
+            }
+        });
+
+        document.getElementById('btnSaveMap').addEventListener('click', () => {
+            if (window.battleCity) {
+                const ok = window.levelManager.saveCustomMap(window.battleCity.editorMap);
+                alert(ok ? "✅ 地图已成功保存到本地存储！" : "❌ 保存失败");
+            }
+        });
+
+        document.getElementById('btnLoadMap').addEventListener('click', () => {
+            if (window.battleCity) {
+                const loaded = window.levelManager.loadCustomMap();
+                if (loaded) {
+                    window.battleCity.editorMap = loaded;
+                    alert("✅ 成功加载本地自定义地图！");
+                } else {
+                    alert("ℹ️ 未发现已保存的自定义地图");
+                }
+            }
+        });
+
+        document.getElementById('btnExitEditor').addEventListener('click', () => {
+            if (window.battleCity) window.battleCity.exitConstruction();
+        });
+    </script>
+</body>
+</html>
