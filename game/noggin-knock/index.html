@@ -10,27 +10,45 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- Top Utility Bar -->
-        <header class="top-bar">
-            <div class="brand-badge">
-                <span>★</span> 马里奥聚会：空前盛会 · 敲打！机器黄鼹鼠
+        <!-- Unified Premium Glass Top Bar (双栏合一沉浸顶栏) -->
+        <header class="top-bar unified-top-bar" id="topBar">
+            <!-- Left: Brand Title & Mode Toggle -->
+            <div class="top-bar-left">
+                <div class="brand-badge">
+                    <span class="mario-badge-icon">M</span>
+                    <span class="brand-title-text">敲打！机器黄鼹鼠</span>
+                </div>
+                <button id="btnGameMode" class="btn-util btn-mode-toggle" title="切换游戏模式 (全域8洞 / 单排5洞极简)">
+                    🕹️ <span id="modeBadge" class="mode-badge">单排5洞</span>
+                </button>
             </div>
-            <div class="util-buttons">
+
+            <!-- Right: Live HUD Score + Main Action + Secondary Icons -->
+            <div class="top-bar-right">
+                <!-- Combo Flash Tag -->
+                <div id="hudCombo" class="hud-combo" style="display: none;">x2 COMBO!</div>
+
+                <!-- Live Score & Timer Pills -->
+                <div id="hudScore" class="hud-pill score">🪙 00</div>
+                <div id="hudTimer" class="hud-pill timer">• 30</div>
+
+                <!-- Primary Action: Start Match -->
                 <button id="btnStartTop" class="btn-util btn-start-top" title="开始30秒比赛">
                     ▶ 开始
                 </button>
-                <button id="btnGameMode" class="btn-util btn-mode-toggle" title="切换游戏模式 (全域8洞 / 单排5洞极简)">
-                    🕹️ 单排5洞
-                </button>
-                <button id="btnVentSettings" class="btn-util btn-vent-nav" title="设定发泄目标 (敲扁Ta!)">
-                    🎯 发泄目标 (<span id="ventTargetCount">0</span>)
-                </button>
-                <button id="btnSwitchFrame" class="btn-util" title="开启 Switch 掌机外观">
-                    🎮 掌机外观
-                </button>
-                <button id="btnMute" class="btn-util" title="音效开关">
-                    🔊
-                </button>
+
+                <!-- Secondary Actions: Compact Icon Buttons -->
+                <div class="secondary-actions">
+                    <button id="btnVentSettings" class="btn-icon-util btn-vent-nav" title="设定发泄目标 (敲扁Ta!)">
+                        🎯<span class="icon-dot-badge" id="ventTargetCount">0</span>
+                    </button>
+                    <button id="btnSwitchFrame" class="btn-icon-util" title="开启 Switch 掌机外观">
+                        🎮
+                    </button>
+                    <button id="btnMute" class="btn-icon-util" title="音效开关">
+                        🔊
+                    </button>
+                </div>
             </div>
         </header>
 
@@ -50,18 +68,6 @@
             <!-- Center OLED Game Screen -->
             <section class="switch-screen">
                 <div class="game-viewport-wrap">
-                    <!-- Screen Header -->
-                    <div class="screen-header">
-                        <h1 class="screen-title" id="screenTitle">
-                            敲打！机器黄鼹鼠 <span class="mode-badge" id="modeBadge">单排5洞</span>
-                        </h1>
-                        <div class="screen-header-right">
-                            <div id="hudCombo" class="hud-combo">x2 COMBO!</div>
-                            <div id="hudScore" class="hud-pill score">🪙 00</div>
-                            <div id="hudTimer" class="hud-pill timer">• 30</div>
-                        </div>
-                    </div>
-
                     <!-- Canvas Stage -->
                     <div class="canvas-container" id="canvasContainer">
                         <canvas id="gameCanvas"></canvas>

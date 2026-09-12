@@ -109,22 +109,15 @@
 
     function updateModeUI() {
         const btnMode = document.getElementById('btnGameMode');
-        const badge = document.getElementById('modeBadge');
+        const icon = (currentMode === MODE_5HOLES) ? '🕹️' : '🎮';
+        const text = (currentMode === MODE_5HOLES) ? '单排5洞' : '全域8洞';
+        const modeClass = (currentMode === MODE_8HOLES) ? 'mode-badge mode-8holes' : 'mode-badge';
+
         if (btnMode) {
-            btnMode.innerHTML = (currentMode === MODE_5HOLES)
-                ? '🕹️ 单排5洞'
-                : '🎮 全域8洞';
+            btnMode.innerHTML = `${icon} <span id="modeBadge" class="${modeClass}">${text}</span>`;
             btnMode.title = (currentMode === MODE_5HOLES)
                 ? '当前：单排5洞极简 (仅左右横移)，点击切换全域8洞'
                 : '当前：全域8洞标准 (自由纵深)，点击切换单排5洞';
-        }
-        if (badge) {
-            badge.textContent = (currentMode === MODE_5HOLES) ? '单排5洞' : '全域8洞';
-            if (currentMode === MODE_5HOLES) {
-                badge.classList.remove('mode-8holes');
-            } else {
-                badge.classList.add('mode-8holes');
-            }
         }
     }
 
@@ -526,7 +519,7 @@
     function updateSwitchFrameBtn() {
         if (!btnSwitchFrame) return;
         const isBezel = document.body.classList.contains('bezel-mode');
-        btnSwitchFrame.innerHTML = isBezel ? '🖥️ 纯净全屏' : '🎮 掌机外观';
+        btnSwitchFrame.innerHTML = isBezel ? '🖥️' : '🎮';
         btnSwitchFrame.title = isBezel ? '切换到纯净全屏模式' : '开启 Switch 掌机外观';
     }
 
@@ -1173,7 +1166,9 @@
 
         if (timerEl) {
             if (gameState === STATE_PRACTICE) {
-                timerEl.innerHTML = `• 30 <span style="font-size:0.7em;opacity:0.8">(练习)</span>`;
+                timerEl.innerHTML = (window.innerWidth <= 768)
+                    ? '• 30'
+                    : `• 30 <span style="font-size:0.7em;opacity:0.8">(练习)</span>`;
             } else {
                 timerEl.textContent = `• ${Math.ceil(gameTimer)}`;
                 if (gameTimer <= 10) timerEl.classList.add('low-time');
@@ -1188,8 +1183,10 @@
         if (comboEl) {
             if (combo > 1) {
                 comboEl.textContent = `x${combo} COMBO!`;
+                comboEl.style.display = 'inline-block';
                 comboEl.style.opacity = '1';
             } else {
+                comboEl.style.display = 'none';
                 comboEl.style.opacity = '0';
             }
         }
