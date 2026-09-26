@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual Architecture: 敲打！机器黄鼹鼠 (Noggin Knock)</title>
+    <style>
+        :root {
+            --mario-red: #e52521;
+            --mario-blue: #0088cc;
+            --switch-neon-blue: #00c3e3;
+            --switch-neon-red: #ff3c28;
+            --gold: #ffd700;
+            --bg-dark: #0f0a17;
+            --card-bg: rgba(26, 17, 37, 0.85);
+            --card-border: rgba(255, 255, 255, 0.12);
+            --text-main: #f5f5f7;
+            --text-sub: #a19ba8;
+            --accent-green: #2ecc71;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: radial-gradient(circle at 50% 20%, #281636 0%, var(--bg-dark) 80%);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 32px 24px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Hero Header */
+        .hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+            padding: 24px 28px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 12px 36px rgba(0,0,0,0.5);
+        }
+
+        .hero-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .brand-badge {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #ff3b30, #c41e15);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            font-weight: 900;
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(229, 37, 33, 0.4);
+        }
+
+        .hero-title h1 {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .hero-title p {
+            font-size: 14px;
+            color: var(--text-sub);
+        }
+
+        .tags-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .tag {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .tag.red { border-color: rgba(229, 37, 33, 0.5); color: #ff6b68; }
+        .tag.blue { border-color: rgba(0, 195, 227, 0.5); color: #5ce1e6; }
+        .tag.gold { border-color: rgba(255, 215, 0, 0.5); color: #ffe066; }
+
+        /* Grid Layout */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 900px) {
+            .grid-2 { grid-template-columns: 1fr; }
+            .hero { flex-direction: column; align-items: flex-start; gap: 16px; }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 22px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Interactive Stage Map */
+        .stage-visual {
+            background: #180d24;
+            border: 2px solid #3d2354;
+            border-radius: 12px;
+            padding: 16px;
+            position: relative;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+
+        .stage-backdrop {
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 90px;
+            background: linear-gradient(180deg, rgba(229, 37, 33, 0.15) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .stage-tier-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-sub);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .holes-row {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1;
+        }
+
+        .hole-node {
+            width: 58px;
+            height: 38px;
+            background: radial-gradient(ellipse at center, #1b0a2a 30%, #4a286d 90%, #68389c 100%);
+            border: 2px solid #ffcc00;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+            position: relative;
+        }
+
+        .hole-node.mega {
+            width: 84px;
+            height: 52px;
+            border-color: #ff3b30;
+            background: radial-gradient(ellipse at center, #2e0805 30%, #851c16 90%, #d32f2f 100%);
+            box-shadow: 0 0 16px rgba(255, 59, 48, 0.4);
+        }
+
+        .hole-node:hover {
+            transform: translateY(-4px) scale(1.08);
+            border-color: #fff;
+            box-shadow: 0 8px 18px rgba(255, 215, 0, 0.6);
+        }
+
+        .hole-id {
+            font-size: 11px;
+            font-weight: 900;
+            color: #fff;
+        }
+
+        .hole-desc {
+            font-size: 9px;
+            color: #fffae6;
+        }
+
+        .stage-divider {
+            height: 6px;
+            background: repeating-linear-gradient(45deg, #ffcc00, #ffcc00 10px, #1a1a1a 10px, #1a1a1a 20px);
+            border-radius: 3px;
+            margin: 14px 0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+        }
+
+        .hole-detail-panel {
+            margin-top: 14px;
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--text-sub);
+            border-left: 3px solid var(--gold);
+        }
+
+        /* Call Tree / Pipeline List */
+        .pipeline-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 8px;
+        }
+
+        .step-num {
+            width: 24px;
+            height: 24px;
+            background: var(--mario-red);
+            color: #fff;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .step-info h4 {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .step-info p {
+            font-size: 12px;
+            color: var(--text-sub);
+        }
+
+        /* Audio Node Flow */
+        .audio-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .audio-node-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            border-radius: 8px;
+            background: rgba(0, 195, 227, 0.08);
+            border: 1px solid rgba(0, 195, 227, 0.2);
+            font-size: 12px;
+        }
+
+        .audio-node-box code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            color: #5ce1e6;
+            font-weight: 700;
+        }
+
+        /* Table Comparison */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        th, td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        th {
+            color: var(--text-sub);
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        td strong {
+            color: #fff;
+        }
+
+        .badge-pill {
+            display: inline-block;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: bold;
+        }
+
+        .badge-green { background: rgba(46, 204, 113, 0.2); color: #2ecc71; }
+        .badge-purple { background: rgba(155, 89, 182, 0.2); color: #c39bd3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="hero">
+            <div class="hero-left">
+                <div class="brand-badge">M</div>
+                <div class="hero-title">
+                    <h1>敲打！机器黄鼹鼠 · 架构全景可视化 (Noggin Knock)</h1>
+                    <p>致敬 Switch《超级马里奥聚会：空前盛会》· 100% 纯原生 60FPS 极速派对游戏</p>
+                </div>
+            </div>
+            <div class="tags-row">
+                <span class="tag red">Canvas 2D 硬件加速</span>
+                <span class="tag blue">Web Audio 物理算法合成</span>
+                <span class="tag gold">Y-Sorting 2.5D 深度流</span>
+            </div>
+        </header>
+
+        <!-- Grid Row 1: Spatial Map & Render Pipeline -->
+        <div class="grid-2">
+            <!-- Card 1: 2.5D Stage & 8 Holes Spatial Map -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">🏟️ 2.5D 双层阶梯地洞立体空间标定</span>
+                    <span style="font-size: 12px; color: var(--text-sub);">点击地洞查看物理参数</span>
+                </div>
+                <div class="stage-visual">
+                    <div class="stage-backdrop"></div>
+                    
+                    <!-- Upper Raised Tier (3 holes) -->
+                    <div>
+                        <div class="stage-tier-label">
+                            <span>后排高层平台 (Upper Tier · Y ≈ 280)</span>
+                            <span style="color: #ff3b30;">纵深战略高分点</span>
+                        </div>
+                        <div class="holes-row">
+                            <div class="hole-node" onclick="showHole(5)">
+                                <span class="hole-id">#5</span>
+                                <span class="hole-desc">左高洞</span>
+                            </div>
+                            <div class="hole-node mega" onclick="showHole(6)">
+                                <span class="hole-id">#6 MEGA</span>
+                                <span class="hole-desc">👑 大王洞</span>
+                            </div>
+                            <div class="hole-node" onclick="showHole(7)">
+                                <span class="hole-id">#7</span>
+                                <span class="hole-desc">右高洞</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stage Divider Ramp -->
+                    <div class="stage-divider"></div>
+
+                    <!-- Lower Front Tier (5 holes) -->
+                    <div>
+                        <div class="stage-tier-label">
+                            <span>前排低层地台 (Lower Tier · Y = 422)</span>
+                            <span style="color: #ffd700;">单排5洞专属区 (横向锁定 Y=370)</span>
+                        </div>
+                        <div class="holes-row">
+                            <div class="hole-node" onclick="showHole(0)">
+                                <span class="hole-id">#0</span>
+                                <span class="hole-desc">极左</span>
+                            </div>
+                            <div class="hole-node" onclick="showHole(1)">
+                                <span class="hole-id">#1</span>
+                                <span class="hole-desc">次左</span>
+                            </div>
+                            <div class="hole-node" onclick="showHole(2)">
+                                <span class="hole-id">#2</span>
+                                <span class="hole-desc">正中</span>
+                            </div>
+                            <div class="hole-node" onclick="showHole(3)">
+                                <span class="hole-id">#3</span>
+                                <span class="hole-desc">次右</span>
+                            </div>
+                            <div class="hole-node" onclick="showHole(4)">
+                                <span class="hole-id">#4</span>
+                                <span class="hole-desc">极右</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hole-detail-panel" id="holeDetailBox">
+                    💡 提示：点击上方任意地洞，可查看该洞口的坐标标定、半径椭圆参数及出没规则。
+                </div>
+            </div>
+
+            <!-- Card 2: Y-Sorting Render Pipeline -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">📐 实时 Y-Sorting 深度渲染管线</span>
+                    <span style="font-size: 12px; color: #2ecc71;">每秒 60 帧严格分层</span>
+                </div>
+                <div class="pipeline-steps">
+                    <div class="step-item">
+                        <div class="step-num">1</div>
+                        <div class="step-info">
+                            <h4>drawBackground() + drawSpotlights()</h4>
+                            <p>背景暗夜渐变、马里奥吉祥物、20 颗狂欢节跑马灯球与动态旋转双聚光灯</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-num">2</div>
+                        <div class="step-info">
+                            <h4>drawStage() · 双层机械舞台底槽</h4>
+                            <p>上层木质平台、黄色警戒分界台阶、各洞内深黑凹槽及内阴影</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-num">3</div>
+                        <div class="step-info">
+                            <h4>drawHoleOccupants() · 机械鼹鼠 / 炸弹兵</h4>
+                            <p>基于出洞高度 progress 裁剪，计算被锤扁变形系数 (ScaleX:1.4, ScaleY:0.2)</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-num">4</div>
+                        <div class="step-info">
+                            <h4>drawMario() · 玩家角色与充气大锤</h4>
+                            <p>动态行走帧、方向四向判定、挥锤弧光（Whoosh Wave）与眩晕黑脸状态</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-num">5</div>
+                        <div class="step-info">
+                            <h4>drawStageForeground() + FX 粒子层</h4>
+                            <p>地洞前沿金属包边遮挡、金币粒子对象池、暴击飘字与全屏震颤 (Screen Shake)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grid Row 2: Sound Synthesis & Modes -->
+        <div class="grid-2">
+            <!-- Card 3: Web Audio Synthesizer -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">🔊 零外部依赖 · Web Audio 物理算法合成器</span>
+                    <span style="font-size: 12px; color: #5ce1e6;">SoundEngine (audio.js)</span>
+                </div>
+                <div class="audio-flow">
+                    <div class="audio-node-box">
+                        <div>
+                            <strong>充气重锤破风声</strong> (<code>playSwing</code>)
+                            <p style="color:var(--text-sub); font-size:11px;">0.15s 白噪声带通滤波扫频 (400Hz → 1200Hz → 200Hz)</p>
+                        </div>
+                        <span class="tag blue">WhiteNoise + BandPass</span>
+                    </div>
+                    <div class="audio-node-box">
+                        <div>
+                            <strong>击扁橡胶鼹鼠声</strong> (<code>playHitMole</code>)
+                            <p style="color:var(--text-sub); font-size:11px;">方波基频急剧下潜 (280Hz → 60Hz) 伴随低通弹性共振</p>
+                        </div>
+                        <span class="tag gold">SquareWave + LowPass</span>
+                    </div>
+                    <div class="audio-node-box">
+                        <div>
+                            <strong>炸弹兵大爆炸</strong> (<code>playExplosion</code>)
+                            <p style="color:var(--text-sub); font-size:11px;">50Hz 超低重音下潜冲击 + 失真白噪声猝发 + 屏幕晃动</p>
+                        </div>
+                        <span class="tag red">SubBass + NoiseBurst</span>
+                    </div>
+                    <div class="audio-node-box">
+                        <div>
+                            <strong>128 BPM 嘉年华轻快 BGM</strong> (<code>startBGM</code>)
+                            <p style="color:var(--text-sub); font-size:11px;">程序化 16 步进节拍，动态贝斯走带与欢快合成器琶音</p>
+                        </div>
+                        <span class="tag blue">Procedural Sequencer</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 4: Two Gameplay Modes Comparison -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">🕹️ 双模式特性与控制流对比</span>
+                    <span style="font-size: 12px; color: var(--gold);">无缝一键热切换</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>对比维度</th>
+                            <th>🕹️ 单排 5 洞极简模式</th>
+                            <th>🎮 全域 8 洞标准模式</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>核心受众</strong></td>
+                            <td><span class="badge-pill badge-green">手机触控 / 单手碎片</span></td>
+                            <td><span class="badge-pill badge-purple">PC 键盘 / 硬核竞技</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>纵向位移 (Y)</strong></td>
+                            <td><strong>严格锁定 Y=370</strong>（禁止上下穿梭）</td>
+                            <td>自由纵深穿梭 (Y=260~440)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>出没地洞</strong></td>
+                            <td>仅前排 5 洞（后排 3 洞刷新率严格为 0）</td>
+                            <td>全域 8 洞随机冒出（含大王洞）</td>
+                        </tr>
+                        <tr>
+                            <td><strong>操作负担</strong></td>
+                            <td>减少 70%，横向推摇杆/按键直达</td>
+                            <td>四向走位预判 + 空间折返</td>
+                        </tr>
+                        <tr>
+                            <td><strong>发泄目标命中</strong></td>
+                            <td>节奏极快，连击爆发感高</td>
+                            <td>策略博弈，考验空间视野</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const holeData = {
+            0: { tier: "前排低层", x: 235, y: 422, rx: 38, ry: 20, desc: "极左外侧洞口，适合开局快速连击积累" },
+            1: { tier: "前排低层", x: 358, y: 422, rx: 38, ry: 20, desc: "次左洞口，紧贴马里奥左侧击打盲区" },
+            2: { tier: "前排低层", x: 480, y: 422, rx: 38, ry: 20, desc: "正中央洞口，马里奥开局站位正前方，刷新频率高" },
+            3: { tier: "前排低层", x: 602, y: 422, rx: 38, ry: 20, desc: "次右洞口，连击关键过渡位" },
+            4: { tier: "前排低层", x: 725, y: 422, rx: 38, ry: 20, desc: "极右外侧洞口，需长距离横向突进敲击" },
+            5: { tier: "后排高层", x: 338, y: 280, rx: 36, ry: 19, desc: "高台左侧，全域模式下需跨越台阶向后挥击" },
+            6: { tier: "后排高层 (MEGA)", x: 480, y: 246, rx: 62, ry: 32, desc: "👑 中央巨型大王洞！半径更大、出没巨型金币黄鼹鼠，单次得分翻倍！" },
+            7: { tier: "后排高层", x: 622, y: 280, rx: 36, ry: 19, desc: "高台右侧，高阶防守反击点" }
+        };
+
+        function showHole(id) {
+            const h = holeData[id];
+            const box = document.getElementById('holeDetailBox');
+            box.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                    <strong style="color:#ffd700; font-size:14px;">地洞 #${id} · ${h.tier}</strong>
+                    <span style="font-family:monospace; color:#5ce1e6;">X: ${h.x}, Y: ${h.y} | 半径: [${h.rx}, ${h.ry}]</span>
+                </div>
+                <p style="color:#f5f5f7;">${h.desc}</p>
+            `;
+        }
+    </script>
+</body>
+</html>

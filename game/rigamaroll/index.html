@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>rigamaroll 🎲 骰子决斗</title>
+  <meta name="description" content="A fast dice duel of perfect timing, strange allies, and one more roll." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎲</text></svg>">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #11120f;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    #game-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #11120f;
+    }
+
+    #game-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+      background: #11120f;
+    }
+
+    /* 浮动轻量全屏控制按钮（不干扰视线，悬浮微显） */
+    .floating-controls {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      z-index: 100;
+      display: flex;
+      gap: 8px;
+      opacity: 0.35;
+      transition: opacity 0.25s ease;
+    }
+
+    .floating-controls:hover {
+      opacity: 1;
+    }
+
+    .float-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(20, 20, 18, 0.75);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #e5e7eb;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+      outline: none;
+    }
+
+    .float-btn:hover {
+      background: rgba(40, 40, 36, 0.9);
+      border-color: rgba(255, 255, 255, 0.3);
+      color: #ffffff;
+      transform: scale(1.05);
+    }
+
+    .float-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <iframe 
+      id="game-frame" 
+      src="./dice/index.html" 
+      allow="autoplay; fullscreen; gamepad; cross-origin-isolated"
+      tabindex="0"
+    ></iframe>
+  </div>
+
+  <div class="floating-controls">
+    <button id="btn-fullscreen" class="float-btn" title="切换全屏" aria-label="切换全屏">
+      <svg id="icon-fs-enter" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 3H5a2 2 0 0 0-2 2v3"></path>
+        <path d="M21 8V5a2 2 0 0 0-2-2h-3"></path>
+        <path d="M3 16v3a2 2 0 0 0 2 2h3"></path>
+        <path d="M16 21h3a2 2 0 0 0 2-2v-3"></path>
+      </svg>
+      <svg id="icon-fs-exit" style="display:none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 3v3a2 2 0 0 1-2 2H3"></path>
+        <path d="M21 8h-3a2 2 0 0 1-2-2V3"></path>
+        <path d="M3 16h3a2 2 0 0 1 2 2v3"></path>
+        <path d="M16 21v-3a2 2 0 0 1 2-2h3"></path>
+      </svg>
+    </button>
+  </div>
+
+  <script>
+    const iframe = document.getElementById('game-frame');
+    const fsBtn = document.getElementById('btn-fullscreen');
+    const iconFsEnter = document.getElementById('icon-fs-enter');
+    const iconFsExit = document.getElementById('icon-fs-exit');
+
+    // 自动聚焦 iframe
+    function focusGame() {
+      try {
+        iframe.contentWindow?.focus();
+      } catch (err) {}
+    }
+
+    iframe.addEventListener('load', () => {
+      focusGame();
+    });
+
+    // 全局键盘与按键无缝透传机制（彻底消除首键吞噬问题）
+    function forwardKeyboardEvent(e) {
+      if (!iframe || !iframe.contentWindow) return;
+      if (e.view === iframe.contentWindow) return;
+
+      // 阻止外层针对游戏常用键的默认滚动行为
+      if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'ArrowDown' || e.code === 'ArrowLeft' || e.code === 'ArrowRight') {
+        e.preventDefault();
+      }
+
+      try {
+        const syntheticEvent = new KeyboardEvent(e.type, {
+          key: e.key,
+          code: e.code,
+          keyCode: e.keyCode,
+          which: e.which,
+          repeat: e.repeat,
+          altKey: e.altKey,
+          ctrlKey: e.ctrlKey,
+          metaKey: e.metaKey,
+          shiftKey: e.shiftKey,
+          bubbles: true,
+          cancelable: true
+        });
+        iframe.contentWindow.dispatchEvent(syntheticEvent);
+      } catch (err) {}
+
+      focusGame();
+    }
+
+    window.addEventListener('keydown', forwardKeyboardEvent, true);
+    window.addEventListener('keyup', forwardKeyboardEvent, true);
+    window.addEventListener('pointerdown', focusGame, true);
+
+    // 全屏切换管理
+    function updateFullscreenIcons() {
+      const isFs = !!document.fullscreenElement;
+      iconFsEnter.style.display = isFs ? 'none' : 'block';
+      iconFsExit.style.display = isFs ? 'block' : 'none';
+      fsBtn.title = isFs ? '退出全屏' : '切换全屏';
+      
+      try {
+        iframe.contentWindow?.dispatchEvent(new Event('resize'));
+      } catch (err) {}
+    }
+
+    fsBtn.addEventListener('click', async () => {
+      try {
+        if (!document.fullscreenElement) {
+          await (document.documentElement.requestFullscreen?.() || document.body.requestFullscreen?.());
+        } else {
+          await document.exitFullscreen?.();
+        }
+      } catch (e) {
+        console.warn('Fullscreen error:', e);
+      }
+      focusGame();
+    });
+
+    document.addEventListener('fullscreenchange', updateFullscreenIcons);
+
+    // 初始延迟聚焦
+    setTimeout(focusGame, 300);
+  </script>
+</body>
+</html>

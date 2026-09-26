@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>rigamaroll (Fullscreen Standalone)</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #f4f0e8;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <iframe id="rigamaroll-standalone-iframe" src="./dice/index.html" allow="autoplay; fullscreen; gamepad; cross-origin-isolated"></iframe>
+  <script>
+    const iframe = document.getElementById('rigamaroll-standalone-iframe');
+    function forwardToGame(e) {
+      if (!iframe || !iframe.contentWindow) return;
+      if (e.view === iframe.contentWindow) return;
+      if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'ArrowDown') {
+        e.preventDefault();
+      }
+      try {
+        iframe.contentWindow.dispatchEvent(new KeyboardEvent(e.type, {
+          key: e.key,
+          code: e.code,
+          keyCode: e.keyCode,
+          which: e.which,
+          repeat: e.repeat,
+          altKey: e.altKey,
+          ctrlKey: e.ctrlKey,
+          metaKey: e.metaKey,
+          shiftKey: e.shiftKey,
+          bubbles: true,
+          cancelable: true
+        }));
+      } catch (err) {}
+      iframe.contentWindow.focus();
+    }
+    window.addEventListener('keydown', forwardToGame, true);
+    window.addEventListener('keyup', forwardToGame, true);
+    window.addEventListener('pointerdown', () => iframe?.contentWindow?.focus());
+  </script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>rigamaroll 🎲 骰子决斗</title><link rel="stylesheet" href="./style.css"></head>
+<body data-title="open" data-loading="true">
+
+<main id="experience" inert>
+ <section id="stage" class="stage" aria-label="骰子决斗桌面">
+  <canvas id="dice-canvas" tabindex="0" role="button" aria-label="投掷骰子"></canvas>
+  <canvas id="dice-sparks" aria-hidden="true"></canvas>
+  <aside class="fighter fighter-player" aria-label="你的英雄角色">
+   <div class="fighter-hud"><div class="vital-stats"><div id="health" class="health" role="img" aria-label="剩余 1 颗生命心"></div><div id="damage" class="damage-stat" role="img" aria-label="半颗心伤害"></div></div><div class="fighter-stats player-stats"><div><span>得分</span><strong id="score">0</strong></div><div><span>连击</span><strong id="combo">0</strong></div><div class="next-die" id="die-label">D4</div><div><span>速度</span><strong id="speed">1.00×</strong></div></div><div id="level-status" role="img" aria-label="等级 1"><span id="level">LV 1</span><span class="xp-track"><span id="xp-fill"></span></span></div></div>
+   <div id="reserve-hero" class="reserve-hero" hidden><img src="../scene3d/assets/dice/characters/orange-idle.svg" alt="下一个候场存活队友" draggable="false"></div>
+   <div id="hero-character" class="character" data-pose="idle"><span class="character-shadow"></span><div class="character-breathe"><div class="character-motion"><img class="character-sprite" alt="你的橙兜帽游侠" draggable="false"></div></div></div>
+  </aside>
+  <aside id="fighter-enemy" class="fighter fighter-enemy" aria-label="骷髅对手">
+   <div class="fighter-hud"><div class="vital-stats"><div id="enemy-health" class="health" role="img" aria-label="敌方剩余 1 颗生命心"></div><div id="enemy-damage" class="damage-stat" role="img" aria-label="半颗心伤害"></div></div><div class="fighter-stats"><div><span>连击</span><strong id="enemy-combo">0</strong></div><div class="next-die"><strong id="enemy-die">D4</strong><small id="enemy-roll"></small></div><div><span>速度</span><strong id="enemy-speed">1.00×</strong></div></div></div>
+   <div id="queued-enemy" class="queued-enemy" data-character="skeleton"><img src="../scene3d/assets/dice/characters/skeleton-idle.svg" alt="排队候场的下一名骷髅怪物" draggable="false"></div>
+   <div id="enemy-character" class="character" data-pose="idle"><span class="character-shadow"></span><div class="character-breathe"><div class="character-motion"><img class="character-sprite" alt="咧嘴笑的琥珀眼骷髅对手" draggable="false"></div></div></div>
+  </aside>
+  <div id="loading" hidden>正在加载骰子…</div>
+  <div id="timing" hidden><div id="celebration" aria-hidden="true"><span id="celebration-grade"></span><strong id="celebration-combo"></strong></div><div class="timing-caption"><span>良好 · 完美 +2</span><span id="timing-bonus"></span></div><div id="meter" role="img" aria-label="时序重填轮盘：在利剑、盾牌、红心、加速或减速格截停"><span class="target-window"><span id="targets"></span></span><span id="needle"></span><span id="hit-effects" aria-hidden="true"></span></div><div class="timing-legend"><span>⚔️ 利剑攻击 · 🛡️ 盾牌格挡 · 💀 骷髅威胁 · ❤️ 红心治愈 · &lt;&lt; 减速 · &gt;&gt; 加速 · 骰子满点暴击</span></div></div>
+ </section>
+ <div id="announcement" class="readout" aria-live="polite" aria-atomic="true">点击或按空格键开始对决</div>
+</main>
+<section id="title-screen" aria-label="rigamaroll 标题画面">
+ <div class="title-logo-wrap"><h1 id="title-logo">rigamaroll</h1></div>
+ <div id="startup-loading" role="status"><label id="startup-label" for="startup-progress">正在加载…</label><progress id="startup-progress" max="1" value="0" aria-label="正在加载游戏资源"></progress><span id="startup-percent">0%</span><button id="startup-retry" type="button" hidden>重试</button></div>
+ <button id="title-continue" type="button" disabled hidden><span>按任意键开始</span></button>
+</section>
+<div id="error" role="alert" hidden></div><script type="module" src="./app.bundle.js"></script>
+</body></html>

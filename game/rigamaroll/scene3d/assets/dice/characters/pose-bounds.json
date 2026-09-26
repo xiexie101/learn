@@ -1,0 +1,1432 @@
+{
+  "orange-idle": {
+    "bounds": {
+      "left": 102,
+      "top": 70,
+      "right": 411,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "orange-anticipate": {
+    "bounds": {
+      "left": 116,
+      "top": 70,
+      "right": 397,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "orange-windup": {
+    "bounds": {
+      "left": 69,
+      "top": 95,
+      "right": 444,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "orange-attack": {
+    "bounds": {
+      "left": 72,
+      "top": 70,
+      "right": 440,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "orange-reach": {
+    "bounds": {
+      "left": 38,
+      "top": 90,
+      "right": 474,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "orange-recover": {
+    "bounds": {
+      "left": 120,
+      "top": 70,
+      "right": 393,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "orange-hurt": {
+    "bounds": {
+      "left": 95,
+      "top": 80,
+      "right": 418,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "orange-recoil": {
+    "bounds": {
+      "left": 109,
+      "top": 90,
+      "right": 403,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "orange-victory": {
+    "bounds": {
+      "left": 105,
+      "top": 60,
+      "right": 407,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "orange-defeat": {
+    "bounds": {
+      "left": 114,
+      "top": 170,
+      "right": 398,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "skeleton-idle": {
+    "bounds": {
+      "left": 64,
+      "top": 70,
+      "right": 450,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "skeleton-anticipate": {
+    "bounds": {
+      "left": 61,
+      "top": 70,
+      "right": 451,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "skeleton-windup": {
+    "bounds": {
+      "left": 59,
+      "top": 95,
+      "right": 453,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "skeleton-attack": {
+    "bounds": {
+      "left": 43,
+      "top": 70,
+      "right": 470,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "skeleton-reach": {
+    "bounds": {
+      "left": 36,
+      "top": 96,
+      "right": 476,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "skeleton-recover": {
+    "bounds": {
+      "left": 60,
+      "top": 70,
+      "right": 453,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "skeleton-hurt": {
+    "bounds": {
+      "left": 67,
+      "top": 80,
+      "right": 446,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "skeleton-recoil": {
+    "bounds": {
+      "left": 57,
+      "top": 90,
+      "right": 456,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "skeleton-victory": {
+    "bounds": {
+      "left": 83,
+      "top": 60,
+      "right": 431,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "skeleton-defeat": {
+    "bounds": {
+      "left": 81,
+      "top": 170,
+      "right": 431,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "bear-idle": {
+    "bounds": {
+      "left": 86,
+      "top": 83,
+      "right": 427,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "bear-anticipate": {
+    "bounds": {
+      "left": 81,
+      "top": 137,
+      "right": 431,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "bear-windup": {
+    "bounds": {
+      "left": 71,
+      "top": 83,
+      "right": 441,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "bear-attack": {
+    "bounds": {
+      "left": 28,
+      "top": 135,
+      "right": 485,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "bear-reach": {
+    "bounds": {
+      "left": 82,
+      "top": 116,
+      "right": 431,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "bear-recover": {
+    "bounds": {
+      "left": 67,
+      "top": 108,
+      "right": 445,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "bear-hurt": {
+    "bounds": {
+      "left": 85,
+      "top": 150,
+      "right": 427,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "bear-recoil": {
+    "bounds": {
+      "left": 66,
+      "top": 92,
+      "right": 447,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "bear-victory": {
+    "bounds": {
+      "left": 67,
+      "top": 88,
+      "right": 446,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "bear-defeat": {
+    "bounds": {
+      "left": 80,
+      "top": 173,
+      "right": 432,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "ram-idle": {
+    "bounds": {
+      "left": 115,
+      "top": 72,
+      "right": 397,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "ram-anticipate": {
+    "bounds": {
+      "left": 113,
+      "top": 73,
+      "right": 400,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "ram-windup": {
+    "bounds": {
+      "left": 88,
+      "top": 75,
+      "right": 424,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "ram-attack": {
+    "bounds": {
+      "left": 83,
+      "top": 93,
+      "right": 430,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "ram-reach": {
+    "bounds": {
+      "left": 62,
+      "top": 74,
+      "right": 450,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "ram-recover": {
+    "bounds": {
+      "left": 88,
+      "top": 101,
+      "right": 424,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "ram-hurt": {
+    "bounds": {
+      "left": 115,
+      "top": 92,
+      "right": 397,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "ram-recoil": {
+    "bounds": {
+      "left": 83,
+      "top": 94,
+      "right": 430,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "ram-victory": {
+    "bounds": {
+      "left": 110,
+      "top": 83,
+      "right": 403,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "ram-defeat": {
+    "bounds": {
+      "left": 88,
+      "top": 155,
+      "right": 424,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "ink-idle": {
+    "bounds": {
+      "left": 104,
+      "top": 77,
+      "right": 409,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "ink-anticipate": {
+    "bounds": {
+      "left": 57,
+      "top": 165,
+      "right": 456,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "ink-windup": {
+    "bounds": {
+      "left": 98,
+      "top": 79,
+      "right": 414,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "ink-attack": {
+    "bounds": {
+      "left": 21,
+      "top": 251,
+      "right": 491,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "ink-reach": {
+    "bounds": {
+      "left": 21,
+      "top": 227,
+      "right": 491,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "ink-recover": {
+    "bounds": {
+      "left": 86,
+      "top": 150,
+      "right": 427,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "ink-hurt": {
+    "bounds": {
+      "left": 80,
+      "top": 138,
+      "right": 432,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "ink-recoil": {
+    "bounds": {
+      "left": 66,
+      "top": 135,
+      "right": 446,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "ink-victory": {
+    "bounds": {
+      "left": 108,
+      "top": 101,
+      "right": 404,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "ink-defeat": {
+    "bounds": {
+      "left": 32,
+      "top": 310,
+      "right": 480,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "brawler-idle": {
+    "bounds": {
+      "left": 94,
+      "top": 78,
+      "right": 418,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "brawler-anticipate": {
+    "bounds": {
+      "left": 99,
+      "top": 76,
+      "right": 413,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "brawler-windup": {
+    "bounds": {
+      "left": 64,
+      "top": 148,
+      "right": 448,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "brawler-attack": {
+    "bounds": {
+      "left": 29,
+      "top": 106,
+      "right": 483,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "brawler-reach": {
+    "bounds": {
+      "left": 60,
+      "top": 72,
+      "right": 453,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "brawler-recover": {
+    "bounds": {
+      "left": 82,
+      "top": 100,
+      "right": 430,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "brawler-hurt": {
+    "bounds": {
+      "left": 66,
+      "top": 103,
+      "right": 446,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "brawler-recoil": {
+    "bounds": {
+      "left": 56,
+      "top": 104,
+      "right": 457,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "brawler-victory": {
+    "bounds": {
+      "left": 39,
+      "top": 98,
+      "right": 474,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "brawler-defeat": {
+    "bounds": {
+      "left": 74,
+      "top": 157,
+      "right": 439,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "nobody-idle": {
+    "bounds": {
+      "left": 125,
+      "top": 86,
+      "right": 387,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "nobody-anticipate": {
+    "bounds": {
+      "left": 59,
+      "top": 66,
+      "right": 453,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "nobody-windup": {
+    "bounds": {
+      "left": 66,
+      "top": 153,
+      "right": 447,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "nobody-attack": {
+    "bounds": {
+      "left": 41,
+      "top": 106,
+      "right": 472,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "nobody-reach": {
+    "bounds": {
+      "left": 17,
+      "top": 158,
+      "right": 495,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "nobody-recover": {
+    "bounds": {
+      "left": 103,
+      "top": 116,
+      "right": 409,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "nobody-hurt": {
+    "bounds": {
+      "left": 114,
+      "top": 118,
+      "right": 398,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "nobody-recoil": {
+    "bounds": {
+      "left": 51,
+      "top": 75,
+      "right": 461,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "nobody-victory": {
+    "bounds": {
+      "left": 103,
+      "top": 50,
+      "right": 410,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "nobody-defeat": {
+    "bounds": {
+      "left": 93,
+      "top": 150,
+      "right": 420,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "scarecrow-idle": {
+    "bounds": {
+      "left": 129,
+      "top": 60,
+      "right": 383,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "scarecrow-anticipate": {
+    "bounds": {
+      "left": 47,
+      "top": 67,
+      "right": 466,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "scarecrow-windup": {
+    "bounds": {
+      "left": 71,
+      "top": 59,
+      "right": 442,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "scarecrow-attack": {
+    "bounds": {
+      "left": 21,
+      "top": 112,
+      "right": 491,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "scarecrow-reach": {
+    "bounds": {
+      "left": 45,
+      "top": 133,
+      "right": 468,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "scarecrow-recover": {
+    "bounds": {
+      "left": 114,
+      "top": 123,
+      "right": 398,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "scarecrow-hurt": {
+    "bounds": {
+      "left": 94,
+      "top": 48,
+      "right": 419,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "scarecrow-recoil": {
+    "bounds": {
+      "left": 48,
+      "top": 74,
+      "right": 465,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "scarecrow-victory": {
+    "bounds": {
+      "left": 50,
+      "top": 53,
+      "right": 463,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "scarecrow-defeat": {
+    "bounds": {
+      "left": 69,
+      "top": 136,
+      "right": 444,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "hex-idle": {
+    "bounds": {
+      "left": 105,
+      "top": 60,
+      "right": 407,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "hex-anticipate": {
+    "bounds": {
+      "left": 54,
+      "top": 84,
+      "right": 458,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "hex-windup": {
+    "bounds": {
+      "left": 61,
+      "top": 67,
+      "right": 451,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "hex-attack": {
+    "bounds": {
+      "left": 21,
+      "top": 76,
+      "right": 491,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "hex-reach": {
+    "bounds": {
+      "left": 74,
+      "top": 68,
+      "right": 438,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "hex-recover": {
+    "bounds": {
+      "left": 78,
+      "top": 89,
+      "right": 434,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "hex-hurt": {
+    "bounds": {
+      "left": 74,
+      "top": 72,
+      "right": 438,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "hex-recoil": {
+    "bounds": {
+      "left": 50,
+      "top": 104,
+      "right": 462,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "hex-victory": {
+    "bounds": {
+      "left": 65,
+      "top": 81,
+      "right": 447,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "hex-defeat": {
+    "bounds": {
+      "left": 84,
+      "top": 131,
+      "right": 429,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "flower-idle": {
+    "bounds": {
+      "left": 109,
+      "top": 60,
+      "right": 404,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "flower-anticipate": {
+    "bounds": {
+      "left": 103,
+      "top": 54,
+      "right": 410,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "flower-windup": {
+    "bounds": {
+      "left": 21,
+      "top": 99,
+      "right": 491,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "flower-attack": {
+    "bounds": {
+      "left": 21,
+      "top": 144,
+      "right": 491,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "flower-reach": {
+    "bounds": {
+      "left": 50,
+      "top": 48,
+      "right": 462,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "flower-recover": {
+    "bounds": {
+      "left": 111,
+      "top": 149,
+      "right": 401,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "flower-hurt": {
+    "bounds": {
+      "left": 100,
+      "top": 96,
+      "right": 412,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "flower-recoil": {
+    "bounds": {
+      "left": 82,
+      "top": 103,
+      "right": 431,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "flower-victory": {
+    "bounds": {
+      "left": 76,
+      "top": 68,
+      "right": 436,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "flower-defeat": {
+    "bounds": {
+      "left": 24,
+      "top": 265,
+      "right": 488,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "frog-idle": {
+    "bounds": {
+      "left": 47,
+      "top": 60,
+      "right": 466,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "frog-anticipate": {
+    "bounds": {
+      "left": 21,
+      "top": 76,
+      "right": 491,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "frog-windup": {
+    "bounds": {
+      "left": 45,
+      "top": 67,
+      "right": 467,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "frog-attack": {
+    "bounds": {
+      "left": 21,
+      "top": 131,
+      "right": 491,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "frog-reach": {
+    "bounds": {
+      "left": 21,
+      "top": 127,
+      "right": 491,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "frog-recover": {
+    "bounds": {
+      "left": 57,
+      "top": 97,
+      "right": 455,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "frog-hurt": {
+    "bounds": {
+      "left": 57,
+      "top": 90,
+      "right": 456,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "frog-recoil": {
+    "bounds": {
+      "left": 75,
+      "top": 76,
+      "right": 438,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "frog-victory": {
+    "bounds": {
+      "left": 31,
+      "top": 82,
+      "right": 481,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  },
+  "frog-defeat": {
+    "bounds": {
+      "left": 21,
+      "top": 294,
+      "right": 491,
+      "bottom": 480
+    },
+    "groundAnchor": [
+      256,
+      480
+    ],
+    "sourceClipped": false
+  }
+}
