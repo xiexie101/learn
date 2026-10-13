@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>七里香 × 莫奈印象派 MV | 视听生成与导演级分镜系统</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- 顶部艺术标头与全局操作 -->
+    <header class="app-header">
+        <div class="brand-title">
+            <h1>CLAUDE MONET × 周杰伦《七里香》</h1>
+            <span class="subtitle">IMPRESSIONIST CINEMATIC MUSIC VIDEO & DIRECTOR'S SCORE</span>
+        </div>
+        <div class="header-actions">
+            <select id="filter-select" class="filter-select" title="色彩与画风滤镜">
+                <option value="all">🎨 莫奈全时段原画风流转</option>
+                <option value="morning">🌅 塞纳河日出晨雾 (灰蓝粉橙)</option>
+                <option value="poppy">🌿 阿让特伊罂粟绿丘 (翠绿朱红)</option>
+                <option value="rain">🌧️ 吉维尼睡莲暴雨 (深靛群青)</option>
+                <option value="sunset">🌾 晚秋干草堆落日 (熔金暖赭)</option>
+                <option value="night">🌙 月夜七里香与鸢尾 (冷调普鲁士蓝)</option>
+            </select>
+            <input type="file" id="audio-file-input" accept="audio/*" style="display:none;">
+            <button id="btn-upload-audio" class="btn-pill" title="载入本地七里香 MP3">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                    <path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/>
+                </svg>
+                <span>载入原曲音频</span>
+            </button>
+            <button id="btn-toggle-drawer" class="btn-pill" title="查看 28 个完整导演分镜">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                    <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/>
+                </svg>
+                <span>全景分镜总谱</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- 主展示区 -->
+    <main class="main-stage">
+        <!-- 核心监视器视口 (2.39:1 宽荧幕) -->
+        <div id="mv-viewport" class="viewport-container">
+            <canvas id="mv-canvas"></canvas>
+
+            <!-- 视口覆盖 HUD -->
+            <div class="viewport-overlay">
+                <!-- 顶部 HUD 状态 -->
+                <div class="hud-top-bar">
+                    <div class="hud-badge-group">
+                        <span id="hud-shot-number" class="badge-tag">SHOT 01</span>
+                        <span id="hud-section" class="badge-tag">前奏 Intro</span>
+                    </div>
+                    <div id="hud-inspiration" class="hud-inspiration-box">
+                        灵感名作: 《日出·印象》(Impression, Sunrise, 1872)
+                    </div>
+                </div>
+
+                <!-- 中央动态歌词舞台 -->
+                <div class="lyric-stage">
+                    <div id="lyric-current" class="lyric-text fade-in-text">
+                        （吉他分解和弦缓缓流淌，清晨风铃轻颤）
+                    </div>
+                </div>
+
+                <!-- 底部 HUD 运镜与色盘 -->
+                <div class="hud-bottom-bar">
+                    <div class="hud-shot-info">
+                        <div id="hud-title" class="hud-shot-title">吉维尼清晨·塞纳河的薄雾</div>
+                        <div id="hud-camera" class="hud-camera-spec">运镜: 极缓推镜头 | 景别: 远景 (Extreme Long Shot)</div>
+                    </div>
+                    <div id="hud-palette" class="hud-palette-swatches">
+                        <!-- 动态生成的 5 色印象派色卡 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 播放控制与时间轴 -->
+        <section class="playback-controls">
+            <div class="progress-container">
+                <span id="time-display" class="time-readout">00:00 / 04:59</span>
+                <div id="progress-bar" class="progress-track">
+                    <div id="progress-fill" class="progress-fill"></div>
+                </div>
+            </div>
+
+            <div class="control-buttons-row">
+                <div class="left-controls">
+                    <button id="btn-play" class="btn-play-master">
+                        <svg viewBox="0 0 24 24" width="22" height="22">
+                            <polygon points="6,4 20,12 6,20" fill="currentColor"/>
+                        </svg>
+                        <span>播放 MV</span>
+                    </button>
+                    <span style="font-size:0.8rem; color:var(--text-muted);">
+                        💡 内置 Web Audio 算法和弦与自然声景；也可上传《七里香》原版 MP3 完美对轨
+                    </span>
+                </div>
+                <div class="right-controls">
+                    <button id="btn-fullscreen" class="btn-pill" title="全屏沉浸播放">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                            <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+                        </svg>
+                        <span>全屏欣赏</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 导演艺术解析卡片网格 -->
+        <section class="director-insights-grid">
+            <div class="insight-card">
+                <h3>
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                    </svg>
+                    意象哲学与美学隐喻 (Visual Metaphor)
+                </h3>
+                <p id="metaphor-content" class="insight-body">
+                    记忆的苏醒。如同一幅尚未干透的湿画法画布，夏天的故事在晨光中苏醒。
+                </p>
+            </div>
+
+            <div class="insight-card">
+                <h3>
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                    </svg>
+                    工业级 AI 视频生成 Prompt (Midjourney / Runway Gen-3)
+                </h3>
+                <div id="prompt-content" class="prompt-code">
+                    Cinematic wide shot of Giverny Seine river at dawn, impressionist painting style by Claude Monet...
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 侧边滑出式 28 个全景分镜总谱抽屉 -->
+    <aside id="storyboard-drawer" class="storyboard-drawer">
+        <div class="drawer-header">
+            <h2>导演分镜全景总谱 (28 SHOTS)</h2>
+            <button id="btn-close-drawer" class="btn-close-drawer" title="关闭抽屉">&times;</button>
+        </div>
+        <div id="drawer-cards-container" class="drawer-cards-scroll">
+            <!-- 动态渲染 28 个分镜卡片，点击任意卡片瞬间 Seek 跳转对应秒数 -->
+        </div>
+    </aside>
+
+    <script src="audio-engine.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>

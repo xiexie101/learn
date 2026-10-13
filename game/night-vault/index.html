@@ -1,0 +1,2921 @@
+<!DOCTYPE html>
+<html lang="en" data-act="0">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Night Vault</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&amp;display=swap">
+<style>
+/* Layout: an arcade cabinet squeezed into a phone. HUD strip on top, the vault board,
+   thumb controls below it in portrait or flanking it in landscape. One deliberate dark look
+   that slowly warms from midnight to dawn across the five acts. */
+:root{
+  --night:#0c0f22;
+  --panel:#151935;
+  --panel-2:#1f2447;
+  --line:#2c3260;
+  --ink:#ece7f7;
+  --muted:#8e93c0;
+  --gold:#ffc53d;
+  --gold-dk:#a86f0c;
+  --brick:#c4583c;
+  --brick-dk:#4a1d15;
+  --mint:#4fd1a8;
+  --flip:#b98cff;
+  --flip-dk:#2a1546;
+  --undo:#5fd3c4;
+  --undo-dk:#0f3a39;
+  --toy-a:#46d3c2;
+  --toy-b:#1f8f86;
+  --toy-c:#156a63;
+  --sun:none;
+  --display:"Silkscreen", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --body:system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme:dark;
+}
+:root[data-act="1"]{--night:#100b22;--panel:#1a1438;--panel-2:#241c4a;--line:#382b68;--muted:#9a90c8}
+:root[data-act="2"]{--night:#150b23;--panel:#211333;--panel-2:#2d1b44;--line:#45295f;--muted:#a891c4}
+:root[data-act="3"]{--night:#1f1430;--panel:#2b1c3d;--panel-2:#38254c;--line:#523766;--muted:#b49ccc}
+:root[data-act="4"]{--night:#2a1830;--panel:#3a2140;--panel-2:#482a4d;--line:#663a63;--muted:#d0a9c0;
+  --sun:radial-gradient(120% 60% at 50% 115%,rgba(255,170,110,.38),rgba(255,120,120,.12) 45%,transparent 70%);
+  --toy-a:#ff9f8a;--toy-b:#e0605a;--toy-c:#b4423f}
+:root[data-act="dream"]{--night:#14143a;--panel:#1d1d4a;--panel-2:#28285c;--line:#3c3c7a;--muted:#a7a7dc;
+  --toy-a:#c9b6ff;--toy-b:#8b6fe0;--toy-c:#6a4fc0}
+[hidden]{display:none!important}
+html{height:100%;box-sizing:border-box;background:var(--night)}
+*,*::before,*::after{box-sizing:inherit}
+body{height:100%;margin:0;background:var(--sun),var(--night);color:var(--ink);font-family:var(--body);
+  overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
+  touch-action:none;overscroll-behavior:none;-webkit-tap-highlight-color:transparent;transition:background-color .8s}
+button{font:inherit;color:inherit;-webkit-tap-highlight-color:transparent}
+button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+#app{height:100%;display:grid;
+  grid-template-columns:1fr 1fr;
+  grid-template-rows:auto minmax(0,1fr) clamp(176px,33vh,260px);
+  grid-template-areas:"hud hud" "stage stage" "pad digs";
+  padding-inline:max(8px,env(safe-area-inset-left,0px)) max(8px,env(safe-area-inset-right,0px));
+  padding-block:0 6px}
+
+/* ---------- HUD ---------- */
+#hud{grid-area:hud;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding-block:8px;min-height:52px}
+.hud-l,.hud-r{display:flex;align-items:center;gap:8px}
+.hud-l{min-width:0}
+.hud-c{display:grid;grid-template-columns:auto auto;align-items:center;column-gap:8px;justify-items:start}
+.lbl{font-family:var(--display);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.num{font-family:var(--display);font-size:18px;font-variant-numeric:tabular-nums;letter-spacing:.04em}
+#hudName{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:30vw}
+.hud-c .num{color:var(--gold)}
+.hud-c.done .num{color:var(--mint)}
+#hudMoves{grid-column:1 / -1;font-family:var(--display);font-size:9px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;font-variant-numeric:tabular-nums}
+.ibtn{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--panel);
+  display:grid;place-items:center;cursor:pointer;padding:0;flex:none}
+.ibtn:active{background:var(--panel-2)}
+.ibtn svg{width:20px;height:20px;fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ibtn[aria-pressed="false"] .on-wave{display:none}
+.ibtn[aria-pressed="true"] .off-x{display:none}
+
+/* ---------- Board ---------- */
+#stage{grid-area:stage;position:relative;min-height:0;min-width:0;overflow:hidden;touch-action:none}
+#toy{position:absolute;transform-origin:50% 50%;will-change:transform;
+  transition:transform .26s cubic-bezier(.3,.7,.35,1.25)}
+#toy.flipping{transition:none}
+#board{display:block;image-rendering:pixelated;border-radius:4px;
+  box-shadow:0 0 0 1px var(--line),0 10px 40px rgba(0,0,0,.45)}
+#toy.toy{border-radius:22px;
+  background:
+    radial-gradient(circle at 12px 12px,rgba(0,0,0,.35) 2.5px,rgba(255,255,255,.5) 3.5px,transparent 4.5px),
+    radial-gradient(circle at calc(100% - 12px) 12px,rgba(0,0,0,.35) 2.5px,rgba(255,255,255,.5) 3.5px,transparent 4.5px),
+    radial-gradient(circle at 12px calc(100% - 12px),rgba(0,0,0,.35) 2.5px,rgba(255,255,255,.5) 3.5px,transparent 4.5px),
+    radial-gradient(circle at calc(100% - 12px) calc(100% - 12px),rgba(0,0,0,.35) 2.5px,rgba(255,255,255,.5) 3.5px,transparent 4.5px),
+    linear-gradient(160deg,var(--toy-a),var(--toy-b) 55%,var(--toy-c));
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.45),inset 0 -4px 0 rgba(0,0,0,.25),0 18px 44px rgba(0,0,0,.55)}
+#toy.toy #board{border-radius:8px;box-shadow:0 0 0 3px rgba(0,0,0,.28),inset 0 0 0 1px rgba(255,255,255,.1)}
+#sticker{position:absolute;left:50%;bottom:5px;transform:translateX(-50%);white-space:nowrap;
+  font-family:var(--display);font-size:8px;letter-spacing:.14em;color:#3b2a10;background:#f7e7b4;
+  border-radius:5px;padding:2px 8px;box-shadow:0 1px 0 rgba(0,0,0,.25)}
+#toy:not(.toy) #sticker{display:none}
+#toy.reveal{animation:reveal 1.5s cubic-bezier(.2,.8,.2,1) both}
+@keyframes reveal{0%{transform:scale(1.9)}35%{transform:scale(1.9)}100%{transform:scale(1)}}
+#banner{position:absolute;left:0;right:0;margin-inline:auto;width:min(92%,420px);
+  background:var(--panel);background:color-mix(in srgb,var(--panel) 92%,transparent);border:1px solid var(--line);border-radius:10px;
+  padding:10px 14px;display:grid;gap:4px;text-align:center;pointer-events:none;transition:opacity .35s;z-index:2}
+#banner.fade{opacity:0}
+#banner b{font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold)}
+#banner span{font-size:13px;line-height:1.4;color:var(--ink);text-wrap:balance}
+#banner small{font-family:var(--display);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+#banner.vault b{color:var(--flip)}
+
+/* ---------- Controls ---------- */
+#pad,#digs{position:relative;touch-action:none;display:grid;place-items:center;min-width:0;min-height:0;container-type:size}
+#pad{grid-area:pad}
+#digs{grid-area:digs}
+.dpad{position:relative;width:min(92cqw,92cqh,184px);aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle at 50% 40%,var(--panel-2),var(--panel) 70%);
+  border:1px solid var(--line);box-shadow:0 8px 24px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.05);pointer-events:none}
+.arm{position:absolute;width:33%;height:33%;border-radius:12px;background:var(--panel);
+  border:1px solid var(--line);display:grid;place-items:center;transition:background .06s}
+.arm svg{width:46%;height:46%;fill:var(--muted)}
+.arm.on{background:var(--gold);border-color:var(--gold)}
+.arm.on svg{fill:var(--night)}
+.arm.hint{animation:hintpulse .8s ease-in-out infinite alternate;border-color:var(--flip)}
+@keyframes hintpulse{from{box-shadow:0 0 0 0 rgba(185,140,255,.0)}to{box-shadow:0 0 0 6px rgba(185,140,255,.55)}}
+.arm.u{left:33.5%;top:5%}.arm.d{left:33.5%;bottom:5%}.arm.l{left:5%;top:33.5%}.arm.r{right:5%;top:33.5%}
+.hubdot{position:absolute;left:44%;top:44%;width:12%;height:12%;border-radius:50%;background:var(--line)}
+.ctl{display:none;align-items:center;justify-content:center;gap:14px;width:100%}
+#app[data-mode="run"] .ctl-run,#app[data-mode="flip"] .ctl-flip,#app[data-mode="tilt"] .ctl-tilt,#app[data-mode="arcade"] .ctl-arcade{display:flex}
+.dig{width:clamp(58px,42%,88px);aspect-ratio:1;border-radius:50%;border:2px solid var(--brick);
+  background:radial-gradient(circle at 50% 35%,#3a1a14,var(--brick-dk) 70%);
+  display:grid;place-items:center;align-content:center;gap:2px;padding:0;cursor:pointer;touch-action:none;
+  box-shadow:0 8px 20px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.06)}
+.dig svg{width:38%;height:38%;fill:var(--brick)}
+.dig span{font-family:var(--display);font-size:10px;letter-spacing:.14em;color:#f0b9a8}
+.dig.on{background:var(--brick);transform:scale(.96)}
+.dig.on svg{fill:var(--ink)}
+.dig.on span{color:var(--ink)}
+.ctl-run .dig.r{transform:translateY(-16px)}
+.ctl-run .dig.r.on{transform:translateY(-16px) scale(.96)}
+.dig.flipbtn{width:clamp(76px,52%,108px);border-color:var(--flip);background:radial-gradient(circle at 50% 35%,#3d2266,var(--flip-dk) 70%)}
+.dig.flipbtn svg{fill:var(--flip)}
+.dig.flipbtn span{color:#dcc6ff}
+.dig.flipbtn.on{background:var(--flip)}
+.dig.flipbtn.on svg{fill:var(--night)}
+.dig.undo{width:clamp(66px,46%,96px);border-color:var(--undo);background:radial-gradient(circle at 50% 35%,#155552,var(--undo-dk) 70%)}
+.dig.undo svg{fill:none;stroke:var(--undo);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.dig.undo span{color:#bff2ea}
+.dig.undo.on{background:var(--undo)}
+.dig.undo.on svg{stroke:var(--night)}
+.dig.throw{width:clamp(80px,54%,112px);border-color:var(--gold);background:radial-gradient(circle at 50% 35%,#5c4312,#2c1f06 70%)}
+.dig.throw svg{fill:var(--gold)}
+.dig.throw span{color:#ffe6a3}
+.dig.throw.on{background:var(--gold);transform:scale(.96)}
+.dig.throw.on svg{fill:#14102a}
+.dig.throw.on span{color:#14102a}
+#toy.turnover{animation:turnover 1.4s cubic-bezier(.2,.8,.2,1) both}
+@keyframes turnover{0%{transform:perspective(900px) rotateY(-92deg) scale(.82)}55%{transform:perspective(900px) rotateY(14deg) scale(1.02)}100%{transform:none}}
+.mini{display:grid;gap:12px}
+.dig.small{width:clamp(44px,27cqw,58px);border-width:1.5px;border-color:var(--line);background:var(--panel)}
+.dig.small svg{fill:none;stroke:var(--ink);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.dig.small span{font-size:8px;color:var(--muted)}
+.dig.small.on{background:var(--panel-2)}
+.dig.small.hintbtn{border-color:var(--flip)}
+.dig.small.hintbtn svg{stroke:var(--flip)}
+
+/* ---------- Overlays ---------- */
+.ov{position:fixed;inset:0;z-index:10;display:grid;place-items:center;
+  padding:max(16px,env(safe-area-inset-top,0px)) 16px max(16px,env(safe-area-inset-bottom,0px));
+  background:rgba(12,15,34,.86);background:color-mix(in srgb,var(--night) 86%,transparent);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);
+  overflow-y:auto;touch-action:pan-y;-webkit-user-select:text;user-select:text}
+.sheet{width:min(100%,400px);display:grid;gap:16px;padding-block:8px}
+.logo{margin:0;font-family:var(--display);font-weight:700;font-size:clamp(40px,13vw,58px);line-height:.9;letter-spacing:.02em;text-wrap:balance}
+.logo em{font-style:normal;color:var(--gold);display:block;margin-top:10px}
+.logo s{color:var(--muted);text-decoration-thickness:4px;text-decoration-color:var(--gold)}
+.logo ins{text-decoration:none;color:#ffb38a}
+.tag{margin:0;font-size:15px;line-height:1.5;color:var(--muted);max-width:36ch}
+.btn{border-radius:12px;padding:14px 16px;font-family:var(--display);font-size:14px;letter-spacing:.08em;
+  text-transform:uppercase;cursor:pointer;background:var(--panel-2);border:1px solid var(--line)}
+.btn.primary{background:var(--gold);color:#14102a;border-color:var(--gold)}
+.btn.dream{background:linear-gradient(135deg,#8b6fe0,#c46fd6);border-color:#c9b6ff;color:#fff}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:10px}
+.row .btn{flex:1}
+.acts{display:grid;gap:18px}
+.act-h{display:flex;align-items:baseline;gap:10px;margin:0 0 8px}
+.act-h b{font-family:var(--display);font-size:16px;font-weight:400;letter-spacing:.04em}
+.act-h small{font-size:12px;color:var(--muted)}
+.act.locked .act-h b{color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.lv{aspect-ratio:1;border-radius:10px;border:1px solid var(--line);background:var(--panel);cursor:pointer;
+  display:grid;place-items:center;align-content:center;gap:2px;padding:0}
+.lv b{font-family:var(--display);font-size:20px;font-weight:400}
+.lv small{font-size:10px;color:var(--muted);font-variant-numeric:tabular-nums;max-width:92%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lv.done{border-color:color-mix(in srgb,var(--gold) 45%,var(--line))}
+.lv.done b{color:var(--gold)}
+.lv.next{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset}
+.lv:disabled{opacity:.35;cursor:default}
+.howto{margin:0;padding:0;list-style:none;display:grid;gap:6px;font-size:13px;line-height:1.45;color:var(--muted)}
+.howto b{color:var(--ink);font-weight:600}
+.eyebrow{font-family:var(--display);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:0}
+.big{margin:0;font-family:var(--display);font-size:30px;line-height:1.05;text-wrap:balance}
+.huge{margin:0;font-family:var(--display);font-size:clamp(34px,11vw,48px);line-height:1;text-wrap:balance}
+.story{margin:0;font-size:15px;line-height:1.55;color:var(--ink);max-width:38ch}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px;display:grid;gap:2px}
+.stat span{font-size:11px;color:var(--muted)}
+.stat b{font-family:var(--display);font-size:18px;font-weight:400;font-variant-numeric:tabular-nums}
+.note{margin:0;font-size:12px;color:var(--muted);line-height:1.4}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:grid;gap:10px}
+.switchrow{display:flex;align-items:center;gap:12px;justify-content:space-between}
+.switchrow div{display:grid;gap:2px}
+.switchrow b{font-family:var(--display);font-size:13px;font-weight:400;letter-spacing:.06em}
+.switch{width:52px;height:30px;border-radius:15px;border:1px solid var(--line);background:var(--panel-2);position:relative;cursor:pointer;flex:none;padding:0}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--muted);transition:transform .2s,background .2s}
+.switch[aria-checked="true"]{background:#3a2a66;border-color:var(--flip)}
+.switch[aria-checked="true"]::after{transform:translateX(22px);background:var(--flip)}
+.voice{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;background:#1a1236;background:color-mix(in srgb,var(--flip) 12%,var(--panel));
+  border:1px solid color-mix(in srgb,var(--flip) 45%,var(--line));border-radius:12px;padding:10px 12px}
+.voice svg{width:28px;height:28px}
+.voice p{margin:0;font-size:14px;line-height:1.5;color:var(--ink);white-space:pre-line}
+.voice.thinking p{color:var(--muted)}
+.voice.thinking p::after{content:"";display:inline-block;width:1.2em;text-align:left;animation:dots 1.2s steps(4) infinite}
+@keyframes dots{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
+.field{display:grid;gap:6px}
+.field label{font-size:12px;color:var(--muted)}
+.field input{font:inherit;font-size:16px;color:var(--ink);background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:12px}
+.dial{border-color:color-mix(in srgb,var(--gold) 45%,var(--line))}
+.jumps{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.jumps button{border:1px solid var(--line);background:var(--panel-2);border-radius:10px;padding:10px;cursor:pointer;text-align:left;display:grid;gap:2px}
+.jumps b{font-family:var(--display);font-size:11px;font-weight:400;letter-spacing:.12em;color:var(--muted)}
+.jumps span{font-size:14px}
+#logo{cursor:default;-webkit-user-select:none;user-select:none}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:12px;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:6px 10px;cursor:pointer}
+.dreamlist{display:grid;gap:6px}
+.dreamlist button{display:flex;justify-content:space-between;gap:10px;align-items:center;text-align:left;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:10px 12px;cursor:pointer;font-size:13px}
+.dreamlist button small{color:var(--muted);font-variant-numeric:tabular-nums;flex:none}
+.status{margin:0;font-family:var(--display);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--flip);min-height:1.2em}
+.badge{display:inline-block;font-family:var(--display);font-size:10px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--line);border-radius:6px;padding:3px 6px;color:var(--muted)}
+
+@media (min-aspect-ratio:5/4){
+  #app{grid-template-columns:minmax(140px,1fr) minmax(0,3.4fr) minmax(140px,1fr);
+    grid-template-rows:auto minmax(0,1fr);grid-template-areas:"hud hud hud" "pad stage digs";padding-block:0 8px}
+  .dpad{width:min(94cqw,80cqh,184px)}
+  .ctl-run{flex-direction:column-reverse;gap:18px}
+  .ctl-tilt{flex-direction:column;gap:16px}
+  .mini{grid-auto-flow:column}
+  .dig{width:clamp(58px,58%,88px)}
+  .ctl-run .dig.r,.ctl-run .dig.r.on{transform:none}
+  .ctl-run .dig.r.on{transform:scale(.96)}
+  #hudName{max-width:40vw}
+}
+@media (prefers-reduced-motion:reduce){#banner{transition:none}#toy{transition:none}#toy.reveal{animation-duration:.01s}.arm.hint{animation:none;box-shadow:0 0 0 4px rgba(185,140,255,.55)}}
+
+/* ---------- Language Switcher Styles ---------- */
+#btnLang{
+  font-family:'Silkscreen',-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;
+  font-size:11px;font-weight:700;letter-spacing:0.5px;color:var(--gold);
+  border:1px solid var(--line);background:var(--panel);border-radius:10px;
+  width:auto;min-width:44px;height:40px;padding:0 8px;
+  display:inline-flex;align-items:center;justify-content:center;
+  cursor:pointer;box-sizing:border-box;flex:none;transition:all .15s ease;
+}
+#btnLang:hover{border-color:var(--gold)}
+#btnLang:active{background:var(--panel-2);transform:scale(.96)}
+
+.lang-pill-wrap{display:flex;justify-content:flex-end;margin-bottom:8px}
+#btnMenuLang{
+  all:unset;display:inline-flex;align-items:center;
+  background:var(--panel-2);border:1px solid var(--line);border-radius:999px;
+  padding:3px 4px;cursor:pointer;user-select:none;-webkit-user-select:none;
+  box-shadow:0 2px 6px rgba(0,0,0,.35);transition:border-color .2s ease,transform .12s ease;
+}
+#btnMenuLang:hover{border-color:var(--gold)}
+#btnMenuLang:active{transform:scale(.97)}
+#btnMenuLang .opt{
+  font-family:'Silkscreen',-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;
+  font-size:11px;font-weight:700;letter-spacing:0.5px;padding:3px 9px;
+  border-radius:999px;color:var(--muted);transition:all .2s ease;line-height:1.2;
+}
+#btnMenuLang .opt.active{
+  background:var(--gold);color:#0c0f22;box-shadow:0 1px 4px rgba(0,0,0,.35);
+}
+#btnMenuLang .divider{width:1px;height:10px;background:var(--line);margin:0 1px}
+</style>
+
+<div id="app" data-mode="run">
+  <header id="hud">
+    <div class="hud-l"><span class="lbl" id="hudLbl">Vault</span><span id="hudLevel" class="num">01</span><span id="hudName">Ground Floor</span></div>
+    <div class="hud-c" id="hudGoldWrap">
+      <svg id="icoGold" width="22" height="16" viewBox="0 0 22 16" aria-hidden="true"><path d="M6 2h10l2 6H4z" fill="#fff0b0"></path><path d="M4 8h14l3 7H1z" fill="#ffc53d"></path></svg>
+      <svg id="icoSlot" width="22" height="16" viewBox="0 0 22 16" aria-hidden="true" hidden=""><path d="M2 5h18v9H2z" fill="none" stroke="#ffc53d" stroke-width="1.6" stroke-dasharray="3 2"></path><path d="M5 8h12v4H5z" fill="#ffc53d"></path></svg>
+      <span id="hudGold" class="num">0/6</span>
+      <span id="hudMoves" hidden="">0 moves</span>
+    </div>
+    <div class="hud-r">
+      <button id="btnLang" aria-label="Language" title="切换语言 / Language">中文</button>
+      <button class="ibtn" id="btnSound" aria-label="Sound" aria-pressed="true">
+        <svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"></path><path class="on-wave" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"></path><path class="off-x" d="M17 9l5 6M22 9l-5 6"></path></svg>
+      </button>
+      <button class="ibtn" id="btnPause" aria-label="Pause">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"></path></svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="stage">
+    <div id="toy" style="padding: 0px; left: 4.42578px; top: 147.5px;"><canvas id="board" width="1540" height="1078" style="width: 770px; height: 539px;"></canvas><div id="sticker">NIGHT VAULT · POCKET TILT PUZZLE</div></div>
+    <div id="banner" class="fade" style="top: 696.5px;"><b id="bTitle"></b><span id="bHint"></span><small id="bSub">Move to start</small></div>
+  </main>
+
+  <div id="pad" aria-label="Direction pad">
+    <div class="dpad">
+      <div class="arm u" data-d="U"><svg viewBox="0 0 10 10"><path d="M5 1.5 9 7H1z"></path></svg></div>
+      <div class="arm d" data-d="D"><svg viewBox="0 0 10 10"><path d="M5 8.5 1 3h8z"></path></svg></div>
+      <div class="arm l" data-d="L"><svg viewBox="0 0 10 10"><path d="M1.5 5 7 1v8z"></path></svg></div>
+      <div class="arm r" data-d="R"><svg viewBox="0 0 10 10"><path d="M8.5 5 3 9V1z"></path></svg></div>
+      <div class="hubdot"></div>
+    </div>
+  </div>
+
+  <div id="digs">
+    <div class="ctl ctl-run">
+      <button class="dig l" id="digL" aria-label="Dig left"><svg viewBox="0 0 10 10"><path d="M1.5 8.5V3l1.8 1.8L7.6.5l1.9 1.9-4.3 4.3L7 8.5z"></path></svg><span>DIG</span></button>
+      <button class="dig r" id="digR" aria-label="Dig right"><svg viewBox="0 0 10 10"><path d="M8.5 8.5V3L6.7 4.8 2.4.5.5 2.4l4.3 4.3L3 8.5z"></path></svg><span>DIG</span></button>
+    </div>
+    <div class="ctl ctl-flip">
+      <button class="dig flipbtn" id="btnFlip" aria-label="Flip the vault"><svg viewBox="0 0 10 10"><path d="M5 .6 8.2 3.8H6v2.4H4V3.8H1.8zM5 9.4 1.8 6.2H4V5h2v1.2h2.2z"></path></svg><span>FLIP</span></button>
+    </div>
+    <div class="ctl ctl-arcade">
+      <button class="dig throw" id="btnThrow" aria-label="Throw a gold bar"><svg viewBox="0 0 10 10"><path d="M5 .6 8.2 3.8H6.1v1.6H3.9V3.8H1.8z"></path><path d="M2.6 6.6h4.8l.9 2.6H1.7z"></path></svg><span>THROW</span></button>
+    </div>
+    <div class="ctl ctl-tilt">
+      <button class="dig undo" id="btnUndo" aria-label="Undo last tilt"><svg viewBox="0 0 10 10"><path d="M3.2 2.2 1.2 4.2l2 2"></path><path d="M1.4 4.2h4.3a2.6 2.6 0 0 1 0 5.2H3.6"></path></svg><span>UNDO</span></button>
+      <div class="mini">
+        <button class="dig small hintbtn" id="btnHint" aria-label="Ask the vault for a hint"><svg viewBox="0 0 10 10"><path d="M3.4 6.6a3 3 0 1 1 3.2 0V8H3.4z"></path><path d="M3.8 9.3h2.4"></path></svg><span>HINT</span></button>
+        <button class="dig small" id="btnReset" aria-label="Reset this puzzle"><svg viewBox="0 0 10 10"><path d="M8.4 5A3.4 3.4 0 1 1 7.4 2.6"></path><path d="M7.6.9v1.9H5.7"></path></svg><span>RESET</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="ov" id="menu">
+  <div class="sheet">
+    <div class="lang-pill-wrap">
+      <button id="btnMenuLang" aria-label="Language Toggle" title="切换语言 / Switch Language">
+        <span class="opt opt-zh active" id="optZh">中文</span>
+        <span class="divider"></span>
+        <span class="opt opt-en" id="optEn">EN</span>
+      </button>
+    </div>
+    <h1 class="logo" id="logo">Night<em>Vault</em></h1>
+    <p class="tag" id="tagline">Steal every gold bar, blast holes to trap the guards, then get out. The vault has a few surprises left.</p>
+    <div class="card dial" id="dial" hidden="">
+      <p class="eyebrow">Jump to</p>
+      <div class="jumps" id="jumps"></div>
+    </div>
+    <button class="btn primary" id="btnStart">Start vault 1</button>
+    <div class="card" id="aiCard" hidden="">
+      <div class="switchrow">
+        <div><b>Vault voice</b><span class="note">Let the vault talk back. It uses Claude Haiku on your account.</span></div>
+        <button class="switch" id="swVoice" role="switch" aria-checked="false" aria-label="Vault voice"></button>
+      </div>
+      <div class="voice" id="menuVoice" hidden=""><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="2" y="2" width="24" height="24" rx="5" fill="#2b2050" stroke="#b98cff" stroke-width="1.5"></rect><circle cx="14" cy="14" r="6.5" fill="none" stroke="#ffc53d" stroke-width="1.6"></circle><path d="M14 8.5v11M8.5 14h11" stroke="#ffc53d" stroke-width="1.4"></path></svg><p></p></div>
+    </div>
+    <div class="acts" id="acts"><section class="act"><p class="act-h"><span class="eyebrow">Act I</span><b>The Heist</b><small>Dig, climb, run.</small></p><div class="grid"><button class="lv next" id="lv1" aria-label="Vault 1 Ground Floor"><b>1</b><small>Ground</small></button><button class="lv" id="lv2" disabled="" aria-label="Vault 2 Dig Down, locked"><b>2</b><small>locked</small></button><button class="lv" id="lv3" disabled="" aria-label="Vault 3 Wire Walk, locked"><b>3</b><small>locked</small></button><button class="lv" id="lv4" disabled="" aria-label="Vault 4 Cellar, locked"><b>4</b><small>locked</small></button><button class="lv" id="lv5" disabled="" aria-label="Vault 5 Long Drop, locked"><b>5</b><small>locked</small></button><button class="lv" id="lv6" disabled="" aria-label="Vault 6 Crossfire, locked"><b>6</b><small>locked</small></button><button class="lv" id="lv7" disabled="" aria-label="Vault 7 Steel Cage, locked"><b>7</b><small>locked</small></button><button class="lv" id="lv8" disabled="" aria-label="Vault 8 Clockwork, locked"><b>8</b><small>locked</small></button><button class="lv" id="lv9" disabled="" aria-label="Vault 9 Deep Mine, locked"><b>9</b><small>locked</small></button><button class="lv" id="lv10" disabled="" aria-label="Vault 10 Gauntlet, locked"><b>10</b><small>locked</small></button><button class="lv" id="lv11" disabled="" aria-label="Vault 11 Vault Door, locked"><b>11</b><small>locked</small></button><button class="lv" id="lv12" disabled="" aria-label="Vault 12 Grand Heist, locked"><b>12</b><small>locked</small></button></div></section><section class="act locked"><p class="act-h"><span class="eyebrow">Act II</span><b>Upside</b><small>Locked</small></p><div class="grid"><button class="lv" id="lv13" disabled="" aria-label="Vault 13 Turnover, locked"><b>13</b><small>locked</small></button><button class="lv" id="lv14" disabled="" aria-label="Vault 14 Baskets, locked"><b>14</b><small>locked</small></button><button class="lv" id="lv15" disabled="" aria-label="Vault 15 Elevator, locked"><b>15</b><small>locked</small></button><button class="lv" id="lv16" disabled="" aria-label="Vault 16 Trapdoor, locked"><b>16</b><small>locked</small></button><button class="lv" id="lv17" disabled="" aria-label="Vault 17 Pendulum, locked"><b>17</b><small>locked</small></button><button class="lv" id="lv18" disabled="" aria-label="Vault 18 Topsy Turvy, locked"><b>18</b><small>locked</small></button></div></section><section class="act locked"><p class="act-h"><span class="eyebrow">Act III</span><b>Freefall</b><small>Locked</small></p><div class="grid"><button class="lv" id="lv19" disabled="" aria-label="Vault 19 Freefall, locked"><b>19</b><small>locked</small></button><button class="lv" id="lv20" disabled="" aria-label="Vault 20 Ceiling Walk, locked"><b>20</b><small>locked</small></button><button class="lv" id="lv21" disabled="" aria-label="Vault 21 Guard Drop, locked"><b>21</b><small>locked</small></button><button class="lv" id="lv22" disabled="" aria-label="Vault 22 Hourglass, locked"><b>22</b><small>locked</small></button><button class="lv" id="lv23" disabled="" aria-label="Vault 23 Mirror Maze, locked"><b>23</b><small>locked</small></button></div></section><section class="act locked"><p class="act-h"><span class="eyebrow">Act IV</span><b>Tilt</b><small>Locked</small></p><div class="grid"><button class="lv" id="lv24" disabled="" aria-label="Vault 24 Toy Box, locked"><b>24</b><small>locked</small></button><button class="lv" id="lv25" disabled="" aria-label="Vault 25 Rattle, locked"><b>25</b><small>locked</small></button><button class="lv" id="lv26" disabled="" aria-label="Vault 26 Company, locked"><b>26</b><small>locked</small></button><button class="lv" id="lv27" disabled="" aria-label="Vault 27 Pothole, locked"><b>27</b><small>locked</small></button><button class="lv" id="lv28" disabled="" aria-label="Vault 28 Marbles, locked"><b>28</b><small>locked</small></button><button class="lv" id="lv29" disabled="" aria-label="Vault 29 Snow Globe, locked"><b>29</b><small>locked</small></button></div></section><section class="act locked"><p class="act-h"><span class="eyebrow">Act V</span><b>Put It Back</b><small>Locked</small></p><div class="grid"><button class="lv" id="lv30" disabled="" aria-label="Vault 30 Put It Back, locked"><b>30</b><small>locked</small></button><button class="lv" id="lv31" disabled="" aria-label="Vault 31 Night Watch, locked"><b>31</b><small>locked</small></button><button class="lv" id="lv32" disabled="" aria-label="Vault 32 Ricochet, locked"><b>32</b><small>locked</small></button><button class="lv" id="lv33" disabled="" aria-label="Vault 33 Divebomb, locked"><b>33</b><small>locked</small></button><button class="lv" id="lv34" disabled="" aria-label="Vault 34 Bricklayers, locked"><b>34</b><small>locked</small></button><button class="lv" id="lv35" disabled="" aria-label="Vault 35 Daybreak, locked"><b>35</b><small>locked</small></button></div></section><section class="act locked"><p class="act-h"><span class="eyebrow">Act VI</span><b>Dream Vaults</b><small>Opens with Act IV</small></p><button class="btn dream" id="btnDreams" disabled="">Dream up a vault</button></section></div>
+    <ul class="howto">
+      <li><b>Pad</b> runs, climbs ladders, hangs on wires. Down lets go.</li>
+      <li><b>Dig</b> blasts the brick next to your feet. Holes refill in a few seconds.</li>
+      <li><b>Guards</b> fall into holes and drop any gold they picked up.</li>
+      <li><b>Stuck?</b> Pause and restart the vault.</li>
+    </ul>
+    <p class="note">Turn your phone sideways for a bigger board. Progress saves on this device. Keyboard: arrows, Z / X to dig or flip, U undo, H hint, P pause.</p>
+  </div>
+</section>
+
+<section class="ov" id="storyOv" hidden="">
+  <div class="sheet">
+    <p class="eyebrow" id="sAct">Act II</p>
+    <h2 class="huge" id="sTitle">Upside</h2>
+    <p class="story" id="sText"></p>
+    <div class="voice" id="storyVoice" hidden=""><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="2" y="2" width="24" height="24" rx="5" fill="#2b2050" stroke="#b98cff" stroke-width="1.5"></rect><circle cx="14" cy="14" r="6.5" fill="none" stroke="#ffc53d" stroke-width="1.6"></circle><path d="M14 8.5v11M8.5 14h11" stroke="#ffc53d" stroke-width="1.4"></path></svg><p></p></div>
+    <button class="btn primary" id="btnStoryGo">Play</button>
+  </div>
+</section>
+
+<section class="ov" id="pause" hidden="">
+  <div class="sheet">
+    <p class="eyebrow" id="pVault">Vault 01</p>
+    <h2 class="big">Paused</h2>
+    <button class="btn primary" id="btnResume">Resume</button>
+    <div class="row"><button class="btn" id="btnRestart">Restart</button><button class="btn" id="btnMenu">All vaults</button></div>
+  </div>
+</section>
+
+<section class="ov" id="clear" hidden="">
+  <div class="sheet">
+    <p class="eyebrow" id="cVault">Vault 01</p>
+    <h2 class="big" id="cTitle">Cracked</h2>
+    <p class="story" id="cStory" hidden=""></p>
+    <div class="stats">
+      <div class="stat"><span id="cL1">Time</span><b id="cV1">0:00</b></div>
+      <div class="stat"><span id="cL2">Best</span><b id="cV2">0:00</b></div>
+      <div class="stat"><span id="cL3">Caught</span><b id="cV3">0</b></div>
+    </div>
+    <div class="voice" id="clearVoice" hidden=""><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="2" y="2" width="24" height="24" rx="5" fill="#2b2050" stroke="#b98cff" stroke-width="1.5"></rect><circle cx="14" cy="14" r="6.5" fill="none" stroke="#ffc53d" stroke-width="1.6"></circle><path d="M14 8.5v11M8.5 14h11" stroke="#ffc53d" stroke-width="1.4"></path></svg><p></p></div>
+    <button class="btn primary" id="btnNext">Next vault</button>
+    <button class="btn dream" id="btnDreamAgain" hidden="">Dream up another</button>
+    <div class="row"><button class="btn" id="btnReplay">Replay</button><button class="btn" id="btnMenu2">All vaults</button></div>
+  </div>
+</section>
+
+<section class="ov" id="dreamOv" hidden="">
+  <div class="sheet">
+    <p class="eyebrow">Act VI</p>
+    <h2 class="huge">Dream Vaults</h2>
+    <p class="story" id="dIntro">The vault has started dreaming up puzzles of its own. Each one is new, and the vault’s solver checks it can be done before you play.</p>
+    <div class="field" id="dField" hidden="">
+      <label for="dTheme">Dream about</label>
+      <input id="dTheme" type="text" maxlength="60" placeholder="an airplane at night" autocomplete="off">
+      <div class="chips" id="dChips"></div>
+    </div>
+    <button class="btn dream" id="btnDream">Dream one up</button>
+    <p class="status" id="dStatus" aria-live="polite"></p>
+    <div class="voice" id="dreamVoice" hidden=""><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="2" y="2" width="24" height="24" rx="5" fill="#2b2050" stroke="#b98cff" stroke-width="1.5"></rect><circle cx="14" cy="14" r="6.5" fill="none" stroke="#ffc53d" stroke-width="1.6"></circle><path d="M14 8.5v11M8.5 14h11" stroke="#ffc53d" stroke-width="1.4"></path></svg><p></p></div>
+    <button class="btn primary" id="btnPlayDream" hidden="">Play</button>
+    <p class="eyebrow" id="dPastH" hidden="">Past dreams</p>
+    <div class="dreamlist" id="dPast"></div>
+    <button class="btn" id="btnDreamBack">All vaults</button>
+  </div>
+</section>
+
+<script>
+'use strict';
+const LEVELS = [
+{"name":"Ground Floor","hint":"Grab every gold bar. Then a ladder appears: climb it out the top.","act":0,"mode":"run","map":["                  S ","                  S ","  $         $     S ","####H#########H#####","    H         H     ","    H  $      H     ","    H#####    H     ","    H     ----H     ","    H             $ ","    H        H######","    H        H      "," P  H    $   H   $  ","####################","@@@@@@@@@@@@@@@@@@@@"]},
+{"name":"Dig Down","hint":"DIG blasts the brick below-left or below-right. Drop through, or trap a guard in the hole.","act":0,"mode":"run","map":["                 S  ","                 S  ","                 S $","             ####H##","            @    H  ","            @    H  ","            @    H  "," P    $     @  $ H  ","#################H##","                 H  ","                 H  ","                 H  ","    $     $   E  H  ","####################"]},
+{"name":"Wire Walk","hint":"Hang from wires to cross gaps. Press down to let go.","act":0,"mode":"run","map":["                   S","                   S","                   S","$     -------- E  $S","##H###        ###H##","  H              H  ","  H              H  ","  H      $       H  ","  H    ###H##    H  ","  H       H      H  ","  H       H  ~---H  ","  H       H      H  ","  H P$  E H   $  H  ","####################"]},
+{"name":"Cellar","hint":"Some gold floats between floors. Dig a hole above it and fall through.","act":0,"mode":"run","map":["          S         ","          S         ","          S         ","    P  $  S     $   ","#H##################"," H                  "," H            $     "," H          $   E   ","##################H#","                  H ","     $            H ","   $    E      $  H ","####################","@@@@@@@@@@@@@@@@@@@@"]},
+{"name":"Long Drop","hint":"Wires catch you when you fall.","act":0,"mode":"run","map":["         S          ","   P     S         $","#H################H#"," H    @      @    H "," H    @      @    H "," H--~-@      @    H "," H    @---~--@$   H "," H    @      @####H "," H    @      @    H "," H--~-@      @    H "," H    @-~----@    H "," H    @      @    H "," H  E     E$   E  H ","####################"]},
+{"name":"Crossfire","hint":"Guards are slower than you. Lead them into holes.","act":0,"mode":"run","map":["    S          S    ","    S          S    ","    S          S    "," $  S  P    $  S  $ ","H#########H########H","H         H        H","H         H        H","H  $      H   E $  H","H #######H######## H","H        H         H","H        H         H","H E  $   H    $  E H","####################","@@@@@@@@@@@@@@@@@@@@"]},
+{"name":"Steel Cage","hint":"Steel plates cannot be dug. Find the brick.","act":0,"mode":"run","map":["                   S","                   S","                   S","  P         $      S","@@@@@@@@####@@@@@@H@","                  H ","         $        H ","  $             E H ","@H@###@@@@@@@@###@@@"," H                  "," H  $          $    "," H      $ E      $  ","@@@@@@########@@@@@@","@@@@@@@@@@@@@@@@@@@@"]},
+{"name":"Clockwork","hint":"","act":0,"mode":"run","map":["                   S","$     ---~----  $  S","#H####        ####H#"," H                H "," H                H "," H  $         E$  H "," H  #####H######  H "," H       H        H "," H       H        H "," H      --~-     EH ","#H######    ######H#"," H                H "," H $  E  $ P    $ H ","####################"]},
+{"name":"Deep Mine","hint":"Dig down one floor at a time. The only way back up is the ladder.","act":0,"mode":"run","map":["                 @S ","                 @S "," P             $  H ","#################@H#","                 @H ","   $    E   $    @H ","#################@H ","                 @H ","      $       $  @H ","#################@H ","                 @H ","  $      $ E      H ","#################@H@","@@@@@@@@@@@@@@@@@@@@"]},
+{"name":"Gauntlet","hint":"","act":0,"mode":"run","map":["         S          ","         S          ","         S          ","P $   $  S     $    ","##################H#","   -----~---------H ","                  H ","     $       $E   H ","#H########H#########"," H--------H---~--   "," H        H         "," H  $ E   H $   E  $","####################","@@@@@@@@@@@@@@@@@@@@"]},
+{"name":"Vault Door","hint":"The vault has one brick roof and one brick floor.","act":0,"mode":"run","map":["                   S","                   S","$               E $S","##H##@@@@##@@@@##H##","  H  @        @  H  ","  H  @        @  H  ","  H  @ $  E$  @  H  ","  H  @######H#@  H  ","  H  @      H @  H  ","  H  @   $  H @  H  ","  H  @@@#@@@@@@  H  ","  HE$   P      $ H  ","####################","@@@@@@@@@@@@@@@@@@@@"]},
+{"name":"Grand Heist","hint":"","act":0,"mode":"run","map":["                   S","$    -G--~-----  $ S","#H###          ###H#"," H                H "," H                H "," H  $     $ E  $  H "," H ######H####### H "," H       H        H "," H       H    $   H "," HE      H       EH ","#H####H---~--#####H#"," H    H           H "," H $  H E   P   $ H ","####################"]},
+{"name":"Turnover","hint":"Step on the lever. The whole vault turns over and everything falls.","act":1,"mode":"run","map":["@@@@@@@@@@@@@@@@@@@@","@@@@@@@@@@@@@@@@@@@@","@@@@@@@@@@@@@@@@@@@@","   $    $    $    F ","                    ","                    ","                    ","                    ","                    ","                    ","                    ","P    F     $    $ X ","####################","@@@@@@@@@@@@@@@@@@@@"]},
+{"name":"Baskets","hint":"Lure the guards under the baskets, then flip. They fall in and stay put.","act":1,"mode":"run","map":["@@@@@@@@@@@@@@@@@@@@","@@@@@@@@@@@@@@@@@@@@","F    $    $   $    X","                    ","                    ","  @@@@@@@  @@@@@@@  ","  @     @  @     @  ","  @     @  @     @  ","                    ","                    ","                    "," E $     F P   $  E$","####################","@@@@@@@@@@@@@@@@@@@@"]},
+{"name":"Elevator","hint":"Each lever drops you somewhere new. Work out the order.","act":1,"mode":"run","map":["@@@@@@@@@@@@@@@@@@@@","#####    HH    #####","         HH  $      ","    E$   HH       F ","#######  HH  #######","  $      HH   $     ","       --HH--       ","         HH         "," F       HH      $  ","#######  HH  #######","         HH     F   ","   F  $  HH P  X    ","####################","@@@@@@@@@@@@@@@@@@@@"]},
+{"name":"Trapdoor","hint":"Dig through the floor to reach the lever room. Holes still refill.","act":1,"mode":"run","map":["@@@@@@@@@@@@@@@@@@@@","@         F        @","@P   $     E  $   X@","@##################@","@   $    $     $   @","@                  @","@                  @","@                  @","@                  @","@                  @","@                  @","@F $        E   $  @","@@@@@@@@@@@@@@@@@@@@","@@@@@@@@@@@@@@@@@@@@"]},
+{"name":"Pendulum","hint":"Each pillar blocks only one way up. Swing between them.","act":1,"mode":"run","map":["@@@@@@@@@@@@@@@@@@@@","####################","  $    $ F   @F $$ X","             @      ","             @      ","             @      ","             @      ","      @             ","      @             ","      @             ","      @             ","P$  F @ E $$E  F    ","####################","@@@@@@@@@@@@@@@@@@@@"]},
+{"name":"Topsy Turvy","hint":"The door hangs from a ceiling. Get it under your feet.","act":1,"mode":"run","map":["@@@@@@@@@@@@@@@@@@@@","####################","  $  H F   $  H   $ ","     H        H     ","     H        H     ","     H        H     "," $   H   $    H E   ","#####H########H#####","   $ H    X   H $   ","     H        H     ","     H        H     "," E$  H   P  F H  $E ","####################","@@@@@@@@@@@@@@@@@@@@"]},
+{"name":"Freefall","hint":"Press FLIP to turn the vault over. You can flip whenever your feet are on something.","act":2,"mode":"flip","map":["@@@@@@@@@@@@@@@@@@@@"," $                 X","                    ","                    ","    $          $    ","  @@@@@      @@@@@  ","    $          $    ","         $          ","       @@@@@        ","         $          ","                    ","                    "," P                $ ","@@@@@@@@@@@@@@@@@@@@"]},
+{"name":"Ceiling Walk","hint":"The middle floor has gaps. Flip above one and you fall straight through to the other room.","act":2,"mode":"flip","map":["@@@@@@@@@@@@@@@@@@@@","   $       $     $  ","                    ","                    ","        @@          ","         $         X","@@@@@  @@@@@  @@@@@@","@@@@@  @@@@@  @@@@@@","                    ","   @@          @@   ","                    ","                    ","P $      $      $ E ","@@@@@@@@@@@@@@@@@@@@"]},
+{"name":"Guard Drop","hint":"Flip while the guards stand under a basket.","act":2,"mode":"flip","map":["@@@@@@@@@@@@@@@@@@@@","X$       $        $ ","                    ","                    ","                    ","  @@@@@@    @@@@@@  ","  @    @    @    @  ","  @ $  @  $ @ $  @  ","         @@         ","         HH         ","         HH         ","                    "," $ E     P      E $ ","@@@@@@@@@@@@@@@@@@@@"]},
+{"name":"Hourglass","hint":"Two rooms, one neck. Mind who falls through it with you.","act":2,"mode":"flip","map":["@@@@@@@@@@@@@@@@@@@@","  E      $       E  ","    $   ----   $    ","   @@@        @@@   ","                    "," $       X        $ ","@@@@@@@@@  @@@@@@@@@","@@@@@@@@@  @@@@@@@@@"," $                $ ","                    ","   @@@        @@@   ","    $   ----   $    "," P        $       E ","@@@@@@@@@@@@@@@@@@@@"]},
+{"name":"Mirror Maze","hint":"Last flip of the night. The door can only be reached one way up.","act":2,"mode":"flip","map":["@@@@@@@@@@@@@@@@@@@@","P              E $  ","         $          ","  $    @@@@@@    $  ","@@@@@          @@@@@","      H   $E H      ","      H-~----H      ","      H      H      ","      H      H      ","@@@@@    $     @@@@@","  $    @@@@@@    $  ","          @         ","  $ E              X","@@@@@@@@@@@@@@@@@@@@"]},
+{"name":"Toy Box","hint":"The pad tilts the whole box now. Everything slides until it hits something. Grab the gold, then drop into the hatch.","act":3,"mode":"tilt","map":["@@@@@@@@@@@@","@    @@    @","@ @      @ @","@@  @  @  @@","@   $      @","@$ $ @@    @","@@ @    @ @@","@ @      @ @","@   P    X @","@@@@@@@@@@@@"],"par":6},
+{"name":"Rattle","hint":"Some slides can’t be taken back. UNDO can.","act":3,"mode":"tilt","map":["@@@@@@@@@@@@","@          @","@  @ @@ @  @","@    @@    @","@@  @  @  @@","@       $$$@","@          @","@  @    @  @","@@ X @@P $@@","@@@@@@@@@@@@"],"par":9},
+{"name":"Company","hint":"Guards slide too. If one ends up pressed against you, you’re caught.","act":3,"mode":"tilt","map":["@@@@@@@@@@@@","@  $       @","@  $@  @   @","@ @$ X     @","@    @@    @","@   $      @","@@   @@   @@","@  @ @@ @  @","@   P@@  E @","@@@@@@@@@@@@"],"par":7},
+{"name":"Pothole","hint":"A hole swallows the first thing that slides onto it. Let a guard go first.","act":3,"mode":"tilt","map":["@@@@@@@@@@@@","@    @@$ X$@","@ @      @ @","@$         @","@@@ o@@  @@@","@      o   @","@   @  @   @","@E         @","@@ E    P @@","@@@@@@@@@@@@"],"par":8},
+{"name":"Marbles","hint":"Count the slides before you tilt. HINT asks the vault.","act":3,"mode":"tilt","map":["@@@@@@@@@@@@@","@     @  $  @","@  @@   @@ X@","@$@     o @ @","@  @ @ @    @","@@P  $$   E@@","@ @ @  o  @ @","@    @ @    @","@   @  E@   @","@    @ @   E@","@@@@@@@@@@@@@"],"par":13},
+{"name":"Snow Globe","hint":"Last toy of the night. Shake it gently.","act":3,"mode":"tilt","map":["@@@@@@@@@@@@@","@@    @ $X @@","@ $@  E  @  @","@@ @o @  @ @@","@E @     @  @","@@         @@","@   @   @  $@","@     @o P $@","@  @     @  @","@     @  E  @","@@@@@@@@@@@@@"],"par":16},
+{"name":"Put It Back","hint":"THROW sends a bar straight up. Fill every slot. Bars that bounce off something fall back down, so catch them.","act":4,"mode":"arcade","map":["@@@@@@@@@@@@","@@O@@@O@@O@@","@          @","@     #    @","@          @","@          @","@  E E E E @","@          @","@          @","@          @","@          @","@          @","@          @","@          @","@          @","@    P     @"],"arc":{"bars":6,"hearts":3,"march":0.9,"sway":1.5,"fire":0}},
+{"name":"Night Watch","hint":"Guards march in a line and shine their flashlights down at you. Three hits and you’re caught.","act":4,"mode":"arcade","map":["@@@@@@@@@@@@","@@O@O@@O@O@@","@          @","@   #  #   @","@          @","@  E E E E @","@          @","@   E E E  @","@          @","@          @","@          @","@          @","@          @","@          @","@          @","@     P    @"],"arc":{"bars":9,"hearts":3,"march":1.3,"sway":1.2,"drop":0.3,"maxDrop":2.5,"fire":1.5}},
+{"name":"Ricochet","hint":"Straight shots won’t reach these slots. Bank your throws off the mirrors.","act":4,"mode":"arcade","map":["@@@@@@@@@@@@","@O@@@OO@@@O@","@ @@@  @@@ @","@ @@@  @@@ @","@\\ \\@  @/ /@","@ /  /\\  \\ @","@          @","@          @","@          @","@  E E E E @","@          @","@          @","@          @","@          @","@          @","@     P    @"],"arc":{"bars":9,"hearts":3,"march":1,"sway":1.5,"fire":2.2}},
+{"name":"Divebomb","hint":"The vault door slides. Lead your throws, and bonk the guards who dive at you.","act":4,"mode":"arcade","map":["@@@@@@@@@@@@","@@@O@@O@@O@@","@          @","@          @","@          @","@  D D D D @","@          @","@   E   E  @","@          @","@          @","@          @","@          @","@          @","@          @","@          @","@     P    @"],"arc":{"bars":9,"hearts":3,"march":0.8,"sway":1,"fire":2.8,"diveEvery":1.7,"slide":{"amp":1.6,"speed":0.9}}},
+{"name":"Bricklayers","hint":"They rebuild the wall as fast as you knock it down. Bonk the bricklayers first.","act":4,"mode":"arcade","map":["@@@@@@@@@@@@","@@O@O@@O@O@@","@          @","@##########@","@  B    B  @","@          @","@          @","@          @","@  E E E E @","@          @","@          @","@          @","@          @","@          @","@          @","@     P    @"],"arc":{"bars":12,"hearts":3,"march":1.1,"sway":1.3,"fire":2.4,"layEvery":1.6}},
+{"name":"Daybreak","hint":"The vault door itself. Its slots spin around the dial. Fill all eight before sunrise.","act":4,"mode":"arcade","map":["@@@@@@@@@@@@","@          @","@          @","@          @","@          @","@          @","@          @","@          @","@          @","@          @","@          @","@          @","@          @","@          @","@          @","@     P    @"],"arc":{"bars":14,"hearts":4},"boss":true}
+];
+// Tilt rules for Acts IV-V and Dream Vaults. Shared verbatim by the game (inlined at build)
+// and by the Node level solver, so par and solvability always match what the player gets.
+var TILT = (function () {
+  var DIRS = { L: [-1, 0], R: [1, 0], U: [0, -1], D: [0, 1] };
+  var ORDER = ['L', 'R', 'U', 'D'];
+  // Legend: '#' brick wall, '@' steel wall, ' ' floor, '$' gold to grab, 'o' pit, 'X' exit hatch,
+  //         'O' empty slot, 'P' thief, 'E' guard, 'b' loose gold bar
+  function parse(rows) {
+    var h = rows.length, w = 0, y, x;
+    for (y = 0; y < h; y++) w = Math.max(w, rows[y].length);
+    var L = { w: w, h: h, wall: new Uint8Array(w * h), gold: [], pits: [], slots: [], exit: -1, movers: [] };
+    var id = 0;
+    for (y = 0; y < h; y++) for (x = 0; x < w; x++) {
+      var ch = rows[y][x] || ' ', i = y * w + x;
+      if (ch === '#') L.wall[i] = 1; else if (ch === '@') L.wall[i] = 2;
+      else if (ch === '$') L.gold.push(i); else if (ch === 'o') L.pits.push(i);
+      else if (ch === 'O') L.slots.push(i); else if (ch === 'X') L.exit = i;
+      else if (ch === 'P') L.movers.push({ id: id++, k: 'p', i: i });
+      else if (ch === 'E') L.movers.push({ id: id++, k: 'g', i: i });
+      else if (ch === 'b') L.movers.push({ id: id++, k: 'b', i: i });
+    }
+    L.goal = L.slots.length ? 'slots' : 'exit';
+    return L;
+  }
+  function initial(L) {
+    return { m: L.movers.map(function (o) { return { id: o.id, k: o.k, i: o.i }; }),
+      gold: L.gold.slice(), pits: L.pits.slice(), slots: L.slots.slice() };
+  }
+  function move(L, S, d) {
+    var dv = DIRS[d], w = L.w, h = L.h;
+    var m = S.m.map(function (o) { return { id: o.id, k: o.k, i: o.i }; });
+    var gold = S.gold.slice(), pits = S.pits.slice(), slots = S.slots.slice();
+    var occ = new Map();
+    m.forEach(function (o) { occ.set(o.i, o); });
+    var proj = function (o) { return dv[0] * (o.i % w) + dv[1] * ((o.i / w) | 0); };
+    var order = m.slice().sort(function (a, b) { return proj(b) - proj(a); });
+    var paths = [], events = [], fell = false, exited = false, moved = false, gone = new Set();
+    for (var k = 0; k < order.length; k++) {
+      var o = order[k];
+      occ.delete(o.i);
+      var cells = [o.i], end = 'stop', x = o.i % w, y = (o.i / w) | 0;
+      for (;;) {
+        var nx = x + dv[0], ny = y + dv[1];
+        if (nx < 0 || ny < 0 || nx >= w || ny >= h) break;
+        var n = ny * w + nx;
+        if (L.wall[n] || occ.has(n)) break;
+        x = nx; y = ny; cells.push(n);
+        var step = cells.length - 1, at;
+        if (o.k === 'p' && (at = gold.indexOf(n)) >= 0) {
+          gold.splice(at, 1); events.push({ step: step, t: 'gold', i: n, id: o.id });
+          if (!gold.length && L.exit >= 0) events.push({ step: step, t: 'open', i: L.exit, id: o.id });
+        }
+        if ((at = pits.indexOf(n)) >= 0) {
+          pits.splice(at, 1); end = 'pit'; events.push({ step: step, t: 'pit', i: n, k: o.k, id: o.id });
+          if (o.k === 'p') fell = true;
+          break;
+        }
+        if (o.k === 'p' && n === L.exit && !gold.length) { end = 'exit'; exited = true; events.push({ step: step, t: 'exit', i: n, id: o.id }); break; }
+        if (o.k === 'b' && (at = slots.indexOf(n)) >= 0) {
+          slots.splice(at, 1); end = 'slot'; events.push({ step: step, t: 'slot', i: n, id: o.id });
+          break;
+        }
+      }
+      if (cells.length > 1) moved = true;
+      o.i = cells[cells.length - 1];
+      paths.push({ id: o.id, k: o.k, cells: cells, end: end });
+      if (end === 'stop') occ.set(o.i, o); else gone.add(o);
+    }
+    var left = m.filter(function (o) { return !gone.has(o); });
+    var p = null, caughtBy = null;
+    for (var j = 0; j < left.length; j++) if (left[j].k === 'p') p = left[j];
+    if (p && !fell) {
+      var px = p.i % w, py = (p.i / w) | 0;
+      [[dv[0], dv[1]], [-dv[0], -dv[1]]].forEach(function (v) {
+        var qx = px + v[0], qy = py + v[1];
+        if (qx < 0 || qy < 0 || qx >= w || qy >= h) return;
+        var q = occ.get(qy * w + qx);
+        if (q && q.k === 'g') caughtBy = q;
+      });
+    }
+    var bars = 0;
+    for (j = 0; j < left.length; j++) if (left[j].k === 'b') bars++;
+    var outcome = fell ? 'fell' : caughtBy ? 'caught'
+      : (L.goal === 'exit' && exited) ? 'won'
+      : (L.goal === 'slots' && slots.length === 0) ? 'won'
+      : (L.goal === 'slots' && bars < slots.length) ? 'stuck' : 'ok';
+    return { state: { m: left, gold: gold, pits: pits, slots: slots }, paths: paths, events: events,
+      moved: moved, outcome: outcome, caughtBy: caughtBy ? caughtBy.id : null };
+  }
+  function key(S) {
+    var a = S.m.map(function (o) { return o.k + o.i; }).sort().join(',');
+    return a + '|' + S.gold.join(',') + '|' + S.pits.join(',') + '|' + S.slots.join(',');
+  }
+  // Breadth-first search. Returns {par, moves:['L',...]} or null; {par:-1} if the state cap was hit.
+  function solve(L, S0, cap) {
+    cap = cap || 200000;
+    var seen = new Map(), q = [S0], qi = 0;
+    seen.set(key(S0), null);
+    var meta = [{ prev: -1, d: null }];
+    while (qi < q.length) {
+      var S = q[qi], idx = qi++;
+      for (var k = 0; k < 4; k++) {
+        var d = ORDER[k], r = move(L, S, d);
+        if (!r.moved || r.outcome === 'fell' || r.outcome === 'caught' || r.outcome === 'stuck') continue;
+        if (r.outcome === 'won') {
+          var moves = [d], at = idx;
+          while (at > 0) { moves.unshift(meta[at].d); at = meta[at].prev; }
+          return { par: moves.length, moves: moves, explored: q.length };
+        }
+        var kk = key(r.state);
+        if (seen.has(kk)) continue;
+        seen.set(kk, null); q.push(r.state); meta.push({ prev: idx, d: d });
+        if (q.length > cap) return { par: -1, moves: null, explored: q.length };
+      }
+    }
+    return null;
+  }
+  // The board as it rests after the opening settle (gravity starts pointing down).
+  function start(L) {
+    var r = move(L, initial(L), 'D');
+    return { state: r.state, settle: r };
+  }
+  return { DIRS: DIRS, ORDER: ORDER, parse: parse, initial: initial, move: move, key: key, solve: solve, start: start };
+})();
+const ACTS = [
+  { n: 'I', title: 'The Heist', blurb: 'Dig, climb, run.' },
+  { n: 'II', title: 'Upside', blurb: 'Levers turn the vault over.',
+    story: 'Somebody built this vault on a pivot. Step on a lever and the whole thing turns over. You and the guards fall; the gold stays bolted where it was. From here on the way out is a vault door, and it opens when the last bar is yours.' },
+  { n: 'III', title: 'Freefall', blurb: 'Your shovel is now a button.',
+    story: 'Your shovel is gone. In its place is a button. FLIP turns the vault over whenever your feet are on something. Guards can’t flip, so every turn of the vault is your move and their problem.' },
+  { n: 'IV', title: 'Tilt', blurb: 'The vault was a toy all along.',
+    story: 'Zoom out. The vault was never a building. It’s a pocket puzzle with a little thief rattling around inside, and you’re the one holding it. The pad doesn’t move the thief any more. It tilts the whole box, and everything slides until it hits something.' },
+  { n: 'V', title: 'Put It Back', blurb: 'Side B: an arcade game.',
+    story: 'Dawn is coming, and the gold was never yours to keep. Turn the toy over: Side B is an arcade game. Throw every bar back up into the vault before sunrise. Bars that bounce off something fall back down, so catch them before they hit the floor. Drag anywhere on the board to run.' },
+];
+const ENDING = 'Every bar is back in its slot. The sun is up, the vault is locked, and nobody will ever know you were here.';
+
+// ==========================================
+// i18n 多语言系统 (Chinese / English)
+// ==========================================
+let LANG = (function() {
+  try {
+    const saved = localStorage.getItem('night_vault_lang');
+    if (saved === 'en' || saved === 'zh') return saved;
+  } catch (e) {}
+  return 'zh'; // 默认开启中文模式
+})();
+
+const ZH_LEVELS = [
+  { name: "一楼大厅", hint: "夺取所有金条。随后逃生梯显现：顺梯爬上顶层逃离。" },
+  { name: "向下开凿", hint: "红砖可破，防爆钢板不行。激光在脚边轰出陷坑。" },
+  { name: "悬空滑索", hint: "沿着悬空钢索滑行。按向下键可脱离滑索直接空坠。" },
+  { name: "幽闭地窖", hint: "警卫追捕而来。在他们必经之路上挖坑诱敌陷入。" },
+  { name: "垂直空降", hint: "下坠速度远快于攀爬。精准计算你的降落着陆点。" },
+  { name: "交叉巡逻", hint: "双警卫交替巡防。利用多层结构迂回分散追兵。" },
+  { name: "钢铁牢笼", hint: "加固防爆钢板无法开凿。寻找仅存的红砖突破口。" },
+  { name: "发条律动", hint: "坑洞数秒后便会自动填平。精准把握警卫脱困的时间差。" },
+  { name: "深渊矿井", hint: "纵深极大的垂直竖井。一旦跃下便无路可退。" },
+  { name: "严酷试炼", hint: "密不透风的安保网。以金条为饵调虎离山。" },
+  { name: "金库大门", hint: "通向核心内库的闸门。扫清全部金条即刻解锁开启。" },
+  { name: "终极窃案", hint: "第一幕终局挑战！满地黄金与警卫立体合围。" },
+  { name: "翻转乾坤", hint: "踩下地面操作杆，整座金库颠倒翻转。警卫随之跌落。" },
+  { name: "悬挂金篮", hint: "金条高悬于穹顶。颠倒重力让金条落入掌中。" },
+  { name: "升降天井", hint: "反转重力往复穿梭于天井之间。" },
+  { name: "暗藏活板", hint: "借力反转让警卫跌入深井。算准翻转时机。" },
+  { name: "钟摆回荡", hint: "左右往复腾挪，在颠倒的弧线中夺金。" },
+  { name: "天翻地覆", hint: "第二幕终局考验！上下颠倒的极限潜行。" },
+  { name: "自由落体", hint: "铁锹化身反重力按钮！按下即向天空坠落。" },
+  { name: "天花板漫步", hint: "在穹顶倒立疾驰。避开巡视的地面警卫。" },
+  { name: "诱敌空坠", hint: "切换重力让警卫从穹顶直坠深坑。" },
+  { name: "命运沙漏", hint: "如同流转的沙漏，在双向重力中寻获生机。" },
+  { name: "镜像迷宫", hint: "第三幕终局！上下对称的倒置迷阵。" },
+  { name: "玩具宝盒", hint: "地面开始倾斜！向左向右滑步滑行。" },
+  { name: "摇荡晃动", hint: "借由倾斜的冲力撞开巡逻间隙。" },
+  { name: "结伴同行", hint: "与警卫同向滑行，保持安全距离。" },
+  { name: "颠簸坑洼", hint: "地面凹坑成为滑行停靠的避风港。" },
+  { name: "滚珠弹子", hint: "如同弹珠般在金库轨道中极速滑移。" },
+  { name: "水晶雪球", hint: "第四幕终局！在不断摇晃的倾角中全身而退。" },
+  { name: "物归原位", hint: "拂晓将至！将拾取的金条逐一送回展柜！" },
+  { name: "守夜警官", hint: "警卫紧追不舍，在巡查视线中完璧归赵。" },
+  { name: "飞掷反弹", hint: "投掷金条击晕警卫，抢出归位时间。" },
+  { name: "俯冲空投", hint: "自高处向下空投金条入展柜。" },
+  { name: "砖瓦迷局", hint: "复杂的砖道阻隔，步步为营归还失窃财宝。" },
+  { name: "破晓黎明", hint: "最后一关！日出破晓前完成无影盗帅的终章！" }
+];
+
+const ZH_ACTS = [
+  { n: 'I', title: '大窃案', blurb: '掘地、攀爬、潜行。',
+    story: '经典金库潜行。盗尽每一块金条，激光开凿陷坑困住警卫，随后顺梯攀顶脱离现场。' },
+  { n: 'II', title: '乾坤颠倒', blurb: '踩动操纵杆，颠倒金库。',
+    story: '有人将这座金库建在旋转中轴之上。踏上操纵杆，整个空间颠倒翻转。你与警卫双双下坠，唯有金条牢牢固定。金库大门在全部金条到手后轰然开启。' },
+  { n: 'III', title: '自由失重', blurb: '铁锹变身反重力按钮。',
+    story: '你的铁锹不翼而飞。取而代之的是一颗重力按钮。按下它，脚下重力瞬间颠倒，你与警卫向上翻坠。善用悬空位移。' },
+  { n: 'IV', title: '倾斜滑行', blurb: '地面在脚下倾角滑动。',
+    story: '地面永不安歇。左倾全员向左滑，右倾则一齐滑向右方。困住警卫不再单靠铁锹，而是精准的动量掌控。' },
+  { n: 'V', title: '完璧归赵', blurb: '黎明将至，物归原位。',
+    story: '你拿到了所有金条，却触发了拂晓警报！若想不留一丝痕迹地溜走，必须在日出之前把每一块金条原原本本归还到展示柜中！' }
+];
+
+const ZH_ENDING = '每一块金条都已安然归位。晨曦破晓，金库落锁，没有人会知道你曾来过这里。';
+
+function getLvlName(lv, i) {
+  if (lv && lv.dream) return lv.name;
+  if (LANG === 'zh') {
+    const idx = (i != null ? i : (lv ? LEVELS.indexOf(lv) : -1));
+    if (idx >= 0 && ZH_LEVELS[idx]) return ZH_LEVELS[idx].name;
+  }
+  return lv ? lv.name : '';
+}
+
+function getLvlHint(lv, i) {
+  if (lv && lv.dream) return lv.hint || '';
+  if (LANG === 'zh') {
+    const idx = (i != null ? i : (lv ? LEVELS.indexOf(lv) : -1));
+    if (idx >= 0 && ZH_LEVELS[idx]) return ZH_LEVELS[idx].hint;
+  }
+  return lv ? (lv.hint || '') : '';
+}
+
+function getActTitle(a) {
+  if (LANG === 'zh' && ZH_ACTS[a]) return ZH_ACTS[a].title;
+  return ACTS[a] ? ACTS[a].title : '';
+}
+
+function getActBlurb(a) {
+  if (LANG === 'zh' && ZH_ACTS[a]) return ZH_ACTS[a].blurb;
+  return ACTS[a] ? ACTS[a].blurb : '';
+}
+
+function getActStory(a) {
+  if (LANG === 'zh' && ZH_ACTS[a]) return ZH_ACTS[a].story;
+  return ACTS[a] ? ACTS[a].story : '';
+}
+
+function getEnding() {
+  return LANG === 'zh' ? ZH_ENDING : ENDING;
+}
+
+function applyLanguage() {
+  const isZh = LANG === 'zh';
+  const btnL = $('btnLang');
+  if (btnL) {
+    btnL.textContent = isZh ? '中文' : 'EN';
+    btnL.title = isZh ? '当前：中文（点击切换为 English）' : 'Current: English (Click for Chinese)';
+  }
+  const optZh = $('optZh');
+  const optEn = $('optEn');
+  if (optZh && optEn) {
+    optZh.classList.toggle('active', isZh);
+    optEn.classList.toggle('active', !isZh);
+  }
+
+  // Header & Controls
+  if ($('btnSound')) $('btnSound').setAttribute('aria-label', isZh ? '音效开关' : 'Sound');
+  if ($('btnPause')) $('btnPause').setAttribute('aria-label', isZh ? '暂停游戏' : 'Pause');
+
+  const digLSpan = document.querySelector('#digL span');
+  const digRSpan = document.querySelector('#digR span');
+  if (digLSpan) digLSpan.textContent = isZh ? '掘地' : 'DIG';
+  if (digRSpan) digRSpan.textContent = isZh ? '掘地' : 'DIG';
+  const flipSpan = document.querySelector('#btnFlip span');
+  if (flipSpan) flipSpan.textContent = isZh ? '翻转' : 'FLIP';
+  const throwSpan = document.querySelector('#btnThrow span');
+  if (throwSpan) throwSpan.textContent = isZh ? '投掷' : 'THROW';
+  if ($('btnUndo')) $('btnUndo').textContent = isZh ? '撤销' : 'UNDO';
+  if ($('btnHint')) $('btnHint').textContent = isZh ? '提示' : 'HINT';
+  if ($('btnReset')) $('btnReset').textContent = isZh ? '重置' : 'RESET';
+
+  // Sticker
+  const sticker = $('sticker');
+  if (sticker) sticker.textContent = isZh ? '暗夜金库 · 掌上机关解谜' : 'NIGHT VAULT · POCKET TILT PUZZLE';
+
+  // Logo & Tagline
+  if ($('logo')) {
+    const isFinished = typeof save !== 'undefined' && save && save.finished;
+    if (isZh) {
+      $('logo').innerHTML = isFinished ? '<s>暗夜</s> <ins>破晓</ins><em>金库</em>' : '暗夜<em>金库</em>';
+    } else {
+      $('logo').innerHTML = isFinished ? '<s>Night</s> <ins>Day</ins><em>Vault</em>' : 'Night<em>Vault</em>';
+    }
+  }
+  if ($('tagline')) {
+    $('tagline').textContent = isZh
+      ? '盗取每一块金条，爆破陷坑诱困警卫，随后全身而退。金库深处还有更多惊喜。'
+      : 'Steal every gold bar, blast holes to trap the guards, then get out. The vault has a few surprises left.';
+  }
+
+  // Voice card
+  const aiCardText = document.querySelector('#aiCard .switchrow b');
+  if (aiCardText) aiCardText.textContent = isZh ? '金库语音助手' : 'Vault voice';
+  const aiCardNote = document.querySelector('#aiCard .switchrow .note');
+  if (aiCardNote) aiCardNote.textContent = isZh ? '启用金库语音解说反馈与即时互动。' : 'Let the vault talk back. It uses Claude Haiku on your account.';
+
+  // Jump to label
+  const jumpEyebrow = document.querySelector('#dial .eyebrow');
+  if (jumpEyebrow) jumpEyebrow.textContent = isZh ? '快速跳转' : 'Jump to';
+
+  // Tips list
+  const tips = document.querySelectorAll('#menu ul li');
+  if (tips.length >= 4) {
+    tips[0].innerHTML = isZh ? '<b>方向盘</b> 负责奔跑、爬梯与横向滑索，按向下脱离滑索。' : '<b>Pad</b> runs, climbs ladders, hangs on wires. Down lets go.';
+    tips[1].innerHTML = isZh ? '<b>挖掘键</b> 引爆脚边红砖，坑洞数秒后会自动填平复原。' : '<b>Dig</b> blasts the brick next to your feet. Holes refill in a few seconds.';
+    tips[2].innerHTML = isZh ? '<b>警卫</b> 跌入坑中会挣扎受困，并掉落身上搜刮的金条。' : '<b>Guards</b> fall into holes and drop any gold they picked up.';
+    tips[3].innerHTML = isZh ? '<b>被困？</b> 随时暂停并重新开始本关。' : '<b>Stuck?</b> Pause and restart the vault.';
+  }
+  const noteP = document.querySelector('#menu p.note');
+  if (noteP) {
+    noteP.textContent = isZh
+      ? '横屏握持可获更开阔视野，进度自动保存在本地。键盘控制：方向键移动，Z / X 掘地或翻转，U 撤销，H 提示，P 暂停。'
+      : 'Turn your phone sideways for a bigger board. Progress saves on this device. Keyboard: arrows, Z / X to dig or flip, U undo, H hint, P pause.';
+  }
+
+  // Story modal
+  if ($('btnStoryGo')) $('btnStoryGo').textContent = isZh ? '开始挑战' : 'Play';
+
+  // Pause modal
+  if ($('pVault')) $('pVault').textContent = isZh ? ('金库 ' + pad2(G ? G.level + 1 : 1)) : ('Vault ' + pad2(G ? G.level + 1 : 1));
+  const pauseH2 = document.querySelector('#pause h2');
+  if (pauseH2) pauseH2.textContent = isZh ? '游戏暂停' : 'Paused';
+  if ($('btnResume')) $('btnResume').textContent = isZh ? '继续游戏' : 'Resume';
+  if ($('btnRestart')) $('btnRestart').textContent = isZh ? '重新开始' : 'Restart';
+  if ($('btnMenu')) $('btnMenu').textContent = isZh ? '全部金库' : 'All vaults';
+
+  // Clear modal
+  if ($('cVault')) $('cVault').textContent = isZh ? ('金库 ' + pad2(G ? G.level + 1 : 1)) : ('Vault ' + pad2(G ? G.level + 1 : 1));
+  if ($('btnNext')) $('btnNext').textContent = isZh ? '下一金库' : 'Next vault';
+  if ($('btnReplay')) $('btnReplay').textContent = isZh ? '重新挑战' : 'Replay';
+  if ($('btnMenu2')) $('btnMenu2').textContent = isZh ? '全部金库' : 'All vaults';
+  if ($('btnDreamAgain')) $('btnDreamAgain').textContent = isZh ? '构筑新梦境' : 'Dream up another';
+  if ($('cL1') && G && G.kind !== 'tilt') $('cL1').textContent = isZh ? '用时' : 'Time';
+  if ($('cL2') && G && G.kind !== 'tilt') $('cL2').textContent = isZh ? '最佳' : 'Best';
+  if ($('cL3') && G && G.kind !== 'tilt') $('cL3').textContent = isZh ? '被捕' : 'Caught';
+
+  // Dream modal
+  const dreamEyebrow = document.querySelector('#dreamOv .eyebrow');
+  if (dreamEyebrow) dreamEyebrow.textContent = isZh ? '第 VI 幕' : 'Act VI';
+  const dreamH2 = document.querySelector('#dreamOv h2');
+  if (dreamH2) dreamH2.textContent = isZh ? '梦境金库' : 'Dream Vaults';
+  if ($('dIntro')) $('dIntro').textContent = isZh ? '金库开始构思属于自己的全新谜题。每一个都独一无二，并由求解器预先验证确保完全可解。' : 'The vault has started dreaming up puzzles of its own. Each one is new, and the vault’s solver checks it can be done before you play.';
+  const dThemeLabel = document.querySelector('label[for="dTheme"]');
+  if (dThemeLabel) dThemeLabel.textContent = isZh ? '梦境主题' : 'Dream about';
+  if ($('dTheme')) $('dTheme').placeholder = isZh ? '夜幕中的飞行航机' : 'an airplane at night';
+  if ($('btnDream')) $('btnDream').textContent = isZh ? '构筑梦境金库' : 'Dream one up';
+  if ($('btnPlayDream')) $('btnPlayDream').textContent = isZh ? '开始挑战' : 'Play';
+  if ($('dPastH')) $('dPastH').textContent = isZh ? '历史梦境' : 'Past dreams';
+  if ($('btnDreamBack')) $('btnDreamBack').textContent = isZh ? '全部金库' : 'All vaults';
+
+  // Banner initial
+  if ($('bSub') && (!G || !G.started)) $('bSub').textContent = isZh ? '移动即刻开始' : 'Move to start';
+
+  // Refresh dynamic parts
+  if (typeof renderMenu === 'function') renderMenu();
+  if (G) {
+    if (typeof updateHud === 'function') updateHud();
+    if (typeof showBanner === 'function' && !$('banner').classList.contains('fade')) showBanner();
+  }
+}
+
+const T_EMPTY = 0, T_BRICK = 1, T_STEEL = 2, T_LADDER = 3, T_ROPE = 4, T_HIDDEN = 5, T_LEVER = 6, T_DOOR = 7;
+const P_SPD = { run: .14, climb: .16, rope: .16, fall: .09 };
+const G_SPD = { run: .26, climb: .30, rope: .30, fall: .12 };
+const DIG_T = .28, HOLE_T = 6.2, FILL_T = .6, TRAP_T = 3.4, RESPAWN_T = 1.4;
+const DIRV = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+const DIRWORD = { L: 'left', R: 'right', U: 'up', D: 'down' };
+const GRAV_ANGLE = { D: 0, L: Math.PI / 2, U: Math.PI, R: -Math.PI / 2 };
+const COL = {
+  bg: '#0c0f22', dot: 'rgba(150,160,230,.09)',
+  brick: '#c4583c', brickHi: '#e17b56', brickLo: '#92402c', mortar: '#4a1d15',
+  steel: '#4b5482', steelHi: '#7f89bd', steelLo: '#2b3157', rivet: '#a9b2e0',
+  ladder: '#d9c28d', ladderLo: '#9c875a', wire: '#cdbb92', wireLo: '#7d6f52',
+  gold: '#ffc53d', goldHi: '#fff0b0', goldLo: '#d18f14', exit: '#ffd65e', exitLo: '#c99a2a'
+};
+const ACT_BG = [
+  { bg: '#0c0f22', dot: 'rgba(150,160,230,.09)' },
+  { bg: '#100b22', dot: 'rgba(175,150,240,.10)' },
+  { bg: '#150c24', dot: 'rgba(205,150,235,.10)' },
+  { bg: '#141936', dot: 'rgba(160,190,255,.11)' },
+  { bg: ['#2a2350', '#5e3452'], dot: 'rgba(255,205,175,.13)' },
+];
+const DREAM_BG = { bg: ['#1b1a46', '#30285e'], dot: 'rgba(205,190,255,.13)' };
+const PAL_P = { h: '#ff5a5f', s: '#f4c9a6', k: '#14172e', b: '#f3eee0', l: '#5a7cff' };
+const PAL_G = { h: '#24745e', s: '#f4c9a6', k: '#ff3d3d', b: '#4fd1a8', l: '#2a6858' };
+const SPR = {
+  stand: ["....hhhh....", "...hhhhhh...", "....sssk....", "....ssss....", "...bbbbbb...", "..bbbbbbbb..",
+          "..s.bbbb.s..", "....bbbb....", "....llll....", "....l..l....", "....l..l....", "...ll..ll..."],
+  run1:  [".....hhhh...", "....hhhhhh..", ".....sssk...", ".....ssss...", "....bbbbb...", "...bbbbbbs..",
+          "..s.bbbb....", "....bbbb....", "....llll....", "...ll..ll...", "..ll....ll..", ".ll......l.."],
+  run2:  [".....hhhh...", "....hhhhhh..", ".....sssk...", ".....ssss...", "....bbbbb...", "....bbbbbb..",
+          "....bbbbs...", "....bbbb....", "....llll....", ".....ll.....", ".....ll.....", "....lll....."],
+  climb: ["....hhhh....", "...hhhhhh...", "..s.hhhh....", "..s.ssss....", "..bbbbbbbs..", "...bbbbbbs..",
+          "....bbbb....", "....bbbb....", "....llll....", "....l..ll...", "...ll...l...", "........l..."],
+  rope1: ["..s......s..", "..s.hhhh.s..", "..bhhhhhhb..", "..b.sssk.b..", "..bbssssbb..", "...bbbbbb...",
+          "....bbbb....", "....bbbb....", "....llll....", "....l..l....", "...ll..l....", ".......ll..."],
+  rope2: ["..s......s..", "..s.hhhh.s..", "..bhhhhhhb..", "..b.sssk.b..", "..bbssssbb..", "...bbbbbb...",
+          "....bbbb....", "....bbbb....", "....llll....", "....l..l....", "....l..ll...", "...ll......."],
+  fall:  ["..s......s..", "..s.hhhh.s..", "..bhhhhhhb..", "..b.sssk.b..", "...bssssb...", "....bbbb....",
+          "....bbbb....", "....bbbb....", "....llll....", "...l....l...", "..l......l..", "............"],
+  dig:   ["............", "............", ".....hhhh...", "....hhhhhh..", ".....sssk...", "....bbbbb...",
+          "...bbbbbbbss", "...bbbbb....", "....llll....", "...ll..ll...", "...l....l...", "..ll....ll.."]
+};
+
+const $ = id => document.getElementById(id);
+const cv = $('board'), ctx = cv.getContext('2d'), stage = $('stage'), toyEl = $('toy'), app = $('app');
+let W = 20, H = 14;
+let Td = 10, dpr = 1, tiles = {}, sprites = {}, artKey = '';
+let G = null, paused = false, menuOpen = true, clearShown = false, manual = false, clock = 0, overlayOpen = null;
+const input = { pad: null, keys: [], tap: null, digReq: null, flipReq: null, throwHeld: false, throwReq: null };
+
+// ---------------- save ----------------
+const SAVE_KEY = 'night-vault-v1';
+function loadSave() {
+  let s = null;
+  try { s = JSON.parse(localStorage.getItem(SAVE_KEY)); } catch (e) { s = null; }
+  if (!s || typeof s.unlocked !== 'number') s = { unlocked: 0 };
+  s = Object.assign({ best: {}, muted: false, seen: {}, voice: false, finished: false, dreams: [] }, s);
+  if (!s.v || s.v < 3) {
+    // Act V was rebuilt as Side B: old Act V records no longer apply
+    for (const k of Object.keys(s.best)) if (+k >= 29) delete s.best[k];
+    if (s.seen) delete s.seen[4];
+    s.finished = false; s.v = 3;
+  }
+  // Vaults cleared in an earlier version stay cleared, and the next one opens.
+  let top = -1;
+  for (const k of Object.keys(s.best)) if (s.best[k] != null && +k > top) top = +k;
+  s.unlocked = Math.min(LEVELS.length - 1, Math.max(s.unlocked, top + 1));
+  if (!Array.isArray(s.dreams)) s.dreams = [];
+  return s;
+}
+function writeSave() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) {} }
+let save = loadSave();
+
+// ---------------- level helpers ----------------
+function cur() { return G && G.dream ? G.dream : LEVELS[G ? G.level : 0]; }
+function modeOf(lv) { return lv.mode || 'run'; }
+function isTilt(lv) { const m = modeOf(lv || cur()); return m === 'tilt' || m === 'return'; }
+function isArcade(lv) { return modeOf(lv || cur()) === 'arcade'; }
+function buildAny(lv, i) { return isArcade(lv) ? buildArcade(lv, i) : isTilt(lv) ? buildTilt(lv, i) : buildState(lv, i); }
+function actOf(i) { return LEVELS[i].act || 0; }
+function firstOfAct(a) { return LEVELS.findIndex(l => (l.act || 0) === a); }
+
+// ---------------- real-time level ----------------
+function mkEnt(x, y, isP) {
+  return { x, y, fx: x, fy: y, t: 1, dur: .1, moving: false, kind: 'stand', face: 1, frame: 0, isP,
+    carry: false, carryN: 0, inHole: false, trapT: 0, exiting: false, dead: false, respawnT: 0, wait: 0,
+    spawnT: 0, spd: isP ? 1 : .92 + Math.random() * .16 };
+}
+function buildState(lv, idx) {
+  const rows = lv.map;
+  H = rows.length; W = rows[0].length;
+  const map = [], gold = [], guards = []; let player = null, goldCount = 0, hasDoor = false;
+  for (let y = 0; y < H; y++) {
+    const row = [], grow = [];
+    for (let x = 0; x < W; x++) {
+      const ch = (rows[y] || '')[x] || ' '; let t = T_EMPTY, g = false;
+      if (ch === '#') t = T_BRICK; else if (ch === '@') t = T_STEEL; else if (ch === 'H') t = T_LADDER;
+      else if (ch === '-') t = T_ROPE; else if (ch === 'S') t = T_HIDDEN;
+      else if (ch === 'F') t = T_LEVER;
+      else if (ch === 'X') { t = T_DOOR; hasDoor = true; }
+      else if (ch === '$') { g = true; goldCount++; }
+      else if (ch === '~') { t = T_ROPE; g = true; goldCount++; }
+      else if (ch === '+') { t = T_LADDER; g = true; goldCount++; }
+      else if (ch === 'P') player = mkEnt(x, y, true);
+      else if (ch === 'E') guards.push(mkEnt(x, y, false));
+      else if (ch === 'G') { t = T_ROPE; guards.push(mkEnt(x, y, false)); }
+      row.push(t); grow.push(g);
+    }
+    map.push(row); gold.push(grow);
+  }
+  return { kind: 'rt', level: idx, map, gold, goldCount, goldTotal: goldCount, holes: new Map(), player: player || mkEnt(0, 0, true), guards,
+    revealed: false, started: false, state: 'play', stateT: 0, time: 0, particles: [], deaths: 0, flash: 0,
+    flipped: false, flip: null, hasDoor };
+}
+
+// ---------------- world queries ----------------
+function base(x, y) { if (x < 0 || x >= W || y < 0 || y >= H) return T_STEEL; return G.map[y][x]; }
+function holeAt(x, y) { return G.holes.get(y * W + x); }
+function solid(x, y) { const t = base(x, y); if (t === T_STEEL) return true; if (t === T_BRICK) { const h = holeAt(x, y); return !h || h.phase === 'dig'; } return false; }
+function staticSolid(x, y) { const t = base(x, y); return t === T_BRICK || t === T_STEEL; }
+function ladder(x, y) { const t = base(x, y); return t === T_LADDER || (t === T_HIDDEN && G.revealed); }
+function rope(x, y) { return base(x, y) === T_ROPE; }
+function guardAt(x, y, self) { for (const g of G.guards) if (g !== self && !g.dead && g.x === x && g.y === y) return g; return null; }
+function supported(x, y, self) {
+  if (ladder(x, y) || rope(x, y)) return true;
+  if (y + 1 >= H || solid(x, y + 1) || ladder(x, y + 1)) return true;
+  const g = guardAt(x, y + 1, self);
+  return !!(g && !(g.moving && g.kind === 'fall'));
+}
+function rpos(e) { const t = e.moving ? e.t : 1; return [e.fx + (e.x - e.fx) * t, e.fy + (e.y - e.fy) * t]; }
+
+// ---------------- movement core ----------------
+function startMove(e, dx, dy, kind) {
+  e.fx = e.x; e.fy = e.y; e.x += dx; e.y += dy; e.t = 0; e.moving = true; e.kind = kind;
+  e.dur = (e.isP ? P_SPD : G_SPD)[kind] * e.spd; if (dx) e.face = dx; e.frame++;
+}
+function advance(e, dt, arrive, decide) {
+  let rem = dt, n = 0;
+  while (rem > 1e-6 && n++ < 8) {
+    if (G.flip) return;
+    if (e.wait > 0) { const w = Math.min(e.wait, rem); e.wait -= w; rem -= w; continue; }
+    if (e.moving) {
+      const need = (1 - e.t) * e.dur;
+      if (rem < need) { e.t += rem / e.dur; rem = 0; break; }
+      rem -= need; e.t = 1; e.moving = false; e.fx = e.x; e.fy = e.y;
+      arrive(e); if (G.state !== 'play' || G.flip) return;
+    } else { decide(e); if (!e.moving && !(e.wait > 0)) break; }
+  }
+}
+
+// ---------------- player ----------------
+function curDir() {
+  if (input.pad) { input.tap = null; return input.pad; }
+  if (input.keys.length) { input.tap = null; return input.keys[input.keys.length - 1]; }
+  if (input.tap && clock - input.tap.t < .2) { const d = input.tap.d; input.tap = null; return d; }
+  return null;
+}
+function begin() { if (!G.started) { G.started = true; fadeBanner(); } }
+function arriveP(p) {
+  if (G.gold[p.y][p.x]) {
+    G.gold[p.y][p.x] = false; G.goldCount--; sfx.gold(); burst(p.x + .5, p.y + .7, COL.gold, 10, 3); checkReveal(); updateHud();
+  }
+  if (base(p.x, p.y) === T_LEVER) { startFlip(); return; }
+  checkExit();
+}
+function checkExit() {
+  const p = G.player;
+  if (!G.revealed || p.moving || G.state !== 'play') return;
+  const t = base(p.x, p.y);
+  if (t === T_DOOR || (t === T_HIDDEN && p.y === 0)) win();
+}
+function decideP(p) {
+  if (!supported(p.x, p.y, p)) { startMove(p, 0, 1, 'fall'); return; }
+  if (input.flipReq) {
+    const r = input.flipReq; input.flipReq = null;
+    if (clock - r.t < .5 && modeOf(cur()) === 'flip') { begin(); startFlip(); return; }
+  }
+  if (input.digReq) {
+    const r = input.digReq; input.digReq = null;
+    if (clock - r.t < .4 && modeOf(cur()) === 'run') { begin(); if (tryDig(p, r.dir)) return; }
+  }
+  const d = curDir();
+  if (d) begin();
+  if (d === 'U') {
+    if (ladder(p.x, p.y) && p.y > 0 && !solid(p.x, p.y - 1)) { startMove(p, 0, -1, 'climb'); return; }
+  } else if (d === 'D') {
+    if (p.y + 1 < H && !solid(p.x, p.y + 1)) { startMove(p, 0, 1, (ladder(p.x, p.y + 1) || ladder(p.x, p.y)) ? 'climb' : 'fall'); return; }
+  } else if (d === 'L' || d === 'R') {
+    const dx = d === 'L' ? -1 : 1; p.face = dx;
+    if (!solid(p.x + dx, p.y)) { startMove(p, dx, 0, rope(p.x + dx, p.y) ? 'rope' : 'run'); return; }
+  }
+  if (p.kind !== 'dig' || !(p.wait > 0)) p.kind = 'stand';
+}
+function tryDig(p, dir) {
+  p.face = dir; const tx = p.x + dir, ty = p.y + 1;
+  if (tx < 0 || tx >= W || ty >= H || base(tx, ty) !== T_BRICK || holeAt(tx, ty) || solid(tx, p.y) ||
+      ladder(tx, p.y) || G.gold[p.y][tx] || guardAt(tx, p.y)) { sfx.clunk(); return false; }
+  G.holes.set(ty * W + tx, { x: tx, y: ty, phase: 'dig', t: 0 });
+  p.kind = 'dig'; p.wait = DIG_T; sfx.dig(); burst(tx + .5, ty + .2, COL.brickHi, 12, 4);
+  return true;
+}
+function checkReveal() {
+  if (G.revealed || G.goldCount > 0 || G.guards.some(g => g.carry)) return;
+  G.revealed = true; G.flash = .5; sfx.reveal();
+  if (G.hasDoor) showBanner('Door open', 'The vault door is open. Get to it.', true);
+  else showBanner('Exit open', 'A ladder appeared. Climb it off the top of the board.', true);
+  checkExit();
+}
+
+// ---------------- world flip ----------------
+function startFlip() {
+  if (G.flip || G.state !== 'play') return;
+  G.flip = { t: 0, dur: modeOf(cur()) === 'flip' ? .44 : .64, mirrored: false };
+  toyEl.classList.add('flipping');
+  sfx.flip();
+}
+function mirrorWorld() {
+  G.map.reverse(); G.gold.reverse();
+  const nh = new Map();
+  for (const h of G.holes.values()) { h.y = H - 1 - h.y; nh.set(h.y * W + h.x, h); }
+  G.holes = nh;
+  for (const e of [G.player, ...G.guards]) {
+    e.y = H - 1 - e.y; e.fx = e.x; e.fy = e.y; e.moving = false; e.t = 1; e.wait = 0;
+    if (!e.isP) { e.inHole = false; e.trapT = 0; e.exiting = false; }
+    e.kind = 'fall';
+  }
+  for (const q of G.particles) { q.y = H - q.y; q.vy = -q.vy; }
+  G.flipped = !G.flipped; G.flipCount = (G.flipCount || 0) + 1;
+}
+function updateFlip(dt) {
+  const f = G.flip; f.t += dt;
+  const half = f.dur / 2;
+  if (!f.mirrored && f.t >= half) { mirrorWorld(); f.mirrored = true; }
+  let ang;
+  if (f.t < half) { const k = f.t / half; ang = 90 * k * k; }
+  else { const k = Math.min(1, (f.t - half) / half); ang = -90 * (1 - k) * (1 - k); }
+  const sc = 1 - .08 * Math.sin(Math.min(1, f.t / f.dur) * Math.PI);
+  toyEl.style.transform = `perspective(900px) rotateX(${ang.toFixed(2)}deg) scale(${sc.toFixed(3)})`;
+  if (f.t >= f.dur) {
+    G.flip = null; toyEl.style.transform = ''; toyEl.classList.remove('flipping');
+    sfx.thud();
+  }
+}
+
+// ---------------- holes ----------------
+function updateHoles(dt) {
+  for (const [k, h] of G.holes) {
+    h.t += dt;
+    if (h.phase === 'dig') { if (h.t >= DIG_T) { h.phase = 'open'; h.t = 0; } }
+    else if (h.phase === 'open') { if (h.t >= HOLE_T) { h.phase = 'fill'; h.t = 0; } }
+    else if (h.t >= FILL_T) {
+      G.holes.delete(k);
+      const p = G.player;
+      if (p.x === h.x && p.y === h.y) { killPlayer(); return; }
+      for (const g of G.guards) if (!g.dead && g.x === h.x && g.y === h.y) killGuard(g);
+    }
+  }
+}
+
+// ---------------- guards ----------------
+function canDrop(x, y) {
+  return base(x, y) === T_EMPTY && !G.gold[y][x] && !holeAt(x, y) && y + 1 < H && staticSolid(x, y + 1) && !holeAt(x, y + 1);
+}
+function dropGoldNear(x, y) {
+  const order = [[0, 0], [-1, 0], [1, 0], [0, -1], [-1, -1], [1, -1], [-2, 0], [2, 0], [0, -2]];
+  for (const [dx, dy] of order) {
+    const nx = x + dx, ny = y + dy;
+    if (nx < 0 || nx >= W || ny < 0 || ny >= H) continue;
+    const t = base(nx, ny);
+    if ((t === T_EMPTY || t === T_LADDER || t === T_ROPE) && !G.gold[ny][nx]) { G.gold[ny][nx] = true; G.goldCount++; return; }
+  }
+  for (let ny = 0; ny < H; ny++) for (let nx = 0; nx < W; nx++)
+    if (base(nx, ny) === T_EMPTY && !G.gold[ny][nx]) { G.gold[ny][nx] = true; G.goldCount++; return; }
+}
+function arriveG(g) {
+  if (g.exiting) return;
+  const h = holeAt(g.x, g.y);
+  if (h && h.phase !== 'dig' && supported(g.x, g.y, g)) {
+    g.inHole = true; g.trapT = 0; g.kind = 'trapped';
+    if (g.carry) { g.carry = false; dropGoldNear(g.x, g.y - 1); }
+    sfx.trap(); return;
+  }
+  if (!g.carry && G.gold[g.y][g.x] && Math.random() < .5) {
+    G.gold[g.y][g.x] = false; G.goldCount--; g.carry = true; g.carryN = 5 + ((Math.random() * 12) | 0);
+  } else if (g.carry && --g.carryN <= 0 && canDrop(g.x, g.y)) {
+    G.gold[g.y][g.x] = true; G.goldCount++; g.carry = false;
+  }
+}
+const bfsDist = new Int16Array(1024), bfsFirst = new Int8Array(1024), bfsQ = new Int16Array(1024);
+function gMoves(x, y, out) {
+  out.length = 0;
+  const sup = ladder(x, y) || rope(x, y) || y + 1 >= H || staticSolid(x, y + 1) || ladder(x, y + 1);
+  if (!sup) { out.push(3); return; }
+  if (ladder(x, y) && y > 0 && !staticSolid(x, y - 1)) out.push(2);
+  if (y + 1 < H && !staticSolid(x, y + 1)) out.push(3);
+  if (!staticSolid(x - 1, y)) out.push(0);
+  if (!staticSolid(x + 1, y)) out.push(1);
+}
+function pathStep(g, tx, ty) {
+  bfsDist.fill(-1);
+  const s = g.y * W + g.x; bfsDist[s] = 0; bfsFirst[s] = -1;
+  let qh = 0, qt = 0; bfsQ[qt++] = s;
+  let best = s, bestScore = Math.abs(g.y - ty) * 4 + Math.abs(g.x - tx);
+  const mv = [];
+  while (qh < qt) {
+    const c = bfsQ[qh++], cx = c % W, cy = (c / W) | 0;
+    if (cx === tx && cy === ty) { best = c; break; }
+    const sc = Math.abs(cy - ty) * 4 + Math.abs(cx - tx);
+    if (sc < bestScore) { bestScore = sc; best = c; }
+    gMoves(cx, cy, mv);
+    for (const d of mv) {
+      const nx = cx + DIRV[d][0], ny = cy + DIRV[d][1];
+      if (nx < 0 || nx >= W || ny < 0 || ny >= H) continue;
+      const n = ny * W + nx; if (bfsDist[n] >= 0) continue;
+      bfsDist[n] = bfsDist[c] + 1; bfsFirst[n] = c === s ? d : bfsFirst[c]; bfsQ[qt++] = n;
+    }
+  }
+  if (best === s || bfsFirst[best] < 0) return null;
+  return DIRV[bfsFirst[best]];
+}
+function decideG(g) {
+  const p = G.player;
+  if (g.exiting) {
+    const pref = Math.sign(p.x - g.x) || (Math.random() < .5 ? -1 : 1);
+    for (const dx of [pref, -pref]) {
+      if (!solid(g.x + dx, g.y) && !guardAt(g.x + dx, g.y, g)) { g.exiting = false; startMove(g, dx, 0, rope(g.x + dx, g.y) ? 'rope' : 'run'); return; }
+    }
+    g.wait = .2; return;
+  }
+  if (!supported(g.x, g.y, g)) { startMove(g, 0, 1, 'fall'); return; }
+  const step = pathStep(g, p.x, p.y);
+  if (!step) { g.kind = 'stand'; g.wait = .15; return; }
+  const nx = g.x + step[0], ny = g.y + step[1];
+  if (solid(nx, ny) || guardAt(nx, ny, g)) { g.kind = 'stand'; g.wait = .12; return; }
+  const kind = step[1] < 0 ? 'climb' : step[1] > 0 ? ((ladder(nx, ny) || ladder(g.x, g.y)) ? 'climb' : 'fall') : (rope(nx, ny) ? 'rope' : 'run');
+  startMove(g, step[0], step[1], kind);
+}
+function updateGuard(g, dt) {
+  if (g.dead) { g.respawnT -= dt; if (g.respawnT <= 0) respawn(g); return; }
+  if (g.spawnT > 0) g.spawnT -= dt;
+  if (g.inHole && !g.moving) {
+    g.trapT += dt;
+    if (g.trapT >= TRAP_T && !solid(g.x, g.y - 1) && !guardAt(g.x, g.y - 1, g)) {
+      g.inHole = false; g.exiting = true; startMove(g, 0, -1, 'climb');
+    }
+    return;
+  }
+  advance(g, dt, arriveG, decideG);
+}
+function killGuard(g) {
+  g.dead = true; g.respawnT = RESPAWN_T; g.inHole = false; g.moving = false; g.exiting = false; g.wait = 0;
+  if (g.carry) { g.carry = false; dropGoldNear(g.x, g.y - 1); }
+  sfx.kill(); burst(g.x + .5, g.y + .5, '#4fd1a8', 14, 3);
+}
+function respawn(g) {
+  const p = G.player, cands = [];
+  for (let y = 0; y < 4 && !cands.length; y++)
+    for (let x = 0; x < W; x++)
+      if (base(x, y) === T_EMPTY && !G.gold[y][x] && !guardAt(x, y) && Math.abs(x - p.x) + Math.abs(y - p.y) > 5) cands.push([x, y]);
+  if (!cands.length) { g.respawnT = .5; return; }
+  const [x, y] = cands[(Math.random() * cands.length) | 0];
+  Object.assign(g, { x, y, fx: x, fy: y, t: 1, moving: false, dead: false, inHole: false, exiting: false, trapT: 0, wait: .4, kind: 'fall', spawnT: .7 });
+}
+
+// ---------------- real-time flow ----------------
+function killPlayer() {
+  if (G.state !== 'play') return;
+  G.state = 'dying'; G.stateT = 0; G.deaths++; sfx.die();
+  const [x, y] = rpos(G.player); burst(x + .5, y + .5, PAL_P.h, 18, 4);
+}
+function checkCatch() {
+  const [px, py] = rpos(G.player);
+  for (const g of G.guards) {
+    if (g.dead || g.spawnT > .35) continue;
+    const [gx, gy] = rpos(g);
+    if (Math.abs(px - gx) < .6 && Math.abs(py - gy) < .62) { killPlayer(); return; }
+  }
+}
+function updateRT(dt) {
+  if (G.state === 'play') {
+    if (G.started) G.time += dt;
+    if (G.flip) { updateFlip(dt); return; }
+    updateHoles(dt); if (G.state !== 'play') return;
+    advance(G.player, dt, arriveP, decideP); if (G.state !== 'play' || G.flip) return;
+    checkExit(); if (G.state !== 'play') return;
+    if (G.started) for (const g of G.guards) updateGuard(g, dt);
+    checkCatch();
+  } else if (G.state === 'dying') {
+    G.stateT += dt; if (G.stateT > 1.25) restartLevel(true);
+  } else if (G.state === 'won') {
+    G.stateT += dt; if (G.stateT > .8 && !clearShown) showClear();
+  }
+}
+
+// ---------------- tilt mode ----------------
+function buildTilt(lv, idx) {
+  const L = TILT.parse(lv.map);
+  W = L.w; H = L.h;
+  const st = TILT.start(L);
+  const T = { kind: 'tilt', level: idx, L, S: TILT.initial(L), start: st.state, hist: [], moves: 0, grav: 'D',
+    anim: null, pending: null, revert: null, filledBy: {}, stuck: false, hintFor: null, hintStage: 0,
+    state: 'play', stateT: 0, time: 0, started: false, particles: [], deaths: 0, flash: 0, tilts: 0 };
+  if (st.settle.moved) { T.opening = true; T.pendingOpen = st.settle; }
+  else T.S = st.state;
+  return T;
+}
+function tiltSnapshot() { return { S: G.S, filledBy: Object.assign({}, G.filledBy), moves: G.moves }; }
+function tiltInput(d) {
+  if (G.state !== 'play') return;
+  if (G.anim || G.revert) { G.pending = d; return; }
+  doTilt(d);
+}
+function doTilt(d, opening) {
+  const prev = G.S;
+  const r = opening || TILT.move(G.L, G.S, d);
+  setGrav(d);
+  if (!r.moved) { if (!opening) sfx.clunk(); return; }
+  if (!opening) { G.started = true; fadeBanner(); clearHintArm(); G.tilts++; }
+  let maxLen = 1;
+  for (const p of r.paths) maxLen = Math.max(maxLen, p.cells.length);
+  G.anim = { r, d, t: 0, maxLen, fired: 0, prev, opening: !!opening,
+    disp: { gold: new Set(prev.gold), pits: new Set(prev.pits), slots: new Set(prev.slots) }, gone: new Set(), sunk: {} };
+  G.anim.events = r.events.slice().sort((a, b) => a.step - b.step);
+  sfx.slide(maxLen);
+}
+function slideS(t) { return 7 * t + 55 * t * t; }
+function updateTilt(dt) {
+  if (G.state === 'won') { G.stateT += dt; if (G.stateT > .9 && !clearShown) showClear(); return; }
+  if (G.started && G.state === 'play') G.time += dt;
+  if (G.pendingOpen && !G.anim) { const s = G.pendingOpen; G.pendingOpen = null; doTilt('D', s); }
+  const A = G.anim;
+  if (A) {
+    A.t += dt;
+    const s = slideS(A.t);
+    while (A.fired < A.events.length && A.events[A.fired].step <= s) fireTiltEvent(A, A.events[A.fired++]);
+    if (s >= A.maxLen - 1 + .35) finishTilt();
+  } else if (G.revert) {
+    G.revert.t -= dt;
+    if (G.revert.t <= 0) {
+      const R = G.revert; G.revert = null;
+      G.S = R.snap.S; G.filledBy = R.snap.filledBy; G.moves = R.snap.moves; G.caughtIds = null;
+      updateHud();
+    }
+  } else if (G.pending) { const d = G.pending; G.pending = null; doTilt(d); }
+}
+function fireTiltEvent(A, ev) {
+  const x = ev.i % W, y = (ev.i / W) | 0;
+  if (ev.t === 'gold') { A.disp.gold.delete(ev.i); sfx.gold(); burst(x + .5, y + .6, COL.gold, 10, 3); }
+  else if (ev.t === 'open') { G.flash = .4; sfx.reveal(); }
+  else if (ev.t === 'pit') { A.disp.pits.delete(ev.i); A.gone.add(ev.id); A.sunk[ev.id] = A.t; G.filledBy[ev.i] = ev.k; ev.k === 'p' ? sfx.die() : sfx.trap(); burst(x + .5, y + .5, ev.k === 'b' ? COL.gold : '#9aa3d9', 10, 2.5); }
+  else if (ev.t === 'slot') { A.disp.slots.delete(ev.i); A.gone.add(ev.id); A.sunk[ev.id] = A.t; sfx.slot(); burst(x + .5, y + .5, COL.goldHi, 14, 3.5); G.flash = .2; }
+  else if (ev.t === 'exit') { A.gone.add(ev.id); A.sunk[ev.id] = A.t; sfx.reveal(); }
+  updateHud(A.disp);
+}
+function finishTilt() {
+  const A = G.anim; G.anim = null;
+  const r = A.r;
+  sfx.thud();
+  if (A.opening) { G.S = r.state; updateHud(); return; }
+  const snap = { S: A.prev, filledBy: Object.assign({}, G.filledBy), moves: G.moves };
+  // undo snapshots must not include fills that happened in this tilt
+  for (const ev of r.events) if (ev.t === 'pit') delete snap.filledBy[ev.i];
+  if (r.outcome === 'caught' || r.outcome === 'fell') {
+    G.S = r.state; G.deaths++;
+    G.caughtIds = r.outcome === 'caught' ? [r.caughtBy] : null;
+    if (r.outcome === 'caught') { sfx.die(); const p = r.state.m.find(o => o.k === 'p'); if (p) burst(p.i % W + .5, ((p.i / W) | 0) + .5, PAL_P.h, 16, 3.5); }
+    showBanner(r.outcome === 'caught' ? 'Caught' : 'Down the hole', 'The vault puts things back the way they were.', true, true);
+    G.revert = { t: 1.1, snap };
+    return;
+  }
+  G.hist.push(snap); G.S = r.state; G.moves++;
+  updateHud();
+  if (r.outcome === 'won') { tiltWin(); return; }
+  checkStuck(r.outcome === 'stuck');
+}
+function checkStuck(sure) {
+  const S = G.S, L = G.L, lv = G;
+  G.stuck = false;
+  if (sure) { G.stuck = true; showBanner('Short a bar', 'There’s not enough gold left for the empty slots. UNDO or RESET.', false, true); return; }
+  setTimeout(() => {
+    if (G !== lv || G.S !== S || G.state !== 'play') return;
+    const sol = TILT.solve(L, S, 40000);
+    if (sol === null) { G.stuck = true; showBanner('No way out', 'Nothing you tilt from here can finish this one. UNDO or RESET.', false, true); }
+  }, 60);
+}
+function tiltUndo() {
+  if (G.anim || G.revert || G.state !== 'play') return;
+  if (!G.hist.length) { sfx.clunk(); return; }
+  const s = G.hist.pop(); G.S = s.S; G.filledBy = s.filledBy; G.moves = s.moves;
+  G.stuck = false; fadeBanner(); clearHintArm(); sfx.undo(); updateHud();
+}
+function tiltReset() {
+  if (G.anim || G.revert || G.state !== 'play') return;
+  if (!G.hist.length) return;
+  G.S = G.start; G.filledBy = {}; G.moves = 0; G.hist = []; G.stuck = false; setGrav('D');
+  fadeBanner(); clearHintArm(); sfx.undo(); updateHud();
+}
+function setGrav(d) {
+  G.grav = d;
+  const tf = { D: 'translateY(3px)', U: 'translateY(-3px)', L: 'rotate(-2.4deg) translateX(-2px)', R: 'rotate(2.4deg) translateX(2px)' }[d];
+  toyEl.style.transform = tf;
+}
+function tiltWin() {
+  G.state = 'won'; G.stateT = 0; sfx.clear();
+  recordWin(G.moves, true);
+}
+
+// ---------------- arcade mode (Act V: Side B of the toy) ----------------
+const ARC = { pSpeed: 9, barSpeed: 17, fallG: 15, fallMax: 8.5, cool: .22, beam: 6.5, inv: 1.6 };
+const MIRROR = { '/': { U: 'R', R: 'U', D: 'L', L: 'D' }, '\\': { U: 'L', L: 'U', D: 'R', R: 'D' } };
+const DV = { U: [0, -1], D: [0, 1], L: [-1, 0], R: [1, 0] };
+const TAUNTS = ['Oh. It’s you. Carrying my gold.', 'Spinning faster now. I’m not making this easy.', 'The last few. I can see the sun from here.'];
+let arcDrag = null, arcDragId = null;
+function buildArcade(lv, idx) {
+  const rows = lv.map; H = rows.length; W = rows[0].length;
+  const cfg = Object.assign({ bars: 8, hearts: 3, march: 1, sway: 1.5, drop: 0, maxDrop: 0, fire: 0, diveEvery: 0, layEvery: 0, slide: null }, lv.arc || {});
+  const cells = [], slots = [], guards = [], sites = [];
+  let px = W / 2;
+  for (let y = 0; y < H; y++) {
+    const r = [];
+    for (let x = 0; x < W; x++) {
+      const ch = rows[y][x] || ' '; let c = ' ';
+      if (ch === '@' || ch === '#' || ch === '/' || ch === '\\') c = ch;
+      if (ch === '#') sites.push({ x, y });
+      if (ch === 'O') { c = '@'; slots.push({ x0: x + .5, x: x + .5, y: y + .5, filled: false }); }
+      if (ch === 'E' || ch === 'D' || ch === 'B') guards.push({ k: ch, hx: x + .5, hy: y + .5, x: x + .5, y: y + .5, st: ch === 'B' ? 'walk' : 'form',
+        vx: 1.7 * (x < W / 2 ? 1 : -1), t: 0, rot: 0, vy: 0, lay: 0, layT: (cfg.layEvery || 1) * (.6 + Math.random() * .8) });
+      if (ch === 'P') px = x + .5;
+      r.push(c);
+    }
+    cells.push(r);
+  }
+  const A = { kind: 'arcade', level: idx, cfg, cells, slots, guards, sites,
+    p: { x: px, y: H - .55, face: 1, throwT: 0, inv: 0, moving: false, frame: 0 },
+    satchel: cfg.bars, hearts: cfg.hearts, bars: [], falls: [], beams: [], form: { ox: 0, oy: 0, dir: 1 },
+    cool: 0, state: 'play', stateT: 0, time: 0, started: false, particles: [], deaths: 0, flash: 0, hurtFlash: 0, hits: 0,
+    fireT: 1.4 + Math.random(), diveT: cfg.diveEvery || 0, slideT: 0, why: '' };
+  if (lv.boss) A.boss = makeBoss(A);
+  return A;
+}
+function makeBoss(A) {
+  const B = { cx: W / 2, cy: 4.4, R: 3.25, n: 8, filled: new Array(8).fill(false), phi: .2, omega: .45, dirT: 4, boxT: 2.2, spawnT: 6, wince: 0, look: 0, phase: 1, taunts: TAUNTS.slice(), said: 0, shut: 0,
+    t: 0, orb: [null, null], orbT: [0, 1.5] };
+  if (save.voice && aiOK()) {
+    const me = A;
+    AI.fn.json(`${VAULT}\n\nThe thief has turned the toy over to Side B, an arcade game, and is now throwing your gold back into you: you are a giant round vault door with eight slots spinning around your dial. You drop safe-deposit boxes on them. Write three short taunts you say during the fight: one as it starts, one when you start spinning faster, one when only a couple of slots are left and the sun is rising. Each under 12 words. Reply with only JSON: {"taunts": ["...", "...", "..."]}`,
+      { model: 'claude-haiku-5-5', modelTier: 'quick', cache: false })
+      .then(d => { if (G === me && d && Array.isArray(d.taunts)) d.taunts.slice(0, 3).forEach((t, i) => { if (typeof t === 'string' && t.trim()) B.taunts[i] = tidy(t).slice(0, 90); }); })
+      .catch(e => aiFail(e));
+  }
+  return B;
+}
+function arcBegin() { if (!G.started) { G.started = true; fadeBanner(); if (G.boss) setTimeout(() => bossSay(0), 250); } }
+function bossSay(i) { if (!G || !G.boss || G.state !== 'play') return; G.boss.said = Math.max(G.boss.said, i + 1); showBanner('The vault door', G.boss.taunts[i], true, true); }
+function arcHurt(src) {
+  const p = G.p;
+  if (p.inv > 0 || G.state !== 'play') return;
+  (G.hitLog = G.hitLog || []).push(src + '@' + G.time.toFixed(1));
+  G.hearts--; G.hits++; p.inv = ARC.inv; G.hurtFlash = .45; sfx.hurt(); burst(p.x, p.y, PAL_P.h, 12, 3);
+  updateHud();
+  if (G.hearts <= 0) arcFail('Caught', 'The guards got you. Starting this one over.');
+}
+function arcFail(title, msg) {
+  if (G.state !== 'play') return;
+  G.state = 'dying'; G.stateT = 0; G.deaths++; sfx.die();
+  showBanner(title, msg, true, true);
+}
+function arcCell(x, y) { const cx = Math.floor(x), cy = Math.floor(y); if (cx < 0 || cx >= W || cy < 0 || cy >= H) return '@'; return G.cells[cy][cx]; }
+function bounceBar(b, sound) {
+  G.falls.push({ x: b.x, y: b.y + .25, vx: (Math.random() - .5) * 1.8, vy: 1.2, rot: 0 });
+  if (sound !== false) sfx.clang();
+}
+function bonk(g, fromX) {
+  g.st = 'bonk'; g.vy = -5; g.bvx = (g.x - fromX) * 3 + (Math.random() - .5) * 2; g.rot = 0;
+  sfx.trap(); burst(g.x, g.y, '#9aa3d9', 10, 3);
+}
+function fillSlot(s) {
+  s.filled = true; sfx.slot(); burst(s.x, s.y + .3, COL.goldHi, 16, 4); G.flash = .25; updateHud();
+}
+function stepBar(b, dist) {
+  // returns false once the bar is used up (slot, bounce, or turned downward)
+  const n = Math.max(1, Math.ceil(dist / .2)), d1 = dist / n;
+  for (let k = 0; k < n; k++) {
+    b.x += DV[b.d][0] * d1; b.y += DV[b.d][1] * d1;
+    if (b.y < 0 || b.x < 0 || b.x >= W) { bounceBar(b); return false; }
+    // guards in the way
+    for (const g of G.guards) {
+      if (g.st === 'bonk' || g.st === 'gone') continue;
+      if (Math.abs(g.x - b.x) < .55 && Math.abs(g.y - b.y) < .6) { bonk(g, b.x); bounceBar(b, false); return false; }
+    }
+    if (G.boss && b.d === 'U') {
+      const B = G.boss, dx = b.x - B.cx;
+      if (Math.abs(dx) < B.R) {
+        const cy = B.cy + Math.sqrt(B.R * B.R - dx * dx);
+        if (b.y <= cy + .1) {
+          const a = Math.asin(dx / B.R);
+          for (let i = 0; i < B.n; i++) {
+            if (B.filled[i] || !slotOpen(B, i, B.t)) continue;
+            let dd = (i * 2 * Math.PI / B.n + B.phi - a) % (2 * Math.PI); if (dd > Math.PI) dd -= 2 * Math.PI; if (dd < -Math.PI) dd += 2 * Math.PI;
+            if (Math.abs(dd) < .27) {
+              B.filled[i] = true; B.wince = .7; sfx.slot(); G.flash = .3;
+              burst(B.cx + Math.sin(a) * B.R, B.cy + Math.cos(a) * B.R, COL.goldHi, 18, 4); updateHud();
+              return false;
+            }
+          }
+          b.y = cy; bounceBar(b); B.wince = Math.max(B.wince, .15); return false;
+        }
+      }
+    }
+    const cx = Math.floor(b.x), cy = Math.floor(b.y);
+    if (cx === b.cx && cy === b.cy) continue;
+    b.cx = cx; b.cy = cy;
+    const c = G.cells[cy][cx];
+    if (c === '@') {
+      for (const s of G.slots) if (!s.filled && Math.abs(s.y - (cy + .5)) < .1 && Math.abs(s.x - b.x) < .5) { fillSlot(s); return false; }
+      b.y = cy + 1.05; bounceBar(b); return false;
+    }
+    if (c === '#') {
+      G.cells[cy][cx] = ' '; sfx.dig(); burst(cx + .5, cy + .6, COL.brickHi, 12, 4);
+      bounceBar(b, false); return false;
+    }
+    if (MIRROR[c]) {
+      b.x = cx + .5; b.y = cy + .5; b.d = MIRROR[c][b.d]; sfx.ping();
+      if (b.d === 'D') { G.falls.push({ x: b.x, y: b.y, vx: 0, vy: 4, rot: 0 }); return false; }
+    }
+  }
+  return true;
+}
+function updateArcade(dt) {
+  const A = G, p = A.p, cfg = A.cfg;
+  if (A.state === 'dying') { A.stateT += dt; if (A.stateT > 1.4) restartLevel(true); return; }
+  if (A.state === 'won') {
+    A.stateT += dt; if (A.boss) A.boss.shut = Math.min(1, A.boss.shut + dt * 1.5);
+    if (A.stateT > (A.boss ? 1.6 : .9) && !clearShown) showClear();
+    return;
+  }
+  if (A.started) A.time += dt;
+  A.hurtFlash = Math.max(0, A.hurtFlash - dt);
+  // thief
+  const d = curDir();
+  let mv = 0;
+  if (arcDrag !== null) {
+    const dx = arcDrag - p.x, step = ARC.pSpeed * 1.4 * dt;
+    if (Math.abs(dx) > .04) { p.x += Math.max(-step, Math.min(step, dx)); mv = Math.sign(dx); }
+  } else if (d === 'L' || d === 'R') { mv = d === 'L' ? -1 : 1; p.x += mv * ARC.pSpeed * dt; }
+  if (mv) { arcBegin(); p.face = mv; p.frame += dt * 10; }
+  p.moving = !!mv;
+  p.x = Math.max(1.5, Math.min(W - 1.5, p.x));
+  p.inv = Math.max(0, p.inv - dt); p.throwT = Math.max(0, p.throwT - dt);
+  A.cool -= dt;
+  const want = input.throwHeld || (input.throwReq && clock - input.throwReq < .3);
+  if (want && A.cool <= 0) {
+    input.throwReq = null;
+    if (A.satchel > 0 && A.bars.length < 3) {
+      arcBegin();
+      A.bars.push({ x: p.x, y: p.y - .7, d: 'U', cx: Math.floor(p.x), cy: Math.floor(p.y - .7) });
+      A.satchel--; A.cool = ARC.cool; p.throwT = .2; sfx.throw(); updateHud();
+    } else if (A.satchel <= 0) { A.cool = .3; sfx.clunk(); }
+  }
+  // sliding vault door
+  if (cfg.slide) { A.slideT += dt; for (const s of A.slots) s.x = s.x0 + cfg.slide.amp * Math.sin(A.slideT * cfg.slide.speed); }
+  // bars in flight
+  for (let i = A.bars.length - 1; i >= 0; i--) if (!stepBar(A.bars[i], ARC.barSpeed * dt)) A.bars.splice(i, 1);
+  if (A.state !== 'play') return;
+  // falling bars: catch them before they hit the floor
+  for (let i = A.falls.length - 1; i >= 0; i--) {
+    const f = A.falls[i];
+    f.vy = Math.min(ARC.fallMax, f.vy + ARC.fallG * dt); f.x += f.vx * dt; f.y += f.vy * dt; f.rot += dt * 9;
+    if (f.x < 1.2) { f.x = 1.2; f.vx = Math.abs(f.vx); } if (f.x > W - 1.2) { f.x = W - 1.2; f.vx = -Math.abs(f.vx); }
+    if (Math.abs(f.x - p.x) < .85 && f.y > p.y - 1 && f.y < p.y + .5) { A.falls.splice(i, 1); A.satchel++; sfx.gold(); burst(p.x, p.y - .6, COL.gold, 6, 2); updateHud(); continue; }
+    if (f.y > H + .4) { A.falls.splice(i, 1); sfx.lost(); updateHud(); }
+  }
+  if (A.started) updateArcGuards(dt);
+  if (A.boss && A.started) updateBoss(dt);
+  // beams and boxes
+  for (let i = A.beams.length - 1; i >= 0; i--) {
+    const b = A.beams[i]; b.y += b.vy * dt;
+    const r = b.box ? .55 : .4;
+    if (Math.abs(b.x - p.x) < r && Math.abs(b.y - (p.y - .2)) < .6) { A.beams.splice(i, 1); arcHurt(b.box ? 'box' : 'beam'); continue; }
+    if (b.y > H + 1) A.beams.splice(i, 1);
+  }
+  if (A.state !== 'play') return;
+  const total = A.boss ? A.boss.n : A.slots.length, done = A.boss ? A.boss.filled.filter(Boolean).length : A.slots.filter(s => s.filled).length;
+  if (done >= total) { A.state = 'won'; A.stateT = 0; sfx.clear(); recordWin(A.time); return; }
+  if (A.satchel <= 0 && !A.bars.length && !A.falls.length) arcFail('Out of gold', 'No bars left to throw. Starting this one over.');
+}
+function updateArcGuards(dt) {
+  const A = G, cfg = A.cfg, p = A.p, f = A.form;
+  f.ox += f.dir * cfg.march * dt;
+  if (Math.abs(f.ox) >= cfg.sway) { f.ox = Math.sign(f.ox) * cfg.sway; f.dir *= -1; if (cfg.drop) f.oy = Math.min(cfg.maxDrop, f.oy + cfg.drop); }
+  for (const g of A.guards) {
+    if (g.st === 'form') { g.x = g.hx + f.ox; g.y = g.hy + f.oy + Math.sin(clock * 3 + g.hx) * .05; }
+    else if (g.st === 'dive') {
+      g.t += dt; const s = Math.min(1, g.t / g.dur);
+      g.x = Math.max(1.4, Math.min(W - 1.4, g.sx + (g.tx - g.sx) * s + Math.sin(s * Math.PI * 2) * 1.3));
+      g.y = g.sy + (H + 1.5 - g.sy) * s;
+      if (Math.abs(g.x - p.x) < .6 && Math.abs(g.y - (p.y - .2)) < .7) arcHurt('dive');
+      if (s >= 1) { if (g.once) g.st = 'gone'; else { g.st = 'return'; g.t = 0; g.rx = g.x; } }
+    } else if (g.st === 'return') {
+      g.t += dt; const s = Math.min(1, g.t / 1.3);
+      g.x = g.rx + (g.hx + f.ox - g.rx) * s; g.y = -1 + (g.hy + f.oy + 1) * s;
+      if (s >= 1) g.st = 'form';
+    } else if (g.st === 'walk') {
+      g.x += g.vx * dt;
+      if (g.x < 1.5) { g.x = 1.5; g.vx = Math.abs(g.vx); } if (g.x > W - 1.5) { g.x = W - 1.5; g.vx = -Math.abs(g.vx); }
+      g.lay = Math.max(0, g.lay - dt); g.layT -= dt;
+      if (g.layT <= 0) {
+        g.layT = cfg.layEvery * (.8 + Math.random() * .4);
+        const cx = Math.floor(g.x), site = A.sites.find(s => s.x === cx && s.y < g.y && g.y - s.y < 2 && A.cells[s.y][s.x] === ' ');
+        if (site) { A.cells[site.y][site.x] = '#'; g.lay = .35; sfx.lay(); burst(site.x + .5, site.y + .9, COL.brick, 6, 1.5); }
+      }
+    } else if (g.st === 'bonk') {
+      g.vy += 20 * dt; g.y += g.vy * dt; g.x += g.bvx * dt; g.rot += dt * 11;
+      if (g.y > H + 1) g.st = 'gone';
+    }
+  }
+  if (cfg.diveEvery) {
+    A.diveT -= dt;
+    if (A.diveT <= 0) {
+      A.diveT = cfg.diveEvery * (.7 + Math.random() * .6);
+      const ds = A.guards.filter(g => g.k === 'D' && g.st === 'form');
+      if (ds.length) { const g = ds[(Math.random() * ds.length) | 0]; Object.assign(g, { st: 'dive', t: 0, sx: g.x, sy: g.y, tx: p.x, dur: 1.9 }); sfx.dive(); }
+    }
+  }
+  if (cfg.fire) {
+    A.fireT -= dt;
+    if (A.fireT <= 0) {
+      A.fireT = cfg.fire * (.6 + Math.random() * .8);
+      const live = A.guards.filter(g => g.st === 'form' || g.st === 'walk');
+      const near = live.filter(g => Math.abs(g.x - p.x) < 2.5);
+      const pool = near.length && Math.random() < .7 ? near : live;
+      if (pool.length) { const g = pool[(Math.random() * pool.length) | 0]; A.beams.push({ x: g.x, y: g.y + .5, vy: ARC.beam }); sfx.beam(); }
+    }
+  }
+}
+function slotOpen(B, i, t) { return B.phase < 2 || ((t + i * .45) % 3.6) < 2.3; }
+function updateBoss(dt) {
+  const A = G, B = A.boss, p = A.p;
+  B.t += dt;
+  // from phase 2, two guards swing around the door on ropes and knock bars away
+  if (B.phase >= 2) for (let j = 0; j < 2; j++) {
+    const g = B.orb[j];
+    if (!g || g.st === 'gone') {
+      B.orbT[j] -= dt;
+      if (B.orbT[j] <= 0) { B.orbT[j] = 5; const ng = { k: 'O', st: 'orbit', oa: j * Math.PI + B.t, x: 0, y: -2, t: 0, rot: 0, hx: 0, hy: 0 }; A.guards.push(ng); B.orb[j] = ng; sfx.dive(); }
+    } else if (g.st === 'orbit') {
+      g.oa -= .75 * dt; g.x = B.cx + Math.sin(g.oa) * (B.R + 1.15); g.y = B.cy + Math.cos(g.oa) * (B.R + 1.15);
+    }
+  }
+  const done = B.filled.filter(Boolean).length;
+  const phase = done >= 6 ? 3 : done >= 3 ? 2 : 1;
+  if (phase > B.phase) {
+    B.phase = phase; sfx.reveal(); if (B.said < phase) bossSay(phase - 1);
+    if (A.hearts < A.cfg.hearts) { A.hearts++; burst(p.x, p.y - .8, '#ff8a9a', 12, 2.5); updateHud(); }
+  }
+  B.dirT -= dt;
+  const sp = [0, .45, .75, 1.05][B.phase];
+  // later phases lurch backwards now and then, but always drift forward so every slot comes back around
+  if (B.phase > 1 && B.dirT <= 0) { B.rev = !B.rev; B.dirT = B.rev ? (B.phase === 2 ? 1.6 : 1.3) : (B.phase === 2 ? 3.6 : 2.4); }
+  B.omega = B.phase > 1 && B.rev ? -sp * .55 : sp;
+  B.phi += B.omega * dt;
+  B.look += (Math.max(-1, Math.min(1, (p.x - B.cx) / 4)) - B.look) * Math.min(1, dt * 4);
+  B.wince = Math.max(0, B.wince - dt);
+  B.boxT -= dt;
+  if (B.boxT <= 0) {
+    B.boxT = [0, 2.0, 1.55, 1.2][B.phase] * (.75 + Math.random() * .5);
+    const drops = B.phase === 3 && Math.random() < .5 ? 2 : 1;
+    for (let k = 0; k < drops; k++) A.beams.push({ x: B.cx + (k ? -1 : 1) * (.6 + Math.random() * B.R * .7) * (Math.random() < .5 ? 1 : -1), y: B.cy + 1.6, vy: 3.3 + B.phase * .65, box: true });
+    sfx.drop();
+  }
+  if (B.phase >= 2) {
+    B.spawnT -= dt;
+    if (B.spawnT <= 0) {
+      B.spawnT = B.phase === 2 ? 5.5 : 3.8;
+      const sx = Math.random() < .5 ? 1.5 : W - 1.5;
+      A.guards.push({ k: 'D', st: 'dive', once: true, x: sx, y: -.5, sx, sy: -.5, tx: p.x, dur: 2.1, t: 0, rot: 0, hx: sx, hy: 0 });
+      sfx.dive();
+    }
+  }
+}
+
+// ---------------- shared flow ----------------
+function win() {
+  if (G.state !== 'play') return;
+  G.state = 'won'; G.stateT = 0; sfx.clear();
+  recordWin(G.time, false);
+}
+function recordWin(score, lowerIsMoves) {
+  if (G.dream) { const d = G.dream; G.newBest = d.best == null || score < d.best; if (G.newBest) d.best = score; if (!d.test) storeDream(d); return; }
+  const i = G.level;
+  save.unlocked = Math.max(save.unlocked, Math.min(i + 1, LEVELS.length - 1));
+  if (i === LEVELS.length - 1) save.finished = true;
+  const prev = save.best[i]; G.newBest = prev == null || score < prev;
+  if (G.newBest) save.best[i] = score;
+  writeSave();
+}
+function loadLevel(i, opts) {
+  opts = opts || {};
+  const lv = opts.dream || LEVELS[i];
+  const deaths = opts.keepDeaths && G ? G.deaths : 0;
+  toyEl.style.transform = ''; toyEl.classList.remove('flipping');
+  G = buildAny(lv, i);
+  G.deaths = deaths;
+  if (opts.dream) G.dream = opts.dream;
+  input.digReq = null; input.flipReq = null; input.tap = null; input.throwReq = null; clearShown = false;
+  applyMode();
+  layout();
+  updateHud(); showBanner();
+}
+function restartLevel(keepDeaths) { loadLevel(G.level, { keepDeaths, dream: G.dream }); }
+function applyMode() {
+  const lv = cur(), m = modeOf(lv);
+  app.dataset.mode = (m === 'return') ? 'tilt' : m;
+  const act = G.dream ? 'dream' : String(lv.act || 0);
+  document.documentElement.dataset.act = act;
+  toyEl.classList.toggle('toy', isTilt(lv) || isArcade(lv));
+  $('sticker').textContent = G.dream ? 'DREAM VAULT · ' + (G.dream.by === 'claude' ? 'DRAWN BY CLAUDE' : 'DREAMED BY THE VAULT') : isArcade(lv) ? 'NIGHT VAULT · SIDE B · ARCADE' : 'NIGHT VAULT · POCKET TILT PUZZLE';
+}
+function update(dt) {
+  if (!G) return;
+  clock += dt;
+  G.flash = Math.max(0, G.flash - dt);
+  updateParticles(dt);
+  if (G.kind === 'tilt') updateTilt(dt); else if (G.kind === 'arcade') updateArcade(dt); else updateRT(dt);
+}
+
+// ---------------- particles ----------------
+function burst(x, y, col, n, sp) {
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * Math.PI * 2, v = sp * (.4 + Math.random() * .8);
+    G.particles.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 2, life: .5 + Math.random() * .3, max: .8, col, s: .08 + Math.random() * .06 });
+  }
+}
+function updateParticles(dt) {
+  const ps = G.particles;
+  for (let i = ps.length - 1; i >= 0; i--) {
+    const q = ps[i]; q.life -= dt; if (q.life <= 0) { ps.splice(i, 1); continue; }
+    q.vy += 14 * dt; q.x += q.vx * dt; q.y += q.vy * dt;
+  }
+}
+
+// ---------------- rendering ----------------
+function mk(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
+function tile(draw) {
+  const c = mk(Td, Td), x = c.getContext('2d'), u = Td / 12;
+  const R = (a, b, w, h, col) => { x.fillStyle = col; const x0 = Math.round(a * u), y0 = Math.round(b * u); x.fillRect(x0, y0, Math.round((a + w) * u) - x0, Math.round((b + h) * u) - y0); };
+  draw(R); return c;
+}
+function bitmap(rows, pal, flip) {
+  const s = mk(12, 12), sx = s.getContext('2d');
+  rows.forEach((r, y) => { for (let x = 0; x < 12; x++) { const ch = r[x]; if (ch !== '.' && pal[ch]) { sx.fillStyle = pal[ch]; sx.fillRect(x, y, 1, 1); } } });
+  const c = mk(Td, Td), cx = c.getContext('2d'); cx.imageSmoothingEnabled = false;
+  if (flip) { cx.translate(Td, 0); cx.scale(-1, 1); }
+  cx.drawImage(s, 0, 0, Td, Td); return c;
+}
+function buildArt() {
+  const brick = R => {
+    R(0, 0, 12, 12, COL.mortar);
+    const bricks = [[0, 0, 5], [6, 0, 6], [0, 6, 2], [3, 6, 6], [10, 6, 2]];
+    for (const [x, y, w] of bricks) { R(x, y, w, 5, COL.brick); R(x, y, w, 1, COL.brickHi); R(x, y + 4, w, 1, COL.brickLo); }
+  };
+  const ladderArt = (c, lo) => R => {
+    R(2, 0, 1, 12, c); R(9, 0, 1, 12, c); R(3, 0, 1, 12, lo); R(10, 0, 1, 12, lo);
+    for (const y of [1, 5, 9]) { R(3, y, 7, 1, c); R(3, y + 1, 7, 1, lo); }
+  };
+  const lever = side => R => {
+    R(2, 10, 8, 2, COL.steelLo); R(3, 9, 6, 1, COL.steelHi); R(5, 8, 2, 1, COL.steel);
+    const pts = side < 0 ? [[5, 7], [4, 6], [4, 5], [3, 4]] : [[6, 7], [7, 6], [7, 5], [8, 4]];
+    for (const [x, y] of pts) R(x, y, 1, 1, '#d6d9f0');
+    const k = side < 0 ? 1 : 8; R(k, 1, 3, 3, '#ff5a5f'); R(k, 1, 1, 1, '#ffb1b3');
+  };
+  tiles = {
+    brick: tile(brick),
+    steel: tile(R => {
+      R(0, 0, 12, 12, COL.steel); R(0, 0, 12, 1, COL.steelHi); R(0, 0, 1, 12, COL.steelHi);
+      R(0, 11, 12, 1, COL.steelLo); R(11, 0, 1, 12, COL.steelLo);
+      for (const [x, y] of [[2, 2], [9, 2], [2, 9], [9, 9]]) { R(x, y, 1, 1, COL.rivet); R(x + 1, y + 1, 1, 1, COL.steelLo); }
+      R(4, 5, 4, 1, COL.steelHi);
+    }),
+    ladder: tile(ladderArt(COL.ladder, COL.ladderLo)),
+    exit: tile(ladderArt(COL.exit, COL.exitLo)),
+    rope: tile(R => { R(0, 1, 12, 1, COL.wire); R(0, 2, 12, 1, COL.wireLo); R(3, 1, 1, 2, COL.wireLo); R(9, 1, 1, 2, COL.wireLo); }),
+    gold: tile(R => {
+      R(2, 11, 8, 1, 'rgba(0,0,0,.35)');
+      R(4, 6, 4, 1, COL.goldHi); R(3, 7, 6, 2, COL.gold); R(4, 7, 2, 1, COL.goldHi);
+      R(2, 9, 8, 2, COL.goldLo); R(3, 9, 3, 1, COL.gold);
+    }),
+    bar: tile(R => {
+      R(3, 4, 6, 1, COL.goldHi); R(2, 5, 8, 3, COL.gold); R(3, 5, 3, 1, COL.goldHi);
+      R(1, 8, 10, 3, COL.goldLo); R(2, 8, 4, 1, COL.gold); R(1, 11, 10, 1, '#8a5a0a');
+    }),
+    mini: tile(R => { R(7, 0, 4, 1, COL.goldHi); R(6, 1, 6, 2, COL.gold); R(6, 3, 6, 1, COL.goldLo); }),
+    leverL: tile(lever(-1)), leverR: tile(lever(1)),
+    doorShut: tile(R => {
+      R(1, 0, 10, 12, COL.steelLo); R(2, 1, 8, 11, COL.steel); R(2, 1, 8, 1, COL.steelHi);
+      R(5, 3, 2, 6, COL.rivet); R(3, 5, 6, 2, COL.rivet); R(5, 5, 2, 2, COL.steelLo);
+      R(8, 9, 1, 2, COL.steelHi);
+    }),
+    doorOpen: tile(R => {
+      R(1, 0, 10, 12, COL.goldLo); R(1, 0, 10, 1, COL.goldHi); R(2, 1, 8, 11, '#1a0d03');
+      R(3, 2, 6, 10, '#3d2208'); R(4, 3, 4, 9, '#6b3f0e'); R(5, 4, 2, 8, '#a8681a');
+    }),
+    pit: tile(R => { R(1, 6, 10, 6, '#05060f'); R(0, 6, 12, 1, '#3a4170'); R(1, 7, 10, 1, '#14183a'); R(2, 4, 8, 2, 'rgba(5,6,15,.55)'); }),
+    pitG: tile(R => { R(1, 9, 10, 3, '#05060f'); R(0, 9, 12, 1, '#3a4170'); R(3, 7, 6, 3, PAL_G.h); R(2, 9, 8, 1, '#1b5947'); R(5, 8, 1, 1, PAL_G.k); }),
+    pitB: tile(R => { R(1, 9, 10, 3, '#05060f'); R(0, 9, 12, 1, '#3a4170'); R(2, 8, 8, 2, COL.goldLo); R(3, 8, 4, 1, COL.gold); }),
+    pitP: tile(R => { R(1, 9, 10, 3, '#05060f'); R(0, 9, 12, 1, '#3a4170'); R(3, 7, 6, 3, PAL_P.h); }),
+    slot: tile(R => {
+      R(1, 6, 10, 5, 'rgba(10,6,25,.75)');
+      for (let x = 1; x < 11; x += 2) { R(x, 6, 1, 1, COL.goldLo); R(x + 1, 10, 1, 1, COL.goldLo); }
+      for (let y = 6; y < 11; y += 2) { R(1, y, 1, 1, COL.goldLo); R(10, y + 1, 1, 1, COL.goldLo); }
+    }),
+    slotFull: tile(R => {
+      R(1, 6, 10, 5, '#3a2306'); R(2, 7, 8, 3, COL.goldLo); R(2, 7, 8, 1, COL.gold); R(3, 7, 3, 1, COL.goldHi);
+      R(1, 11, 10, 1, '#8a5a0a');
+    }),
+    hatch: tile(R => {
+      R(2, 7, 8, 4, COL.steelLo); R(3, 6, 6, 6, COL.steelLo); R(3, 7, 6, 4, COL.steel); R(4, 6, 4, 1, COL.steelHi);
+      R(5, 8, 2, 2, COL.rivet);
+    }),
+    hatchOpen: tile(R => {
+      R(2, 7, 8, 4, COL.goldLo); R(3, 6, 6, 6, COL.goldLo); R(3, 7, 6, 4, '#000'); R(4, 6, 4, 1, COL.goldHi);
+    }),
+  };
+  sprites = {};
+  for (const [who, pal] of [['p', PAL_P], ['g', PAL_G]])
+    for (const k in SPR) { sprites[who + k] = bitmap(SPR[k], pal, false); sprites[who + k + 'F'] = bitmap(SPR[k], pal, true); }
+}
+function layout() {
+  const r = stage.getBoundingClientRect();
+  if (r.width < 10 || r.height < 10 || !G) return;
+  dpr = Math.min(window.devicePixelRatio || 1, 3);
+  const toy = toyEl.classList.contains('toy');
+  const pad = toy ? Math.round(Math.max(9, Math.min(16, r.width * .03))) : 0;
+  const stick = toy ? 16 : 0;
+  const availW = r.width - pad * 2 - (toy ? 8 : 0), availH = r.height - pad * 2 - stick - (toy ? 10 : 0);
+  const cssT = Math.min(availW / W, availH / H);
+  const nTd = Math.max(8, Math.floor(cssT * dpr));
+  const key = nTd + '';
+  if (key !== artKey) { Td = nTd; artKey = key; buildArt(); }
+  cv.width = Td * W; cv.height = Td * H;
+  const cw = Td * W / dpr, ch = Td * H / dpr;
+  cv.style.width = cw + 'px'; cv.style.height = ch + 'px';
+  toyEl.style.padding = toy ? `${pad}px ${pad}px ${pad + stick}px` : '0';
+  const tw = cw + pad * 2, th = ch + pad * 2 + stick;
+  // with spare height (portrait phones), sit the board near the top so the banner fits underneath
+  const slack = r.height - th, bh = $('banner').offsetHeight || 96;
+  const left = (r.width - tw) / 2, top = slack >= bh + 30 ? Math.min(slack / 2, Math.max(6, slack - bh - 24)) : slack / 2;
+  toyEl.style.left = left + 'px'; toyEl.style.top = top + 'px';
+  layoutInfo = { top, th, pad };
+  positionBanner();
+  draw();
+}
+let layoutInfo = { top: 0, th: 0, pad: 0 };
+function positionBanner() {
+  const b = $('banner'), sh = stage.clientHeight, bh = b.offsetHeight || 80, { top, th, pad } = layoutInfo;
+  const below = sh - (top + th);
+  if (bh + 14 <= below) b.style.top = (top + th + 10) + 'px';
+  else if (bh + 14 <= top) b.style.top = (top - bh - 10) + 'px';
+  else b.style.top = (top + pad + 8) + 'px';
+}
+function boardBg(spec) {
+  if (Array.isArray(spec.bg)) {
+    const g = ctx.createLinearGradient(0, 0, 0, cv.height); g.addColorStop(0, spec.bg[0]); g.addColorStop(1, spec.bg[1]); return g;
+  }
+  return spec.bg;
+}
+function draw() {
+  if (!G || !tiles.brick) return;
+  if (G.kind === 'tilt') drawTilt(); else if (G.kind === 'arcade') drawArcade(); else drawRT();
+}
+function spriteKey(e) {
+  if (e.isP && G.state === 'dying') return 'fall';
+  if (e.kind === 'dig' && e.wait > 0) return 'dig';
+  if (e.inHole) return 'fall';
+  if (e.moving) {
+    if (e.kind === 'fall') return 'fall';
+    if (e.kind === 'climb') return 'climb';
+    if (e.kind === 'rope') return (e.frame + (e.t > .5 ? 1 : 0)) % 2 ? 'rope1' : 'rope2';
+    return (e.frame + (e.t > .5 ? 1 : 0)) % 2 ? 'run1' : 'run2';
+  }
+  if (rope(e.x, e.y)) return 'rope1';
+  if (ladder(e.x, e.y) && !solid(e.x, e.y + 1)) return 'climb';
+  if (e.kind === 'fall' && !supported(e.x, e.y, e)) return 'fall';
+  return 'stand';
+}
+function drawEnt(e, who) {
+  const [x, y] = rpos(e);
+  let key = spriteKey(e), flip = e.face < 0;
+  if (key === 'climb') flip = ((e.frame + (e.moving && e.t > .5 ? 1 : 0)) % 2) === 1;
+  let ox = 0, oy = 0, alpha = 1;
+  if (e.inHole && e.trapT > TRAP_T - .8) ox = Math.sin(clock * 50) * .04;
+  if (e.spawnT > 0) alpha = Math.max(0, 1 - e.spawnT / .7);
+  if (e.isP && G.state === 'dying') { alpha = (Math.floor(G.stateT * 12) % 2) ? .25 : 1; oy = -Math.min(.3, G.stateT * .6); }
+  if (e.isP && G.state === 'won') oy = G.hasDoor ? 0 : -G.stateT * 2.5;
+  if (e.isP && G.state === 'won' && G.hasDoor) alpha = Math.max(0, 1 - G.stateT * 1.6);
+  ctx.globalAlpha = alpha;
+  ctx.drawImage(sprites[who + key + (flip ? 'F' : '')], Math.round((x + ox) * Td), Math.round((y + oy) * Td));
+  if (e.carry) ctx.drawImage(tiles.mini, Math.round((x + (e.face < 0 ? -.35 : .05)) * Td), Math.round((y - .05) * Td));
+  ctx.globalAlpha = 1;
+}
+function drawGoldAt(x, y, px, py) {
+  const T = Td, c = ctx;
+  c.drawImage(tiles.gold, px, py + Math.round(Math.sin(clock * 3 + x) * T * .03));
+  if (((clock * 1.3 + x * .37 + y * .61) % 3) < .18) { c.fillStyle = '#fffbe6'; const s = Math.max(1, Math.round(T / 12)); c.fillRect(px + T * .62, py + T * .5, s, s * 3); c.fillRect(px + T * .62 - s, py + T * .5 + s, s * 3, s); }
+}
+function drawRT() {
+  const c = ctx, T = Td, spec = ACT_BG[cur().act || 0] || ACT_BG[0];
+  c.imageSmoothingEnabled = false;
+  c.fillStyle = boardBg(spec); c.fillRect(0, 0, cv.width, cv.height);
+  const dot = Math.max(1, Math.round(T / 14));
+  const pulse = .5 + .5 * Math.sin(clock * 5);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const t = G.map[y][x], px = x * T, py = y * T;
+    if (t === T_BRICK) {
+      const h = holeAt(x, y);
+      if (!h) c.drawImage(tiles.brick, px, py);
+      else if (h.phase === 'dig') {
+        const k = Math.min(1, h.t / DIG_T), cut = Math.round(T * k);
+        c.drawImage(tiles.brick, 0, cut, T, T - cut, px, py + cut, T, T - cut);
+      } else if (h.phase === 'open') {
+        c.fillStyle = 'rgba(0,0,0,.28)'; c.fillRect(px, py, T, T);
+        const left = HOLE_T - h.t;
+        if (left < 1.2 && (Math.floor(left * 8) % 2 === 0)) { c.globalAlpha = .28; c.drawImage(tiles.brick, px, py); c.globalAlpha = 1; }
+      } else {
+        const k = Math.min(1, h.t / FILL_T), hh = Math.max(1, Math.round(T * k));
+        c.drawImage(tiles.brick, 0, T - hh, T, hh, px, py + T - hh, T, hh);
+      }
+    } else if (t === T_STEEL) c.drawImage(tiles.steel, px, py);
+    else if (t === T_LADDER) c.drawImage(tiles.ladder, px, py);
+    else if (t === T_ROPE) c.drawImage(tiles.rope, px, py);
+    else if (t === T_LEVER) drawMounted(G.flipped ? tiles.leverR : tiles.leverL, x, y, px, py);
+    else if (t === T_DOOR) {
+      if (G.revealed) {
+        c.fillStyle = `rgba(255,214,94,${.10 + .14 * pulse})`; c.fillRect(px - T * .25, py - T * .1, T * 1.5, T * 1.2);
+        drawMounted(tiles.doorOpen, x, y, px, py);
+      } else drawMounted(tiles.doorShut, x, y, px, py);
+    }
+    else if (t === T_HIDDEN && G.revealed) {
+      c.fillStyle = `rgba(255,214,94,${.08 + .12 * pulse})`; c.fillRect(px, py, T, T);
+      c.drawImage(tiles.exit, px, py);
+    } else { c.fillStyle = spec.dot; c.fillRect(px + (T >> 1) - (dot >> 1), py + (T >> 1) - (dot >> 1), dot, dot); }
+    if (G.gold[y][x]) drawGoldAt(x, y, px, py);
+  }
+  if (G.revealed && !G.hasDoor) {
+    for (let x = 0; x < W; x++) if (G.map[0][x] === T_HIDDEN) {
+      c.fillStyle = `rgba(255,214,94,${.35 + .4 * pulse})`;
+      const s = Math.max(2, Math.round(T / 6)), cx = x * T + T / 2;
+      c.beginPath(); c.moveTo(cx, s * .6); c.lineTo(cx + s * 1.4, s * 2.2); c.lineTo(cx - s * 1.4, s * 2.2); c.closePath(); c.fill();
+    }
+  }
+  for (const g of G.guards) if (!g.dead) drawEnt(g, 'g');
+  if (G.state !== 'won' || G.stateT < .8) drawEnt(G.player, 'p');
+  drawParticles();
+  if (G.flash > 0) { c.fillStyle = `rgba(255,214,94,${G.flash * .35})`; c.fillRect(0, 0, cv.width, cv.height); }
+}
+function drawMounted(img, x, y, px, py) {
+  // fixtures hang upside down when the only thing holding them is the ceiling
+  if (!staticSolid(x, y + 1) && staticSolid(x, y - 1)) {
+    ctx.save(); ctx.translate(px, py + Td); ctx.scale(1, -1); ctx.drawImage(img, 0, 0); ctx.restore();
+  } else ctx.drawImage(img, px, py);
+}
+function mixHex(a, b, t) {
+  const pa = parseInt(a.slice(1), 16), pb = parseInt(b.slice(1), 16), k = Math.max(0, Math.min(1, t));
+  const ch = s => Math.round(((pa >> s) & 255) * (1 - k) + ((pb >> s) & 255) * k);
+  return `rgb(${ch(16)},${ch(8)},${ch(0)})`;
+}
+function arcProgress() {
+  const A = G, total = A.boss ? A.boss.n : A.slots.length;
+  const done = A.boss ? A.boss.filled.filter(Boolean).length : A.slots.filter(s => s.filled).length;
+  return { done, total, k: total ? done / total : 0 };
+}
+function drawMirror(x, y, ch) {
+  const c = ctx, T = Td, px = x * T, py = y * T;
+  c.fillStyle = 'rgba(15,18,44,.5)'; c.fillRect(px, py, T, T);
+  const a = ch === '/' ? [px + T * .14, py + T * .86, px + T * .86, py + T * .14] : [px + T * .14, py + T * .14, px + T * .86, py + T * .86];
+  c.save(); c.lineCap = 'round';
+  c.strokeStyle = COL.steelLo; c.lineWidth = T * .3; c.beginPath(); c.moveTo(a[0], a[1]); c.lineTo(a[2], a[3]); c.stroke();
+  c.strokeStyle = '#bfd0ff'; c.lineWidth = T * .14; c.beginPath(); c.moveTo(a[0], a[1]); c.lineTo(a[2], a[3]); c.stroke();
+  c.strokeStyle = 'rgba(255,255,255,.85)'; c.lineWidth = Math.max(1, T * .04);
+  c.beginPath(); c.moveTo(a[0] + T * .05, a[1] - T * .05 * (ch === '/' ? 1 : -1)); c.lineTo(a[2] - T * .05 * (ch === '/' ? 1 : -1), a[3] - T * .05 * (ch === '/' ? 1 : -1)); c.stroke();
+  c.restore();
+}
+function drawBoss(B) {
+  const c = ctx, T = Td, cx = B.cx * T, cy = B.cy * T, R = B.R * T;
+  c.fillStyle = COL.steelLo; c.fillRect(T, cy - .32 * T, (W - 2) * T, .64 * T);
+  c.fillStyle = COL.steel; c.fillRect(T, cy - .32 * T, (W - 2) * T, .12 * T);
+  c.beginPath(); c.arc(cx, cy, R + .32 * T, 0, Math.PI * 2); c.fillStyle = '#20264a'; c.fill();
+  const g = c.createRadialGradient(cx - R * .35, cy - R * .4, R * .1, cx, cy, R);
+  g.addColorStop(0, '#9aa5d6'); g.addColorStop(.6, COL.steel); g.addColorStop(1, COL.steelLo);
+  c.beginPath(); c.arc(cx, cy, R, 0, Math.PI * 2); c.fillStyle = g; c.fill();
+  for (let i = 0; i < 20; i++) {
+    const a = i / 20 * Math.PI * 2 + B.phi * .5;
+    c.fillStyle = COL.rivet; c.beginPath(); c.arc(cx + Math.sin(a) * (R - .14 * T), cy + Math.cos(a) * (R - .14 * T), T * .05, 0, Math.PI * 2); c.fill();
+  }
+  const pulse = .5 + .5 * Math.sin(clock * 5);
+  for (let i = 0; i < B.n; i++) {
+    const a = i * 2 * Math.PI / B.n + B.phi;
+    let w = a % (2 * Math.PI); if (w > Math.PI) w -= 2 * Math.PI; if (w < -Math.PI) w += 2 * Math.PI;
+    const sx = cx + Math.sin(a) * (R - .5 * T), sy = cy + Math.cos(a) * (R - .5 * T);
+    c.save(); c.translate(sx, sy); c.rotate(-a);
+    if (B.filled[i]) {
+      c.fillStyle = COL.goldLo; c.fillRect(-.36 * T, -.2 * T, .72 * T, .4 * T);
+      c.fillStyle = COL.gold; c.fillRect(-.3 * T, -.2 * T, .6 * T, .16 * T);
+      c.fillStyle = COL.goldHi; c.fillRect(-.22 * T, -.2 * T, .2 * T, .07 * T);
+    } else if (!slotOpen(B, i, B.t)) {
+      c.fillStyle = COL.steelLo; c.fillRect(-.4 * T, -.24 * T, .8 * T, .48 * T);
+      c.fillStyle = COL.steelHi; c.fillRect(-.4 * T, -.24 * T, .8 * T, .08 * T);
+      c.fillStyle = COL.rivet; c.fillRect(-.3 * T, -.02 * T, .08 * T, .08 * T); c.fillRect(.22 * T, -.02 * T, .08 * T, .08 * T);
+      const soon = ((B.t + i * .45) % 3.6) > 3.25;
+      if (soon) { c.strokeStyle = `rgba(255,197,61,${.4 + .4 * pulse})`; c.lineWidth = Math.max(1, T * .05); c.strokeRect(-.4 * T, -.24 * T, .8 * T, .48 * T); }
+    } else {
+      const reach = Math.abs(w) < 1.15;
+      c.fillStyle = '#0a0717'; c.fillRect(-.36 * T, -.2 * T, .72 * T, .4 * T);
+      c.strokeStyle = reach ? `rgba(255,197,61,${.55 + .4 * pulse})` : 'rgba(255,197,61,.35)';
+      c.lineWidth = Math.max(1, T * .05); c.setLineDash([T * .08, T * .06]); c.strokeRect(-.36 * T, -.2 * T, .72 * T, .4 * T); c.setLineDash([]);
+    }
+    c.restore();
+  }
+  // the dial and its face
+  const r2 = R * .44;
+  c.beginPath(); c.arc(cx, cy, r2, 0, Math.PI * 2); c.fillStyle = '#2b3157'; c.fill();
+  c.lineWidth = Math.max(1, T * .06); c.strokeStyle = COL.steelHi; c.stroke();
+  for (let i = 0; i < 12; i++) {
+    const a = i / 12 * Math.PI * 2 - B.phi * 1.7;
+    c.strokeStyle = 'rgba(169,178,224,.6)'; c.lineWidth = Math.max(1, T * .035);
+    c.beginPath(); c.moveTo(cx + Math.sin(a) * r2 * .8, cy + Math.cos(a) * r2 * .8); c.lineTo(cx + Math.sin(a) * r2 * .95, cy + Math.cos(a) * r2 * .95); c.stroke();
+  }
+  const ex = T * .42, ey = cy - T * .15, lk = B.look * T * .12;
+  c.lineCap = 'round';
+  if (B.shut > 0 || G.state === 'won') {
+    c.strokeStyle = '#ece7f7'; c.lineWidth = Math.max(1.5, T * .07);
+    for (const s of [-1, 1]) { c.beginPath(); c.arc(cx + s * ex, ey, T * .16, Math.PI * .1, Math.PI * .9); c.stroke(); }
+    c.beginPath(); c.arc(cx, cy + T * .3, T * .22, Math.PI * .15, Math.PI * .85); c.stroke();
+  } else if (B.wince > 0) {
+    c.strokeStyle = '#ece7f7'; c.lineWidth = Math.max(1.5, T * .07);
+    for (const s of [-1, 1]) { c.beginPath(); c.moveTo(cx + s * ex + s * T * .14, ey - T * .1); c.lineTo(cx + s * ex - s * T * .02, ey); c.lineTo(cx + s * ex + s * T * .14, ey + T * .1); c.stroke(); }
+    c.beginPath(); c.arc(cx, cy + T * .42, T * .15, Math.PI * 1.15, Math.PI * 1.85); c.stroke();
+  } else {
+    for (const s of [-1, 1]) {
+      c.fillStyle = '#ece7f7'; c.beginPath(); c.ellipse(cx + s * ex, ey, T * .15, T * .19, 0, 0, Math.PI * 2); c.fill();
+      c.fillStyle = '#14172e'; c.beginPath(); c.arc(cx + s * ex + lk, ey + T * .04, T * .08, 0, Math.PI * 2); c.fill();
+    }
+    c.strokeStyle = '#ece7f7'; c.lineWidth = Math.max(1.5, T * .06);
+    c.beginPath(); c.moveTo(cx - T * .18, cy + T * .33); c.lineTo(cx + T * .18, cy + T * .33 - B.phase * T * .02); c.stroke();
+  }
+}
+function drawArcade() {
+  const c = ctx, T = Td, A = G, pr = arcProgress();
+  const sun = A.boss ? pr.k : pr.k * .45;
+  const gr = c.createLinearGradient(0, 0, 0, cv.height);
+  gr.addColorStop(0, mixHex('#2a2350', '#ff9f7c', sun)); gr.addColorStop(1, mixHex('#5e3452', '#ffd49a', sun));
+  c.fillStyle = gr; c.fillRect(0, 0, cv.width, cv.height);
+  for (let i = 0; i < 26; i++) {
+    const sx = ((i * 97) % (W * 10)) / 10 * T, sy = ((i * 53) % (H * 7)) / 10 * T;
+    c.fillStyle = `rgba(255,240,220,${(.35 + .35 * Math.sin(clock * 2 + i)) * (1 - sun)})`; c.fillRect(sx, sy, Math.max(1, T * .06), Math.max(1, T * .06));
+  }
+  if (A.boss) {
+    const sy = (H + 3.5 - pr.k * 7) * T, rg = c.createRadialGradient(W / 2 * T, sy, T, W / 2 * T, sy, T * 7);
+    rg.addColorStop(0, 'rgba(255,236,170,.85)'); rg.addColorStop(.35, 'rgba(255,190,120,.35)'); rg.addColorStop(1, 'rgba(255,170,120,0)');
+    c.fillStyle = rg; c.fillRect(0, 0, cv.width, cv.height);
+  }
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const ch = A.cells[y][x], px = x * T, py = y * T;
+    if (ch === '@') c.drawImage(tiles.steel, px, py);
+    else if (ch === '#') c.drawImage(tiles.brick, px, py);
+    else if (ch === '/' || ch === '\\') drawMirror(x, y, ch);
+  }
+  const pulse = .5 + .5 * Math.sin(clock * 5);
+  if (A.cfg.slide && A.slots.length) {
+    const y = A.slots[0].y + .48;
+    c.fillStyle = 'rgba(255,197,61,.35)'; c.fillRect(T * 1.1, y * T, (W - 2.2) * T, Math.max(1, T * .05));
+  }
+  for (const s of A.slots) {
+    const px = (s.x - .5) * T, py = (s.y - .5) * T;
+    if (s.filled) c.drawImage(tiles.slotFull, px, py);
+    else { c.fillStyle = '#0a0717'; c.fillRect(px + T * .06, py + T * .3, T * .88, T * .7); c.drawImage(tiles.slot, px, py); c.fillStyle = `rgba(255,197,61,${.08 + .14 * pulse})`; c.fillRect(px, py + T * .5, T, T * .5); }
+  }
+  if (A.boss) drawBoss(A.boss);
+  for (const g of A.guards) {
+    if (g.st === 'gone') continue;
+    let key = 'stand', ang = 0, alpha = 1, flip = false;
+    if (g.st === 'walk') { key = g.lay > 0 ? 'dig' : ((Math.floor(clock * 7 + g.hx) % 2) ? 'run1' : 'run2'); flip = g.vx < 0; }
+    else if (g.st === 'dive' || g.st === 'return') { key = 'fall'; ang = g.st === 'dive' ? Math.sin(g.t * 6) * .3 : Math.PI; }
+    else if (g.st === 'bonk') { key = 'fall'; ang = g.rot; alpha = .85; }
+    else if (g.st === 'orbit') {
+      const B = A.boss; c.strokeStyle = COL.wire; c.lineWidth = Math.max(1, T * .05);
+      c.beginPath(); c.moveTo(B.cx * T, B.cy * T); c.lineTo(g.x * T, g.y * T); c.stroke();
+      key = 'rope1'; ang = -g.oa;
+    }
+    else key = (Math.floor(clock * 3 + g.hx) % 2) ? 'stand' : 'run2';
+    drawRot(sprites['g' + key + (flip ? 'F' : '')], g.x * T, g.y * T, ang, 1, alpha);
+  }
+  for (const b of A.beams) if (b.box) {
+    const k = Math.max(0, Math.min(1, 1 - (A.p.y - b.y) / 10));
+    c.fillStyle = `rgba(10,6,25,${.18 + .4 * k})`;
+    c.beginPath(); c.ellipse(b.x * T, (H - .08) * T, (.25 + .3 * k) * T, .12 * T, 0, 0, Math.PI * 2); c.fill();
+  }
+  for (const b of A.beams) {
+    if (b.box) {
+      const x = (b.x - .3) * T, y = (b.y - .3) * T;
+      c.fillStyle = COL.steelLo; c.fillRect(x, y, .6 * T, .6 * T); c.fillStyle = COL.steel; c.fillRect(x + .06 * T, y + .06 * T, .48 * T, .48 * T);
+      c.fillStyle = COL.gold; c.fillRect(x + .25 * T, y + .2 * T, .1 * T, .2 * T);
+    } else {
+      c.fillStyle = 'rgba(255,240,160,.28)'; c.fillRect((b.x - .16) * T, (b.y - .55) * T, .32 * T, .8 * T);
+      c.fillStyle = '#fff6c4'; c.fillRect((b.x - .06) * T, (b.y - .45) * T, .12 * T, .6 * T);
+    }
+  }
+  for (const b of A.bars) {
+    const ang = b.d === 'U' ? -Math.PI / 2 : b.d === 'L' ? Math.PI : 0;
+    for (let k = 2; k >= 1; k--) drawRot(tiles.bar, (b.x - DV[b.d][0] * .35 * k) * T, (b.y - DV[b.d][1] * .35 * k) * T, ang, .75, .18 * (3 - k));
+    drawRot(tiles.bar, b.x * T, b.y * T, ang, .8, 1);
+  }
+  for (const f of A.falls) drawRot(tiles.bar, f.x * T, f.y * T, f.rot, .8, 1);
+  const p = A.p;
+  if (!(A.state === 'dying' && Math.floor(A.stateT * 10) % 2)) {
+    const key = p.throwT > 0 ? 'fall' : p.moving ? ((Math.floor(p.frame) % 2) ? 'run1' : 'run2') : 'stand';
+    const alpha = p.inv > 0 ? ((Math.floor(clock * 14) % 2) ? .35 : 1) : 1;
+    drawRot(sprites['p' + key + (p.face < 0 ? 'F' : '')], p.x * T, p.y * T, 0, 1, alpha);
+  }
+  drawParticles();
+  if (G.flash > 0) { c.fillStyle = `rgba(255,214,94,${G.flash * .35})`; c.fillRect(0, 0, cv.width, cv.height); }
+  if (A.hurtFlash > 0) { c.fillStyle = `rgba(255,70,80,${A.hurtFlash * .35})`; c.fillRect(0, 0, cv.width, cv.height); }
+}
+
+function drawParticles() {
+  const c = ctx, T = Td;
+  for (const q of G.particles) {
+    c.globalAlpha = Math.max(0, Math.min(1, q.life / .4)); c.fillStyle = q.col;
+    const s = Math.max(2, Math.round(q.s * T)); c.fillRect(Math.round(q.x * T), Math.round(q.y * T), s, s);
+  }
+  c.globalAlpha = 1;
+}
+function drawRot(img, cx, cy, ang, scale, alpha) {
+  const c = ctx, T = Td;
+  c.save(); c.globalAlpha = alpha == null ? 1 : alpha; c.translate(cx, cy); c.rotate(ang); if (scale !== 1) c.scale(scale, scale);
+  c.drawImage(img, -T / 2, -T / 2); c.restore();
+}
+function drawTilt() {
+  const c = ctx, T = Td, L = G.L, A = G.anim;
+  const spec = G.dream ? DREAM_BG : (ACT_BG[cur().act || 0] || ACT_BG[3]);
+  c.imageSmoothingEnabled = false;
+  c.fillStyle = boardBg(spec); c.fillRect(0, 0, cv.width, cv.height);
+  const disp = A ? A.disp : { gold: new Set(G.S.gold), pits: new Set(G.S.pits), slots: new Set(G.S.slots) };
+  const dot = Math.max(1, Math.round(T / 14)), pulse = .5 + .5 * Math.sin(clock * 5);
+  const exitOpen = disp.gold.size === 0;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = y * W + x, px = x * T, py = y * T, w = L.wall[i];
+    if (w) { const edge = x === 0 || y === 0 || x === W - 1 || y === H - 1; c.drawImage(edge || w === 2 && G.dream ? tiles.steel : tiles.brick, px, py); continue; }
+    c.fillStyle = spec.dot; c.fillRect(px + (T >> 1) - (dot >> 1), py + (T >> 1) - (dot >> 1), dot, dot);
+  }
+  for (const i of L.pits) {
+    const px = (i % W) * T, py = ((i / W) | 0) * T;
+    if (disp.pits.has(i)) c.drawImage(tiles.pit, px, py);
+    else { const k = G.filledBy[i]; c.drawImage(k === 'b' ? tiles.pitB : k === 'p' ? tiles.pitP : tiles.pitG, px, py); }
+  }
+  for (const i of L.slots) {
+    const px = (i % W) * T, py = ((i / W) | 0) * T;
+    if (disp.slots.has(i)) { c.drawImage(tiles.slot, px, py); c.fillStyle = `rgba(255,197,61,${.05 + .08 * pulse})`; c.fillRect(px, py + T * .45, T, T * .5); }
+    else c.drawImage(tiles.slotFull, px, py);
+  }
+  if (L.exit >= 0) {
+    const px = (L.exit % W) * T, py = ((L.exit / W) | 0) * T;
+    if (exitOpen) { c.fillStyle = `rgba(255,214,94,${.12 + .18 * pulse})`; c.fillRect(px - T * .2, py, T * 1.4, T); c.drawImage(tiles.hatchOpen, px, py); }
+    else c.drawImage(tiles.hatch, px, py);
+  }
+  for (const i of disp.gold) drawGoldAt(i % W, (i / W) | 0, (i % W) * T, ((i / W) | 0) * T);
+  // movers
+  const ang = GRAV_ANGLE[G.grav] || 0;
+  const list = [];
+  if (A) {
+    const s = slideS(A.t);
+    for (const p of A.r.paths) {
+      const n = p.cells.length, f = Math.min(s, n - 1), i0 = Math.floor(f), fr = f - i0;
+      const a = p.cells[i0], b = p.cells[Math.min(n - 1, i0 + 1)];
+      const x = (a % W) * (1 - fr) + (b % W) * fr, y = ((a / W) | 0) * (1 - fr) + ((b / W) | 0) * fr;
+      let scale = 1, alpha = 1;
+      if (A.gone.has(p.id)) { const k = Math.min(1, (A.t - A.sunk[p.id]) / .22); scale = 1 - .7 * k; alpha = 1 - k; }
+      list.push({ k: p.k, id: p.id, x, y, moving: s < n - 1, scale, alpha });
+    }
+  } else {
+    for (const o of G.S.m) list.push({ k: o.k, id: o.id, x: o.i % W, y: (o.i / W) | 0, moving: false, scale: 1, alpha: 1 });
+  }
+  for (const m of list) {
+    if (m.alpha <= .01) continue;
+    const cx = (m.x + .5) * T, cy = (m.y + .5) * T;
+    let img;
+    if (m.k === 'b') img = tiles.bar;
+    else {
+      const who = m.k === 'p' ? 'p' : 'g';
+      let key = m.moving ? 'fall' : 'stand';
+      if (G.revert && G.caughtIds && (m.k === 'p' || G.caughtIds.includes(m.id))) key = (Math.floor(clock * 10) % 2) ? 'fall' : 'stand';
+      img = sprites[who + key];
+    }
+    let alpha = m.alpha;
+    if (G.revert && m.k === 'p') alpha *= (Math.floor(clock * 12) % 2) ? .35 : 1;
+    drawRot(img, cx, cy, m.k === 'b' ? ang * .0 : ang, m.scale, alpha);
+  }
+  drawParticles();
+  if (G.flash > 0) { c.fillStyle = `rgba(255,214,94,${G.flash * .35})`; c.fillRect(0, 0, cv.width, cv.height); }
+}
+
+// ---------------- audio ----------------
+let ac = null;
+function ensureAudio() {
+  if (!ac) { try { const A = window.AudioContext || window.webkitAudioContext; if (A) ac = new A(); } catch (e) { ac = null; } }
+  if (ac && ac.state === 'suspended') ac.resume().catch(() => {});
+}
+function tone(f, dur, type = 'square', vol = .05, slide = 0, delay = 0) {
+  if (!ac || save.muted) return;
+  try {
+    const t0 = ac.currentTime + delay, o = ac.createOscillator(), g = ac.createGain();
+    o.type = type; o.frequency.setValueAtTime(f, t0);
+    if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(30, f + slide), t0 + dur);
+    g.gain.setValueAtTime(vol, t0); g.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
+    o.connect(g); g.connect(ac.destination); o.start(t0); o.stop(t0 + dur + .03);
+  } catch (e) {}
+}
+let noiseBuf = null;
+function noise(dur, vol, freq, delay = 0) {
+  if (!ac || save.muted) return;
+  try {
+    if (!noiseBuf) { noiseBuf = ac.createBuffer(1, ac.sampleRate * .4, ac.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; }
+    const s = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain(), t0 = ac.currentTime + delay;
+    s.buffer = noiseBuf; f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = .8;
+    g.gain.setValueAtTime(vol, t0); g.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
+    s.connect(f); f.connect(g); g.connect(ac.destination); s.start(t0); s.stop(t0 + dur + .02);
+  } catch (e) {}
+}
+const sfx = {
+  gold() { tone(988, .06, 'square', .045); tone(1480, .1, 'square', .04, 0, .05); },
+  dig() { noise(.18, .14, 1600); tone(200, .12, 'square', .025, -100); },
+  clunk() { tone(110, .06, 'square', .025); },
+  trap() { tone(330, .14, 'triangle', .07, -180); },
+  kill() { tone(160, .3, 'sawtooth', .035, -110); noise(.2, .06, 500); },
+  reveal() { [523, 659, 784, 1047].forEach((f, i) => tone(f, .12, 'square', .04, 0, i * .08)); },
+  die() { tone(520, .6, 'sawtooth', .045, -430); },
+  clear() { [392, 523, 659, 784, 1047].forEach((f, i) => tone(f, .14, 'square', .045, 0, i * .09)); },
+  flip() { noise(.45, .09, 900); tone(180, .4, 'triangle', .06, 420); },
+  thud() { tone(90, .12, 'triangle', .09, -40); noise(.08, .05, 300); },
+  slide(n) { for (let i = 0; i < Math.min(6, n); i++) noise(.05, .045, 2200 + i * 300, i * .045); },
+  slot() { tone(1320, .05, 'square', .05); tone(1760, .16, 'triangle', .06, 0, .05); noise(.06, .06, 3000); },
+  undo() { tone(660, .06, 'triangle', .05, -200); },
+  hint() { tone(784, .1, 'sine', .06); tone(1175, .18, 'sine', .05, 0, .09); },
+  clack() { noise(.12, .14, 2600); tone(240, .1, 'square', .04, -60); },
+  clang() { tone(1400, .05, 'square', .028); noise(.06, .05, 4200); },
+  ping() { tone(1760, .07, 'triangle', .045); },
+  throw() { tone(480, .07, 'triangle', .045, 380); },
+  hurt() { tone(300, .22, 'sawtooth', .05, -160); noise(.1, .06, 700); },
+  lost() { tone(240, .14, 'triangle', .04, -90); },
+  beam() { tone(1900, .05, 'sine', .018); },
+  dive() { tone(950, .35, 'sine', .03, -600); },
+  lay() { noise(.08, .07, 900); tone(330, .05, 'square', .02); },
+  drop() { tone(150, .1, 'square', .035); }
+};
+
+// ---------------- HUD / overlays ----------------
+const pad2 = n => String(n).padStart(2, '0');
+const fmt = t => { t = Math.max(0, t || 0); const m = Math.floor(t / 60), s = Math.floor(t % 60); return m + ':' + pad2(s); };
+function updateHud(disp) {
+  if (!G) return;
+  const lv = cur();
+  const isZh = LANG === 'zh';
+  $('hudLbl').textContent = G.dream ? (isZh ? '梦境' : 'Dream') : (isZh ? '金库' : 'Vault');
+  $('hudLevel').textContent = G.dream ? '☁' : pad2(G.level + 1);
+  $('hudName').textContent = getLvlName(lv, G.level);
+  const ret = modeOf(lv) === 'return' || G.kind === 'arcade';
+  $('icoGold').hidden = ret; $('icoSlot').hidden = !ret;
+  if (G.kind === 'arcade') {
+    const pr = arcProgress(), max = G.cfg.hearts;
+    $('hudGold').textContent = pr.done + '/' + pr.total;
+    $('hudGoldWrap').classList.toggle('done', pr.done === pr.total);
+    $('hudMoves').hidden = false;
+    $('hudMoves').textContent = '\u2665'.repeat(Math.max(0, G.hearts)) + '\u2661'.repeat(Math.max(0, max - G.hearts)) + ' \u00b7 ' + G.satchel + (G.satchel === 1 ? ' bar' : ' bars');
+  } else if (G.kind === 'tilt') {
+    const L = G.L, S = G.S;
+    let got, tot;
+    if (ret) { tot = L.slots.length; got = tot - (disp ? disp.slots.size : S.slots.length); }
+    else { tot = L.gold.length; got = tot - (disp ? disp.gold.size : S.gold.length); }
+    $('hudGold').textContent = got + '/' + tot;
+    $('hudGoldWrap').classList.toggle('done', got === tot);
+    $('hudMoves').hidden = false;
+    $('hudMoves').textContent = G.moves + (G.moves === 1 ? ' tilt' : ' tilts') + (lv.par ? ' · par ' + lv.par : '');
+  } else {
+    const got = G.goldTotal - G.goldCount - G.guards.filter(g => g.carry).length;
+    $('hudGold').textContent = got + '/' + G.goldTotal;
+    $('hudGoldWrap').classList.toggle('done', G.revealed);
+    $('hudMoves').hidden = true;
+  }
+}
+let bannerTimer = 0;
+function showBanner(title, hint, auto, vaultStyle) {
+  const b = $('banner'), lv = cur();
+  const tilt = isTilt(lv);
+  const isZh = LANG === 'zh';
+  const vWord = isZh ? '金库 ' : 'Vault ';
+  const dWord = isZh ? '梦境 · ' : 'Dream · ';
+  const lvlName = getLvlName(lv, G ? G.level : undefined);
+  $('bTitle').textContent = title || (G.dream ? dWord + lvlName : vWord + pad2(G.level + 1) + ' · ' + lvlName);
+  const h = hint || getLvlHint(lv, G ? G.level : undefined);
+  $('bHint').textContent = h; $('bHint').hidden = !h;
+  if (isZh) {
+    $('bSub').textContent = tilt ? '倾斜即刻开始' : isArcade(lv) ? '移动或投掷即开始' : (modeOf(lv) === 'flip' ? '移动或翻转即开始' : '移动即刻开始');
+  } else {
+    $('bSub').textContent = tilt ? 'Tilt to start' : isArcade(lv) ? 'Move or throw to start' : (modeOf(lv) === 'flip' ? 'Move or flip to start' : 'Move to start');
+  }
+  $('bSub').hidden = !!(auto || hint);
+  b.classList.toggle('vault', !!vaultStyle);
+  b.classList.remove('fade');
+  layout();
+  clearTimeout(bannerTimer);
+  const covers = (parseFloat(b.style.top) || 0) < layoutInfo.top + layoutInfo.th;
+  if (auto) bannerTimer = setTimeout(fadeBanner, 2800);
+  else if (covers) bannerTimer = setTimeout(fadeBanner, 4500);
+}
+function fadeBanner() { $('banner').classList.add('fade'); }
+function lvLabel(i) {
+  const lv = LEVELS[i], done = save.best[i] != null;
+  const isZh = LANG === 'zh';
+  if (!done) {
+    if (i <= save.unlocked) {
+      const nm = getLvlName(lv, i);
+      return nm.length > 4 ? nm.slice(0, 4) : nm;
+    }
+    return isZh ? '未解锁' : 'locked';
+  }
+  if (isTilt(lv)) return save.best[i] <= (lv.par || 0) ? '★ ' + save.best[i] : save.best[i] + (isZh ? ' 次倾斜' : ' tilts');
+  return fmt(save.best[i]);
+}
+function renderMenu() {
+  const wrap = $('acts'); wrap.textContent = '';
+  const isZh = LANG === 'zh';
+  ACTS.forEach((A, a) => {
+    const idxs = LEVELS.map((l, i) => i).filter(i => (LEVELS[i].act || 0) === a);
+    const sec = document.createElement('section'); sec.className = 'act';
+    const open = idxs[0] <= save.unlocked;
+    if (!open) sec.classList.add('locked');
+    const hd = document.createElement('p'); hd.className = 'act-h';
+    const e = document.createElement('span'); e.className = 'eyebrow'; e.textContent = isZh ? '第 ' + A.n + ' 幕' : 'Act ' + A.n;
+    const t = document.createElement('b'); t.textContent = getActTitle(a);
+    const sm = document.createElement('small'); sm.textContent = open ? getActBlurb(a) : (isZh ? '未解锁' : 'Locked');
+    hd.append(e, t, sm); sec.appendChild(hd);
+    const grid = document.createElement('div'); grid.className = 'grid';
+    for (const i of idxs) {
+      const lv = LEVELS[i];
+      const b = document.createElement('button'); b.className = 'lv'; b.id = 'lv' + (i + 1);
+      const done = save.best[i] != null, op = i <= save.unlocked;
+      if (done) b.classList.add('done'); if (i === save.unlocked && !done) b.classList.add('next');
+      b.disabled = !op; b.setAttribute('aria-label', 'Vault ' + (i + 1) + ' ' + lv.name + (op ? '' : ', locked'));
+      const n = document.createElement('b'); n.textContent = i + 1; b.appendChild(n);
+      const s = document.createElement('small'); s.textContent = lvLabel(i); b.appendChild(s);
+      b.addEventListener('click', () => startLevel(i));
+      grid.appendChild(b);
+    }
+    sec.appendChild(grid); wrap.appendChild(sec);
+  });
+  // Act VI: dream vaults
+  const dreamOpen = save.unlocked >= firstOfAct(3);
+  const sec = document.createElement('section'); sec.className = 'act' + (dreamOpen ? '' : ' locked');
+  const hd = document.createElement('p'); hd.className = 'act-h';
+  const e = document.createElement('span'); e.className = 'eyebrow'; e.textContent = isZh ? '第 VI 幕' : 'Act VI';
+  const t = document.createElement('b'); t.textContent = isZh ? '梦境金库' : 'Dream Vaults';
+  const sm = document.createElement('small'); sm.textContent = dreamOpen ? (isZh ? '无尽生成，随心定制。' : 'Endless, made to order.') : (isZh ? '随第 IV 幕一同解锁' : 'Opens with Act IV');
+  hd.append(e, t, sm); sec.appendChild(hd);
+  const db = document.createElement('button'); db.className = 'btn dream'; db.id = 'btnDreams'; db.textContent = isZh ? '构筑梦境金库' : 'Dream up a vault';
+  db.disabled = !dreamOpen; db.addEventListener('click', openDream);
+  sec.appendChild(db); wrap.appendChild(sec);
+
+  const next = Math.min(save.unlocked, LEVELS.length - 1);
+  const allDone = save.finished && LEVELS.every((l, i) => save.best[i] != null);
+  if (isZh) {
+    $('btnStart').textContent = allDone ? '再次挑战第 1 关' : save.unlocked > 0 ? '继续 · 金库 ' + (next + 1) : '进入第 1 关';
+  } else {
+    $('btnStart').textContent = allDone ? 'Play vault 1 again' : save.unlocked > 0 ? 'Continue · Vault ' + (next + 1) : 'Start vault 1';
+  }
+  $('btnStart').onclick = () => startLevel(allDone ? 0 : next);
+  const logo = $('logo');
+  if (isZh) {
+    logo.innerHTML = save.finished ? '<s>暗夜</s> <ins>破晓</ins><em>金库</em>' : '暗夜<em>金库</em>';
+  } else {
+    logo.innerHTML = save.finished ? '<s>Night</s> <ins>Day</ins><em>Vault</em>' : 'Night<em>Vault</em>';
+  }
+  refreshAIUI();
+}
+// ---------------- jump menu: tap the logo five times ----------------
+let logoTaps = [];
+function jumpTo(a) {
+  ensureAudio(); sfx.reveal();
+  const target = a === 'dream' ? firstOfAct(3) : firstOfAct(a);
+  save.unlocked = Math.max(save.unlocked, target); writeSave();
+  if (a === 'dream') openDream(); else startLevel(target);
+}
+function buildJumps() {
+  const box = $('jumps'); box.textContent = '';
+  const isZh = LANG === 'zh';
+  const items = ACTS.map((A, a) => [a, isZh ? '第 ' + A.n + ' 幕' : 'Act ' + A.n, getActTitle(a)]).concat([['dream', isZh ? '第 VI 幕' : 'Act VI', isZh ? '梦境金库' : 'Dream Vaults']]);
+  for (const [a, n, t] of items) {
+    const b = document.createElement('button'); b.id = 'jump-' + a;
+    const e = document.createElement('b'); e.textContent = n;
+    const s2 = document.createElement('span'); s2.textContent = t;
+    b.append(e, s2); b.addEventListener('click', () => jumpTo(a)); box.appendChild(b);
+  }
+}
+$('logo').addEventListener('click', () => {
+  const now = performance.now();
+  logoTaps = logoTaps.filter(t => now - t < 2500); logoTaps.push(now);
+  if (logoTaps.length >= 5) { logoTaps = []; sfx.clack(); buildJumps(); $('dial').hidden = false; }
+});
+function hideOverlays() { for (const id of ['menu', 'pause', 'clear', 'storyOv', 'dreamOv']) $(id).hidden = true; overlayOpen = null; }
+function openMenu() {
+  hideOverlays(); menuOpen = true; paused = false;
+  renderMenu(); $('dial').hidden = true; $('menu').hidden = false; overlayOpen = 'menu';
+}
+function startLevel(i, skipStory) {
+  ensureAudio(); keepAwake();
+  const a = actOf(i);
+  if (!skipStory && a > 0 && i === firstOfAct(a) && !save.seen[a]) { showStory(i); return; }
+  hideOverlays(); menuOpen = false; paused = false;
+  loadLevel(i);
+}
+function showStory(i) {
+  const a = actOf(i), A = ACTS[a], isZh = LANG === 'zh';
+  hideOverlays(); menuOpen = true;
+  $('sAct').textContent = isZh ? '第 ' + A.n + ' 幕' : 'Act ' + A.n;
+  $('sTitle').textContent = getActTitle(a);
+  $('sText').textContent = getActStory(a);
+  $('btnStoryGo').textContent = isZh ? '进入第 ' + (i + 1) + ' 关' : 'Play vault ' + (i + 1);
+  $('storyVoice').hidden = true;
+  $('btnStoryGo').onclick = () => {
+    save.seen[a] = true; writeSave();
+    startLevel(i, true);
+    if (a === 3) toyReveal();
+    if (a === 4) toyTurnover();
+  };
+  $('storyOv').hidden = false; overlayOpen = 'story';
+  if (save.voice && aiOK()) vaultSay(promptStory(a), $('storyVoice'));
+}
+function toyTurnover() {
+  toyEl.classList.remove('turnover'); void toyEl.offsetWidth; toyEl.classList.add('turnover');
+  setTimeout(() => sfx.clack(), 700);
+  setTimeout(() => toyEl.classList.remove('turnover'), 1500);
+}
+function toyReveal() {
+  toyEl.classList.remove('reveal'); void toyEl.offsetWidth; toyEl.classList.add('reveal');
+  setTimeout(() => sfx.clack(), 520);
+  setTimeout(() => toyEl.classList.remove('reveal'), 1600);
+}
+function setPaused(v) {
+  if (menuOpen || !G || G.state === 'won') return;
+  paused = v; $('pause').hidden = !v; overlayOpen = v ? 'pause' : null;
+  if (v) $('pVault').textContent = (G.dream ? 'Dream · ' : 'Vault ' + pad2(G.level + 1) + ' · ') + cur().name;
+  releaseInput();
+}
+function showClear() {
+  clearShown = true;
+  const lv = cur(), tilt = G.kind === 'tilt', isZh = LANG === 'zh';
+  const i = G.level, last = !G.dream && i === LEVELS.length - 1;
+  const vWord = isZh ? '金库 ' : 'Vault ';
+  const dWord = isZh ? '梦境 · ' : 'Dream · ';
+  const lvlName = getLvlName(lv, i);
+  $('cVault').textContent = G.dream ? dWord + lvlName : vWord + pad2(i + 1) + ' · ' + lvlName;
+  let title;
+  if (last) title = isZh ? '晨曦破晓' : 'Daybreak';
+  else if (tilt) title = G.moves <= (lv.par || 0) ? (isZh ? '完美通关 · 标准步数' : 'Par. Flawless.') : (isZh ? '解谜成功' : 'Solved');
+  else if (G.kind === 'arcade') title = G.hits === 0 ? (isZh ? '毫发无伤' : 'Not a scratch') : (isZh ? '完璧归赵' : 'Back in the vault');
+  else title = G.newBest && G.deaths === 0 ? (isZh ? '全身而退' : 'Clean getaway') : (isZh ? '金库破解' : 'Cracked');
+  $('cTitle').textContent = title;
+  $('cStory').hidden = !last; $('cStory').textContent = last ? getEnding() : '';
+  const best = G.dream ? G.dream.best : save.best[i];
+  if (tilt) {
+    $('cL1').textContent = 'Tilts'; $('cV1').textContent = G.moves;
+    $('cL2').textContent = 'Par'; $('cV2').textContent = lv.par || '–';
+    $('cL3').textContent = 'Best'; $('cV3').textContent = best != null ? best : G.moves;
+  } else {
+    $('cL1').textContent = 'Time'; $('cV1').textContent = fmt(G.time);
+    $('cL2').textContent = 'Best'; $('cV2').textContent = fmt(best);
+    $('cL3').textContent = G.kind === 'arcade' ? 'Hits' : 'Caught'; $('cV3').textContent = G.kind === 'arcade' ? G.hits : G.deaths;
+  }
+  const nb = $('btnNext');
+  nb.hidden = !!G.dream || last;
+  if (!G.dream && !last) {
+    const na = actOf(i + 1);
+    nb.textContent = na !== actOf(i) ? 'On to Act ' + ACTS[na].n : 'Next vault';
+  }
+  $('btnDreamAgain').hidden = !(G.dream || last);
+  $('btnDreamAgain').textContent = G.dream ? 'Dream up another' : 'Dream up a vault';
+  $('clearVoice').hidden = true;
+  hideOverlays(); $('clear').hidden = false; overlayOpen = 'clear';
+  releaseInput();
+  if (save.voice && aiOK()) {
+    const actEnd = !G.dream && (last || actOf(i + 1) !== actOf(i));
+    vaultSay(actEnd ? promptHaiku(i) : promptQuip(), $('clearVoice'), actEnd ? {} : { cache: false });
+  }
+}
+
+// ---------------- Claude: the vault's voice, hints, dreams ----------------
+const AI = { fn: null, blocked: false };
+const VAULT = 'You are the Night Vault: a bank vault in a small pixel-art phone game who has slowly realized it is really a pocket tilt-puzzle toy in someone’s hand. Your voice is dry, warm, a little smug, and secretly fond of the thief who keeps robbing you. Never mention being an AI or a model. Plain text only: no quotation marks around your reply, no emoji, no hashtags, no stage directions.';
+async function initAI() {
+  try {
+    if (!window.claude || typeof window.claude.use !== 'function') return;
+    const fn = await window.claude.use('sample');
+    if (fn) { AI.fn = fn; refreshAIUI(); }
+  } catch (e) {}
+}
+function aiOK() { return !!AI.fn && !AI.blocked; }
+function refreshAIUI() {
+  const ok = aiOK();
+  $('aiCard').hidden = !ok;
+  $('swVoice').setAttribute('aria-checked', String(!!(save.voice && ok)));
+  $('dField').hidden = !ok;
+  $('btnDream').textContent = ok ? 'Dream it up' : 'Dream one up';
+  $('dIntro').textContent = ok
+    ? 'The vault has started dreaming up puzzles of its own. Give it a theme, or leave it blank. Claude draws a new tilt puzzle, and the vault’s solver checks it can be done before you play.'
+    : 'The vault has started dreaming up puzzles of its own. Each one is new, and the vault’s solver checks it can be done before you play.';
+}
+function aiFail(e) {
+  const c = e && e.code;
+  if (['not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'capability_removed'].includes(c)) {
+    AI.blocked = true; save.voice = false; writeSave(); refreshAIUI();
+    return 'The vault has gone quiet. Claude isn’t available here.';
+  }
+  if (c === 'cancelled') return '';
+  if (c === 'rate_limited') return 'The vault needs a breather. Try again in a bit.';
+  if (c === 'session_expired') return 'The vault lost you. Sign in to Claude again.';
+  if (c === 'refused') return 'The vault would rather not say.';
+  return 'Static on the line. Try again later.';
+}
+function tidy(t) {
+  t = String(t || '').trim().replace(/^["“”']+|["“”']+$/g, '').trim();
+  return t.length > 420 ? t.slice(0, 417).replace(/\s+\S*$/, '') + '…' : t;
+}
+function sayInto(el, text) { el.querySelector('p').textContent = text; }
+async function vaultSay(prompt, el, opts) {
+  el.hidden = false; el.classList.add('thinking'); sayInto(el, 'The vault is thinking');
+  try {
+    const r = await AI.fn(VAULT + '\n\n' + prompt, Object.assign({ model: 'claude-haiku-5-5', modelTier: 'quick',
+      onText: ({ text }) => { el.classList.remove('thinking'); sayInto(el, tidy(text)); } }, opts || {}));
+    el.classList.remove('thinking'); sayInto(el, tidy(r.text)); return r.text;
+  } catch (e) {
+    el.classList.remove('thinking'); const m = aiFail(e);
+    if (m) sayInto(el, m); else el.hidden = true;
+    return null;
+  }
+}
+function progressLine() {
+  const cleared = Object.keys(save.best).filter(k => save.best[k] != null).length;
+  const a = actOf(Math.min(save.unlocked, LEVELS.length - 1));
+  return `The thief has cleared ${cleared} of ${LEVELS.length} vaults and is currently in Act ${ACTS[a].n} (${ACTS[a].title}).`;
+}
+function actContext(a) {
+  return ['In Act I the thief runs, climbs ladders, hangs on wires and digs holes in brick to trap the guards who chase them.',
+    'In Act II levers turn the whole vault upside down; everyone falls, the gold stays put, and the exit is a vault door.',
+    'In Act III the thief has a FLIP button instead of a shovel and turns the vault over at will; the guards cannot.',
+    'In Act IV the vault is revealed to be a handheld tilt-maze toy: the player tilts the whole box and every piece slides until it hits something.',
+    'In Act V the toy is turned over: Side B is an arcade game where the thief throws the stolen gold bars back up into your slots while guards march, dive and shine flashlights at them; it ends with a boss fight against you, the vault door, at sunrise.'][a] || '';
+}
+function promptGreeting() { return `${progressLine()} ${actContext(actOf(Math.min(save.unlocked, LEVELS.length - 1)))}\nThe player just switched on your voice. Greet them in one or two short sentences (under 30 words).`; }
+function promptStory(a) { return `${progressLine()}\nAct ${ACTS[a].n}, "${ACTS[a].title}", is about to begin. ${actContext(a)} The player has just read: "${ACTS[a].story}"\nAdd one short aside in your own voice reacting to this new twist (under 22 words).`; }
+function promptQuip() {
+  const lv = cur(), tilt = G.kind === 'tilt';
+  const stats = tilt ? `They solved it in ${G.moves} tilts (par ${lv.par || '?'}) and got caught or fell ${G.deaths} times.` : G.kind === 'arcade' ? `It took ${fmt(G.time)}, they were hit ${G.hits} times and had to restart ${G.deaths} times.` : `It took ${fmt(G.time)} and they were caught ${G.deaths} times.`;
+  const where = G.dream ? `one of your own dream puzzles, "${lv.name}"` : `vault ${G.level + 1}, "${lv.name}" (Act ${ACTS[actOf(G.level)].n})`;
+  return `${actContext(G.dream ? 3 : actOf(G.level))}\nThe thief just cleared ${where}. ${stats}\nSay one line to the thief about it (under 18 words).`;
+}
+function promptHaiku(i) {
+  const a = actOf(i);
+  return `${actContext(a)}\nThe thief just finished Act ${ACTS[a].n}, "${ACTS[a].title}"${i === LEVELS.length - 1 ? ', the last act. ' + ENDING : '.'}\nWrite a haiku from you to the thief about this act: three lines, 5-7-5 syllables, one line per row. Reply with only the three lines.`;
+}
+$('swVoice').addEventListener('click', () => {
+  if (!aiOK()) return;
+  save.voice = !save.voice; writeSave(); refreshAIUI();
+  if (save.voice) vaultSay(promptGreeting(), $('menuVoice'), { cache: false });
+  else $('menuVoice').hidden = true;
+});
+
+// hints (tilt modes): the solver finds the real next move; Claude phrases the nudge
+function tiltAscii(S) {
+  const L = G.L, g = [];
+  for (let y = 0; y < H; y++) { const r = []; for (let x = 0; x < W; x++) r.push(L.wall[y * W + x] ? '@' : ' '); g.push(r); }
+  const put = (i, ch) => { g[(i / W) | 0][i % W] = ch; };
+  for (const i of S.pits) put(i, 'o'); for (const i of S.slots) put(i, 'O');
+  if (L.exit >= 0) put(L.exit, 'X'); for (const i of S.gold) put(i, '$');
+  for (const o of S.m) put(o.i, o.k === 'p' ? 'P' : o.k === 'g' ? 'E' : 'b');
+  return g.map(r => r.join('')).join('\n');
+}
+function describeMove(d) {
+  const r = TILT.move(G.L, G.S, d), out = [];
+  const n = t => r.events.filter(e => e.t === t);
+  if (n('gold').length) out.push(`the thief grabs ${n('gold').length} gold`);
+  if (n('open').length) out.push('the hatch opens');
+  const gp = r.events.filter(e => e.t === 'pit' && e.k === 'g').length; if (gp) out.push(gp > 1 ? `${gp} guards drop into holes` : 'a guard drops into a hole');
+  const bp = r.events.filter(e => e.t === 'pit' && e.k === 'b').length; if (bp) out.push('a bar is sacrificed to fill a hole');
+  if (n('slot').length) out.push(`${n('slot').length > 1 ? n('slot').length + ' bars click' : 'a bar clicks'} into a slot`);
+  if (r.outcome === 'won') out.push('the puzzle is solved');
+  if (!out.length) out.push('nothing is taken yet; it lines the pieces up for what comes next');
+  return out.join(', ');
+}
+function clearHintArm() { document.querySelectorAll('.arm.hint').forEach(a => a.classList.remove('hint')); }
+function fallbackNudge(d) {
+  const desc = describeMove(d);
+  if (/guard drops|guards drop/.test(desc)) return 'Let a guard find a hole before you go anywhere near it.';
+  if (/grabs/.test(desc)) return 'There’s gold one good slide away.';
+  if (/clicks/.test(desc)) return 'One of those bars is lined up with a slot already.';
+  if (/sacrificed/.test(desc)) return 'Sometimes a bar has to fill a hole so the others can cross.';
+  return 'Don’t chase the gold yet. Line things up first.';
+}
+async function askHint() {
+  if (!G || G.kind !== 'tilt' || G.state !== 'play' || G.anim || G.revert) return;
+  sfx.hint();
+  const sol = TILT.solve(G.L, G.S, 80000);
+  if (sol === null) { showBanner('No way out', 'Nothing you tilt from here can finish this one. UNDO or RESET.', false, true); return; }
+  if (sol.par < 0) { showBanner('Even the vault isn’t sure', 'Try a RESET and a fresh start.', true, true); return; }
+  const key = TILT.key(G.S), d = sol.moves[0];
+  if (G.hintFor === key && G.hintStage >= 1) {
+    clearHintArm(); const arm = document.querySelector('.arm[data-d="' + d + '"]'); if (arm) arm.classList.add('hint');
+    showBanner('Tilt ' + DIRWORD[d], sol.par === 1 ? 'That finishes it.' : `Then ${sol.par - 1} more on the shortest route.`, false, true);
+    G.hintStage = 2; return;
+  }
+  G.hintFor = key; G.hintStage = 1;
+  if (!aiOK()) { showBanner('The vault whispers', fallbackNudge(d) + ' Tap HINT again for the move.', false, true); return; }
+  showBanner('The vault whispers', '…', false, true);
+  const legend = '@ wall, P thief, E guard, $ gold, X hatch (opens once all gold is gone), o hole, b loose gold bar, O empty slot';
+  const goal = G.L.goal === 'slots' ? 'Goal: tilt every loose bar b into an empty slot O.' : 'Goal: collect every $ by sliding over it, then slide the thief onto the hatch X.';
+  const prompt = `${VAULT}\n\nThe thief is stuck on one of your tilt puzzles and asked you for a hint. Tilting slides every loose piece until it hits a wall or another piece. A guard pressed against the thief along the tilt catches them. A hole swallows the first piece that slides onto it. ${goal}\nLegend: ${legend}.\nBoard now (gravity points ${DIRWORD[G.grav]}):\n${tiltAscii(G.S)}\nThe shortest solution from here is ${sol.par} tilts. If the thief tilts ${DIRWORD[d]} first, ${describeMove(d)}.\nGive one short nudge (under 22 words) toward that first tilt. Describe what it achieves instead of naming the direction.`;
+  const S0 = G.S;
+  try {
+    const r = await AI.fn(prompt, { model: 'claude-haiku-5-5', modelTier: 'quick' });
+    if (G.S === S0 && G.state === 'play') showBanner('The vault whispers', tidy(r.text) + ' (Tap HINT again for the move.)', false, true);
+  } catch (e) {
+    const m = aiFail(e);
+    if (G.S === S0) showBanner('The vault whispers', fallbackNudge(d) + (m ? ' ' + m : '') + ' Tap HINT again for the move.', false, true);
+  }
+}
+
+// dream vaults
+const DREAM_W = 12, DREAM_H = 10;
+const DREAM_THEMES = ['an airplane at night', 'a sleeping cat', 'a lighthouse', 'a spiral staircase', 'a coffee cup', 'a rocket', 'a whale', 'a key'];
+const ADJ = ['Velvet', 'Copper', 'Moonlit', 'Paper', 'Hollow', 'Sleepy', 'Clockwork', 'Lantern', 'Marble', 'Tin', 'Quiet', 'Saffron'];
+const NOUN = ['Drop', 'Lockbox', 'Hatch', 'Gallery', 'Pantry', 'Attic', 'Orchard', 'Harbor', 'Pocket', 'Rattle', 'Cellar', 'Burrow'];
+function mulberry(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+function cleanRows(rows) {
+  const g = [];
+  for (let y = 0; y < DREAM_H; y++) {
+    const src = String((rows && rows[y]) || ''), r = [];
+    for (let x = 0; x < DREAM_W; x++) {
+      let ch = src[x] || ' ';
+      if (ch === '#') ch = '@';
+      if (!'@ P$XEo'.includes(ch)) ch = ' ';
+      if (y === 0 || y === DREAM_H - 1 || x === 0 || x === DREAM_W - 1) ch = '@';
+      r.push(ch);
+    }
+    g.push(r);
+  }
+  return g;
+}
+function settleRows(g) {
+  const rows = g.map(r => r.join('')), L = TILT.parse(rows), st = TILT.start(L);
+  if (st.settle.outcome !== 'ok' || st.settle.events.length) return null;
+  const out = g.map(r => r.slice());
+  for (const o of L.movers) out[(o.i / L.w) | 0][o.i % L.w] = ' ';
+  for (const o of st.state.m) { const y = (o.i / L.w) | 0, x = o.i % L.w; if (out[y][x] !== ' ') return null; out[y][x] = o.k === 'p' ? 'P' : 'E'; }
+  return out.map(r => r.join(''));
+}
+function evaluate(rows) {
+  const L = TILT.parse(rows), st = TILT.start(L);
+  const sol = TILT.solve(L, st.state, 15000);
+  return sol && sol.par > 0 ? sol.par : 0;
+}
+async function tunePieces(g, want, R, onProgress) {
+  // keep the drawn walls; search for a placement of the pieces that makes a good puzzle
+  const empty = [];
+  for (let y = 1; y < DREAM_H - 1; y++) for (let x = 1; x < DREAM_W - 1; x++) if (g[y][x] !== '@') empty.push([x, y]);
+  const walls = g.map(r => r.map(c => c === '@' ? '@' : ' '));
+  let best = null, bestScore = -1, tries = 0;
+  const t0 = performance.now();
+  let counts = Object.assign({}, want);
+  while (performance.now() - t0 < 4200) {
+    for (let k = 0; k < 6; k++) {
+      tries++;
+      const gg = walls.map(r => r.slice());
+      const pool = empty.slice();
+      const take = ch => { if (!pool.length) return; const j = (R() * pool.length) | 0; const [x, y] = pool.splice(j, 1)[0]; gg[y][x] = ch; };
+      take('P'); take('X');
+      for (let i = 0; i < counts.gold; i++) take('$');
+      for (let i = 0; i < counts.guards; i++) take('E');
+      for (let i = 0; i < counts.pits; i++) take('o');
+      const rows = settleRows(gg); if (!rows) continue;
+      const par = evaluate(rows); if (!par) continue;
+      const score = par >= 6 && par <= 14 ? 100 - Math.abs(10 - par) : par < 6 ? par * 8 : 60 - (par - 14) * 3;
+      if (score > bestScore) { bestScore = score; best = { rows, par }; }
+    }
+    if (bestScore >= 96) break;
+    if (tries % 120 === 0 && !best) { if (counts.guards) counts.guards--; else if (counts.pits) counts.pits--; }
+    if (onProgress) onProgress(tries);
+    await new Promise(r => setTimeout(r, 0));
+  }
+  return best;
+}
+function randomWalls(R) {
+  const g = [];
+  for (let y = 0; y < DREAM_H; y++) { const r = []; for (let x = 0; x < DREAM_W; x++) r.push(y === 0 || y === DREAM_H - 1 || x === 0 || x === DREAM_W - 1 ? '@' : ' '); g.push(r); }
+  const n = Math.round((DREAM_W - 2) * (DREAM_H - 2) * (.14 + R() * .08) / 2);
+  for (let k = 0; k < n; k++) {
+    const x = 1 + ((R() * (DREAM_W / 2 - 1)) | 0), y = 1 + ((R() * (DREAM_H - 2)) | 0);
+    g[y][x] = '@'; g[y][DREAM_W - 1 - x] = '@';
+    if (R() < .35 && x + 1 < DREAM_W / 2) { g[y][x + 1] = '@'; g[y][DREAM_W - 2 - x] = '@'; }
+  }
+  return g;
+}
+const DREAM_RULES = `How your puzzles work: a grid seen from the side, 12 columns by 10 rows. Tilting slides every loose piece in one direction until it hits a wall or another piece. The thief P grabs any gold $ it slides over. When all gold is gone the hatch X opens and the thief must slide onto it. Guards E slide too; if a guard ends up pressed against the thief along the tilt, the thief is caught. A hole o swallows the first piece that slides onto it: good for guards, fatal for the thief.
+Draw the puzzle:
+- exactly 10 strings, each exactly 12 characters
+- the outer ring is all @
+- inside, use @ walls to draw a simple pixel picture of the theme (roughly 15 to 25 percent of the inside cells), leaving open lanes between walls
+- place exactly one P, one X, two to four $, zero to two E, and zero to two o; every other cell is a space
+Reply with only JSON in this shape: {"name": "a 2 to 4 word name for this vault", "rows": ["@@@@@@@@@@@@", "..."], "note": "one short sentence you say to the thief about this puzzle"}`;
+function dreamStatus(t) { $('dStatus').textContent = t; }
+let dreamBusy = false, dreamReady = null;
+function openDream() {
+  hideOverlays(); menuOpen = true;
+  $('dreamOv').hidden = false; overlayOpen = 'dream';
+  dreamStatus(''); $('dreamVoice').hidden = true; $('btnPlayDream').hidden = true; dreamReady = null;
+  refreshAIUI(); renderDreamList();
+  const chips = $('dChips'); chips.textContent = '';
+  const R = mulberry((Date.now() / 1000) | 0);
+  const picks = DREAM_THEMES.slice().sort(() => R() - .5).slice(0, 4);
+  for (const t of picks) { const c = document.createElement('button'); c.className = 'chip'; c.textContent = t; c.addEventListener('click', () => { $('dTheme').value = t; }); chips.appendChild(c); }
+}
+function renderDreamList() {
+  const list = $('dPast'); list.textContent = '';
+  $('dPastH').hidden = !save.dreams.length;
+  save.dreams.slice().reverse().forEach(d => {
+    const b = document.createElement('button');
+    const n = document.createElement('span'); n.textContent = d.name;
+    const s = document.createElement('small'); s.textContent = (d.best != null ? 'best ' + d.best + ' · ' : '') + 'par ' + d.par;
+    b.append(n, s); b.addEventListener('click', () => playDream(d)); list.appendChild(b);
+  });
+}
+function storeDream(d) {
+  const i = save.dreams.findIndex(x => x.id === d.id);
+  if (i >= 0) save.dreams[i] = d; else { save.dreams.push(d); while (save.dreams.length > 8) save.dreams.shift(); }
+  writeSave();
+}
+async function dreamUp() {
+  if (dreamBusy) return;
+  dreamBusy = true; $('btnDream').disabled = true; $('btnPlayDream').hidden = true; $('dreamVoice').hidden = true; dreamReady = null;
+  const seed = (Date.now() ^ (Math.random() * 1e9)) >>> 0, R = mulberry(seed);
+  let name = ADJ[(R() * ADJ.length) | 0] + ' ' + NOUN[(R() * NOUN.length) | 0], note = '', by = 'vault', grid = null, want = { gold: 3, guards: R() < .6 ? 1 : 2, pits: R() < .5 ? 1 : 0 };
+  const theme = ($('dTheme').value || '').trim().slice(0, 60);
+  try {
+    if (aiOK()) {
+      dreamStatus('Claude is drawing…');
+      try {
+        const data = await AI.fn.json(`${VAULT}\n\nYou are dreaming up a new puzzle for the thief. Theme: ${theme ? '"' + theme.replace(/"/g, "'") + '"' : 'your choice; pick something whimsical and say what it is in the name'}.\n\n${DREAM_RULES}`,
+          { model: 'claude-haiku-5-5', modelTier: 'quick', cache: false });
+        if (data && Array.isArray(data.rows)) {
+          grid = cleanRows(data.rows); by = 'claude';
+          if (typeof data.name === 'string' && data.name.trim()) name = tidy(data.name).slice(0, 32);
+          if (typeof data.note === 'string') note = tidy(data.note).slice(0, 160);
+          const cnt = ch => grid.flat().filter(c => c === ch).length;
+          want = { gold: Math.max(2, Math.min(4, cnt('$') || 3)), guards: Math.min(2, cnt('E')), pits: Math.min(2, cnt('o')) };
+        }
+      } catch (e) {
+        const m = aiFail(e);
+        dreamStatus((m ? m + ' ' : '') + 'The vault will dream on its own.');
+        await new Promise(r => setTimeout(r, 700));
+      }
+    }
+    if (!grid) grid = randomWalls(R);
+    // Claude's own placement first, if it already makes a fair puzzle
+    let result = null, tuned = false;
+    if (by === 'claude') {
+      dreamStatus('Checking it can be solved…');
+      await new Promise(r => setTimeout(r, 30));
+      const g2 = grid.map(r => r.slice());
+      const ps = []; g2.forEach((r, y) => r.forEach((c, x) => { if (c === 'P') ps.push([x, y]); }));
+      ps.slice(1).forEach(([x, y]) => { g2[y][x] = ' '; });
+      const xs = []; g2.forEach((r, y) => r.forEach((c, x) => { if (c === 'X') xs.push([x, y]); }));
+      xs.slice(1).forEach(([x, y]) => { g2[y][x] = ' '; });
+      if (ps.length && xs.length && g2.flat().includes('$')) {
+        const rows = settleRows(g2);
+        if (rows) { const par = evaluate(rows); if (par >= 4 && par <= 24) result = { rows, par }; }
+      }
+    }
+    if (!result) {
+      tuned = by === 'claude';
+      dreamStatus(by === 'claude' ? 'Tuning the pieces so it can be solved…' : 'The vault is dreaming…');
+      result = await tunePieces(grid, want, R, n => { if (by !== 'claude') dreamStatus('The vault is dreaming… ' + n); });
+      let carve = 0;
+      while (!result && carve++ < 6) {
+        const inner = []; grid.forEach((r, y) => r.forEach((c, x) => { if (c === '@' && y > 0 && y < DREAM_H - 1 && x > 0 && x < DREAM_W - 1) inner.push([x, y]); }));
+        for (let k = 0; k < 4 && inner.length; k++) { const [x, y] = inner.splice((R() * inner.length) | 0, 1)[0]; grid[y][x] = ' '; }
+        result = await tunePieces(grid, { gold: 2, guards: 0, pits: 0 }, R);
+      }
+    }
+    if (!result) { dreamStatus('That dream fell apart. Try again.'); return; }
+    const d = { id: seed, name, note, by, tuned, theme, map: result.rows, par: result.par, mode: 'tilt', act: 3, best: null,
+      hint: note || (theme ? 'A dream about ' + theme + '.' : 'A puzzle nobody has ever solved.') };
+    storeDream(d); renderDreamList();
+    dreamReady = d;
+    dreamStatus(`${d.name} · par ${d.par}` + (by === 'claude' ? (tuned ? ' · drawn by Claude, pieces placed by the solver' : ' · drawn by Claude, checked by the solver') : ''));
+    if (note) { $('dreamVoice').hidden = false; $('dreamVoice').classList.remove('thinking'); sayInto($('dreamVoice'), note); }
+    $('btnPlayDream').hidden = false;
+  } finally { dreamBusy = false; $('btnDream').disabled = false; }
+}
+function playDream(d) {
+  ensureAudio(); keepAwake();
+  hideOverlays(); menuOpen = false; paused = false;
+  loadLevel(-1, { dream: d });
+}
+
+// ---------------- input ----------------
+function setPad(d) {
+  if (input.pad === d) return;
+  input.pad = d; if (d) input.tap = { d, t: clock };
+  document.querySelectorAll('.arm').forEach(a => a.classList.toggle('on', a.dataset.d === d));
+  if (d && G && G.kind === 'tilt' && !menuOpen && !paused) tiltInput(d);
+  if (d === 'U' && G && G.kind === 'arcade') input.throwReq = clock;
+}
+function releaseInput() { setPad(null); input.keys.length = 0; input.throwHeld = false; arcDrag = null; arcDragId = null; $('btnThrow').classList.remove('on'); }
+const padEl = $('pad'), dpadEl = padEl.querySelector('.dpad');
+let padId = null;
+function padFromEvent(e) {
+  const r = dpadEl.getBoundingClientRect();
+  const dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
+  if (Math.hypot(dx, dy) < r.width * .1) return null;
+  const ax = Math.abs(dx), ay = Math.abs(dy), cd = input.pad;
+  const bias = 1.25;
+  let horiz = ax > ay;
+  if (cd === 'L' || cd === 'R') horiz = ay < ax * bias;
+  else if (cd === 'U' || cd === 'D') horiz = ax > ay * bias;
+  return horiz ? (dx < 0 ? 'L' : 'R') : (dy < 0 ? 'U' : 'D');
+}
+padEl.addEventListener('pointerdown', e => {
+  e.preventDefault(); ensureAudio(); keepAwake();
+  padId = e.pointerId; try { padEl.setPointerCapture(e.pointerId); } catch (_) {}
+  setPad(padFromEvent(e));
+});
+padEl.addEventListener('pointermove', e => { if (e.pointerId === padId) setPad(padFromEvent(e)); });
+for (const ev of ['pointerup', 'pointercancel', 'lostpointercapture'])
+  padEl.addEventListener(ev, e => { if (e.pointerId === padId) { padId = null; setPad(null); } });
+function digPress(dir, el) { ensureAudio(); keepAwake(); input.digReq = { dir, t: clock }; if (el) el.classList.add('on'); }
+function flipPress() { ensureAudio(); keepAwake(); input.flipReq = { t: clock }; $('btnFlip').classList.add('on'); }
+function bindButton(id, fn) {
+  const el = $(id);
+  el.addEventListener('pointerdown', e => { e.preventDefault(); try { el.setPointerCapture(e.pointerId); } catch (_) {} el.classList.add('on'); fn(); });
+  for (const ev of ['pointerup', 'pointercancel', 'lostpointercapture']) el.addEventListener(ev, () => el.classList.remove('on'));
+  el.addEventListener('click', e => e.preventDefault());
+}
+bindButton('digL', () => digPress(-1));
+bindButton('digR', () => digPress(1));
+bindButton('btnFlip', flipPress);
+bindButton('btnUndo', () => { ensureAudio(); if (G && G.kind === 'tilt') tiltUndo(); });
+bindButton('btnReset', () => { ensureAudio(); if (G && G.kind === 'tilt') tiltReset(); });
+bindButton('btnHint', () => { ensureAudio(); askHint(); });
+// Side B: hold THROW for a steady stream; drag on the board to run
+(() => {
+  const el = $('btnThrow');
+  el.addEventListener('pointerdown', e => { e.preventDefault(); ensureAudio(); keepAwake(); try { el.setPointerCapture(e.pointerId); } catch (_) {} el.classList.add('on'); input.throwHeld = true; input.throwReq = clock; });
+  for (const ev of ['pointerup', 'pointercancel', 'lostpointercapture']) el.addEventListener(ev, () => { el.classList.remove('on'); input.throwHeld = false; });
+  el.addEventListener('click', e => e.preventDefault());
+})();
+function boardX(e) { const r = cv.getBoundingClientRect(); return (e.clientX - r.left) / r.width * W; }
+stage.addEventListener('pointerdown', e => {
+  if (!G || G.kind !== 'arcade' || menuOpen || paused) return;
+  ensureAudio(); keepAwake(); arcDragId = e.pointerId; arcDrag = boardX(e);
+  try { stage.setPointerCapture(e.pointerId); } catch (_) {}
+});
+stage.addEventListener('pointermove', e => { if (e.pointerId === arcDragId && G && G.kind === 'arcade') arcDrag = boardX(e); });
+for (const ev of ['pointerup', 'pointercancel', 'lostpointercapture']) stage.addEventListener(ev, e => { if (e.pointerId === arcDragId) { arcDragId = null; arcDrag = null; } });
+// swipe the board to tilt
+let swipe = null;
+stage.addEventListener('pointerdown', e => { if (G && G.kind === 'tilt') swipe = { x: e.clientX, y: e.clientY, id: e.pointerId }; });
+stage.addEventListener('pointerup', e => {
+  if (!swipe || e.pointerId !== swipe.id) return;
+  const dx = e.clientX - swipe.x, dy = e.clientY - swipe.y; swipe = null;
+  if (Math.max(Math.abs(dx), Math.abs(dy)) < 26 || !G || G.kind !== 'tilt' || menuOpen || paused) return;
+  ensureAudio(); tiltInput(Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 'L' : 'R') : (dy < 0 ? 'U' : 'D'));
+});
+const KEYMAP = { ArrowLeft: 'L', ArrowRight: 'R', ArrowUp: 'U', ArrowDown: 'D', a: 'L', d: 'R', w: 'U', s: 'D', A: 'L', D: 'R', W: 'U', S: 'D' };
+window.addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.target && e.target.tagName === 'INPUT') { if (e.key === 'Enter' && overlayOpen === 'dream') dreamUp(); return; }
+  const d = KEYMAP[e.key];
+  if (d) {
+    e.preventDefault(); ensureAudio();
+    if (menuOpen || paused) return;
+    if (G && G.kind === 'tilt') { if (!e.repeat) tiltInput(d); return; }
+    if (G && G.kind === 'arcade' && d === 'U') { if (!e.repeat) input.throwReq = clock; return; }
+    if (!input.keys.includes(d)) { input.keys.push(d); input.tap = { d, t: clock }; }
+    return;
+  }
+  const k = e.key.toLowerCase();
+  if (k === 'p' || k === 'escape') { if (!menuOpen && !clearShown) setPaused(!paused); return; }
+  if (menuOpen || paused) { if (k === 'enter' && clearShown && !$('btnNext').hidden) $('btnNext').click(); return; }
+  const m = G ? modeOf(cur()) : 'run';
+  if (m === 'arcade' && ['z', 'x', ' ', 'f', 'j', 'k'].includes(k)) { e.preventDefault(); input.throwHeld = true; input.throwReq = clock; $('btnThrow').classList.add('on'); return; }
+  if (k === 'z' || k === 'q' || k === 'j') {
+    e.preventDefault();
+    if (m === 'run') { digPress(-1, $('digL')); setTimeout(() => $('digL').classList.remove('on'), 90); }
+    else if (m === 'flip') { flipPress(); setTimeout(() => $('btnFlip').classList.remove('on'), 90); }
+    else tiltUndo();
+  } else if (k === 'x' || k === 'e' || k === 'k' || k === ' ' || k === 'f') {
+    e.preventDefault();
+    if (m === 'run' && k !== ' ' && k !== 'f') { digPress(1, $('digR')); setTimeout(() => $('digR').classList.remove('on'), 90); }
+    else if (m === 'flip') { flipPress(); setTimeout(() => $('btnFlip').classList.remove('on'), 90); }
+  } else if (k === 'u' && G && G.kind === 'tilt') tiltUndo();
+  else if (k === 'h' && G && G.kind === 'tilt') askHint();
+  else if (k === 'r' && G && G.state === 'play') { if (G.kind === 'tilt') tiltReset(); else restartLevel(true); }
+});
+window.addEventListener('keyup', e => {
+  const d = KEYMAP[e.key]; if (d) { const i = input.keys.indexOf(d); if (i >= 0) input.keys.splice(i, 1); }
+  if (['z', 'q', 'j', 'x', 'e', 'k', ' ', 'f'].includes(e.key.toLowerCase())) { $('btnFlip').classList.remove('on'); input.throwHeld = false; $('btnThrow').classList.remove('on'); }
+});
+document.addEventListener('pointerup', () => $('btnFlip').classList.remove('on'));
+window.addEventListener('blur', releaseInput);
+document.addEventListener('gesturestart', e => e.preventDefault());
+document.addEventListener('contextmenu', e => { if (!(e.target && e.target.tagName === 'INPUT')) e.preventDefault(); });
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { if (!menuOpen && !clearShown && G && G.state === 'play') setPaused(true); }
+  else keepAwake();
+});
+
+function toggleLanguage() {
+  LANG = (LANG === 'zh' ? 'en' : 'zh');
+  try { localStorage.setItem('night_vault_lang', LANG); } catch (e) {}
+  applyLanguage();
+  if (typeof sfx !== 'undefined' && sfx && sfx.tick) sfx.tick();
+}
+if ($('btnLang')) $('btnLang').addEventListener('click', toggleLanguage);
+if ($('btnMenuLang')) $('btnMenuLang').addEventListener('click', toggleLanguage);
+applyLanguage();
+$('btnPause').addEventListener('click', () => { if (menuOpen || clearShown) return; setPaused(!paused); });
+$('btnResume').addEventListener('click', () => setPaused(false));
+$('btnRestart').addEventListener('click', () => { restartLevel(true); setPaused(false); });
+$('btnMenu').addEventListener('click', openMenu);
+$('btnMenu2').addEventListener('click', openMenu);
+$('btnReplay').addEventListener('click', () => { if (G.dream) playDream(G.dream); else startLevel(G.level, true); });
+$('btnNext').addEventListener('click', () => startLevel(Math.min(G.level + 1, LEVELS.length - 1)));
+$('btnDreamAgain').addEventListener('click', openDream);
+$('btnDream').addEventListener('click', () => { ensureAudio(); dreamUp(); });
+$('btnPlayDream').addEventListener('click', () => { if (dreamReady) playDream(dreamReady); });
+$('btnDreamBack').addEventListener('click', openMenu);
+function syncSound() { $('btnSound').setAttribute('aria-pressed', String(!save.muted)); }
+$('btnSound').addEventListener('click', () => { save.muted = !save.muted; writeSave(); syncSound(); ensureAudio(); if (!save.muted) sfx.gold(); });
+
+let wakeLock = null;
+async function keepAwake() {
+  try { if (!wakeLock && navigator.wakeLock && !document.hidden) { wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release', () => { wakeLock = null; }); } } catch (e) { wakeLock = null; }
+}
+
+// ---------------- loop ----------------
+let last = 0;
+function frame(ts) {
+  const dt = last ? Math.min(.05, (ts - last) / 1000) : 0; last = ts;
+  if (!manual) { if (!paused && !menuOpen) update(dt); else clock += dt * .25; }
+  draw();
+  requestAnimationFrame(frame);
+}
+
+// test hooks (automated play-testing; harmless in normal play)
+window.__nv = {
+  get G() { return G; }, LEVELS, TILT, ACTS, setManual(v) { manual = v; },
+  tick(dt, n) { for (let i = 0; i < (n || 1); i++) update(dt); draw(); },
+  load(i) { startLevel(i, true); }, loadRows(rows, mode) { const lv = { name: 'Test', mode: mode || 'run', act: 0, map: rows, test: true }; menuOpen = false; hideOverlays(); loadLevel(-1, { dream: lv }); G.dream = lv; },
+  setPad, dig(dir) { input.digReq = { dir, t: clock }; }, flip() { input.flipReq = { t: clock }; },
+  tilt(d) { tiltInput(d); }, undo: () => tiltUndo(), reset: () => tiltReset(), hint: () => askHint(),
+  get clock() { return clock; }, save: () => save, dreamUp: () => dreamUp(), openDream: () => openDream(), get dreamReady() { return dreamReady; },
+  playDream: d => playDream(d), get AI() { return AI; }, jumpTo: a => jumpTo(a),
+  throwTap() { input.throwReq = clock; }, setThrow(v) { input.throwHeld = !!v; }, drag(x) { arcDrag = x; }
+};
+
+function start(data) {
+  syncSound();
+  const lvl = Math.max(0, Math.min(LEVELS.length - 1, (data && data.level >= 0 ? data.level : null) ?? save.unlocked));
+  G = buildAny(LEVELS[lvl], lvl);
+  applyMode();
+  updateHud();
+  new ResizeObserver(layout).observe(stage);
+  window.addEventListener('resize', layout);
+  layout();
+  if (data && data.playing && data.level >= 0) startLevel(lvl, true); else openMenu();
+  initAI();
+  requestAnimationFrame(frame);
+}
+window.claude?.hot?.snapshot?.(() => ({ level: G && !G.dream ? G.level : -1, playing: !menuOpen && !!G && !G.dream }));
+window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
+</script>
+</body>
+</html>

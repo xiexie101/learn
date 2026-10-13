@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KINETIC MANIFESTO // 动效重力论 · 15s Motion Showreel 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+SC:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-dark: #07090e;
+      --bg-card: rgba(16, 22, 34, 0.85);
+      --border-dark: rgba(255, 255, 255, 0.08);
+      --border-glow: rgba(0, 240, 255, 0.4);
+      --cyan: #00f0ff;
+      --acid: #ccff00;
+      --magenta: #ff0055;
+      --white: #ffffff;
+      --muted: #8b9bb4;
+      --font-display: 'Plus Jakarta Sans', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-zh: 'Noto Sans SC', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--white);
+      font-family: var(--font-display);
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-image: 
+        radial-gradient(circle at 50% 10%, rgba(0, 240, 255, 0.06), transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(204, 255, 0, 0.04), transparent 40%);
+    }
+
+    /* Top Navigation Bar */
+    .top-nav {
+      width: 100%;
+      max-width: 1400px;
+      padding: 24px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-dark);
+    }
+
+    .brand-lockup {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-symbol {
+      width: 38px;
+      height: 38px;
+      border: 2px solid var(--cyan);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--acid);
+      background: rgba(0, 240, 255, 0.08);
+      box-shadow: 0 0 16px rgba(0, 240, 255, 0.25);
+    }
+
+    .brand-meta h1 {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-badge {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(204, 255, 0, 0.12);
+      color: var(--acid);
+      border: 1px solid rgba(204, 255, 0, 0.3);
+    }
+
+    .brand-desc {
+      font-size: 12px;
+      color: var(--muted);
+      font-family: var(--font-zh);
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .btn-outline {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-dark);
+      color: var(--white);
+    }
+
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    .btn-primary {
+      background: var(--cyan);
+      border: 1px solid var(--cyan);
+      color: #07090e;
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: #33f3ff;
+      transform: translateY(-1px);
+      box-shadow: 0 0 25px rgba(0, 240, 255, 0.5);
+    }
+
+    /* Main Showcase Stage */
+    .stage-container {
+      width: 100%;
+      max-width: 1400px;
+      padding: 32px 32px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .theater-viewport {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      border-radius: 16px;
+      border: 1px solid var(--border-dark);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 30px 90px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 240, 255, 0.08);
+    }
+
+    /* Video & Canvas Elements */
+    #showreel-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain;
+    }
+
+    #showreel-video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: none;
+    }
+
+    /* Stage HUD Overlays */
+    .viewport-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 24px;
+    }
+
+    .viewport-mode-tag {
+      align-self: flex-start;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      background: rgba(7, 9, 14, 0.7);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border-glow);
+      padding: 4px 10px;
+      border-radius: 6px;
+      color: var(--cyan);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .mode-pulse {
+      width: 6px;
+      height: 6px;
+      background: var(--acid);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--acid);
+      animation: pulse 1.2s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.3; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.3); }
+    }
+
+    /* Video Control Panel Bar */
+    .controls-bar {
+      width: 100%;
+      margin-top: 18px;
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-dark);
+      border-radius: 14px;
+      padding: 16px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Timeline Scrubber */
+    .timeline-track-wrap {
+      width: 100%;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .act-markers {
+      position: relative;
+      width: 100%;
+      height: 14px;
+      display: flex;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .act-mark {
+      position: absolute;
+      top: 0;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      padding: 0 4px;
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 4px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--cyan), var(--acid));
+      border-radius: 4px;
+      transition: width 0.05s linear;
+      box-shadow: 0 0 12px rgba(204, 255, 0, 0.5);
+    }
+
+    .control-actions-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .left-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .ctrl-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-dark);
+      color: var(--white);
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.15s ease;
+    }
+
+    .ctrl-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    .ctrl-btn.active {
+      background: var(--cyan);
+      color: #000;
+      border-color: var(--cyan);
+    }
+
+    .timecode-display {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--acid);
+      background: rgba(0, 0, 0, 0.5);
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: 1px solid rgba(204, 255, 0, 0.2);
+    }
+
+    .right-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toggle-group {
+      display: flex;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 3px;
+      border-radius: 8px;
+      border: 1px solid var(--border-dark);
+    }
+
+    .toggle-opt {
+      padding: 5px 12px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--muted);
+      transition: all 0.15s ease;
+    }
+
+    .toggle-opt.selected {
+      background: rgba(255, 255, 255, 0.12);
+      color: var(--white);
+      font-weight: 600;
+    }
+
+    /* Resume & Programme Breakdown Section */
+    .programme-grid {
+      width: 100%;
+      max-width: 1400px;
+      padding: 32px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .act-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-dark);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+      cursor: pointer;
+    }
+
+    .act-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--cyan);
+    }
+
+    .act-card.active {
+      border-color: var(--acid);
+      background: rgba(20, 28, 44, 0.9);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .act-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .act-num {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--acid);
+      font-weight: 700;
+    }
+
+    .act-time {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .act-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--white);
+    }
+
+    .act-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+      font-family: var(--font-zh);
+    }
+
+    .act-tag {
+      align-self: flex-start;
+      margin-top: auto;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--cyan);
+    }
+
+    /* Resume Profile Bar */
+    .resume-bar {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 32px 48px;
+      background: linear-gradient(135deg, rgba(16, 24, 38, 0.95), rgba(24, 16, 32, 0.95));
+      border: 1px solid var(--border-dark);
+      border-radius: 16px;
+      padding: 32px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+
+    .resume-left h2 {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .resume-left p {
+      font-size: 14px;
+      color: var(--cyan);
+      margin-top: 4px;
+      font-family: var(--font-mono);
+    }
+
+    .resume-skills {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .skill-pill {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-dark);
+      color: var(--white);
+    }
+
+    /* Floating Tweaks Panel */
+    .tweaks-toggle {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-glow);
+      color: var(--cyan);
+      padding: 10px 18px;
+      border-radius: 30px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      backdrop-filter: blur(12px);
+    }
+
+    .tweaks-panel {
+      position: fixed;
+      bottom: 80px;
+      right: 24px;
+      width: 320px;
+      background: rgba(14, 18, 28, 0.96);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-dark);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+      z-index: 998;
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .tweaks-panel.open {
+      display: flex;
+    }
+
+    .tweak-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+      font-size: 13px;
+      border-bottom: 1px solid var(--border-dark);
+      padding-bottom: 10px;
+      color: var(--acid);
+    }
+
+    .tweak-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .tweak-row label {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .tweak-slider {
+      width: 100%;
+      accent-color: var(--cyan);
+    }
+
+    @media (max-width: 900px) {
+      .programme-grid {
+        grid-template-columns: 1fr;
+      }
+      .resume-bar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="top-nav">
+    <div class="brand-lockup">
+      <div class="brand-symbol">AG</div>
+      <div class="brand-meta">
+        <h1>KINETIC MANIFESTO <span class="brand-badge">REEL '26</span></h1>
+        <div class="brand-desc">SHERWIN XIE // 资深动态图形设计与创意技术展演</div>
+      </div>
+    </div>
+    <div class="nav-actions">
+      <a href="../nav/index.html" class="btn btn-outline">← 返回实验导航</a>
+      <a href="motion_designer_showreel_15s.mp4" download="Sherwin_Xie_15s_Showreel.mp4" class="btn btn-primary">
+        ↓ 下载 1080p MP4
+      </a>
+    </div>
+  </header>
+
+  <!-- Showcase Stage -->
+  <main class="stage-container">
+    <div class="theater-viewport" id="viewport-box">
+      <!-- 60FPS Interactive Canvas Engine -->
+      <canvas id="showreel-canvas" width="1920" height="1080"></canvas>
+
+      <!-- Broadcast 1080p Video Mode -->
+      <video id="showreel-video" src="motion_designer_showreel_15s.mp4" playsinline preload="auto"></video>
+
+      <!-- Audio Element for Canvas Mode -->
+      <audio id="soundtrack" src="audio.mp3" preload="auto"></audio>
+
+      <!-- Viewport HUD Overlay -->
+      <div class="viewport-overlay">
+        <div class="viewport-mode-tag" id="engine-tag">
+          <span class="mode-pulse"></span>
+          <span id="engine-text">CANVAS 60FPS PROCEDURAL ENGINE</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline & Playback Controller -->
+    <div class="controls-bar">
+      <!-- Scrubber -->
+      <div class="timeline-track-wrap" id="timeline-track">
+        <div class="act-markers">
+          <span class="act-mark" style="left: 0%;">[01] AWAKENING</span>
+          <span class="act-mark" style="left: 20%;">[02] 3D TOPOLOGY</span>
+          <span class="act-mark" style="left: 43.3%;">[03] SPATIAL HUD</span>
+          <span class="act-mark" style="left: 66.6%;">[04] TYPOGRAPHY</span>
+          <span class="act-mark" style="left: 86.6%;">[05] FINALE</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progress-fill"></div>
+        </div>
+      </div>
+
+      <!-- Control Buttons & Metrics -->
+      <div class="control-actions-row">
+        <div class="left-controls">
+          <button class="ctrl-btn" id="btn-play" title="Play/Pause">▶</button>
+          <button class="ctrl-btn" id="btn-prev" title="Step Back 1 Frame">◀</button>
+          <button class="ctrl-btn" id="btn-next" title="Step Forward 1 Frame">▶</button>
+          <div class="timecode-display" id="tc-display">00:00:00:00</div>
+          <button class="ctrl-btn" id="btn-audio" title="Audio Toggle">🔊</button>
+        </div>
+
+        <div class="right-controls">
+          <!-- Mode Switcher -->
+          <div class="toggle-group" id="mode-switcher">
+            <div class="toggle-opt selected" data-mode="canvas">Canvas 引擎</div>
+            <div class="toggle-opt" data-mode="video">高清 MP4 播映</div>
+          </div>
+
+          <!-- Speed Switcher -->
+          <div class="toggle-group" id="speed-switcher">
+            <div class="toggle-opt" data-speed="0.5">0.5x</div>
+            <div class="toggle-opt selected" data-speed="1.0">1.0x</div>
+            <div class="toggle-opt" data-speed="2.0">2.0x</div>
+          </div>
+
+          <button class="ctrl-btn" id="btn-fullscreen" title="Fullscreen">⛶</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Showreel Resume Programme Breakdown -->
+  <section class="programme-grid">
+    <div class="act-card active" data-seek="0.0">
+      <div class="act-header">
+        <span class="act-num">ACT 01</span>
+        <span class="act-time">00.0s – 03.0s</span>
+      </div>
+      <div class="act-title">破格觉醒 · KINETIC AWAKENING</div>
+      <div class="act-desc">高能动态文字排印与色差分离（RGB Split），瑞士国际主义栅格与三维轴倾角弹性破屏。</div>
+      <span class="act-tag">#KineticType #Chromatic #SwissGrid</span>
+    </div>
+
+    <div class="act-card" data-seek="3.0">
+      <div class="act-header">
+        <span class="act-num">ACT 02</span>
+        <span class="act-time">03.0s – 06.5s</span>
+      </div>
+      <div class="act-title">几何拓扑 · 3D TOPOLOGY</div>
+      <div class="act-desc">正二十面体三维线框投影、动态法向爆破视差、阻尼弹簧运动方程与拓扑波形阵列。</div>
+      <span class="act-tag">#3DProjection #SpringPhysics #Mesh</span>
+    </div>
+
+    <div class="act-card" data-seek="6.5">
+      <div class="act-header">
+        <span class="act-num">ACT 03</span>
+        <span class="act-time">06.5s – 10.0s</span>
+      </div>
+      <div class="act-title">未来交互 · SPATIAL HUD</div>
+      <div class="act-desc">微米级同心圆刻度盘旋转、雷达扫描光束、音频动力学示波器与悬浮玻璃拟态卡片阵列。</div>
+      <span class="act-tag">#FutureUI #MicroInteractions #HUD</span>
+    </div>
+
+    <div class="act-card" data-seek="10.0">
+      <div class="act-header">
+        <span class="act-num">ACT 04 & 05</span>
+        <span class="act-time">10.0s – 15.0s</span>
+      </div>
+      <div class="act-title">节奏爆发与简历终章 · FINALE</div>
+      <div class="act-desc">四连击字重闪击、三维圆柱形文字轮盘高速回旋，急刹定格至资深动效设计师专业简历名牌。</div>
+      <span class="act-tag">#SpeedRamp #3DCylinder #ResumeLockup</span>
+    </div>
+  </section>
+
+  <!-- Resume Summary Banner -->
+  <section class="resume-bar">
+    <div class="resume-left">
+      <h2>SHERWIN XIE // 谢书房动效实验室</h2>
+      <p>SENIOR MOTION DESIGNER & CREATIVE TECHNOLOGIST</p>
+    </div>
+    <div class="resume-skills">
+      <span class="skill-pill">动态几何系统 (Kinetic Math)</span>
+      <span class="skill-pill">三维程序化动效 (3D Topology)</span>
+      <span class="skill-pill">空间界面微交互 (Spatial HUD)</span>
+      <span class="skill-pill">声画微秒精准对位 (AV Sync)</span>
+      <span class="skill-pill">Remotion / Canvas / WebGL</span>
+    </div>
+  </section>
+
+  <!-- Floating Tweaks Button & Panel -->
+  <button class="tweaks-toggle" id="tweaks-toggle-btn">
+    ⚙ 动效参数微调
+  </button>
+  <div class="tweaks-panel" id="tweaks-panel">
+    <div class="tweak-header">
+      <span>TWEAKS // 参数实验室</span>
+      <span style="cursor:pointer;" id="tweaks-close">✕</span>
+    </div>
+    <div class="tweak-row">
+      <label><span>主题色彩 (Accent Hue)</span><span id="hue-val">Cyan</span></label>
+      <input type="range" class="tweak-slider" id="slider-hue" min="0" max="360" value="185">
+    </div>
+    <div class="tweak-row">
+      <label><span>3D 自转速率倍数</span><span id="rot-val">1.0x</span></label>
+      <input type="range" class="tweak-slider" id="slider-rot" min="0.2" max="3.0" step="0.1" value="1.0">
+    </div>
+    <div class="tweak-row">
+      <label><span>色差分离强度 (Chromatic)</span><span id="aberr-val">100%</span></label>
+      <input type="range" class="tweak-slider" id="slider-aberr" min="0" max="200" value="100">
+    </div>
+    <div class="tweak-row">
+      <label><span>粒子浮动密度</span><span id="part-val">80</span></label>
+      <input type="range" class="tweak-slider" id="slider-part" min="20" max="150" value="80">
+    </div>
+  </div>
+
+  <script>
+    // --- 60FPS PROCEDURAL CANVAS MOTION ENGINE ---
+    const canvas = document.getElementById('showreel-canvas');
+    const ctx = canvas.getContext('2d');
+    const video = document.getElementById('showreel-video');
+    const audio = document.getElementById('soundtrack');
+    const btnPlay = document.getElementById('btn-play');
+    const btnPrev = document.getElementById('btn-prev');
+    const btnNext = document.getElementById('btn-next');
+    const btnAudio = document.getElementById('btn-audio');
+    const tcDisplay = document.getElementById('tc-display');
+    const progressFill = document.getElementById('progress-fill');
+    const timelineTrack = document.getElementById('timeline-track');
+    const modeSwitcher = document.getElementById('mode-switcher');
+    const speedSwitcher = document.getElementById('speed-switcher');
+    const btnFullscreen = document.getElementById('btn-fullscreen');
+    const engineTag = document.getElementById('engine-text');
+
+    const DURATION = 15.0;
+    let currentTime = 0.0;
+    let isPlaying = false;
+    let playbackSpeed = 1.0;
+    let renderMode = 'canvas'; // 'canvas' or 'video'
+    let lastTimestamp = performance.null;
+
+    // Tweaks State
+    const tweaks = {
+      hue: 185,
+      rotSpeed: 1.0,
+      aberration: 1.0,
+      particles: 80
+    };
+
+    // Pre-calculate 3D Icosahedron
+    const PHI = (1 + Math.sqrt(5)) / 2;
+    const RAW_VERTS = [
+      [-1,  PHI, 0], [ 1,  PHI, 0], [-1, -PHI, 0], [ 1, -PHI, 0],
+      [ 0, -1,  PHI], [ 0,  1,  PHI], [ 0, -1, -PHI], [ 0,  1, -PHI],
+      [ PHI, 0, -1], [ PHI, 0,  1], [-PHI, 0, -1], [-PHI, 0,  1]
+    ];
+    const SCALE_3D = 220 / Math.sqrt(1 + PHI * PHI);
+    const VERTS_3D = RAW_VERTS.map(v => [v[0] * SCALE_3D, v[1] * SCALE_3D, v[2] * SCALE_3D]);
+    const EDGES_3D = [];
+    for (let i = 0; i < VERTS_3D.length; i++) {
+      for (let j = i + 1; j < VERTS_3D.length; j++) {
+        const d2 = Math.hypot(VERTS_3D[i][0] - VERTS_3D[j][0], VERTS_3D[i][1] - VERTS_3D[j][1], VERTS_3D[i][2] - VERTS_3D[j][2]);
+        if (Math.abs(d2 - (480 / Math.sqrt(1 + PHI * PHI))) < 60) {
+          EDGES_3D.push([i, j]);
+        }
+      }
+    }
+
+    // Floating Particles
+    const particles = Array.from({ length: 120 }, () => ({
+      x: Math.random() * 1920,
+      y: Math.random() * 1080,
+      z: 0.2 + Math.random() * 0.8,
+      speed: 20 + Math.random() * 60,
+      r: 1.5 + Math.random() * 2
+    }));
+
+    function formatTimecode(t) {
+      const f = Math.floor((t * 60) % 60);
+      const s = Math.floor(t % 60);
+      return `00:${String(s).padStart(2, '0')}:${String(f).padStart(2, '0')}:00`;
+    }
+
+    function renderCanvasFrame(t) {
+      const W = 1920, H = 1080;
+      ctx.fillStyle = '#07090e';
+      ctx.fillRect(0, 0, W, H);
+
+      // Accent color derived from tweak hue
+      const primaryColor = `hsl(${tweaks.hue}, 100%, 55%)`;
+      const acidColor = '#ccff00';
+      const magentaColor = '#ff0055';
+
+      // Background Grid Dots
+      ctx.fillStyle = '#1c2434';
+      for (let gx = 60; gx < W - 60; gx += 120) {
+        for (let gy = 60; gy < H - 60; gy += 120) {
+          ctx.fillRect(gx, gy, 2, 2);
+        }
+      }
+
+      // Parallax Particles
+      particles.slice(0, tweaks.particles).forEach(p => {
+        const px = (p.x + t * p.speed * p.z) % (W - 160) + 80;
+        const py = (p.y + Math.sin(t * 1.5 + p.x) * 20 * p.z) % (H - 160) + 80;
+        ctx.fillStyle = p.z > 0.5 ? primaryColor : acidColor;
+        ctx.beginPath();
+        ctx.arc(px, py, p.r * p.z, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // HUD Framing & Corner Brackets
+      ctx.strokeStyle = '#222d42';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(40, 40, W - 80, H - 80);
+
+      const bl = 28;
+      ctx.strokeStyle = primaryColor;
+      ctx.lineWidth = 2;
+      [[40, 40, bl, 0, 0, bl], [W - 40, 40, -bl, 0, 0, bl], [40, H - 40, bl, 0, 0, -bl], [W - 40, H - 40, -bl, 0, 0, -bl]].forEach(([bx, by, dx, dy, ex, ey]) => {
+        ctx.beginPath();
+        ctx.moveTo(bx + dx, by + dy);
+        ctx.lineTo(bx, by);
+        ctx.lineTo(bx + ex, by + ey);
+        ctx.stroke();
+      });
+
+      // Top & Bottom Metadata
+      ctx.font = '700 20px "JetBrains Mono"';
+      ctx.fillStyle = acidColor;
+      ctx.fillText(`TC // ${formatTimecode(t)}`, 60, 78);
+      ctx.fillStyle = '#8b9bb4';
+      ctx.fillText("ANTIGRAVITY MOTION SHOWREEL '26", W - 440, 78);
+      ctx.fillText(`FPS: 60.0 LOCKED  |  RES: 1920x1080  |  LOSSLESS`, 60, H - 66);
+      ctx.fillStyle = primaryColor;
+      ctx.fillText("AUTHOR: SHERWIN XIE", W - 340, H - 66);
+
+      // Progress Line
+      ctx.fillStyle = acidColor;
+      ctx.fillRect(40, H - 42, (W - 80) * (t / DURATION), 3);
+
+      // ACT CHOREOGRAPHY
+      if (t < 3.0) {
+        // ACT 01: KINETIC AWAKENING
+        const punch = Math.min(1.0, (t - 0.5) * 2.5);
+        const yOff = (1.0 - Math.max(0, punch)) * 60;
+
+        ctx.font = '900 100px "Plus Jakarta Sans"';
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText("KINETIC MANIFESTO", W / 2 - 580, H / 2 - 110 + yOff);
+
+        ctx.font = '700 42px "Noto Sans SC"';
+        ctx.fillStyle = primaryColor;
+        ctx.fillText("DEFYING CREATIVE GRAVITY  //  动效重力论", W / 2 - 576, H / 2 + 15 + yOff);
+
+        ctx.font = '700 28px "Space Grotesk"';
+        ctx.fillStyle = acidColor;
+        ctx.fillText("CREATIVE TECHNOLOGIST & MOTION DIRECTOR", W / 2 - 576, H / 2 + 80 + yOff);
+
+        // Circular reticle
+        const cx = W / 2 + 480, cy = H / 2;
+        ctx.strokeStyle = primaryColor;
+        ctx.beginPath();
+        ctx.arc(cx, cy, 140, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.strokeStyle = acidColor;
+        ctx.beginPath();
+        ctx.moveTo(cx - 180, cy); ctx.lineTo(cx + 180, cy);
+        ctx.moveTo(cx, cy - 180); ctx.lineTo(cx, cy + 180);
+        ctx.stroke();
+
+      } else if (t < 6.5) {
+        // ACT 02: 3D TOPOLOGY
+        ctx.font = '800 56px "Plus Jakarta Sans"';
+        ctx.fillStyle = acidColor;
+        ctx.fillText("01 // 3D TOPOLOGY & KINETIC MATH", 100, 160);
+        ctx.font = '700 36px "Noto Sans SC"';
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText("空间拓扑与参数化几何动效矩阵", 100, 230);
+
+        // 3D Icosahedron Projection
+        const cx = W / 2 + 300, cy = H / 2 + 20;
+        const ax = t * 1.6 * tweaks.rotSpeed;
+        const ay = t * 2.2 * tweaks.rotSpeed;
+        const az = t * 0.8 * tweaks.rotSpeed;
+
+        const pts = VERTS_3D.map(([x, y, z]) => {
+          let y1 = y * Math.cos(ax) - z * Math.sin(ax);
+          let z1 = y * Math.sin(ax) + z * Math.cos(ax);
+          let x2 = x * Math.cos(ay) + z1 * Math.sin(ay);
+          let z2 = -x * Math.sin(ay) + z1 * Math.cos(ay);
+          let x3 = x2 * Math.cos(az) - y1 * Math.sin(az);
+          let y3 = x2 * Math.sin(az) + y1 * Math.cos(az);
+          const dist = 680;
+          const s = dist / (dist + z2);
+          return [cx + x3 * s, cy + y3 * s, z2];
+        });
+
+        // Edges
+        EDGES_3D.forEach(([i, j]) => {
+          const depth = (pts[i][2] + pts[j][2]) / 2;
+          ctx.strokeStyle = depth > 0 ? primaryColor : 'rgba(0, 240, 255, 0.25)';
+          ctx.lineWidth = depth > 0 ? 3 : 1.5;
+          ctx.beginPath();
+          ctx.moveTo(pts[i][0], pts[i][1]);
+          ctx.lineTo(pts[j][0], pts[j][1]);
+          ctx.stroke();
+        });
+
+        // Vertices
+        pts.forEach(([px, py, pz]) => {
+          ctx.fillStyle = pz > 0 ? acidColor : primaryColor;
+          ctx.beginPath();
+          ctx.arc(px, py, pz > 0 ? 6 : 4, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        // Metrics column
+        ctx.font = '600 20px "JetBrains Mono"';
+        const specs = [
+          ["• ALGORITHM", "PARAMETERIZED ICOSAHEDRON MESH"],
+          ["• TOPOLOGY", "RIEMANNIAN METRIC DYNAMICS"],
+          ["• ELASTICITY", "SPRING DAMPING (k=240, c=14)"],
+          ["• ROTATION", `${(tweaks.rotSpeed * 60).toFixed(0)} FPS SYNCED`]
+        ];
+        specs.forEach(([k, v], idx) => {
+          ctx.fillStyle = primaryColor;
+          ctx.fillText(k, 100, 340 + idx * 50);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillText(v, 280, 340 + idx * 50);
+        });
+
+      } else if (t < 10.0) {
+        // ACT 03: SPATIAL HUD
+        ctx.font = '800 56px "Plus Jakarta Sans"';
+        ctx.fillStyle = primaryColor;
+        ctx.fillText("02 // SPATIAL UI & HIGH-TECH HUD", 100, 160);
+        ctx.font = '700 36px "Noto Sans SC"';
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText("未来界面微交互与态势感知系统", 100, 230);
+
+        // Radar Sweeper
+        const rcx = W / 2 + 350, rcy = H / 2 + 30;
+        ctx.strokeStyle = '#223246';
+        [90, 180, 270, 360].forEach(r => {
+          ctx.beginPath(); ctx.arc(rcx, rcy, r, 0, Math.PI * 2); ctx.stroke();
+        });
+        const swAng = (t * 4.2) % (Math.PI * 2);
+        ctx.strokeStyle = primaryColor;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(rcx, rcy);
+        ctx.lineTo(rcx + 360 * Math.cos(swAng), rcy + 360 * Math.sin(swAng));
+        ctx.stroke();
+
+        // Cards
+        ctx.fillStyle = 'rgba(16, 22, 34, 0.9)';
+        ctx.strokeStyle = primaryColor;
+        ctx.lineWidth = 2;
+        ctx.fillRect(100, 310, 480, 200);
+        ctx.strokeRect(100, 310, 480, 200);
+
+        ctx.font = '700 18px "JetBrains Mono"';
+        ctx.fillStyle = primaryColor;
+        ctx.fillText("SYSTEM PERFORMANCE // METRICS", 124, 345);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText("FRAME BUDGET: 16.6ms / 60 FPS LOCKED", 124, 385);
+        ctx.fillStyle = acidColor;
+        ctx.fillText("INTERACTION LATENCY: 0.12ms", 124, 415);
+
+        // Bar visualizer
+        for (let bi = 0; bi < 9; bi++) {
+          const bh = Math.max(10, 25 + 40 * Math.abs(Math.sin(t * 8 + bi * 0.7)));
+          ctx.fillStyle = primaryColor;
+          ctx.fillRect(124 + bi * 48, 490 - bh, 36, bh);
+        }
+
+      } else if (t < 13.0) {
+        // ACT 04: TYPOGRAPHY CLIMAX
+        const words = ["SPEED.", "IMPACT.", "PRECISION.", "ELEGANCE."];
+        const colors = [acidColor, '#ffffff', primaryColor, magentaColor];
+        const idx = Math.min(3, Math.floor((t - 10.0) / 0.75));
+        
+        ctx.font = '900 140px "Plus Jakarta Sans"';
+        ctx.fillStyle = colors[idx];
+        ctx.fillText(words[idx], W / 2 - 450, H / 2 - 80);
+
+        ctx.font = '700 48px "Noto Sans SC"';
+        ctx.fillStyle = acidColor;
+        ctx.fillText("MAXIMUM VISUAL VELOCITY // 视觉冲击极速释放", W / 2 - 440, H / 2 + 50);
+
+      } else {
+        // ACT 05: GRAND FINALE & RESUME LOCKUP
+        ctx.font = '700 20px "JetBrains Mono"';
+        ctx.fillStyle = acidColor;
+        ctx.fillText("2026 OFFICIAL MOTION SHOWREEL // PROGRAM SPEC", W / 2 - 420, 200);
+
+        ctx.font = '900 96px "Plus Jakarta Sans"';
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText("SHERWIN XIE", W / 2 - 420, 290);
+
+        ctx.font = '700 32px "Space Grotesk"';
+        ctx.fillStyle = primaryColor;
+        ctx.fillText("SENIOR MOTION DESIGNER & CREATIVE TECHNOLOGIST", W / 2 - 416, 360);
+
+        ctx.font = '700 36px "Noto Sans SC"';
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText("资深动态图形设计师 · 创意技术专家", W / 2 - 416, 420);
+
+        // 4 Skill Cards
+        const skills = [
+          ["01. KINETIC SYSTEMS", "动态文字排印 / 空间动效系统"],
+          ["02. 3D TOPOLOGY", "参数化拓扑 / 三维程序化动效"],
+          ["03. HIGH-TECH HUD", "未来界面 / 毫秒级空间交互"],
+          ["04. AUDIO-VISUAL SYNC", "好莱坞级声效微秒精准对位"]
+        ];
+        const cardW = 390;
+        const startX = (W - (4 * cardW + 3 * 20)) / 2;
+        skills.forEach(([st, sd], i) => {
+          const bx = startX + i * (cardW + 20);
+          ctx.fillStyle = 'rgba(16, 22, 34, 0.9)';
+          ctx.strokeStyle = '#2d3d56';
+          ctx.fillRect(bx, 520, cardW, 140);
+          ctx.strokeRect(bx, 520, cardW, 140);
+          ctx.fillStyle = acidColor;
+          ctx.fillRect(bx, 520, 48, 3);
+          ctx.font = '700 18px "JetBrains Mono"';
+          ctx.fillStyle = '#ffffff';
+          ctx.fillText(st, bx + 20, 560);
+          ctx.font = '500 18px "Noto Sans SC"';
+          ctx.fillStyle = '#a8b8d4';
+          ctx.fillText(sd, bx + 20, 610);
+        });
+
+        // Status pill
+        ctx.fillStyle = 'rgba(18, 26, 42, 0.95)';
+        ctx.strokeStyle = primaryColor;
+        ctx.fillRect(W / 2 - 440, 720, 880, 64);
+        ctx.strokeRect(W / 2 - 440, 720, 880, 64);
+        ctx.fillStyle = acidColor;
+        ctx.beginPath();
+        ctx.arc(W / 2 - 400, 752, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.font = '700 18px "JetBrains Mono"';
+        ctx.fillStyle = primaryColor;
+        ctx.fillText("STATUS: AVAILABLE FOR TOP-TIER IMPACT  |  LET'S BUILD THE UNSEEN", W / 2 - 370, 758);
+      }
+    }
+
+    // Main Animation Loop
+    function loop(timestamp) {
+      if (!lastTimestamp) lastTimestamp = timestamp;
+      const dt = (timestamp - lastTimestamp) / 1000;
+      lastTimestamp = timestamp;
+
+      if (isPlaying) {
+        if (renderMode === 'canvas') {
+          currentTime += dt * playbackSpeed;
+          if (currentTime >= DURATION) {
+            currentTime = 0;
+          }
+          if (audio.paused && !audio.muted) {
+            audio.currentTime = currentTime;
+            audio.play().catch(() => {});
+          }
+        } else {
+          currentTime = video.currentTime;
+          if (video.ended) {
+            video.currentTime = 0;
+            video.play();
+          }
+        }
+      }
+
+      // Sync UI
+      tcDisplay.textContent = formatTimecode(currentTime);
+      progressFill.style.width = `${(currentTime / DURATION) * 100}%`;
+
+      // Update Card Active states
+      document.querySelectorAll('.act-card').forEach(card => {
+        const seekT = parseFloat(card.dataset.seek);
+        const nextT = seekT === 0 ? 3.0 : (seekT === 3.0 ? 6.5 : (seekT === 6.5 ? 10.0 : 15.0));
+        card.classList.toggle('active', currentTime >= seekT && currentTime < nextT);
+      });
+
+      if (renderMode === 'canvas') {
+        renderCanvasFrame(currentTime);
+      }
+
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+
+    // --- CONTROLLER EVENTS ---
+    function togglePlay() {
+      isPlaying = !isPlaying;
+      btnPlay.textContent = isPlaying ? '❚❚' : '▶';
+      if (renderMode === 'video') {
+        if (isPlaying) video.play();
+        else video.pause();
+      } else {
+        if (isPlaying) {
+          audio.currentTime = currentTime;
+          audio.play().catch(() => {});
+        } else {
+          audio.pause();
+        }
+      }
+    }
+
+    btnPlay.addEventListener('click', togglePlay);
+
+    btnPrev.addEventListener('click', () => {
+      currentTime = Math.max(0, currentTime - 1 / 60);
+      if (renderMode === 'video') video.currentTime = currentTime;
+      if (renderMode === 'canvas' && !audio.paused) audio.currentTime = currentTime;
+    });
+
+    btnNext.addEventListener('click', () => {
+      currentTime = Math.min(DURATION, currentTime + 1 / 60);
+      if (renderMode === 'video') video.currentTime = currentTime;
+      if (renderMode === 'canvas' && !audio.paused) audio.currentTime = currentTime;
+    });
+
+    btnAudio.addEventListener('click', () => {
+      const isMuted = audio.muted || video.muted;
+      audio.muted = !isMuted;
+      video.muted = !isMuted;
+      btnAudio.textContent = !isMuted ? '🔇' : '🔊';
+    });
+
+    timelineTrack.addEventListener('click', e => {
+      const rect = timelineTrack.getBoundingClientRect();
+      const clickRatio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      currentTime = clickRatio * DURATION;
+      if (renderMode === 'video') video.currentTime = currentTime;
+      if (renderMode === 'canvas') audio.currentTime = currentTime;
+    });
+
+    document.querySelectorAll('.act-card').forEach(card => {
+      card.addEventListener('click', () => {
+        currentTime = parseFloat(card.dataset.seek);
+        if (renderMode === 'video') video.currentTime = currentTime;
+        if (renderMode === 'canvas') audio.currentTime = currentTime;
+      });
+    });
+
+    // Mode Switcher
+    modeSwitcher.querySelectorAll('.toggle-opt').forEach(opt => {
+      opt.addEventListener('click', () => {
+        modeSwitcher.querySelectorAll('.toggle-opt').forEach(o => o.classList.remove('selected'));
+        opt.classList.add('selected');
+        renderMode = opt.dataset.mode;
+        if (renderMode === 'video') {
+          canvas.style.display = 'none';
+          video.style.display = 'block';
+          audio.pause();
+          video.currentTime = currentTime;
+          if (isPlaying) video.play();
+          engineTag.textContent = 'BROADCAST 1080P MP4 VIDEO PLAYER';
+        } else {
+          video.pause();
+          video.style.display = 'none';
+          canvas.style.display = 'block';
+          if (isPlaying) {
+            audio.currentTime = currentTime;
+            audio.play().catch(() => {});
+          }
+          engineTag.textContent = 'CANVAS 60FPS PROCEDURAL ENGINE';
+        }
+      });
+    });
+
+    // Speed Switcher
+    speedSwitcher.querySelectorAll('.toggle-opt').forEach(opt => {
+      opt.addEventListener('click', () => {
+        speedSwitcher.querySelectorAll('.toggle-opt').forEach(o => o.classList.remove('selected'));
+        opt.classList.add('selected');
+        playbackSpeed = parseFloat(opt.dataset.speed);
+        video.playbackRate = playbackSpeed;
+        audio.playbackRate = playbackSpeed;
+      });
+    });
+
+    // Fullscreen
+    btnFullscreen.addEventListener('click', () => {
+      const el = document.getElementById('viewport-box');
+      if (!document.fullscreenElement) {
+        el.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen();
+      }
+    });
+
+    // Tweaks Panel Handlers
+    const tweaksBtn = document.getElementById('tweaks-toggle-btn');
+    const tweaksPanel = document.getElementById('tweaks-panel');
+    const tweaksClose = document.getElementById('tweaks-close');
+    tweaksBtn.addEventListener('click', () => tweaksPanel.classList.toggle('open'));
+    tweaksClose.addEventListener('click', () => tweaksPanel.classList.remove('open'));
+
+    document.getElementById('slider-hue').addEventListener('input', e => {
+      tweaks.hue = parseInt(e.target.value);
+      document.getElementById('hue-val').textContent = `${tweaks.hue}°`;
+    });
+    document.getElementById('slider-rot').addEventListener('input', e => {
+      tweaks.rotSpeed = parseFloat(e.target.value);
+      document.getElementById('rot-val').textContent = `${tweaks.rotSpeed.toFixed(1)}x`;
+    });
+    document.getElementById('slider-part').addEventListener('input', e => {
+      tweaks.particles = parseInt(e.target.value);
+      document.getElementById('part-val').textContent = tweaks.particles;
+    });
+  </script>
+</body>
+</html>
