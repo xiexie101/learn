@@ -1,0 +1,3057 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>看见中国之美 · 全年54件国宝与数字日晷</title>
+  <!-- 加载 Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入54件国宝专家导览与文字稿数据结构 -->
+  <script src="audio-guide-data.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            xuan: '#F6F1E7',
+            xuanDark: '#EAE0CE',
+            ink: '#1F1B16',
+            inkMuted: '#574E43',
+            cinnabar: '#A83226',
+            bronze: '#9C7A40',
+            bronzeLight: '#D8BE8A',
+            malachite: '#2C5E53'
+          },
+          fontFamily: {
+            serif: ['"Noto Serif SC"', '"Source Han Serif SC"', '"Songti SC"', '"STSong"', '"SimSun"', 'serif'],
+            sans: ['"PingFang SC"', '"Hiragino Sans GB"', '"Microsoft YaHei"', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    /* 全局宣纸纹理与稳健中文字体栈 */
+    body {
+      font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      color: #1F1B16;
+      background-color: #F6F1E7;
+      transition: background 0.6s ease;
+      overflow-x: hidden;
+    }
+
+    .font-classical {
+      font-family: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong", "SimSun", serif;
+    }
+
+    /* 细微宣纸纤维质感叠加 */
+    .xuan-texture {
+      background-image:
+        radial-gradient(rgba(156, 122, 64, 0.08) 1px, transparent 0),
+        radial-gradient(rgba(31, 27, 22, 0.04) 1px, transparent 0);
+      background-size: 24px 24px;
+      background-position: 0 0, 12px 12px;
+    }
+
+    /* 3D 卡片翻转舞台 */
+    .perspective-stage {
+      perspective: 1600px;
+    }
+
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.72s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .flip-card-inner.is-flipped {
+      transform: rotateY(180deg);
+    }
+
+    .flip-face {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    .flip-back {
+      position: absolute;
+      inset: 0;
+      transform: rotateY(180deg);
+    }
+
+    /* 朱砂印章落印动画 */
+    @keyframes sealStampDrop {
+      0% {
+        opacity: 0;
+        transform: scale(1.75) rotate(-14deg);
+      }
+      65% {
+        opacity: 1;
+        transform: scale(0.94) rotate(-6deg);
+      }
+      100% {
+        opacity: 0.94;
+        transform: scale(1) rotate(-8deg);
+      }
+    }
+
+    .animate-seal-drop {
+      animation: sealStampDrop 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    /* 语音导览动态声波条 */
+    @keyframes soundWavePulse {
+      0%, 100% { transform: scaleY(0.32); }
+      50% { transform: scaleY(1); }
+    }
+
+    .wave-bar {
+      transform-origin: bottom;
+      transform: scaleY(0.35);
+      transition: transform 0.2s ease;
+    }
+
+    .wave-bar.is-playing {
+      animation: soundWavePulse 0.85s ease-in-out infinite;
+    }
+
+    /* 优化1：传统竖排文字排版 */
+    .vertical-rl {
+      writing-mode: vertical-rl;
+      text-orientation: upright;
+      line-height: 2.2;
+      letter-spacing: 0.1em;
+    }
+
+    /* 优化2：专属朱砂印章盖章回弹动画 */
+    @keyframes bounceStampDynamic {
+      0% { transform: scale(2.5) rotate(-15deg); opacity: 0; }
+      40% { transform: scale(0.85) rotate(4deg); opacity: 1; }
+      100% { transform: scale(1) rotate(-6deg); opacity: 0.95; }
+    }
+    .animate-bounce-stamp {
+      animation: bounceStampDynamic 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    /* 隐藏横向滚动条但保留滑动功能 */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* 自定义滑块样式 */
+    input[type="range"].sundial-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      background: rgba(156, 122, 64, 0.25);
+      height: 6px;
+      border-radius: 999px;
+    }
+    input[type="range"].sundial-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #A83226;
+      border: 2px solid #F6F1E7;
+      box-shadow: 0 2px 6px rgba(31, 27, 22, 0.35);
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body class="min-h-screen selection:bg-cinnabar selection:text-xuan relative overflow-x-hidden">
+  
+  <!-- 优化1：SVG 宣纸纤维纹理滤镜（应用至底层以防干扰文字阅读） -->
+  <svg style="width:0;height:0;position:absolute;" aria-hidden="true" focusable="false">
+    <filter id="paper-texture-filter">
+      <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="4" result="noise" />
+      <feColorMatrix type="matrix" values="1 0 0 0 0  0 0.9 0 0 0  0 0.8 0 0 0  0 0 0 0.12 0" in="noise" result="coloredNoise" />
+      <feBlend in="SourceGraphic" in2="coloredNoise" mode="multiply" />
+    </filter>
+  </svg>
+  <div class="fixed inset-0 pointer-events-none -z-10 bg-xuan" style="filter: url(#paper-texture-filter); opacity: 0.65;"></div>
+  
+  <!-- 优化3：氛围粒子物理引擎图层（光影微尘） -->
+  <canvas id="dustCanvas" class="fixed inset-0 pointer-events-none z-10 opacity-70"></canvas>
+
+  <!-- 全局轻提示容器（替代 alert） -->
+  <div id="toastContainer" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 pointer-events-none"></div>
+
+  <!-- 顶部导航栏 -->
+  <header class="sticky top-0 z-30 bg-xuan/90 backdrop-blur-md border-b border-bronze/25">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-cinnabar text-xuan font-classical font-bold text-xs leading-tight flex items-center justify-center text-center shadow-sm border border-bronzeLight/50">
+          看见<br>之美
+        </div>
+        <div>
+          <h1 class="font-classical font-bold text-base sm:text-lg tracking-wide text-ink">看见中国之美</h1>
+          <p class="text-[11px] text-inkMuted">一年54次与中国之美相遇 · 汉代托克托日晷数字典藏</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 sm:gap-3">
+        <button id="openAtlasBtn" type="button" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-xuanDark/90 hover:bg-xuanDark border border-bronze/40 text-xs sm:text-sm font-medium text-ink transition cursor-pointer">
+          <span class="w-2 h-2 rounded-full bg-cinnabar"></span>
+          <span>54国宝图鉴</span>
+          <span class="font-classical font-bold text-cinnabar">(<span id="headerStampedCount">0</span>/54)</span>
+        </button>
+
+        <button id="openWallpaperBtn" type="button" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-ink hover:bg-ink/90 text-bronzeLight border border-bronze/50 text-xs sm:text-sm font-medium shadow-sm transition cursor-pointer">
+          <span>手机壁纸工坊</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主内容双栏工作台 -->
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-5 sm:py-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    <!-- 左侧：汉代托克托日晷光影引擎（占 5 列） -->
+    <section class="lg:col-span-5 bg-xuan/95 rounded-2xl border border-bronze/35 shadow-sm p-5 sm:p-6 flex flex-col gap-4">
+      <div class="flex items-start justify-between gap-2 border-b border-bronze/20 pb-3">
+        <div>
+          <span class="inline-block px-2 py-0.5 rounded bg-bronze/15 text-bronze font-classical text-[11px] font-semibold mb-1">第00周开篇重器 · 汉代托克托日晷</span>
+          <h2 class="font-classical font-bold text-lg text-ink">光阴流转 · 案头日晷引擎</h2>
+        </div>
+        <button id="syncNowTimeBtn" type="button" class="px-2.5 py-1.5 rounded-lg bg-xuanDark hover:bg-bronze/20 border border-bronze/35 text-xs text-ink font-medium transition cursor-pointer">
+          同步此刻
+        </button>
+      </div>
+
+      <!-- 原生 Inline SVG 汉代托克托日晷盘面 -->
+      <div class="relative w-full max-w-[300px] mx-auto aspect-square flex items-center justify-center">
+        <svg id="tuoketuoSundialSvg" viewBox="0 0 320 320" class="w-full h-full drop-shadow-md select-none" aria-label="汉代托克托日晷动态光影盘">
+          <defs>
+            <!-- 实木/青石日晷底板渐变 -->
+            <linearGradient id="sundialStoneGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#DFC9A1"/>
+              <stop offset="55%" stop-color="#C8AC79"/>
+              <stop offset="100%" stop-color="#A88954"/>
+            </linearGradient>
+            <!-- 晷针金属光泽 -->
+            <linearGradient id="gnomonBronzeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#F5DFAC"/>
+              <stop offset="50%" stop-color="#9C7A40"/>
+              <stop offset="100%" stop-color="#4A391E"/>
+            </linearGradient>
+            <!-- 日光高光晕染 -->
+            <radialGradient id="sunGlowOverlay" cx="30%" cy="25%" r="75%">
+              <stop id="sunGlowStop" offset="0%" stop-color="#FFF7DC" stop-opacity="0.45"/>
+              <stop offset="100%" stop-color="#1F1B16" stop-opacity="0.08"/>
+            </radialGradient>
+          </defs>
+
+          <!-- 汉代方形托克托日晷石座 -->
+          <rect x="18" y="18" width="284" height="284" rx="22" fill="url(#sundialStoneGrad)" stroke="#7D6133" stroke-width="3"/>
+          <rect x="28" y="28" width="264" height="264" rx="16" fill="none" stroke="#6E5329" stroke-width="1.2" stroke-dasharray="4 3"/>
+
+          <!-- 四隅汉代规矩纹饰 -->
+          <path d="M40 58 L40 40 L58 40 M262 40 L280 40 L280 58 M40 262 L40 280 L58 280 M262 280 L280 280 L280 262" fill="none" stroke="#6E5329" stroke-width="2"/>
+
+          <!-- 刻划同心圆环与放射时刻线（由 JS 初始化刻度） -->
+          <circle cx="160" cy="160" r="112" fill="none" stroke="#5E4621" stroke-width="1.5"/>
+          <circle cx="160" cy="160" r="88" fill="none" stroke="#5E4621" stroke-width="1"/>
+          <circle cx="160" cy="160" r="46" fill="none" stroke="#5E4621" stroke-width="1" stroke-dasharray="3 3"/>
+          <g id="sundialTicksLayer"></g>
+
+          <!-- 四方方位铭文 -->
+          <text x="160" y="45" text-anchor="middle" fill="#4E3919" font-size="11" class="font-classical" font-weight="bold">午 · 南</text>
+          <text x="160" y="283" text-anchor="middle" fill="#4E3919" font-size="11" class="font-classical" font-weight="bold">子 · 北</text>
+          <text x="43" y="164" text-anchor="middle" fill="#4E3919" font-size="11" class="font-classical" font-weight="bold">卯</text>
+          <text x="277" y="164" text-anchor="middle" fill="#4E3919" font-size="11" class="font-classical" font-weight="bold">酉</text>
+
+          <!-- 天光罩层 -->
+          <rect x="18" y="18" width="284" height="284" rx="22" fill="url(#sunGlowOverlay)" pointer-events="none"/>
+
+          <!-- 动态金属晷针投影（随时间实时变化角度与长度） -->
+          <g id="gnomonShadowGroup" transform="translate(160, 160) rotate(-45)">
+            <polygon points="-4,0 4,0 1.2,-92 -1.2,-92" fill="rgba(26, 20, 14, 0.42)"/>
+            <polygon points="-7,0 7,0 2.5,-86 -2.5,-86" fill="rgba(26, 20, 14, 0.14)"/>
+          </g>
+
+          <!-- 中央金属晷针底座与针尖 -->
+          <circle cx="160" cy="160" r="11" fill="#5A4320" stroke="#F4E3BC" stroke-width="1.5"/>
+          <circle cx="160" cy="160" r="5.5" fill="url(#gnomonBronzeGrad)"/>
+          <circle cx="158.5" cy="158.5" r="1.6" fill="#FFFDF7"/>
+        </svg>
+      </div>
+
+      <!-- 时辰读数与滑块控制 -->
+      <div class="bg-xuanDark/65 rounded-xl p-3.5 border border-bronze/25 space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-[11px] text-inkMuted">当前日晷时刻与天光</div>
+            <div class="font-classical font-bold text-base text-ink">
+              <span id="sundialTimeText">09:30</span>
+              <span class="mx-1.5 text-bronze">·</span>
+              <span id="sundialShichenText" class="text-cinnabar">巳时 · 隅中</span>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-[11px] text-inkMuted">晷影方位角</div>
+            <div id="sundialAngleText" class="font-classical font-semibold text-xs text-ink">北偏西 38°</div>
+          </div>
+        </div>
+
+        <div>
+          <input id="sundialTimeSlider" type="range" min="300" max="1200" step="5" value="570" aria-label="拨动日晷时间滑块" class="sundial-slider w-full">
+          <div class="flex justify-between text-[10px] text-inkMuted mt-1 font-classical">
+            <span>05:00 卯初</span>
+            <span>12:00 午正</span>
+            <span>20:00 戌初</span>
+          </div>
+        </div>
+
+        <!-- 五个经典古法时辰快捷按钮 -->
+        <div class="grid grid-cols-5 gap-1.5 pt-1">
+          <button type="button" data-minutes="360" class="shichen-btn py-1.5 rounded-lg bg-xuan hover:bg-cinnabar hover:text-xuan border border-bronze/30 text-xs font-classical transition cursor-pointer">卯时<br><span class="text-[10px] opacity-75">06:00</span></button>
+          <button type="button" data-minutes="510" class="shichen-btn py-1.5 rounded-lg bg-xuan hover:bg-cinnabar hover:text-xuan border border-bronze/30 text-xs font-classical transition cursor-pointer">辰时<br><span class="text-[10px] opacity-75">08:30</span></button>
+          <button type="button" data-minutes="720" class="shichen-btn py-1.5 rounded-lg bg-xuan hover:bg-cinnabar hover:text-xuan border border-bronze/30 text-xs font-classical transition cursor-pointer">午时<br><span class="text-[10px] opacity-75">12:00</span></button>
+          <button type="button" data-minutes="960" class="shichen-btn py-1.5 rounded-lg bg-xuan hover:bg-cinnabar hover:text-xuan border border-bronze/30 text-xs font-classical transition cursor-pointer">申时<br><span class="text-[10px] opacity-75">16:00</span></button>
+          <button type="button" data-minutes="1110" class="shichen-btn py-1.5 rounded-lg bg-xuan hover:bg-cinnabar hover:text-xuan border border-bronze/30 text-xs font-classical transition cursor-pointer">酉时<br><span class="text-[10px] opacity-75">18:30</span></button>
+        </div>
+      </div>
+
+      <p class="text-xs text-inkMuted leading-relaxed">
+        设计灵感源自中国国家博物馆藏汉代托克托日晷：拨动滑块或切换时辰，金属晷针投影与全站宣纸天光色温随之流转。
+      </p>
+    </section>
+
+    <!-- 右侧：每周国宝拟物日历卡片工作台（占 7 列） -->
+    <section class="lg:col-span-7 flex flex-col gap-4">
+      <!-- 顶部筛选条：门类 + 核心省份地域 + 月份 + 54周直达 -->
+      <div class="bg-xuan/95 rounded-2xl border border-bronze/35 p-3.5 shadow-sm space-y-2.5">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <!-- 六大类别快速筛选 -->
+          <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 flex-1 min-w-0">
+            <span class="text-[11px] font-classical text-bronze font-bold shrink-0">门类 ·</span>
+            <div id="categoryPillsContainer" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5"></div>
+          </div>
+
+          <!-- 54周下拉直达 -->
+          <select id="weekDirectSelect" aria-label="选择第00周至第53周国宝" class="px-3 py-1.5 rounded-lg bg-xuanDark/80 border border-bronze/40 text-xs font-medium text-ink focus:outline-none focus:border-cinnabar cursor-pointer shrink-0"></select>
+        </div>
+
+        <!-- 核心省份地域标签栏 -->
+        <div class="flex items-center gap-1.5 pt-1 border-t border-bronze/15">
+          <span class="text-[11px] font-classical text-malachite font-bold shrink-0">地域 ·</span>
+          <div id="regionPillsContainer" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 flex-1"></div>
+        </div>
+
+        <!-- 1月 - 12月横向导航条 -->
+        <div class="flex items-center gap-1.5 pt-1 border-t border-bronze/15">
+          <span class="text-[11px] font-classical text-cinnabar font-bold shrink-0">月份 ·</span>
+          <div id="monthPillsContainer" class="flex items-center gap-1 overflow-x-auto no-scrollbar flex-1"></div>
+        </div>
+      </div>
+
+      <!-- 3D 拟物翻转文物卡片 -->
+      <div class="perspective-stage">
+        <div id="artifactFlipInner" class="flip-card-inner">
+          <!-- 卡片正面 -->
+          <article id="cardFrontFace" class="flip-face bg-xuan rounded-2xl border-2 border-bronze/45 shadow-md overflow-hidden relative">
+            <!-- 顶部日历历头 -->
+            <div class="px-5 py-4 bg-gradient-to-r from-xuanDark/90 via-xuan to-xuanDark/70 border-b border-bronze/30 flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <div class="px-3 py-1.5 rounded-xl bg-ink text-bronzeLight font-classical font-bold text-lg sm:text-xl tracking-wider shadow-sm">
+                  第 <span id="cardWeekNum">00</span> 周
+                </div>
+                <div>
+                  <div id="cardMonthAlias" class="font-classical font-bold text-sm text-ink">1月 · 岁首雅集</div>
+                  <div id="cardProgressIndex" class="text-[11px] text-inkMuted">全年54次相遇 · 第 1 / 54 宝</div>
+                </div>
+              </div>
+
+              <!-- 六艺类别印章 -->
+              <div class="flex items-center gap-2">
+                <span id="cardCategorySeal" class="px-3 py-1 rounded-lg border-2 border-cinnabar text-cinnabar font-classical font-bold text-sm tracking-widest bg-xuan shadow-xs">
+                  百工
+                </span>
+              </div>
+            </div>
+
+            <!-- 中央参数化原生 Inline SVG 文物插画展台 -->
+            <div class="relative px-5 pt-5 pb-3">
+              <div id="artifactSvgStage" class="w-full h-56 sm:h-64 rounded-xl border border-bronze/30 overflow-hidden relative flex items-center justify-center shadow-inner bg-ink">
+                <!-- 由 JS 动态注入纯原生 UTF-8 inline SVG -->
+              </div>
+
+              <!-- 优化2：动态 Canvas 生成印章载体 -->
+              <img id="cardCollectorSeal" class="hidden absolute top-6 right-6 w-[84px] h-[84px] shadow-md pointer-events-none select-none drop-shadow-lg" alt="鉴藏印" />
+            </div>
+
+            <!-- 下部文物题名、馆藏与金句 -->
+            <div class="px-5 pb-5 space-y-3">
+              <div class="flex flex-wrap items-center gap-2">
+                <span id="cardDynastyBadge" class="px-2.5 py-0.5 rounded-md bg-bronze/20 text-ink font-classical text-xs font-semibold">汉代</span>
+                <span id="cardProvinceBadge" class="px-2.5 py-0.5 rounded-md bg-malachite/15 text-malachite font-classical text-xs font-semibold">北京</span>
+                <span id="cardMuseumBadge" class="px-2.5 py-0.5 rounded-md bg-xuanDark text-inkMuted text-xs">中国国家博物馆</span>
+              </div>
+
+              <div>
+                <h3 id="cardArtifactName" class="font-classical font-bold text-2xl sm:text-3xl text-ink tracking-wide">
+                  托克托日晷(支架)
+                </h3>
+                <div id="cardCatalogNote" class="mt-1 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-bronze/10 border border-bronze/25 text-[11px] text-bronze font-classical hidden"></div>
+              </div>
+
+              <blockquote id="cardArtifactQuote" class="pl-3.5 border-l-2 border-cinnabar font-classical text-sm sm:text-base text-ink/90 leading-relaxed">
+                “以表测影，以晷定时刻，将天地运行浓缩于方寸石盘之间。”
+              </blockquote>
+
+              <!-- 底部核心操作栏 -->
+              <div class="pt-3 border-t border-bronze/20 flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-1.5">
+                  <button id="prevWeekBtn" type="button" class="px-3 py-2 rounded-xl bg-xuanDark hover:bg-bronze/20 border border-bronze/35 text-xs font-medium text-ink transition cursor-pointer" title="上一周">
+                    ← 上一周
+                  </button>
+                  <button id="nextWeekBtn" type="button" class="px-3 py-2 rounded-xl bg-xuanDark hover:bg-bronze/20 border border-bronze/35 text-xs font-medium text-ink transition cursor-pointer" title="下一周">
+                    下一周 →
+                  </button>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2">
+                  <button id="toggleImageModeBottomBtn" type="button" class="px-3 py-2 rounded-xl bg-xuanDark hover:bg-bronze/20 border border-bronze/35 text-xs font-medium text-ink transition cursor-pointer flex items-center gap-1.5" title="在主图与备选图之间切换">
+                    <svg class="w-3.5 h-3.5 text-cinnabar" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    <span id="bottomImageToggleLabel">切换备选图</span>
+                  </button>
+                  <button id="stampCardBtn" type="button" class="px-3.5 py-2 rounded-xl bg-cinnabar hover:bg-cinnabar/90 text-xuan text-xs sm:text-sm font-medium shadow-sm transition cursor-pointer">
+                    盖章打卡
+                  </button>
+                  <button id="flipToBackBtn" type="button" class="px-3.5 py-2 rounded-xl bg-ink hover:bg-ink/90 text-bronzeLight border border-bronze/40 text-xs sm:text-sm font-medium transition cursor-pointer">
+                    翻转赏析与导览
+                  </button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- 卡片背面：策展赏析与专家语音导览 -->
+          <article id="cardBackFace" class="flip-face flip-back bg-ink text-xuan rounded-2xl border-2 border-bronze/60 shadow-lg p-5 sm:p-6 flex flex-col justify-between gap-4 overflow-y-auto">
+            <div class="space-y-4">
+              <div class="flex items-start justify-between gap-3 border-b border-bronze/30 pb-3">
+                <div>
+                  <div class="flex items-center gap-2 mb-1">
+                    <span id="backCategoryBadge" class="px-2 py-0.5 rounded bg-cinnabar text-xuan font-classical text-xs font-bold">百工</span>
+                    <span id="backMetaLine" class="text-xs text-bronzeLight">第00周 · 1月 · 汉代 · 中国国家博物馆</span>
+                  </div>
+                  <h3 id="backArtifactName" class="font-classical font-bold text-xl sm:text-2xl text-xuan">托克托日晷(支架)</h3>
+                </div>
+                <button id="flipToFrontBtn" type="button" class="px-3 py-1.5 rounded-lg bg-xuan/10 hover:bg-xuan/20 border border-bronze/40 text-xs text-bronzeLight transition cursor-pointer">
+                  返回正面
+                </button>
+              </div>
+
+              <!-- 美之所在 与 带得走的谈资 -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                <div class="p-3 rounded-xl bg-bronze/15 border border-bronze/30 space-y-1">
+                  <div class="flex items-center gap-1.5 text-bronzeLight font-classical font-bold">
+                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-bronzeLight"></span>
+                    <span>美之所在</span>
+                  </div>
+                  <p id="backBeautyText" class="text-xuan/85 leading-relaxed font-sans text-[11px] sm:text-xs">
+                    器形与时代造物精神加载中...
+                  </p>
+                </div>
+                <div class="p-3 rounded-xl bg-cinnabar/15 border border-cinnabar/30 space-y-1">
+                  <div class="flex items-center gap-1.5 text-[#ff8b7d] font-classical font-bold">
+                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-cinnabar"></span>
+                    <span>带得走的谈资</span>
+                  </div>
+                  <p id="backTriviaText" class="text-xuan/85 leading-relaxed font-sans text-[11px] sm:text-xs">
+                    文化谈资加载中...
+                  </p>
+                </div>
+              </div>
+
+              <!-- 策展札记 -->
+              <div class="space-y-1.5 flex flex-col max-h-36 overflow-hidden">
+                <h4 class="font-classical text-xs tracking-widest text-bronzeLight uppercase shrink-0">策展赏析札记</h4>
+                <div class="flex-1 overflow-x-auto no-scrollbar flex justify-end">
+                  <p id="backCuratorialNote" class="text-sm text-xuan/90 font-classical vertical-rl pr-2 border-r-2 border-bronze/30 leading-relaxed">
+                    策展赏析内容加载中...
+                  </p>
+                </div>
+              </div>
+
+              <!-- 专家语音导览播放器 -->
+              <div class="bg-xuan/10 rounded-xl p-4 border border-bronze/35 space-y-3">
+                <div class="flex items-center justify-between gap-3">
+                  <div class="flex items-center gap-3">
+                    <button id="voicePlayBtn" type="button" aria-label="播放或暂停专家语音导览" class="w-10 h-10 rounded-full bg-cinnabar hover:bg-cinnabar/90 text-xuan flex items-center justify-center shadow-md transition cursor-pointer shrink-0">
+                      <svg id="voicePlayIcon" class="w-4 h-4 ml-0.5" viewBox="0 0 24 24" fill="currentColor"><polygon points="6,4 20,12 6,20"/></svg>
+                      <svg id="voicePauseIcon" class="w-4 h-4 hidden" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                    </button>
+                    <div>
+                      <div class="font-classical font-bold text-sm text-bronzeLight">文博专家原声导览</div>
+                      <div class="flex items-center gap-2 text-[11px] text-xuan/65">
+                        <span id="voiceStatusText">专业文博音色</span>
+                        <span class="text-bronzeLight/60">·</span>
+                        <span id="voiceTimeDisplay" class="font-mono text-bronzeLight">00:00 / 00:00</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 动态声波 -->
+                  <div id="voiceWaveform" class="flex items-end gap-1 h-6 px-1"></div>
+                </div>
+
+                <!-- 交互进度条 -->
+                <div id="voiceProgressBar" class="w-full h-2 rounded-full bg-xuan/20 overflow-hidden cursor-pointer relative group" title="点击跳转播放进度">
+                  <div id="voiceProgressFill" class="h-full bg-bronzeLight w-0 transition-all duration-150 rounded-full"></div>
+                </div>
+
+                <!-- 导览字幕标题与段落计数 -->
+                <div class="flex items-center justify-between text-[11px] text-bronzeLight/80">
+                  <span>音频文字稿 · 同步高亮（点击段落可跳转播放）</span>
+                  <span id="voiceParagraphCount" class="text-xuan/50 font-mono"></span>
+                </div>
+
+                <!-- 同步高亮字幕容器 -->
+                <div id="voiceSubtitlesList" class="space-y-2 text-xs max-h-36 overflow-y-auto pr-1"></div>
+              </div>
+            </div>
+
+            <div class="pt-3 border-t border-bronze/25 flex flex-wrap items-center justify-between gap-2">
+              <button id="backStampBtn" type="button" class="px-3.5 py-2 rounded-xl bg-cinnabar hover:bg-cinnabar/90 text-xuan text-xs font-medium transition cursor-pointer">
+                盖章打卡此宝
+              </button>
+              <button id="backWallpaperBtn" type="button" class="px-3.5 py-2 rounded-xl bg-bronze/25 hover:bg-bronze/40 text-bronzeLight border border-bronze/45 text-xs font-medium transition cursor-pointer">
+                生成 1080×1920 壁纸
+              </button>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 弹窗一：54国宝全年图鉴与筛选面板 -->
+  <div id="atlasModal" class="fixed inset-0 z-40 hidden items-center justify-center bg-ink/75 backdrop-blur-xs p-3 sm:p-6">
+    <div class="bg-xuan w-full max-w-5xl max-h-[90vh] rounded-2xl border-2 border-bronze/50 shadow-2xl flex flex-col overflow-hidden">
+      <!-- 弹窗顶部 -->
+      <div class="px-5 py-4 bg-xuanDark/90 border-b border-bronze/30 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 class="font-classical font-bold text-lg sm:text-xl text-ink">一年54次与中国之美相遇 · 全年图鉴护照</h2>
+          <p class="text-xs text-inkMuted mt-0.5">已点亮 <span id="atlasStampedCount" class="font-bold text-cinnabar">0</span> / 54 件镇馆国宝 · 点击任意国宝卡片直达浏览</p>
+        </div>
+        <button id="closeAtlasBtn" type="button" class="px-3 py-1.5 rounded-lg bg-xuan hover:bg-ink hover:text-xuan border border-bronze/40 text-xs font-medium transition cursor-pointer">
+          关闭图鉴
+        </button>
+      </div>
+
+      <!-- 筛选与工具栏 -->
+      <div class="px-5 py-3 bg-xuan border-b border-bronze/20 space-y-2.5">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <!-- 点亮状态筛选 -->
+          <div class="flex items-center gap-1.5">
+            <button type="button" data-status="all" class="atlas-status-btn px-3 py-1.5 rounded-lg bg-ink text-xuan text-xs font-medium cursor-pointer">全部 54</button>
+            <button type="button" data-status="stamped" class="atlas-status-btn px-3 py-1.5 rounded-lg bg-xuanDark text-ink/80 hover:bg-bronze/20 text-xs font-medium cursor-pointer">已点亮</button>
+            <button type="button" data-status="unstamped" class="atlas-status-btn px-3 py-1.5 rounded-lg bg-xuanDark text-ink/80 hover:bg-bronze/20 text-xs font-medium cursor-pointer">待相遇</button>
+          </div>
+
+          <!-- 全局图谱视图切换 -->
+          <div class="flex items-center gap-1 bg-xuanDark/80 p-0.5 rounded-lg border border-bronze/35">
+            <button id="atlasToggleImageModeBtn" type="button" class="px-2.5 py-1 rounded-md text-xs font-classical transition cursor-pointer flex items-center gap-1 bg-ink text-xuan hover:bg-ink/90" title="在主图与备选图之间切换全图谱显示">
+              <svg class="w-3.5 h-3.5 text-cinnabar" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              <span id="atlasImageModeText">图谱视图: 主图 (点击切备选)</span>
+            </button>
+          </div>
+
+          <!-- 月份 + 类别 + 关键词搜索 -->
+          <div class="flex flex-wrap items-center gap-2 flex-1 sm:justify-end">
+            <select id="atlasMonthFilter" aria-label="图鉴月份筛选" class="px-2.5 py-1.5 rounded-lg bg-xuanDark/70 border border-bronze/35 text-xs text-ink cursor-pointer">
+              <option value="all">全部月份 (1-12月)</option>
+              <option value="1">1月 (第00-05周)</option>
+              <option value="2">2月 (第06-09周)</option>
+              <option value="3">3月 (第10-13周)</option>
+              <option value="4">4月 (第14-18周)</option>
+              <option value="5">5月 (第19-22周)</option>
+              <option value="6">6月 (第23-26周)</option>
+              <option value="7">7月 (第27-31周)</option>
+              <option value="8">8月 (第32-35周)</option>
+              <option value="9">9月 (第36-40周)</option>
+              <option value="10">10月 (第41-44周)</option>
+              <option value="11">11月 (第45-48周)</option>
+              <option value="12">12月 (第49-53周)</option>
+            </select>
+
+            <select id="atlasCategoryFilter" aria-label="图鉴六艺类别筛选" class="px-2.5 py-1.5 rounded-lg bg-xuanDark/70 border border-bronze/35 text-xs text-ink cursor-pointer">
+              <option value="全部">全部六大门类</option>
+              <option value="百工">百工 (9件)</option>
+              <option value="金石">金石 (9件)</option>
+              <option value="古建">古建 (9件)</option>
+              <option value="书画">书画 (9件)</option>
+              <option value="造像">造像 (9件)</option>
+              <option value="壁画">壁画 (9件)</option>
+            </select>
+
+            <select id="atlasRegionFilter" aria-label="图鉴核心省份筛选" class="px-2.5 py-1.5 rounded-lg bg-xuanDark/70 border border-bronze/35 text-xs text-ink cursor-pointer">
+              <option value="全部">全部核心地域 (16省市)</option>
+              <option value="山西">山西 (10件)</option>
+              <option value="陕西">陕西 (7件)</option>
+              <option value="北京">北京 (7件)</option>
+              <option value="河南">河南 (4件)</option>
+              <option value="江苏">江苏 (4件)</option>
+              <option value="甘肃">甘肃 (3件)</option>
+              <option value="四川">四川 (3件)</option>
+              <option value="辽宁">辽宁 (3件)</option>
+              <option value="上海">上海 (3件)</option>
+              <option value="湖北">湖北 (2件)</option>
+              <option value="河北">河北 (2件)</option>
+              <option value="福建">福建 (2件)</option>
+              <option value="广东">广东 (1件)</option>
+              <option value="湖南">湖南 (1件)</option>
+              <option value="天津">天津 (1件)</option>
+              <option value="台湾">台湾 (1件)</option>
+            </select>
+
+            <input id="atlasSearchInput" type="search" placeholder="搜索国宝名 / 朝代 / 博物馆..." class="w-full sm:w-48 px-3 py-1.5 rounded-lg bg-xuanDark/50 border border-bronze/35 text-xs text-ink placeholder:text-inkMuted/60 focus:outline-none focus:border-cinnabar">
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-bronze/15">
+          <span id="atlasCountSummary" class="text-[11px] text-inkMuted">当前显示 54 / 54 件国宝</span>
+          <div class="flex items-center gap-2">
+            <button id="exportJsonBtn" type="button" class="px-3 py-1.5 rounded-lg bg-ink text-bronzeLight hover:bg-ink/90 text-xs font-medium transition cursor-pointer">
+              导出 UTF-8 JSON 数据
+            </button>
+            <button id="resetStampsBtn" type="button" class="px-3 py-1.5 rounded-lg bg-cinnabar/10 hover:bg-cinnabar/20 border border-cinnabar/35 text-cinnabar text-xs font-medium transition cursor-pointer">
+              重置进度
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 优化5：动态 SVG 博物馆巡游打卡足迹地图 -->
+      <div id="museumMapContainer" class="px-5 py-4 border-b border-bronze/20 bg-xuanDark/40">
+        <h3 class="font-classical font-bold text-ink text-sm mb-3 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-cinnabar"></span>
+          八大核心博物院朝圣足迹
+        </h3>
+        <div class="relative w-full h-[180px] bg-ink rounded-xl overflow-hidden shadow-inner flex items-center justify-center border border-bronze/30">
+          <svg id="museumRouteSvg" viewBox="0 0 600 200" class="w-full h-full drop-shadow-sm"></svg>
+        </div>
+      </div>
+
+      <!-- 54国宝网格列表 -->
+      <div id="atlasGridContainer" class="p-5 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 bg-xuanDark/25 flex-1"></div>
+    </div>
+  </div>
+
+  <!-- 弹窗二：1080×1920 高清手机壁纸工坊 -->
+  <div id="wallpaperModal" class="fixed inset-0 z-40 hidden items-center justify-center bg-ink/80 backdrop-blur-xs p-3 sm:p-6">
+    <div class="bg-xuan w-full max-w-4xl max-h-[92vh] rounded-2xl border-2 border-bronze/50 shadow-2xl flex flex-col overflow-hidden">
+      <div class="px-5 py-3.5 bg-xuanDark/90 border-b border-bronze/30 flex items-center justify-between">
+        <div>
+          <h2 class="font-classical font-bold text-lg text-ink">1080 × 1920 高清手机壁纸工坊</h2>
+          <p class="text-xs text-inkMuted">原生矢量 Canvas 实时渲染 · 支持锁屏时钟安全区预览与无损 PNG 下载</p>
+        </div>
+        <button id="closeWallpaperBtn" type="button" class="px-3 py-1.5 rounded-lg bg-xuan hover:bg-ink hover:text-xuan border border-bronze/40 text-xs font-medium transition cursor-pointer">
+          关闭工坊
+        </button>
+      </div>
+
+      <div class="p-5 overflow-y-auto grid grid-cols-1 md:grid-cols-12 gap-6 items-center flex-1">
+        <!-- 左侧：9:16 手机壁纸实时预览区 -->
+        <div class="md:col-span-6 flex justify-center">
+          <div class="relative w-[240px] sm:w-[270px] aspect-[9/16] rounded-[28px] border-[6px] border-ink shadow-xl overflow-hidden bg-ink">
+            <canvas id="wallpaperCanvas" width="1080" height="1920" class="w-full h-full block"></canvas>
+
+            <!-- 锁屏时钟安全区模拟叠加层 -->
+            <div id="lockscreenPreviewOverlay" class="absolute inset-x-0 top-7 flex flex-col items-center text-center pointer-events-none select-none drop-shadow">
+              <div id="lockscreenDateSub" class="text-[11px] font-medium tracking-wider opacity-85 text-white bg-black/25 px-2.5 py-0.5 rounded-full backdrop-blur-xs">
+                看见中国之美 · 锁屏安全区
+              </div>
+              <div class="text-5xl font-light tracking-tight text-white mt-1" style="text-shadow: 0 2px 10px rgba(0,0,0,0.45);">
+                09:41
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右侧：壁纸板式与下载控制 -->
+        <div class="md:col-span-6 space-y-5">
+          <!-- 选用文物图谱模式 -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="block font-classical font-bold text-sm text-ink">选用文物图谱</label>
+              <span id="wpImgModeStatus" class="text-xs text-cinnabar font-classical">当前：展陈主图</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <button id="wpImgModeMainBtn" type="button" class="p-2 rounded-xl border border-cinnabar bg-cinnabar/10 text-cinnabar font-classical text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer">
+                <span>展陈主图</span>
+              </button>
+              <button id="wpImgModeAltBtn" type="button" class="p-2 rounded-xl border border-bronze/35 bg-xuan text-ink hover:border-bronze font-classical text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer">
+                <span>备选细节图</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <label class="block font-classical font-bold text-sm text-ink">选择馆藏美学板式</label>
+            <div class="grid grid-cols-3 gap-2.5">
+              <button type="button" data-style="xuan" class="wp-style-choice p-3 rounded-xl border-2 border-cinnabar bg-xuanDark/50 flex flex-col items-center gap-1.5 cursor-pointer transition">
+                <span class="w-6 h-6 rounded-full bg-[#F6F1E7] border border-bronze"></span>
+                <span class="font-classical font-bold text-xs text-ink">天光素笺</span>
+                <span class="text-[10px] text-inkMuted">宣纸雅金</span>
+              </button>
+
+              <button type="button" data-style="dark" class="wp-style-choice p-3 rounded-xl border border-bronze/35 bg-xuan hover:border-bronze flex flex-col items-center gap-1.5 cursor-pointer transition">
+                <span class="w-6 h-6 rounded-full bg-[#171310] border border-bronzeLight"></span>
+                <span class="font-classical font-bold text-xs text-ink">暗夜馆藏</span>
+                <span class="text-[10px] text-inkMuted">聚光鎏金</span>
+              </button>
+
+              <button type="button" data-style="cinnabar" class="wp-style-choice p-3 rounded-xl border border-bronze/35 bg-xuan hover:border-bronze flex flex-col items-center gap-1.5 cursor-pointer transition">
+                <span class="w-6 h-6 rounded-full bg-[#A83226] border border-bronzeLight"></span>
+                <span class="font-classical font-bold text-xs text-ink">朱砂印谱</span>
+                <span class="text-[10px] text-inkMuted">宫墙朱金</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="bg-xuanDark/55 rounded-xl p-4 border border-bronze/25 space-y-3">
+            <label class="flex items-center justify-between text-xs text-ink cursor-pointer">
+              <span>显示手机锁屏时钟安全区预览</span>
+              <input id="toggleLockscreenGuide" type="checkbox" checked class="accent-cinnabar w-4 h-4 cursor-pointer">
+            </label>
+
+            <label class="flex items-center justify-between text-xs text-ink cursor-pointer">
+              <span>叠加周次眉题与六艺朱砂印章</span>
+              <input id="toggleWallpaperSeal" type="checkbox" checked class="accent-cinnabar w-4 h-4 cursor-pointer">
+            </label>
+
+            <label class="flex items-center justify-between text-xs text-ink cursor-pointer">
+              <span>底部镌刻策展文化金句</span>
+              <input id="toggleWallpaperQuote" type="checkbox" checked class="accent-cinnabar w-4 h-4 cursor-pointer">
+            </label>
+          </div>
+
+          <button id="downloadWallpaperPngBtn" type="button" class="w-full py-3.5 rounded-xl bg-cinnabar hover:bg-cinnabar/90 text-xuan font-classical font-bold text-sm tracking-wider shadow-md transition cursor-pointer">
+            下载高清无损 PNG 壁纸 (1080×1920)
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // 一、完整 54 件国宝结构化数据集（第 00 周 至 第 53 周，共 54 件）
+    // 严格保留原始 UTF-8 中文字符串，零 Base64 / btoa / escape 转换
+    // =========================================================================
+    const TREASURES_54 = [
+      // 1月 (第00周 - 第05周，共6件)
+      {
+        week: 0, month: 1, category: '百工', province: '北京', image: 'images/week-00.jpg', audioSrc: 'audio/week-00.mp3',
+        name: '托克托日晷(支架)', dynasty: '汉代', museum: '中国国家博物馆',
+        quote: '以表测影，以晷定时刻，将天地运行浓缩于方寸石盘之间。',
+        note: '出土于内蒙古托克托县，是中国现存最早的石质赤道日晷实物之一。盘面刻划辐射状时刻线与同心圆圈，中心凿孔以立金属晷针，日影随太阳东升西落推移，见证汉代天文学与精密测时工艺的辉煌。',
+        accent: '#C49A45'
+      },
+      {
+        week: 1, month: 1, category: '百工', province: '河南', image: 'images/week-01.jpg',
+        name: '汝窑天蓝釉刻花鹅颈瓶', dynasty: '北宋', museum: '河南博物院',
+        quote: '雨过天青云破处，这般颜色做将来。',
+        note: '出土于河南宝丰清凉寺汝官窑遗址，是目前已知唯一一件传世与出土兼备的刻花汝官窑器。其造型如天鹅引颈，通体施天蓝釉，釉色莹润如玉，布满细密蝉翼纹开片，颈部与腹部暗刻折枝莲花，尽显宋代极简美学巅峰。',
+        accent: '#6FA3B0'
+      },
+      {
+        week: 2, month: 1, category: '金石', province: '湖北', image: 'images/week-02.jpg',
+        name: '曾侯乙编钟', dynasty: '战国早期', museum: '湖北省博物馆',
+        quote: '一钟双音，十二律吕完备，两千四百年前的地下礼乐殿堂。',
+        note: '1978年出土于湖北随州曾侯乙墓，全套共六十五件，分三层八组悬挂于铜木结构钟架上。每件甬钟均可敲击出呈三度音程的两个乐音，音域跨越五个半八度，改写了世界音乐史，是先秦青铜铸造与声学技术的巅峰之作。',
+        accent: '#3B7A6B'
+      },
+      {
+        week: 3, month: 1, category: '古建', province: '山西', image: 'images/week-03.jpg',
+        name: '佛光寺东大殿', dynasty: '唐代', museum: '山西五台佛光寺',
+        quote: '斗拱雄大，出檐深远，大唐木构建筑的孤例与尊严。',
+        note: '建于唐大中十一年（857年），梁思成与林徽因于1937年发现并测绘，打破了日本学者“中国境内已无唐代木构”的断言。殿内唐代建筑、唐代彩塑、唐代壁画、唐代墨迹“四绝”并存，斗拱断面尺寸居现存古建之首。',
+        accent: '#B55239'
+      },
+      {
+        week: 4, month: 1, category: '书画', province: '辽宁', image: 'images/week-04.jpg',
+        name: '《瑞鹤图》卷', dynasty: '北宋', museum: '辽宁省博物馆',
+        quote: '群鹤翔集宫阙之上，祥云缭绕，定格大宋宣和年间的诗意瞬间。',
+        note: '宋徽宗赵佶绘于政和二年（1112年），描绘元宵节次日汴京宣德门上空二十只仙鹤盘旋飞鸣、两只立于鸱尾的奇观。画面以石青平涂天空，白粉勾点鹤羽，后附徽宗瘦金体题跋，书画合璧，清雅绝伦。',
+        accent: '#4C7A96'
+      },
+      {
+        week: 5, month: 1, category: '造像', province: '陕西', image: 'images/week-05.jpg',
+        name: '跪射俑', dynasty: '秦代', museum: '秦始皇帝陵博物院',
+        quote: '右膝跪地，左足蹲曲，两千余年未曾倾倒的大秦锐士。',
+        note: '出土于秦兵马俑二号坑，是兵马俑中唯一未经人工修复而保持完好原貌的陶俑。其重心的三点支撑力学结构极为稳固，铠甲甲片与鞋底针脚刻画入微，神态沉毅冷静，展现秦代雕塑写实艺术的最高成就。',
+        accent: '#8D6E53'
+      },
+
+      // 2月 (第06周 - 第09周，共4件)
+      {
+        week: 6, month: 2, category: '壁画', province: '山西', image: 'images/week-06.jpg',
+        name: '娄睿墓《鞍马游骑图》壁画', dynasty: '北齐', museum: '山西博物院',
+        quote: '铁画银钩写骏骨，胡风汉韵驰骋北朝春野。',
+        note: '出土于太原北齐东安王娄睿墓墓道，全墓壁画逾二百平方米，尤以《鞍马游骑图》最为精妙。画师以劲健流畅的线描表现群马奔腾、回首、嘶鸣的瞬间动态，上承顾恺之、张僧繇，下启唐代鞍马画先河。',
+        accent: '#B87A4B'
+      },
+      {
+        week: 7, month: 2, category: '百工', province: '陕西', image: 'images/week-07.jpg',
+        name: '秘色瓷花口碗', dynasty: '唐代', museum: '法门寺博物馆',
+        quote: '九秋风露越窑开，夺得千峰翠色来。',
+        note: '1987年出土于陕西扶风法门寺唐代地宫，与同时出土的《衣物账》碑文相互印证，首次揭开“秘色瓷”千古之谜。器身呈五瓣葵口，胎质细腻，釉色青绿如一汪春水，无纹饰却自生清贵气韵。',
+        accent: '#5A8F7B'
+      },
+      {
+        week: 8, month: 2, category: '金石', province: '河南', image: 'images/week-08.jpg',
+        name: '莲鹤方壶', dynasty: '春秋中期', museum: '河南博物院 / 故宫博物院',
+        quote: '莲瓣盛放，仙鹤振翅，青铜时代突破礼教束缚的时代精神象征。',
+        note: '1923年出土于河南新郑郑公大墓，一对两件分藏河南博物院与故宫博物院。壶盖作双层镂空莲瓣，中央立一引颈展翅欲飞之仙鹤，打破了商周青铜器狞厉神秘的传统，充满清新俊逸的浪漫气息。',
+        accent: '#3E7B6D'
+      },
+      {
+        week: 9, month: 2, category: '古建', province: '山西', image: 'images/week-09.jpg',
+        name: '佛宫寺释迦塔(应县木塔)', dynasty: '辽代', museum: '山西朔州应县佛宫寺',
+        quote: '纯木榫卯拔地六十七米，历经千年地震炮火依然屹立不倒。',
+        note: '建于辽清宁二年（1056年），是世界上现存最高大、最古老的纯木结构楼阁式建筑。全塔未用一颗铁钉，共用五十四种不同形制的斗拱层层咬合，外观五层六檐、实为明五暗四共九层，堪称中国古代木构力学奇迹。',
+        accent: '#A65E3E'
+      },
+
+      // 3月 (第10周 - 第13周，共4件)
+      {
+        week: 10, month: 3, category: '书画', province: '北京', image: 'images/week-10.jpg',
+        name: '冯承素行书摹《兰亭序》卷', dynasty: '唐代', museum: '故宫博物院',
+        quote: '天下第一行书，双钩廓填下笔锋丝毫毕现的晋唐风流。',
+        note: '因卷首钤有唐中宗“神龙”半印，又称“神龙本”《兰亭序》。唐代弘文馆拓书人冯承素以精湛的“双钩廓填”法摹写王羲之原作，将原迹中贼毫、燥锋、映带与改字墨痕纤毫毕现地保存下来，最得右军神韵。',
+        accent: '#7A6855'
+      },
+      {
+        week: 11, month: 3, category: '造像', province: '河南', image: 'images/week-11.jpg',
+        name: '奉先寺卢舍那大佛', dynasty: '唐代', museum: '河南洛阳龙门石窟',
+        quote: '丰颐秀目，含笑俯视众生，盛唐气象的永恒造像巅峰。',
+        note: '开凿于唐高宗咸亨三年至上元二年（672–675年），通高17.14米，是龙门石窟规模最大、艺术最精湛的摩崖群像。大佛面容丰满圆润，眉如新月，双目微垂，既具神性的庄严，又蕴含人间慈母般的温情。',
+        accent: '#9E7B4F'
+      },
+      {
+        week: 12, month: 3, category: '壁画', province: '山西', image: 'images/week-12.jpg',
+        name: '广胜寺水神庙明应王殿壁画', dynasty: '元代', museum: '山西洪洞广胜寺',
+        quote: '元代“大行散乐忠都秀在此作场”，罕见的古代戏剧舞台实录。',
+        note: '绘于元泰定元年（1324年），壁画内容突破宗教题材局限，将祈雨图、宫廷生活与元杂剧演出直接绘入殿壁。其中《大行散乐忠都秀》清晰描绘了舞台帷幕、生旦净末丑角色与伴奏乐队，是中国戏剧史无价之宝。',
+        accent: '#4C7368'
+      },
+      {
+        week: 13, month: 3, category: '百工', province: '北京', image: 'images/week-13.jpg',
+        name: '人面鱼纹彩陶盆', dynasty: '新石器时代仰韶文化', museum: '中国国家博物馆',
+        quote: '六千年前黄土高原上的神秘图腾，人与鱼共生的原始浪漫。',
+        note: '1955年出土于陕西西安半坡遗址，细泥红陶质地，内壁以黑彩绘出两组对称的人面纹与游鱼纹。人面头戴尖顶饰物，口衔双鱼，线条简练稚拙而充满原始巫觋信仰的神秘张力，是仰韶彩陶艺术代表作。',
+        accent: '#B35C3E'
+      },
+
+      // 4月 (第14周 - 第18周，共5件)
+      {
+        week: 14, month: 4, category: '金石', province: '上海', image: 'images/week-14.jpg',
+        name: '大克鼎', dynasty: '西周中期', museum: '上海博物馆',
+        quote: '二百九十字金文典雅端庄，波曲纹与兽面纹尽显西周重器威仪。',
+        note: '清光绪年间出土于陕西扶风法门寺任村，与大盂鼎、毛公鼎并称“海内青铜三宝”。腹内壁铸有290字铭文，记载周天子册命膳夫克并赏赐土地奴隶之事，字体布局严谨宽博，是西周金文书法的典范。',
+        accent: '#3A6E63'
+      },
+      {
+        week: 15, month: 4, category: '古建', province: '辽宁', image: 'images/week-15.jpg',
+        name: '奉国寺大雄殿', dynasty: '辽代', museum: '辽宁义县奉国寺',
+        quote: '面阔九间，七佛并坐，中国古代遗存最大的单檐木构佛殿。',
+        note: '始建于辽开泰九年（1020年），集木构、彩塑、壁画与梁架彩绘于一体。殿内佛坛上并列七尊高达九米以上的辽代彩塑过去七佛，雄伟壮阔，梁架上保留着珍贵的辽代飞天彩画，气魄宏大。',
+        accent: '#9E583B'
+      },
+      {
+        week: 16, month: 4, category: '书画', province: '辽宁', image: 'images/week-16.jpg',
+        name: '《簪花仕女图》卷', dynasty: '唐代', museum: '辽宁省博物馆',
+        quote: '薄纱透体，云髻高耸，尽展大唐贵族女子的丰腴与闲适。',
+        note: '传为唐代画家周昉之作，全卷描绘五位衣着艳丽的贵族妇女与一名侍女在庭院中采花、戏犬、赏鹤的悠闲情景。画家以细腻笔触表现轻薄透明的罗纱质感与华美花钿，色彩浓丽典雅，是唐代仕女画标杆。',
+        accent: '#B54747'
+      },
+      {
+        week: 17, month: 4, category: '造像', province: '山西', image: 'images/week-17.jpg',
+        name: '云冈石窟第20窟露天大佛', dynasty: '北魏', museum: '山西大同云冈石窟',
+        quote: '高鼻深目，肩宽胸阔，丝绸之路东西方文明交融的雄浑丰碑。',
+        note: '开凿于北魏文成帝和平年间（460–465年），为“昙曜五窟”之一，因前壁坍塌而成为露天大佛。通高13.7米，大佛面相方圆、双耳垂肩、身着偏袒右肩袈裟，融汇犍陀罗艺术与中原审美，雄健伟岸。',
+        accent: '#9E7749'
+      },
+      {
+        week: 18, month: 4, category: '壁画', province: '甘肃', image: 'images/week-18.jpg',
+        name: '榆林窟第25窟《观无量寿经变》壁画', dynasty: '中唐', museum: '甘肃瓜州榆林窟',
+        quote: '七宝莲池，乐舞升平，大唐净土幻想与人间农耕风俗的完美交响。',
+        note: '绘于吐蕃统治敦煌时期（中唐），是榆林窟最负盛名的经变画杰作。画面构图宏大严整，楼阁金碧辉煌，舞伎反弹琵琶翩翩起舞，下方更穿插《弥勒经变》中的耕获图与婚嫁图，兼具神圣与烟火气息。',
+        accent: '#3F7D6C'
+      },
+
+      // 5月 (第19周 - 第22周，共4件)
+      {
+        week: 19, month: 5, category: '百工', province: '广东', image: 'images/week-19.jpg',
+        name: '丝缕玉衣', dynasty: '西汉', museum: '南越王博物院',
+        quote: '两千二百九十一片玉片以丝线连缀，南越王国“玉能不朽”的信仰绝唱。',
+        note: '1983年出土于广州西汉南越王赵眜墓，全长1.73米，由头套、上衣、袖筒、手套、裤筒和鞋子六部分组成。不同于中原汉墓常见的金缕、银缕玉衣，此件采用朱红丝带与麻线粘连编缀，工艺繁复奇巧，独具岭南特色。',
+        accent: '#4F8A78'
+      },
+      {
+        week: 20, month: 5, category: '金石', province: '陕西', image: 'images/week-20.jpg',
+        name: '逨盘', dynasty: '西周晚期', museum: '宝鸡青铜器博物院',
+        quote: '三百七十二字铭文一部西周简史，与《史记》印证千载。',
+        note: '2003年出土于陕西眉县杨家村西周青铜器窖藏，盘内底铸有21行共372字长篇铭文，详述单氏家族八代人辅佐西周十二位天子的历史功绩。铭文史料价值极高，被誉为“二十一世纪重大考古发现”。',
+        accent: '#3D7366'
+      },
+      {
+        week: 21, month: 5, category: '古建', province: '山西', image: 'images/week-21.jpg',
+        name: '晋祠圣母殿', dynasty: '北宋', museum: '山西太原晋祠博物馆',
+        quote: '八条木雕盘龙抱柱而上，北宋营造法式典雅灵动的建筑华章。',
+        note: '创建于北宋太平兴国九年（984年），重修于崇宁元年（1102年），是晋祠的主殿。殿前廊柱雕有八条姿态各异的木雕盘龙，是我国现存最早的盘龙柱实物；殿内四十三尊宋代彩塑侍女像神情各异，栩栩如生。',
+        accent: '#A84E3A'
+      },
+      {
+        week: 22, month: 5, category: '书画', province: '上海', image: 'images/week-22.jpg',
+        name: '《苦笋帖》卷', dynasty: '唐代', museum: '上海博物馆',
+        quote: '仅十四字如惊蛇入草，颠张醉素狂草精神的墨迹遗珍。',
+        note: '唐代草书大家怀素传世墨迹，全卷仅“苦笋及茗异常佳，乃可径来。怀素上”十四字。用笔圆劲迅疾，中锋使转如铁线银钩，墨色枯润相生，虽为日常便札，却展现出狂草艺术风驰电掣般的生命张力。',
+        accent: '#595047'
+      },
+
+      // 6月 (第23周 - 第26周，共4件)
+      {
+        week: 23, month: 6, category: '造像', province: '四川', image: 'images/week-23.jpg',
+        name: '王建墓二十四伎乐浮雕', dynasty: '五代前蜀', museum: '成都永陵博物馆',
+        quote: '石壁上的大唐宫廷燕乐团，二十种乐器奏响蜀地繁华遗音。',
+        note: '位于成都前蜀开国皇帝王建永陵棺床东、南、西三面石壁，共雕二十四位女性乐舞伎，其中二人起舞、二十二人分持羯鼓、琵琶、箜篌、笙、笛等二十种乐器演奏，是研究唐末五代宫廷乐制最直观的图像资料。',
+        accent: '#9E7848'
+      },
+      {
+        week: 24, month: 6, category: '壁画', province: '河北', image: 'images/week-24.jpg',
+        name: '毗卢寺水陆壁画', dynasty: '明代', museum: '河北石家庄毗卢寺博物院',
+        quote: '五百余尊儒释道神祇汇聚一堂，明代水陆法会壁画艺术高峰。',
+        note: '绘于明代嘉靖年间，壁画采用“沥粉贴金”与重彩工笔技法，将佛教诸佛菩萨、道教三清星宿与儒家圣贤忠臣有序排列于祥云缭绕之中。人物衣冠华美，面部刻画入微，堪称中国寺观壁画集大成者。',
+        accent: '#B3533C'
+      },
+      {
+        week: 25, month: 6, category: '百工', province: '湖南', image: 'images/week-25.jpg',
+        name: '西汉直裾素纱单衣', dynasty: '西汉', museum: '湖南博物院',
+        quote: '轻若烟雾，薄如蝉翼，四十九克体重折叠后可纳入火柴盒。',
+        note: '1972年出土于长沙马王堆一号汉墓，衣长128厘米，袖通长190厘米，全衣仅重49克（除去领口与袖口较厚重的锦缘后，衣料仅重约25克）。其蚕丝纤度极细，代表了西汉初期缫丝与纺织技术的世界巅峰。',
+        accent: '#8E8477'
+      },
+      {
+        week: 26, month: 6, category: '金石', province: '河南', image: 'images/week-26.jpg',
+        name: '亚长牛尊', dynasty: '商代晚期', museum: '殷墟博物馆',
+        quote: '写实水牛与商代神兽纹饰交融，安阳殷墟唯一牛形青铜尊。',
+        note: '2001年出土于河南安阳殷墟花园庄东地54号墓（墓主为商代高级武将“亚长”）。器身作昂首挺立的水牛造型，背开方口，通体遍饰虎、象、夔龙、飞鸟等浮雕纹饰，兼具写实生机与青铜重器的庄重。',
+        accent: '#396E62'
+      },
+
+      // 7月 (第27周 - 第31周，共5件)
+      {
+        week: 27, month: 7, category: '古建', province: '北京', image: 'images/week-27.jpg',
+        name: '天坛祈年殿', dynasty: '明代', museum: '北京天坛公园',
+        quote: '三重蓝琉璃瓦攒尖顶，二十八根楠木巨柱托起天人合一的宇宙模型。',
+        note: '始建于明永乐十八年（1420年），是明清两代帝王孟春祈谷之所。大殿建于三层汉白玉祈谷坛上，内部以四根龙井柱象征四季、十二根金柱象征十二月、十二根檐柱象征十二时辰，将中国古代天文历法融入木构空间。',
+        accent: '#2D5A88'
+      },
+      {
+        week: 28, month: 7, category: '书画', province: '上海', image: 'images/week-28.jpg',
+        name: '《烟江叠嶂图》卷', dynasty: '北宋', museum: '上海博物馆',
+        quote: '江上愁心千叠山，浮空积翠如云烟，王诜与苏轼千古唱和的青绿长卷。',
+        note: '北宋驸马都尉王诜绘，以水墨勾皴山石，复施以石青、石绿与金粉点染，创“金碧青绿山水”新风。画中烟波浩渺，群峰叠翠，渔舟出没，卷后更有苏轼长诗题跋与王诜和诗，成就中国文人画史佳话。',
+        accent: '#3B756A'
+      },
+      {
+        week: 29, month: 7, category: '造像', province: '山西', image: 'images/week-29.jpg',
+        name: '崇庆寺大士殿十八罗汉彩塑', dynasty: '北宋', museum: '山西长子崇庆寺',
+        quote: '骨肉亭匀，神情各异，宋代彩色泥塑写实艺术的传神杰作。',
+        note: '塑于北宋元丰二年（1079年），围绕大士殿三大士分列两侧。这组罗汉突破宗教偶像的刻板程式，有的沉思默想，有的蹙眉凝神，有的谈笑风生，解剖比例精准，衣褶自然垂坠，被誉为“宋塑之冠”。',
+        accent: '#9C6B43'
+      },
+      {
+        week: 30, month: 7, category: '壁画', province: '陕西', image: 'images/week-30.jpg',
+        name: '懿德太子墓《阙楼仪仗图》壁画', dynasty: '唐代', museum: '陕西历史博物馆',
+        quote: '三出阙巍峨耸立，百人仪仗列阵前行，盛唐长安宫阙仪制的直观重现。',
+        note: '1971年揭取于陕西乾县唐懿德太子李重润墓墓道两壁。画面以雄伟的唐代最高等级“三出阙”城楼为背景，描绘步兵、骑兵与车马仪仗队浩荡行进的场面，笔力雄健，设色富丽，尽显帝国威仪。',
+        accent: '#B0533C'
+      },
+      {
+        week: 31, month: 7, category: '壁画', province: '山西', image: 'images/week-31.jpg',
+        name: '十二圆觉及诸天等壁画', dynasty: '元代', museum: '山西稷山兴化寺(旧藏)',
+        quote: '衣袂飘举如行云流水，宝冠璎珞沥粉贴金，元代晋南壁画璀璨遗珍。',
+        note: '原绘于山西稷山兴化寺中殿，为元代晋南民间画工经典巨制。主尊两侧环列十二圆觉菩萨与护法诸天，画师继承唐宋“吴带当风”线描传统，线条劲健圆润，冠冕璎珞施以沥粉贴金，历经七百年依然沉稳华美。',
+        accent: '#4C7A68'
+      },
+
+      // 8月 (第32周 - 第35周，共4件)
+      {
+        week: 32, month: 8, category: '金石', province: '陕西', image: 'images/week-32.jpg',
+        name: '颜氏家庙碑', dynasty: '唐代', museum: '西安碑林博物馆',
+        quote: '筋骨丰腴，雄浑宽博，颜真卿七十二岁高龄书写的楷书丰碑。',
+        note: '立于唐建中元年（780年），颜真卿撰文并书，李阳冰篆额。碑文记述颜氏家族历代先祖仕宦与学术业绩，此时颜真卿书法已臻炉火纯青之境，横细竖粗、蚕头燕尾、气势磅礴，尽显盛唐忠烈之士的浩然正气。',
+        accent: '#57524B'
+      },
+      {
+        week: 33, month: 8, category: '古建', province: '江苏', image: 'images/week-33.jpg',
+        name: '拙政园', dynasty: '明代', museum: '江苏苏州拙政园',
+        quote: '一池清水绕亭台，借景北寺塔，江南古典园林山水诗学的巅峰。',
+        note: '始建于明正德四年（1509年），与北京颐和园、承德避暑山庄、苏州留园并称“中国四大名园”。全园以水为中心，山水萦绕，花木繁茂，远香堂、香洲、小飞虹等建筑疏密得宜，移步换景，咫尺之内再造乾坤。',
+        accent: '#437A65'
+      },
+      {
+        week: 34, month: 8, category: '书画', province: '台湾', image: 'images/week-34.jpg',
+        name: '苏轼《黄州寒食诗》卷(寒食帖)', dynasty: '北宋', museum: '台北故宫博物院',
+        quote: '自我来黄州，已过三寒食，逆境中喷薄而出的“天下第三行书”。',
+        note: '书于宋神宗元丰五年（1082年），苏轼贬谪黄州第三年寒食节雨中感怀作诗二首并亲自书写。全卷通篇跌宕起伏，字体由小渐大、由静入动，墨色浓淡干湿自然天成，后有黄庭坚精绝题跋，情感与笔墨高度统一。',
+        accent: '#63584C'
+      },
+      {
+        week: 35, month: 8, category: '造像', province: '甘肃', image: 'images/week-35.jpg',
+        name: '莫高窟第45窟盛唐彩塑一铺', dynasty: '盛唐', museum: '甘肃敦煌莫高窟',
+        quote: '佛陀慈悲，迦叶老成，菩萨袅娜，天王威猛，敦煌彩塑群像巅峰。',
+        note: '塑于盛唐开元、天宝年间，位于莫高窟第45窟西壁敞口龛内。全铺由释迦牟尼佛、迦叶、阿难二弟子、二菩萨及二天王共七身组成，塑像体态婀娜、神情生动，与周围盛唐壁画相映成趣，是敦煌彩塑艺术的最高典范。',
+        accent: '#B35D3E'
+      },
+
+      // 9月 (第36周 - 第40周，共5件)
+      {
+        week: 36, month: 9, category: '壁画', province: '山西', image: 'images/week-36.jpg',
+        name: '开化寺大雄宝殿西壁壁画', dynasty: '北宋', museum: '山西高平开化寺',
+        quote: '宋代界画宫殿精微入神，现存唯一北宋大型寺观壁画孤例。',
+        note: '绘于北宋绍圣三年（1096年），内容为《华严经变》与《报恩经变》。画面中采用宋代严谨的“界画”技法绘制殿宇楼阁，斗拱梁架一丝不苟，市井耕织与说法场面交织，填补了北宋寺观壁画实物的历史空白。',
+        accent: '#4B7566'
+      },
+      {
+        week: 37, month: 9, category: '百工', province: '陕西', image: 'images/week-37.jpg',
+        name: '葡萄花鸟纹银香囊', dynasty: '唐代', museum: '陕西历史博物馆',
+        quote: '内置两层同心活轴平衡环，任凭旋转摇晃香料永不倾洒。',
+        note: '1970年出土于西安何家村唐代窖藏，外壳镂空雕刻缠枝葡萄与飞鸟纹样，内部装有两层金属双轴相连的同心圆机环与焚香盂。其利用陀螺仪平衡原理，使香盂始终保持水平，体现了唐代金银器制造的惊人智慧。',
+        accent: '#8F8A82'
+      },
+      {
+        week: 38, month: 9, category: '金石', province: '江苏', image: 'images/week-38.jpg',
+        name: '《瘗鹤铭》摩崖石刻', dynasty: '南朝梁', museum: '江苏镇江焦山碑林',
+        quote: '大字之祖，镌刻于长江峭壁之上的六朝风度与仙鹤挽歌。',
+        note: '刻于南朝梁天监十三年（514年），传为陶弘景撰书，原刻于镇江焦山西麓崖壁，后崩落江中，清代打捞出五方残石。其书体介于楷行之间，笔势雄奇飘逸、字形宽博开张，对黄庭坚等历代大字书法影响深远。',
+        accent: '#4F6973'
+      },
+      {
+        week: 39, month: 9, category: '古建', province: '福建', image: 'images/week-39.jpg',
+        name: '承启楼', dynasty: '清代', museum: '福建永定高北土楼群',
+        quote: '高四层，楼四圈，上上下下四百间，夯土筑就的东方家族城堡。',
+        note: '始建于明崇祯年间，竣工于清康熙四十八年（1709年），被誉为“福建土楼王”。整座建筑由外向内四环同心圆构成，外墙以生土掺糯米浆红糖夯筑，冬暖夏凉、防震抗敌，全楼曾聚居八十余户数百族人，彰显客家聚族而居智慧。',
+        accent: '#9E6640'
+      },
+      {
+        week: 40, month: 9, category: '书画', province: '北京', image: 'images/week-40.jpg',
+        name: '《清明上河图》卷', dynasty: '北宋', museum: '故宫博物院',
+        quote: '五米长卷八百余人，虹桥喧嚣与汴河烟柳定格大宋盛世繁华。',
+        note: '北宋风俗画大家张择端绘制，以散点透视法全景式描绘北宋都城汴京（今开封）清明时节汴河两岸的市井生活。从郊野疏林、繁忙漕运、险峻虹桥到热闹街市，人物神态各异、舟车桥梁结构精准，是中华文明视觉百科全书。',
+        accent: '#7D6A4E'
+      },
+
+      // 10月 (第41周 - 第44周，共4件)
+      {
+        week: 41, month: 10, category: '造像', province: '河北', image: 'images/week-41.jpg',
+        name: '隆兴寺摩尼殿五彩悬塑倒坐观音', dynasty: '明代', museum: '河北正定隆兴寺',
+        quote: '跷足坐于五彩海岛山石之上，鲁迅赞为“东方美神”的灵动观音。',
+        note: '位于正定隆兴寺摩尼殿北壁背面，塑于明嘉靖年间。观音左足踏莲、右腿曲起，身躯微倾，头戴宝冠，目光下视，与观者形成亲切眼神交流；背景以悬塑技法塑造祥云、海浪与善财龙女，打破了佛像正襟危坐的传统。',
+        accent: '#A84A3B'
+      },
+      {
+        week: 42, month: 10, category: '壁画', province: '甘肃', image: 'images/week-42.jpg',
+        name: '莫高窟第257窟《鹿王本生图》', dynasty: '北魏', museum: '甘肃敦煌莫高窟',
+        quote: '九色神鹿踏水而来，敦煌最早的横卷连环画式佛传故事壁画。',
+        note: '绘于北魏时期，讲述九色鹿救起溺水之人却遭其背信出卖、最终感化国王的佛教本生故事。画面采用从两端向中央展开的叙事构图，在铁红色底色上以石绿、白粉勾勒山峦与奔鹿，古朴天真，充满戏剧张力。',
+        accent: '#A8523A'
+      },
+      {
+        week: 43, month: 10, category: '百工', province: '江苏', image: 'images/week-43.jpg',
+        name: '真珠舍利宝幢', dynasty: '北宋', museum: '苏州博物馆',
+        quote: '四万颗珍珠穿缀，金银玉石水晶集大成的北宋吴地工艺奇迹。',
+        note: '1978年发现于苏州瑞光寺塔第三层塔心暗室，制作于北宋大中祥符六年（1013年）。通高122.6厘米，由须弥座、佛宫和塔刹三部分组成，综合运用木雕、玉雕、金银细工、描金漆绘与串珠工艺，华美绝伦。',
+        accent: '#B8934A'
+      },
+      {
+        week: 44, month: 10, category: '金石', province: '陕西', image: 'images/week-44.jpg',
+        name: '曹全碑', dynasty: '东汉', museum: '西安碑林博物馆',
+        quote: '秀美飞动，波磔分明，汉代隶书阴柔婉丽一派的最高典范。',
+        note: '立于东汉中平二年（185年），明代万历初年在陕西合阳出土，因长期埋于地下，字口锋棱完好如新。碑文结体扁平舒展，主笔燕尾飘逸灵动，秀润典雅，自出土以来便是学习汉隶的入门与巅峰范本。',
+        accent: '#4F5A63'
+      },
+
+      // 11月 (第45周 - 第48周，共4件)
+      {
+        week: 45, month: 11, category: '古建', province: '天津', image: 'images/week-45.jpg',
+        name: '独乐寺观音阁', dynasty: '辽代', museum: '天津蓟州独乐寺',
+        quote: '十一面观音贯穿三层阁楼，中国现存最古老的木结构高层楼阁。',
+        note: '重建于辽统和二年（984年），外观两层、内设暗层实为三层，通高23米。全阁共用二十四种斗拱，梁架结构精巧严密；阁内中央矗立高达16.08米的辽代泥塑十一面观音立像，直贯三层空间，仰望令人震撼。',
+        accent: '#9E583B'
+      },
+      {
+        week: 46, month: 11, category: '书画', province: '北京', image: 'images/week-46.jpg',
+        name: '《千里江山图》卷', dynasty: '北宋', museum: '故宫博物院',
+        quote: '十八岁天才少年王希孟挥洒近十二米青绿长卷，大宋山河尽染石青石绿。',
+        note: '北宋政和三年（1113年），十八岁的画院学生王希孟在宋徽宗亲自指点下历时半年绘成。全卷长达1191.5厘米，以重彩石青、石绿层层叠加敷色，山峦连绵起伏，江水烟波浩渺，亭台舟桥精微入神，是中国青绿山水巅峰。',
+        accent: '#2D6B62'
+      },
+      {
+        week: 47, month: 11, category: '造像', province: '四川', image: 'images/week-47.jpg',
+        name: '报恩寺十一面千手观音像', dynasty: '明代', museum: '四川平武报恩寺',
+        quote: '一千零四只金手如孔雀开屏，楠木精雕贴金的深山古寺奇迹。',
+        note: '雕造于明正统至天顺年间（1440–1460年），立于平武报恩寺大悲殿内。主体以整根千年楠木雕成，通高9米，身后扇形排列一千零四只木雕贴金手臂，每只手心均绘一慧眼，法相庄严慈悲，工艺精湛绝伦。',
+        accent: '#B5893E'
+      },
+      {
+        week: 48, month: 11, category: '百工', province: '湖北', image: 'images/week-48.jpg',
+        name: '彩漆鸳鸯形盒', dynasty: '战国早期', museum: '湖北省博物馆',
+        quote: '颈项可360度旋转，腹绘《撞钟击磬图》的先秦漆木艺术珍品。',
+        note: '1978年出土于湖北随州曾侯乙墓，整木雕成昂首回望的鸳鸯造型，通体髹黑漆为地，以朱红、金黄彩绘羽毛纹饰。最珍贵的是鸳鸯腹部两侧绘有先秦乐舞《撞钟击磬图》，为我们留下了战国击乐演奏的珍贵画面。',
+        accent: '#A8382B'
+      },
+
+      // 12月 (第49周 - 第53周，共5件)
+      {
+        week: 49, month: 12, category: '金石', province: '江苏', image: 'images/week-49.jpg',
+        name: '天文图碑', dynasty: '南宋', museum: '苏州碑刻博物馆',
+        quote: '一千四百三十四颗恒星精确刻石，世界现存最古老的东方全天星图石刻。',
+        note: '原绘于南宋绍熙元年（1190年）黄裳献给宋光宗的《天文图》，淳祐七年（1247年）由王致远刻石立于苏州府学。碑面上部为以北极为中心的圆形全天星图，刻有银河、二十八宿与1434颗星辰；下部镌刻两千余字天文总论，科学与艺术并重。',
+        accent: '#374B66'
+      },
+      {
+        week: 50, month: 12, category: '古建', province: '福建', image: 'images/week-50.jpg',
+        name: '泉州开元寺镇国塔(东塔)', dynasty: '南宋', museum: '福建泉州开元寺',
+        quote: '四十八米仿木楼阁式花岗岩石塔，海上丝绸之路刺桐港的地标。',
+        note: '由木塔改建为石塔，竣工于南宋嘉熙二年（1238年），与西塔（仁寿塔）东西相望。东塔为八角五层仿木结构楼阁式花岗岩石塔，通高48.24米，塔身外壁浮雕八十尊佛教故事与护法神像，抗风抗震，是宋代石构建筑杰作。',
+        accent: '#7D7468'
+      },
+      {
+        week: 51, month: 12, category: '书画', province: '北京', image: 'images/week-51.jpg',
+        name: '《五牛图》卷', dynasty: '唐代', museum: '故宫博物院',
+        quote: '五牛并行无背景衬托，粗犷筋骨与温驯眼神道尽农耕文明深情。',
+        note: '唐代宰相兼画家韩滉传世孤本，是目前所见最早作于纸上的绘画真迹。画面上五头神态、毛色各异的耕牛一字排开，或低头吃草，或翘首前行，或回首舐舌，画家以老辣遒劲的线条勾勒筋骨皮毛，质感逼真，气韵沉雄。',
+        accent: '#7A5C43'
+      },
+      {
+        week: 52, month: 12, category: '造像', province: '四川', image: 'images/week-52.jpg',
+        name: '铜立人', dynasty: '商代晚期', museum: '三星堆博物馆',
+        quote: '通高二百六十二厘米，双手虚握环状，古蜀王国的通天神巫。',
+        note: '1986年出土于四川广汉三星堆二号祭祀坑，是现存商代青铜人物造像中体量最大的一件。立人头戴高冠，身着繁复龙纹礼服，赤足立于兽面高台之上，双臂夸张修长，双手呈环抱状似握法器，神秘威严，震撼世人。',
+        accent: '#326B5E'
+      },
+      {
+        week: 53, month: 12, category: '壁画', province: '山西', image: 'images/week-53.jpg',
+        name: '永乐宫三清殿《朝元图》壁画', dynasty: '元代', museum: '山西芮城永乐宫',
+        quote: '二百九十位天神朝拜元始天尊，满壁风动的中国古代人物画巅峰。',
+        note: '绘于元代泰定二年（1325年），分布于永乐宫三清殿四壁，总面积逾四百平方米。画师以长达数米的铁线描一气呵成，勾勒出帝后、星宿、力士等二百九十位神祇仪仗，衣带飘举、设色绚丽，为全年54次相遇画上辉煌句点。',
+        accent: '#3B756A'
+      }
+    ];
+
+    // =========================================================================
+    // 新增优化模块：音频、物理粒子、动态印章与地图路由
+    // =========================================================================
+    
+    // 优化4：Web Audio API 合成器（无依赖）
+    const SoundFX = {
+      ctx: null,
+      init() {
+        if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+      },
+      playFlip() {
+        this.init();
+        const bufferSize = this.ctx.sampleRate * 0.18; // 纸张翻动的短促白噪
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(1200, this.ctx.currentTime);
+        filter.Q.value = 0.5;
+
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0.6, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+
+        noise.connect(filter); filter.connect(gain); gain.connect(this.ctx.destination);
+        noise.start();
+      },
+      playStamp() {
+        this.init();
+        // 沉闷的印章石块撞击声 (Kick Drum)
+        const osc = this.ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(120, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(20, this.ctx.currentTime + 0.25);
+
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(1.5, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(); osc.stop(this.ctx.currentTime + 0.25);
+      }
+    };
+
+    // 优化3：氛围粒子物理系统
+    const DustSystem = {
+      canvas: null, ctx: null, particles: [], color: 'rgba(216, 190, 138, 0.4)',
+      init() {
+        this.canvas = document.getElementById('dustCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+        for (let i = 0; i < 45; i++) {
+          this.particles.push({
+            x: Math.random() * this.canvas.width, y: Math.random() * this.canvas.height,
+            r: Math.random() * 2.5 + 0.5, vx: (Math.random() - 0.5) * 0.35, vy: (Math.random() - 0.5) * 0.35,
+            alpha: Math.random() * 0.5 + 0.1
+          });
+        }
+        this.animate();
+      },
+      resize() { this.canvas.width = window.innerWidth; this.canvas.height = window.innerHeight; },
+      setColor(minutes) {
+        if (minutes < 450 || minutes > 1050) this.color = 'rgba(180, 200, 220, 0.4)'; // 清晨/夜晚偏蓝
+        else if (minutes < 660 || minutes > 840) this.color = 'rgba(216, 190, 138, 0.5)'; // 朝夕偏金
+        else this.color = 'rgba(255, 255, 255, 0.6)'; // 正午偏白
+      },
+      animate() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.particles.forEach(p => {
+          p.x += p.vx; p.y += p.vy;
+          if (p.x < 0) p.x = this.canvas.width; if (p.x > this.canvas.width) p.x = 0;
+          if (p.y < 0) p.y = this.canvas.height; if (p.y > this.canvas.height) p.y = 0;
+          this.ctx.beginPath(); this.ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          this.ctx.fillStyle = this.color; this.ctx.globalAlpha = p.alpha;
+          this.ctx.shadowBlur = p.r * 2; this.ctx.shadowColor = this.color;
+          this.ctx.fill();
+        });
+        requestAnimationFrame(() => this.animate());
+      }
+    };
+
+    // 优化2：动态生成残缺汉印 (Canvas)
+    function generateSeal(char = '乐') {
+      const cvs = document.createElement('canvas');
+      cvs.width = 120; cvs.height = 120;
+      const ctx = cvs.getContext('2d');
+      
+      ctx.fillStyle = '#A83226'; // 朱砂红底
+      ctx.fillRect(0, 0, 120, 120);
+      
+      ctx.fillStyle = '#F6F1E7'; // 白文刻字
+      ctx.font = 'bold 78px "Noto Serif SC", STSong, serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(char, 60, 64);
+      
+      // 算法边缘侵蚀模拟石刻风化
+      const imgData = ctx.getImageData(0, 0, 120, 120);
+      for (let i = 0; i < imgData.data.length; i += 4) {
+        const x = (i / 4) % 120; const y = Math.floor((i / 4) / 120);
+        const dist = Math.min(x, 120 - x, y, 120 - y); // 距边缘距离
+        const prob = dist < 12 ? ((12 - dist) / 12) * 0.85 : 0.02; // 边缘高概率剥落
+        if (Math.random() < prob) imgData.data[i + 3] = 0; // 设置透明
+      }
+      ctx.putImageData(imgData, 0, 0);
+      return cvs.toDataURL();
+    }
+
+    // 优化5：博物院核心坐标节点
+    const MUSEUM_NODES = [
+      { id: '故宫博物院', x: 420, y: 45 }, { id: '中国国家博物馆', x: 435, y: 70 },
+      { id: '陕西历史博物馆', x: 260, y: 100 }, { id: '河南博物院', x: 330, y: 110 },
+      { id: '山西博物院', x: 310, y: 65 }, { id: '湖北省博物馆', x: 340, y: 150 },
+      { id: '上海博物馆', x: 480, y: 140 }, { id: '四川博物院', x: 160, y: 130 }
+    ];
+
+    function renderMuseumMap() {
+      const svg = document.getElementById('museumRouteSvg');
+      const stampedNames = Array.from(state.stampedWeeks).map(w => {
+        const t = TREASURES_54.find(x => x.week === w);
+        return t ? t.museum : '';
+      });
+      
+      let svgHtml = '';
+      const activeNodes = MUSEUM_NODES.filter(n => stampedNames.some(sn => sn.includes(n.id)));
+      
+      // 绘制相连的动态路线
+      if (activeNodes.length > 1) {
+        let d = `M ${activeNodes[0].x} ${activeNodes[0].y}`;
+        for (let i = 1; i < activeNodes.length; i++) {
+          d += ` L ${activeNodes[i].x} ${activeNodes[i].y}`;
+        }
+        svgHtml += `<path d="${d}" fill="none" stroke="#A83226" stroke-width="2.5" stroke-dasharray="1500" stroke-dashoffset="1500" opacity="0.7">
+          <animate attributeName="stroke-dashoffset" from="1500" to="0" dur="2.5s" fill="freeze" />
+        </path>`;
+      }
+
+      // 绘制节点
+      MUSEUM_NODES.forEach(n => {
+        const isActive = activeNodes.some(an => an.id === n.id);
+        const color = isActive ? '#A83226' : '#574E43';
+        const r = isActive ? 5 : 3;
+        svgHtml += `<circle cx="${n.x}" cy="${n.y}" r="${r}" fill="${color}" stroke="#1F1B16" stroke-width="1.5" />`;
+        svgHtml += `<text x="${n.x}" y="${n.y - 12}" text-anchor="middle" fill="${color}" font-size="10" font-weight="${isActive ? 'bold' : 'normal'}" class="font-classical">${n.id}</text>`;
+      });
+      
+      svg.innerHTML = svgHtml;
+    }
+
+    // =========================================================================
+    // 二、应用状态与工具函数
+    // =========================================================================
+    const STORAGE_KEY = 'seeing_beauty_of_china_54_stamps_v2';
+    const MONTH_POETIC_TITLES = {
+      1: '岁首雅集', 2: '仲春清赏', 3: '暮春兰亭', 4: '清和礼乐',
+      5: '仲夏吉金', 6: '荷月华章', 7: '兰秋梵音', 8: '桂月翰墨',
+      9: '菊月风华', 10: '良月宝相', 11: '冬月丹青', 12: '嘉平朝元'
+    };
+
+    const state = {
+      currentWeek: 0,
+      selectedMonth: 'all',
+      selectedCategory: '全部',
+      selectedRegion: '全部',
+      isFlipped: false,
+      stampedWeeks: new Set(),
+      atlasStatus: 'all',
+      resetArmed: false,
+      wpStyle: 'xuan',
+      wpShowLockscreen: true,
+      wpShowSeal: true,
+      wpShowQuote: true,
+      imageMode: 'main' // 'main' (抓取的主图) | 'alt' (已有备选图)
+    };
+
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      if (Array.isArray(saved)) {
+        saved.forEach((w) => {
+          if (typeof w === 'number' && w >= 0 && w <= 53) state.stampedWeeks.add(w);
+        });
+      }
+    } catch (e) {}
+
+    function padWeek(w) {
+      return String(w).padStart(2, '0');
+    }
+
+    // 考据特别注记库（源自国宝图册溯源考据）
+    const CATALOG_NOTES = {
+      0: '目录标注「支架」，配图取汉代托克托石日晷本体。',
+      12: '该殿壁画通行说法为元代，配图取《元杂剧图》局部；目录写作「明应王殿」指殿名。',
+      31: '目录未标寺名，按图索骥对应四川蓬溪宝梵寺明代壁画。',
+      47: '对应四川平武报恩寺大悲殿千手观音。',
+      49: '即苏州文庙藏南宋石刻《天文图》碑。',
+      52: '即三星堆青铜大立人像。'
+    };
+
+    // 联动解耦的国宝专家导览与语音文字稿，并配置主图/备选图双轨图库
+    TREASURES_54.forEach((t) => {
+      t.catalogNote = CATALOG_NOTES[t.week] || '';
+      const wStr = padWeek(t.week);
+      t.mainImage = `images/week-${wStr}-main.jpg`;
+      t.altImage = `images/week-${wStr}-alt.jpg`;
+      t.image = t.mainImage;
+
+      const guide = (typeof GUOBAO_AUDIO_GUIDES !== 'undefined') ? GUOBAO_AUDIO_GUIDES[t.week] : null;
+      if (guide) {
+        t.audioSrc = guide.audioSrc;
+        t.beauty = guide.beauty;
+        t.trivia = guide.trivia;
+        t.paragraphs = guide.paragraphs;
+        t.timestamps = guide.timestamps || [];
+      } else {
+        t.audioSrc = `audio/week-${wStr}.mp3`;
+        t.timestamps = [];
+      }
+    });
+
+    function showToast(msg) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'px-4 py-2 rounded-full bg-ink/95 text-xuan border border-bronze/50 shadow-lg text-xs sm:text-sm font-medium transition-all duration-300 opacity-0 -translate-y-2';
+      toast.textContent = msg;
+      container.appendChild(toast);
+      requestAnimationFrame(() => toast.classList.remove('opacity-0', '-translate-y-2'));
+      setTimeout(() => {
+        toast.classList.add('opacity-0', '-translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 2400);
+    }
+
+    // =========================================================================
+    // 三、模块一：汉代托克托日晷光影引擎
+    // =========================================================================
+    function initSundialTicks() {
+      const ticksLayer = document.getElementById('sundialTicksLayer');
+      const branches = ['午', '未', '申', '酉', '戌', '亥', '子', '丑', '寅', '卯', '辰', '巳'];
+      let svgParts = '';
+      for (let i = 0; i < 24; i++) {
+        const angleRad = (i * 15 * Math.PI) / 180;
+        const isMajor = i % 2 === 0;
+        const rInner = isMajor ? 88 : 98;
+        const rOuter = 112;
+        const x1 = (160 + rInner * Math.sin(angleRad)).toFixed(1);
+        const y1 = (160 - rInner * Math.cos(angleRad)).toFixed(1);
+        const x2 = (160 + rOuter * Math.sin(angleRad)).toFixed(1);
+        const y2 = (160 - rOuter * Math.cos(angleRad)).toFixed(1);
+        svgParts += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#5E4621" stroke-width="${isMajor ? 1.5 : 0.8}" opacity="0.75"/>`;
+
+        if (isMajor) {
+          const rText = 72;
+          const tx = (160 + rText * Math.sin(angleRad)).toFixed(1);
+          const ty = (160 - rText * Math.cos(angleRad) + 3.5).toFixed(1);
+          svgParts += `<text x="${tx}" y="${ty}" text-anchor="middle" fill="#5E4621" font-size="9.5" class="font-classical">${branches[i / 2]}</text>`;
+        }
+      }
+      ticksLayer.innerHTML = svgParts;
+    }
+
+    function getShichenLabel(minutes) {
+      const h = Math.floor(minutes / 60);
+      if (h < 5) return '寅时 · 平旦';
+      if (h < 7) return '卯时 · 日出';
+      if (h < 9) return '辰时 · 食时';
+      if (h < 11) return '巳时 · 隅中';
+      if (h < 13) return '午时 · 日中';
+      if (h < 15) return '未时 · 日昳';
+      if (h < 17) return '申时 · 晡时';
+      if (h < 19) return '酉时 · 日入';
+      return '戌时 · 黄昏';
+    }
+
+    function updateSundialEngine(minutes) {
+      const slider = document.getElementById('sundialTimeSlider');
+      slider.value = String(minutes);
+
+      const hh = String(Math.floor(minutes / 60)).padStart(2, '0');
+      const mm = String(minutes % 60).padStart(2, '0');
+      document.getElementById('sundialTimeText').textContent = `${hh}:${mm}`;
+      document.getElementById('sundialShichenText').textContent = getShichenLabel(minutes);
+
+      // 以正午 12:00 (720分钟) 为太阳正南基准，每小时晷影偏转约 15 度
+      const offsetHours = (minutes - 720) / 60;
+      const shadowAngle = offsetHours * 15; // 负值为偏西（上午），正值为偏东（下午）
+      // 正午太阳高度角最高，晷影最短(0.55)；早晚晷影最长(1.12)
+      const shadowScale = Math.min(1.15, 0.55 + Math.abs(offsetHours) * 0.085);
+
+      const shadowGroup = document.getElementById('gnomonShadowGroup');
+      shadowGroup.setAttribute('transform', `translate(160, 160) rotate(${shadowAngle.toFixed(1)}) scale(1, ${shadowScale.toFixed(2)})`);
+
+      const absDeg = Math.round(Math.abs(shadowAngle));
+      const dirText = absDeg < 3 ? '正北 · 日中无影' : (shadowAngle < 0 ? `北偏西 ${absDeg}°` : `北偏东 ${absDeg}°`);
+      document.getElementById('sundialAngleText').textContent = dirText;
+
+      // 全站宣纸背景天光色温实时渐变
+      const sunGlowStop = document.getElementById('sunGlowStop');
+      if (minutes < 450) {
+        // 清晓冷雾
+        document.body.style.backgroundColor = '#ECEAE4';
+        sunGlowStop.setAttribute('stop-color', '#DCE8F2');
+      } else if (minutes < 660) {
+        // 上午暖阳宣纸
+        document.body.style.backgroundColor = '#F6F1E7';
+        sunGlowStop.setAttribute('stop-color', '#FFF6D6');
+      } else if (minutes < 840) {
+        // 正午朗照
+        document.body.style.backgroundColor = '#FAF5EB';
+        sunGlowStop.setAttribute('stop-color', '#FFFDF2');
+      } else if (minutes < 1050) {
+        // 午后琥珀金
+        document.body.style.backgroundColor = '#F2E7D3';
+        sunGlowStop.setAttribute('stop-color', '#F7D89C');
+      } else {
+        // 暮色霞光
+        document.body.style.backgroundColor = '#E6D8C5';
+        sunGlowStop.setAttribute('stop-color', '#E8A87C');
+      }
+      
+      // 同步粒子物理系统的色温
+      DustSystem.setColor(minutes);
+    }
+
+    // =========================================================================
+    // 四、模块二：六大类别参数化原生 Inline SVG 文物插画生成引擎
+    // 严格输出原生 UTF-8 SVG 字符串直接挂载 DOM，零 Base64 / btoa
+    // =========================================================================
+    function buildInlineArtifactSvg(item) {
+      const c = item.accent || '#9C7A40';
+      const wStr = `第${padWeek(item.week)}周`;
+      let motifSvg = '';
+
+      if (item.category === '百工') {
+        // 瓷瓶 / 玉佩 / 香囊 / 日晷精密工艺纹样
+        motifSvg = `
+          <ellipse cx="300" cy="242" rx="74" ry="12" fill="rgba(0,0,0,0.35)"/>
+          <path d="M276 74 L324 74 L318 118 C348 136 356 178 338 214 L322 236 L278 236 L262 214 C244 178 252 136 282 118 Z"
+                fill="${c}" fill-opacity="0.28" stroke="${c}" stroke-width="2.5"/>
+          <path d="M284 82 L316 82 M270 155 Q300 172 330 155 M266 185 Q300 202 334 185"
+                fill="none" stroke="#F5E6C8" stroke-width="1.4" opacity="0.8"/>
+          <circle cx="300" cy="158" r="24" fill="none" stroke="${c}" stroke-width="1.6" stroke-dasharray="4 3"/>
+        `;
+      } else if (item.category === '金石') {
+        // 礼乐重器鼎尊 / 编钟 / 碑刻金文纹样
+        motifSvg = `
+          <rect x="244" y="76" width="112" height="162" rx="10" fill="none" stroke="${c}" stroke-width="2"/>
+          <path d="M254 114 L346 114 L338 186 Q300 204 262 186 Z" fill="${c}" fill-opacity="0.3" stroke="${c}" stroke-width="2.5"/>
+          <path d="M266 114 L266 94 L280 94 L280 114 M320 114 L320 94 L334 94 L334 114" fill="none" stroke="#F5E6C8" stroke-width="2"/>
+          <line x1="274" y1="192" x2="268" y2="226" stroke="${c}" stroke-width="5" stroke-linecap="round"/>
+          <line x1="300" y1="196" x2="300" y2="228" stroke="${c}" stroke-width="5" stroke-linecap="round"/>
+          <line x1="326" y1="192" x2="332" y2="226" stroke="${c}" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="284" cy="146" r="9" fill="none" stroke="#F5E6C8" stroke-width="1.4"/>
+          <circle cx="316" cy="146" r="9" fill="none" stroke="#F5E6C8" stroke-width="1.4"/>
+        `;
+      } else if (item.category === '古建') {
+        // 飞檐斗拱 / 宝塔 / 殿宇木构纹样
+        motifSvg = `
+          <path d="M300 58 L300 72 M242 104 Q300 84 358 104 L342 114 L258 114 Z" fill="${c}" fill-opacity="0.4" stroke="${c}" stroke-width="2.2"/>
+          <path d="M222 146 Q300 124 378 146 L356 158 L244 158 Z" fill="${c}" fill-opacity="0.32" stroke="${c}" stroke-width="2.2"/>
+          <path d="M204 188 Q300 166 396 188 L372 200 L228 200 Z" fill="${c}" fill-opacity="0.25" stroke="${c}" stroke-width="2.2"/>
+          <rect x="252" y="200" width="96" height="32" fill="none" stroke="#F5E6C8" stroke-width="1.6"/>
+          <line x1="276" y1="200" x2="276" y2="232" stroke="#F5E6C8" stroke-width="1.6"/>
+          <line x1="300" y1="200" x2="300" y2="232" stroke="#F5E6C8" stroke-width="1.6"/>
+          <line x1="324" y1="200" x2="324" y2="232" stroke="#F5E6C8" stroke-width="1.6"/>
+          <line x1="192" y1="234" x2="408" y2="234" stroke="${c}" stroke-width="3"/>
+        `;
+      } else if (item.category === '书画') {
+        // 千里江山青绿手卷与题跋印章纹样
+        motifSvg = `
+          <rect x="190" y="76" width="220" height="156" rx="6" fill="#F4ECDC" fill-opacity="0.12" stroke="${c}" stroke-width="2"/>
+          <path d="M196 205 Q245 118 288 175 Q332 102 374 172 L404 198 L404 226 L196 226 Z"
+                fill="${c}" fill-opacity="0.48" stroke="#F5E6C8" stroke-width="1.6"/>
+          <path d="M210 216 Q268 158 318 198 Q358 152 400 206" fill="none" stroke="#F5E6C8" stroke-width="1.3" opacity="0.85"/>
+          <circle cx="356" cy="108" r="14" fill="none" stroke="#E06D53" stroke-width="1.8"/>
+          <rect x="212" y="94" width="16" height="24" rx="2" fill="#A83226"/>
+        `;
+      } else if (item.category === '造像') {
+        // 莲花背光佛像 / 彩塑 / 铜立人宝相纹样
+        motifSvg = `
+          <circle cx="300" cy="134" r="56" fill="${c}" fill-opacity="0.2" stroke="${c}" stroke-width="2"/>
+          <circle cx="300" cy="134" r="42" fill="none" stroke="#F5E6C8" stroke-width="1.2" stroke-dasharray="4 3"/>
+          <circle cx="300" cy="116" r="18" fill="${c}" fill-opacity="0.45" stroke="#F5E6C8" stroke-width="1.8"/>
+          <path d="M262 192 C262 154 338 154 338 192 Z" fill="${c}" fill-opacity="0.38" stroke="#F5E6C8" stroke-width="1.8"/>
+          <path d="M248 212 Q274 194 300 212 Q326 194 352 212 Q326 232 300 226 Q274 232 248 212 Z"
+                fill="${c}" fill-opacity="0.5" stroke="${c}" stroke-width="2"/>
+        `;
+      } else {
+        // 壁画：敦煌飞天飘带与祥云纹样
+        motifSvg = `
+          <circle cx="300" cy="154" r="76" fill="none" stroke="${c}" stroke-width="1.8" stroke-dasharray="6 4"/>
+          <path d="M210 176 C246 112 292 196 334 128 C356 96 382 118 394 142"
+                fill="none" stroke="#F5E6C8" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M218 196 C262 138 304 212 354 148 C372 126 388 138 398 156"
+                fill="none" stroke="${c}" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="306" cy="132" r="13" fill="${c}" fill-opacity="0.55" stroke="#F5E6C8" stroke-width="1.6"/>
+          <path d="M236 106 Q252 92 268 106 Q284 92 300 106" fill="none" stroke="${c}" stroke-width="1.8"/>
+        `;
+      }
+
+      return `
+        <svg viewBox="0 0 600 300" class="w-full h-full block" role="img" aria-label="${item.name}">
+          <defs>
+            <radialGradient id="stageBgGrad" cx="50%" cy="45%" r="65%">
+              <stop offset="0%" stop-color="${c}" stop-opacity="0.38"/>
+              <stop offset="65%" stop-color="#1D1813" stop-opacity="0.94"/>
+              <stop offset="100%" stop-color="#120E0B" stop-opacity="1"/>
+            </radialGradient>
+          </defs>
+          <rect width="600" height="300" fill="url(#stageBgGrad)"/>
+          <rect x="14" y="14" width="572" height="272" rx="10" fill="none" stroke="${c}" stroke-opacity="0.45" stroke-width="1.5"/>
+          <rect x="22" y="22" width="556" height="256" rx="7" fill="none" stroke="#F5E6C8" stroke-opacity="0.2" stroke-width="1"/>
+
+          <!-- 左侧竖排博物馆展签铭文 -->
+          <text x="48" y="64" fill="#E8D7B5" font-size="13" class="font-classical" opacity="0.85">${item.dynasty}</text>
+          <line x1="48" y1="74" x2="96" y2="74" stroke="${c}" stroke-width="1.5"/>
+          <text x="48" y="96" fill="#F6F1E7" font-size="14" font-weight="bold" class="font-classical">${wStr} · ${item.category}</text>
+
+          <!-- 中央文物品类参数化矢量艺术图案 -->
+          ${motifSvg}
+
+          <!-- 底部博物馆馆藏落款 -->
+          <text x="300" y="266" text-anchor="middle" fill="#D8BE8A" font-size="12" class="font-classical" letter-spacing="2">
+            ${item.museum} · 典藏
+          </text>
+        </svg>
+      `;
+    }
+
+    // =========================================================================
+    // 五、模块三：卡片交互、语音导览、54图鉴与导出
+    // =========================================================================
+    const CATEGORIES = ['全部', '百工', '金石', '古建', '书画', '造像', '壁画'];
+    const REGIONS_CONFIG = [
+      { name: '全部', count: 54 },
+      { name: '山西', count: 10 },
+      { name: '陕西', count: 7 },
+      { name: '北京', count: 7 },
+      { name: '河南', count: 4 },
+      { name: '江苏', count: 4 },
+      { name: '甘肃', count: 3 },
+      { name: '四川', count: 3 },
+      { name: '辽宁', count: 3 },
+      { name: '上海', count: 3 },
+      { name: '湖北', count: 2 },
+      { name: '河北', count: 2 },
+      { name: '福建', count: 2 },
+      { name: '广东', count: 1 },
+      { name: '湖南', count: 1 },
+      { name: '天津', count: 1 },
+      { name: '台湾', count: 1 }
+    ];
+
+    function getFilteredMainList() {
+      return TREASURES_54.filter((item) => {
+        const mOk = state.selectedMonth === 'all' || item.month === state.selectedMonth;
+        const cOk = state.selectedCategory === '全部' || item.category === state.selectedCategory;
+        const rOk = state.selectedRegion === '全部' || item.province === state.selectedRegion;
+        return mOk && cOk && rOk;
+      });
+    }
+
+    function renderFilterBars() {
+      // 1. 门类标签
+      const catContainer = document.getElementById('categoryPillsContainer');
+      catContainer.innerHTML = '';
+      CATEGORIES.forEach((cat) => {
+        const active = state.selectedCategory === cat;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = cat;
+        btn.className = active
+          ? 'shrink-0 px-3 py-1 rounded-lg bg-ink text-bronzeLight font-classical font-bold text-xs shadow-xs cursor-pointer transition'
+          : 'shrink-0 px-2.5 py-1 rounded-lg bg-xuanDark/70 hover:bg-xuanDark text-ink/80 text-xs cursor-pointer transition';
+        btn.addEventListener('click', () => {
+          state.selectedCategory = cat;
+          let filtered = getFilteredMainList();
+          if (filtered.length === 0) {
+            state.selectedRegion = '全部';
+            filtered = getFilteredMainList();
+            showToast(`已放宽地域，切换至「${cat}」全部国宝 (${filtered.length}件)`);
+          }
+          if (filtered.length > 0 && !filtered.some((t) => t.week === state.currentWeek)) {
+            selectWeek(filtered[0].week);
+          } else {
+            renderFilterBars();
+          }
+        });
+        catContainer.appendChild(btn);
+      });
+
+      // 2. 核心省份地域标签
+      const regionContainer = document.getElementById('regionPillsContainer');
+      regionContainer.innerHTML = '';
+      REGIONS_CONFIG.forEach(({ name, count }) => {
+        const active = state.selectedRegion === name;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.innerHTML = name === '全部'
+          ? `全国 <span class="text-[10px] opacity-80">54</span>`
+          : `${name} <span class="text-[10px] opacity-80">${count}</span>`;
+        btn.className = active
+          ? 'shrink-0 px-2.5 py-1 rounded-lg bg-malachite text-xuan font-classical font-bold text-xs shadow-xs cursor-pointer transition'
+          : 'shrink-0 px-2 py-1 rounded-lg bg-xuanDark/70 hover:bg-xuanDark text-ink/80 text-xs cursor-pointer transition';
+        btn.addEventListener('click', () => {
+          state.selectedRegion = name;
+          let filtered = getFilteredMainList();
+          if (filtered.length === 0) {
+            state.selectedMonth = 'all';
+            state.selectedCategory = '全部';
+            filtered = getFilteredMainList();
+            showToast(`已切换至「${name}」全部国宝 (${filtered.length}件)`);
+          }
+          if (filtered.length > 0 && !filtered.some((t) => t.week === state.currentWeek)) {
+            selectWeek(filtered[0].week);
+          } else {
+            renderFilterBars();
+          }
+        });
+        regionContainer.appendChild(btn);
+      });
+
+      // 3. 月份标签
+      const monthContainer = document.getElementById('monthPillsContainer');
+      monthContainer.innerHTML = '';
+      const months = [{ val: 'all', label: '全年54' }];
+      for (let m = 1; m <= 12; m++) months.push({ val: m, label: `${m}月` });
+
+      months.forEach(({ val, label }) => {
+        const active = state.selectedMonth === val;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = label;
+        btn.className = active
+          ? 'shrink-0 px-2.5 py-1 rounded-full bg-cinnabar text-xuan font-classical font-bold text-xs cursor-pointer transition'
+          : 'shrink-0 px-2 py-1 rounded-full text-inkMuted hover:text-ink hover:bg-xuanDark/60 text-xs cursor-pointer transition';
+        btn.addEventListener('click', () => {
+          state.selectedMonth = val;
+          let filtered = getFilteredMainList();
+          if (filtered.length === 0) {
+            state.selectedRegion = '全部';
+            filtered = getFilteredMainList();
+            showToast(`已放宽地域，切换至「${label}」全部国宝 (${filtered.length}件)`);
+          }
+          if (filtered.length > 0 && !filtered.some((t) => t.week === state.currentWeek)) {
+            selectWeek(filtered[0].week);
+          } else {
+            renderFilterBars();
+          }
+        });
+        monthContainer.appendChild(btn);
+      });
+    }
+
+    function initWeekDropdown() {
+      const sel = document.getElementById('weekDirectSelect');
+      sel.innerHTML = '';
+      TREASURES_54.forEach((item) => {
+        const opt = document.createElement('option');
+        opt.value = String(item.week);
+        opt.textContent = `第${padWeek(item.week)}周 · ${item.month}月 · ${item.province} · ${item.name}`;
+        sel.appendChild(opt);
+      });
+      sel.addEventListener('change', (e) => {
+        state.selectedMonth = 'all';
+        state.selectedCategory = '全部';
+        state.selectedRegion = '全部';
+        selectWeek(parseInt(e.target.value, 10));
+      });
+    }
+
+    // 辅助函数：格式化音频时间
+    function formatAudioTime(sec) {
+      if (isNaN(sec) || sec < 0) return '00:00';
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    // 专家语音导览控制器（基于真实音频与毫秒级时间戳、支持点击段落精准跳转与无抖动同步高亮）
+    const voiceGuide = {
+      isPlaying: false,
+      isLoading: false,
+      timerId: null,
+      stepIdx: -1,
+      sentences: [],
+      timestamps: [],
+      subElements: [],
+      currentSrc: '',
+      currentWeek: -1,
+      audioObj: null,
+      blobCache: new Map(),
+      fetchPromises: new Map(),
+      playRequestToken: 0,
+
+      initWave() {
+        const box = document.getElementById('voiceWaveform');
+        if (!box) return;
+        box.innerHTML = '';
+        for (let i = 0; i < 14; i++) {
+          const bar = document.createElement('span');
+          bar.className = 'wave-bar w-1 rounded-full bg-bronzeLight';
+          bar.style.height = `${35 + ((i * 23) % 65)}%`;
+          bar.style.animationDelay = `${(i * 0.08).toFixed(2)}s`;
+          box.appendChild(bar);
+        }
+      },
+
+      buildSentences(item) {
+        if (item.paragraphs && item.paragraphs.length > 0) {
+          return item.paragraphs;
+        }
+        if (typeof GUOBAO_AUDIO_GUIDES !== 'undefined' && GUOBAO_AUDIO_GUIDES[item.week]?.paragraphs) {
+          return GUOBAO_AUDIO_GUIDES[item.week].paragraphs;
+        }
+        const raw = `${item.name}。${item.quote}。${item.note}`;
+        return raw.split(/[。！？]/).map(s => s.trim()).filter(Boolean);
+      },
+
+      getTimestamps(item) {
+        if (item.timestamps && item.timestamps.length > 0) {
+          return item.timestamps;
+        }
+        if (typeof GUOBAO_AUDIO_GUIDES !== 'undefined' && GUOBAO_AUDIO_GUIDES[item.week]?.timestamps) {
+          return GUOBAO_AUDIO_GUIDES[item.week].timestamps;
+        }
+        return [];
+      },
+
+      // 一次性构建字幕列表 DOM，绑定点击段落跳转事件
+      buildSubtitlesDOM(item) {
+        const list = document.getElementById('voiceSubtitlesList');
+        if (!list) return;
+        list.innerHTML = '';
+        this.subElements = [];
+        this.sentences = this.buildSentences(item);
+        this.timestamps = this.getTimestamps(item);
+        this.stepIdx = -1;
+        this.currentWeek = item.week;
+
+        const countEl = document.getElementById('voiceParagraphCount');
+        if (countEl) countEl.textContent = `共 ${this.sentences.length} 节`;
+
+        this.sentences.forEach((text, idx) => {
+          const p = document.createElement('div');
+          p.className = 'p-1.5 rounded-lg text-xuan/70 hover:text-xuan hover:bg-xuan/10 transition cursor-pointer leading-relaxed text-xs';
+          p.innerHTML = `<span class="inline-block text-[10px] font-mono text-bronzeLight opacity-70 mr-1.5">§${String(idx + 1).padStart(2, '0')}</span><span>${text}</span>`;
+          
+          p.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.seekToParagraph(idx);
+          });
+
+          list.appendChild(p);
+          this.subElements.push(p);
+        });
+      },
+
+      // 仅更新高亮样式与自动居中滚动，无需重建 DOM
+      highlightSubtitle(activeIndex, autoScroll = true) {
+        if (this.stepIdx === activeIndex) return;
+        this.stepIdx = activeIndex;
+
+        this.subElements.forEach((el, idx) => {
+          const isActive = idx === activeIndex;
+          if (isActive) {
+            el.className = 'p-2 rounded-lg bg-cinnabar/25 border-l-3 border-cinnabar text-xuan font-medium transition cursor-pointer shadow-xs leading-relaxed text-xs';
+            if (autoScroll) {
+              el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+          } else {
+            el.className = 'p-1.5 rounded-lg text-xuan/70 hover:text-xuan hover:bg-xuan/10 transition cursor-pointer leading-relaxed text-xs';
+          }
+        });
+      },
+
+      // 获取段落对应的目标播放秒数
+      getParagraphTime(pIdx) {
+        if (this.timestamps && this.timestamps[pIdx] !== undefined) {
+          return this.timestamps[pIdx];
+        }
+        // 若没有时间戳，采用字数权重估算
+        if (this.sentences && this.sentences.length > 0 && this.audioObj && this.audioObj.duration) {
+          const dur = this.audioObj.duration;
+          const totalChars = this.sentences.reduce((sum, s) => sum + s.length, 0);
+          if (totalChars > 0) {
+            let passed = 0;
+            for (let i = 0; i < pIdx; i++) passed += this.sentences[i].length;
+            return (passed / totalChars) * dur;
+          }
+          return (pIdx / this.sentences.length) * dur;
+        }
+        return pIdx * 15;
+      },
+
+      // 根据当前播放时间定位当前段落下标
+      getActiveIndexForTime(cur) {
+        if (!this.sentences || this.sentences.length === 0) return -1;
+        if (this.timestamps && this.timestamps.length > 0) {
+          // 逆序查找：匹配到的最后一个就是当前段落（带 0.15s 提前量容差）
+          for (let i = this.timestamps.length - 1; i >= 0; i--) {
+            if (cur >= Math.max(0, this.timestamps[i] - 0.15)) {
+              return i;
+            }
+          }
+          return 0;
+        }
+        // 无时间戳时的字数权重推断
+        if (this.audioObj && this.audioObj.duration) {
+          const dur = this.audioObj.duration;
+          const totalChars = this.sentences.reduce((sum, s) => sum + s.length, 0);
+          if (totalChars > 0) {
+            let accumulated = 0;
+            const targetChar = (cur / dur) * totalChars;
+            for (let i = 0; i < this.sentences.length; i++) {
+              accumulated += this.sentences[i].length;
+              if (accumulated >= targetChar) return i;
+            }
+          }
+          return Math.min(this.sentences.length - 1, Math.floor((cur / dur) * this.sentences.length));
+        }
+        return 0;
+      },
+
+      // 异步加载音频源为内存 Blob URL（若环境支持），彻底消除缺少 HTTP 206 导致的 seek 重置问题
+      async loadAudioSource(rawSrc) {
+        if (this.blobCache.has(rawSrc)) {
+          return { url: this.blobCache.get(rawSrc), isBlob: true };
+        }
+        if (this.fetchPromises.has(rawSrc)) {
+          return this.fetchPromises.get(rawSrc);
+        }
+        const p = (async () => {
+          try {
+            const resp = await fetch(rawSrc);
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            const blob = await resp.blob();
+            const url = URL.createObjectURL(blob);
+            this.blobCache.set(rawSrc, url);
+            return { url, isBlob: true };
+          } catch (e) {
+            // 在 file:// 协议或特殊安全策略下优雅降级为直接 URL
+            return { url: rawSrc, isBlob: false };
+          } finally {
+            this.fetchPromises.delete(rawSrc);
+          }
+        })();
+        this.fetchPromises.set(rawSrc, p);
+        return p;
+      },
+
+      // 核心调度器：在指定的真实时间点起播或跳转
+      async playAt(item, targetTime, pIdx = null) {
+        const src = item.audioSrc || (typeof GUOBAO_AUDIO_GUIDES !== 'undefined' && GUOBAO_AUDIO_GUIDES[item.week]?.audioSrc) || `audio/week-${String(item.week).padStart(2, '0')}.mp3`;
+        
+        // 确保字幕 DOM 已同步到当前周
+        const expectedCount = (typeof GUOBAO_AUDIO_GUIDES !== 'undefined' && GUOBAO_AUDIO_GUIDES[item.week]?.paragraphs?.length) || (item.paragraphs ? item.paragraphs.length : 0);
+        if (this.currentWeek !== item.week || this.subElements.length !== expectedCount) {
+          this.buildSubtitlesDOM(item);
+        }
+
+        if (!this.audioObj) {
+          this.audioObj = new Audio();
+          this.bindAudioEvents();
+        }
+
+        const safeTime = Math.max(0, targetTime || 0);
+        const reqToken = ++this.playRequestToken;
+
+        const highlightIdx = pIdx !== null ? pIdx : this.getActiveIndexForTime(safeTime);
+        this.highlightSubtitle(highlightIdx);
+
+        // 如果当前音频对象已加载当前周音频，直接同步 seek 并播放，避免异步延迟与重新加载
+        const isLoadedForCurrentWeek = (
+          this.currentWeek === item.week &&
+          this.currentSrc === src &&
+          this.audioObj &&
+          this.audioObj.src &&
+          this.audioObj.readyState >= 1
+        );
+
+        const doSeekAndPlay = (audio) => {
+          try {
+            const maxDur = audio.duration;
+            const clampedTime = (maxDur && isFinite(maxDur)) ? Math.min(safeTime, Math.max(0, maxDur - 0.1)) : safeTime;
+            audio.currentTime = clampedTime;
+          } catch (e) {}
+          audio.play().then(() => {
+            if (this.playRequestToken !== reqToken) return;
+            this.isPlaying = true;
+            this.isLoading = false;
+            this.updateUI();
+          }).catch(() => {
+            this.isPlaying = false;
+            this.isLoading = false;
+            this.updateUI();
+          });
+          this.updateTimeDisplay(safeTime, audio.duration || 0);
+        };
+
+        if (isLoadedForCurrentWeek) {
+          this.isLoading = false;
+          doSeekAndPlay(this.audioObj);
+          return;
+        }
+
+        // 加载新周音频源
+        this.isLoading = true;
+        this.updateUI();
+
+        const resolved = await this.loadAudioSource(src);
+        if (this.playRequestToken !== reqToken) return;
+
+        this.currentSrc = src;
+        this.currentWeek = item.week;
+        this.audioObj.src = resolved.url;
+
+        const onReady = () => {
+          this.audioObj.removeEventListener('loadedmetadata', onReady);
+          this.audioObj.removeEventListener('canplay', onReady);
+          if (this.playRequestToken !== reqToken) return;
+          doSeekAndPlay(this.audioObj);
+        };
+
+        if (this.audioObj.readyState >= 1) {
+          doSeekAndPlay(this.audioObj);
+        } else {
+          this.audioObj.addEventListener('loadedmetadata', onReady);
+          this.audioObj.addEventListener('canplay', onReady);
+          this.audioObj.load();
+        }
+      },
+
+      bindAudioEvents() {
+        if (!this.audioObj) return;
+
+        this.audioObj.addEventListener('loadedmetadata', () => {
+          this.updateTimeDisplay(this.audioObj.currentTime, this.audioObj.duration);
+        });
+
+        this.audioObj.addEventListener('timeupdate', () => {
+          if (!this.audioObj || !this.audioObj.duration) return;
+          const cur = this.audioObj.currentTime;
+          const dur = this.audioObj.duration;
+          const progress = Math.min(100, (cur / dur) * 100);
+          
+          const fill = document.getElementById('voiceProgressFill');
+          if (fill) fill.style.width = `${progress}%`;
+
+          this.updateTimeDisplay(cur, dur);
+
+          const activeIdx = this.getActiveIndexForTime(cur);
+          if (activeIdx !== this.stepIdx && activeIdx >= 0) {
+            this.highlightSubtitle(activeIdx);
+          }
+        });
+
+        this.audioObj.addEventListener('playing', () => {
+          this.isPlaying = true;
+          this.isLoading = false;
+          this.updateUI();
+        });
+
+        this.audioObj.addEventListener('pause', () => {
+          if (!this.isLoading) {
+            this.isPlaying = false;
+            this.updateUI();
+          }
+        });
+
+        this.audioObj.addEventListener('ended', () => {
+          this.stop(true);
+        });
+
+        this.audioObj.addEventListener('error', () => {
+          this.isLoading = false;
+          this.fallbackSpeechSynthesis();
+        });
+      },
+
+      seekToProgress(ratio) {
+        const item = TREASURES_54.find((t) => t.week === state.currentWeek) || TREASURES_54[0];
+        if (this.currentWeek === item.week && this.audioObj && this.audioObj.duration && this.audioObj.src) {
+          const targetTime = ratio * this.audioObj.duration;
+          this.playAt(item, targetTime);
+        } else {
+          const maxTime = (this.timestamps && this.timestamps.length > 0) ? (this.timestamps[this.timestamps.length - 1] + 30) : 120;
+          this.playAt(item, ratio * maxTime);
+        }
+      },
+
+      seekToParagraph(pIdx) {
+        const item = TREASURES_54.find((t) => t.week === state.currentWeek) || TREASURES_54[0];
+        if (!this.sentences || this.sentences.length === 0) {
+          this.sentences = this.buildSentences(item);
+        }
+        if (!this.timestamps || this.timestamps.length === 0) {
+          this.timestamps = this.getTimestamps(item);
+        }
+        const targetTime = this.getParagraphTime(pIdx);
+        this.playAt(item, targetTime, pIdx);
+      },
+
+      updateTimeDisplay(cur, dur) {
+        const el = document.getElementById('voiceTimeDisplay');
+        if (el) {
+          el.textContent = `${formatAudioTime(cur)} / ${formatAudioTime(dur)}`;
+        }
+      },
+
+      updateUI() {
+        const playIcon = document.getElementById('voicePlayIcon');
+        const pauseIcon = document.getElementById('voicePauseIcon');
+        const statusText = document.getElementById('voiceStatusText');
+        const fill = document.getElementById('voiceProgressFill');
+        const bars = document.querySelectorAll('#voiceWaveform .wave-bar');
+
+        if (this.isLoading) {
+          if (playIcon) playIcon.classList.remove('hidden');
+          if (pauseIcon) pauseIcon.classList.add('hidden');
+          if (statusText) statusText.textContent = '音频加载中...';
+          bars.forEach((b) => b.classList.remove('is-playing'));
+        } else if (this.isPlaying) {
+          if (playIcon) playIcon.classList.add('hidden');
+          if (pauseIcon) pauseIcon.classList.remove('hidden');
+          if (statusText) statusText.textContent = '专家原声播放中...';
+          bars.forEach((b) => b.classList.add('is-playing'));
+        } else {
+          if (playIcon) playIcon.classList.remove('hidden');
+          if (pauseIcon) pauseIcon.classList.add('hidden');
+          if (statusText) statusText.textContent = '专业文博音色';
+          bars.forEach((b) => b.classList.remove('is-playing'));
+        }
+
+        if (!this.audioObj || !this.audioObj.duration) {
+          const pct = this.sentences.length > 0 && this.stepIdx >= 0
+            ? Math.min(100, ((this.stepIdx + (this.isPlaying ? 1 : 0)) / this.sentences.length) * 100)
+            : 0;
+          if (fill) fill.style.width = `${pct}%`;
+        }
+      },
+
+      start(item) {
+        const isCurrentLoaded = (this.currentWeek === item.week && this.audioObj && this.audioObj.src);
+        const targetTime = (isCurrentLoaded && this.audioObj.currentTime > 0 && this.audioObj.currentTime < (this.audioObj.duration || Infinity))
+          ? this.audioObj.currentTime
+          : (this.timestamps && this.timestamps[0] !== undefined ? this.timestamps[0] : 0);
+        this.playAt(item, targetTime);
+      },
+
+      pause() {
+        this.isPlaying = false;
+        this.isLoading = false;
+        if (this.audioObj) {
+          this.audioObj.pause();
+        }
+        clearInterval(this.timerId);
+        this.timerId = null;
+        try {
+          if ('speechSynthesis' in window) window.speechSynthesis.pause();
+        } catch (e) {}
+        this.updateUI();
+      },
+
+      stop(completed = false) {
+        this.isPlaying = false;
+        this.isLoading = false;
+        clearInterval(this.timerId);
+        this.timerId = null;
+        if (this.audioObj) {
+          this.audioObj.pause();
+          if (completed) {
+            this.audioObj.currentTime = 0;
+          }
+        }
+        try {
+          if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        } catch (e) {}
+        if (completed) {
+          this.stepIdx = -1;
+          this.highlightSubtitle(-1, false);
+          const fill = document.getElementById('voiceProgressFill');
+          if (fill) fill.style.width = '0%';
+          this.updateTimeDisplay(0, 0);
+        }
+        this.updateUI();
+      },
+
+      onWeekChange(item) {
+        this.stop(true);
+        this.currentWeek = item.week;
+        this.currentSrc = '';
+        if (this.audioObj) {
+          this.audioObj.removeAttribute('src');
+          this.audioObj.load();
+        }
+        this.buildSubtitlesDOM(item);
+        this.updateTimeDisplay(0, 0);
+        this.updateUI();
+      },
+
+      fallbackSpeechSynthesis() {
+        try {
+          if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const utter = new SpeechSynthesisUtterance(this.sentences.join(' '));
+            utter.lang = 'zh-CN';
+            utter.rate = 0.96;
+            window.speechSynthesis.speak(utter);
+          }
+        } catch (e) {}
+        clearInterval(this.timerId);
+        this.timerId = setInterval(() => {
+          this.stepIdx += 1;
+          if (this.stepIdx >= this.sentences.length) {
+            this.stop(true);
+          } else {
+            this.highlightSubtitle(this.stepIdx);
+            this.updateUI();
+          }
+        }, 3600);
+      }
+    };
+
+    function toggleImageMode(forcedMode = null) {
+      if (forcedMode) {
+        state.imageMode = forcedMode;
+      } else {
+        state.imageMode = state.imageMode === 'main' ? 'alt' : 'main';
+      }
+      const item = TREASURES_54.find((t) => t.week === state.currentWeek) || TREASURES_54[0];
+      item.image = state.imageMode === 'alt' ? (item.altImage || item.image) : (item.mainImage || item.image);
+      renderArtifactStage(item);
+
+      // 同步图鉴弹窗文案
+      const atlasTxt = document.getElementById('atlasImageModeText');
+      if (atlasTxt) {
+        atlasTxt.textContent = state.imageMode === 'main' ? '图谱视图: 主图 (点击切备选)' : '图谱视图: 备选图 (点击切主图)';
+      }
+
+      // 同步壁纸工坊按钮样式与状态
+      syncWallpaperImageModeUI();
+
+      // 如果图鉴弹窗当前处于打开状态，同步重绘图鉴网格
+      const atlasModal = document.getElementById('atlasModal');
+      if (atlasModal && !atlasModal.classList.contains('hidden')) {
+        renderAtlasModalGrid();
+      }
+
+      // 如果壁纸弹窗当前处于打开状态，同步重绘壁纸
+      const wpModal = document.getElementById('wallpaperModal');
+      if (wpModal && !wpModal.classList.contains('hidden')) {
+        renderWallpaper1080x1920();
+      }
+
+      showToast(state.imageMode === 'main' ? '已切换至【主图】真迹展陈' : '已切换至【备选图】细节图谱');
+    }
+
+    function syncWallpaperImageModeUI() {
+      const isAlt = state.imageMode === 'alt';
+      const mainBtn = document.getElementById('wpImgModeMainBtn');
+      const altBtn = document.getElementById('wpImgModeAltBtn');
+      const statusText = document.getElementById('wpImgModeStatus');
+
+      if (statusText) statusText.textContent = isAlt ? '当前：备选细节图' : '当前：展陈主图';
+
+      if (mainBtn && altBtn) {
+        if (!isAlt) {
+          mainBtn.className = 'p-2 rounded-xl border border-cinnabar bg-cinnabar/10 text-cinnabar font-classical text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer';
+          altBtn.className = 'p-2 rounded-xl border border-bronze/35 bg-xuan text-ink hover:border-bronze font-classical text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer';
+        } else {
+          altBtn.className = 'p-2 rounded-xl border border-cinnabar bg-cinnabar/10 text-cinnabar font-classical text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer';
+          mainBtn.className = 'p-2 rounded-xl border border-bronze/35 bg-xuan text-ink hover:border-bronze font-classical text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer';
+        }
+      }
+    }
+
+    function renderArtifactStage(item) {
+      const stage = document.getElementById('artifactSvgStage');
+      const isAlt = state.imageMode === 'alt';
+      const activeImg = isAlt ? (item.altImage || item.image) : (item.mainImage || item.image);
+      const toggleLabel = isAlt ? '切回主图' : '切换备选图';
+      const badgeText = isAlt ? '备选图' : '主图';
+      const badgeClass = isAlt ? 'bg-bronze/90 text-xuan' : 'bg-cinnabar/90 text-xuan';
+
+      // 同步底部操作栏按钮文本
+      const bottomLabel = document.getElementById('bottomImageToggleLabel');
+      if (bottomLabel) bottomLabel.textContent = isAlt ? '切回主图' : '切换备选图';
+
+      stage.innerHTML = `
+        <div class="relative w-full h-full overflow-hidden flex items-center justify-center bg-[#15120E] group select-none">
+          <!-- 底层同色温氛围模糊扩散，消除生硬边缘 -->
+          <img src="${activeImg}" alt="" aria-hidden="true" class="absolute inset-0 w-full h-full object-cover object-center filter blur-2xl opacity-40 scale-110 pointer-events-none transition-all duration-500" />
+          
+          <!-- 雅致宣纸纹理暗角遮罩 -->
+          <div class="absolute inset-0 bg-ink/35 pointer-events-none"></div>
+
+          <!-- 前景完整无裁切文物大图 (object-fit: contain) -->
+          <img src="${activeImg}" alt="${item.name}" style="object-fit: contain;" class="relative z-10 max-w-full max-h-full w-auto h-auto object-contain object-center drop-shadow-2xl transition-all duration-500 ease-out group-hover:scale-105 p-2 select-none" onerror="this.onerror=null; this.parentElement.innerHTML=buildInlineArtifactSvg(TREASURES_54[${item.week}]);" />
+
+          <!-- 底部渐变防护遮罩 -->
+          <div class="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-ink/85 via-ink/40 to-transparent pointer-events-none z-20"></div>
+
+          <!-- 左下角文博馆藏展签铭牌 -->
+          <div class="absolute bottom-2.5 left-3 flex items-center gap-1.5 bg-ink/85 backdrop-blur-md px-2.5 py-1 rounded-md border border-bronze/40 pointer-events-none z-30 shadow-md">
+            <span class="w-1.5 h-1.5 rounded-full bg-cinnabar"></span>
+            <span class="text-xs font-classical text-xuan font-semibold">${item.dynasty} · ${item.name}</span>
+          </div>
+
+          <!-- 右下角馆藏地标识 -->
+          <div class="absolute bottom-2.5 right-3 text-[10px] font-classical text-bronzeLight bg-black/60 backdrop-blur-md px-2 py-0.5 rounded border border-bronze/35 pointer-events-none z-30 shadow-md">
+            ${item.museum}
+          </div>
+
+          <!-- 右上角：主图/备选图 快速切换浮标按钮 -->
+          <div class="absolute top-2.5 right-2.5 z-30">
+            <button id="stageImageToggleBtn" type="button" class="group/btn flex items-center gap-1.5 px-3 py-1 rounded-full bg-ink/85 hover:bg-ink backdrop-blur-md border border-bronze/50 hover:border-bronze text-xs font-classical text-xuan shadow-md transition-all cursor-pointer" title="点击在主图与备选图之间切换">
+              <svg class="w-3.5 h-3.5 text-cinnabar group-hover/btn:rotate-180 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              <span class="font-medium">${toggleLabel}</span>
+              <span class="text-[9px] px-1.5 py-0.2 rounded font-sans font-bold ${badgeClass}">${badgeText}</span>
+            </button>
+          </div>
+        </div>
+      `;
+
+      // 绑定浮标按钮点击事件
+      const stageBtn = document.getElementById('stageImageToggleBtn');
+      if (stageBtn) {
+        stageBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggleImageMode();
+        });
+      }
+    }
+
+    function selectWeek(weekNum) {
+      const item = TREASURES_54.find((t) => t.week === weekNum) || TREASURES_54[0];
+      state.currentWeek = item.week;
+      document.getElementById('weekDirectSelect').value = String(item.week);
+
+      voiceGuide.onWeekChange(item);
+      if (state.isFlipped) {
+        state.isFlipped = false;
+        document.getElementById('artifactFlipInner').classList.remove('is-flipped');
+      }
+
+      // 更新正面信息
+      document.getElementById('cardWeekNum').textContent = padWeek(item.week);
+      document.getElementById('cardMonthAlias').textContent = `${item.month}月 · ${MONTH_POETIC_TITLES[item.month]}`;
+      document.getElementById('cardProgressIndex').textContent = `全年54次相遇 · 第 ${item.week + 1} / 54 宝`;
+      document.getElementById('cardCategorySeal').textContent = item.category;
+      renderArtifactStage(item);
+      document.getElementById('cardDynastyBadge').textContent = item.dynasty;
+      document.getElementById('cardProvinceBadge').textContent = item.province;
+      document.getElementById('cardMuseumBadge').textContent = item.museum;
+      document.getElementById('cardArtifactName').textContent = item.name;
+      document.getElementById('cardArtifactQuote').textContent = `“${item.quote}”`;
+      
+      const noteEl = document.getElementById('cardCatalogNote');
+      if (noteEl) {
+        if (item.catalogNote) {
+          noteEl.innerHTML = `<svg class="w-3 h-3 text-cinnabar shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span>考据：${item.catalogNote}</span>`;
+          noteEl.classList.remove('hidden');
+        } else {
+          noteEl.textContent = '';
+          noteEl.classList.add('hidden');
+        }
+      }
+
+      // 更新背面信息
+      document.getElementById('backCategoryBadge').textContent = item.category;
+      document.getElementById('backMetaLine').textContent = `第${padWeek(item.week)}周 · ${item.month}月 · ${item.dynasty} · ${item.province} · ${item.museum}`;
+      document.getElementById('backArtifactName').textContent = item.name;
+      document.getElementById('backCuratorialNote').textContent = item.note;
+
+      const guide = (typeof GUOBAO_AUDIO_GUIDES !== 'undefined' && GUOBAO_AUDIO_GUIDES[item.week]) ? GUOBAO_AUDIO_GUIDES[item.week] : null;
+      const beautyEl = document.getElementById('backBeautyText');
+      const triviaEl = document.getElementById('backTriviaText');
+      if (beautyEl) beautyEl.textContent = (guide && guide.beauty) || item.beauty || '典雅器形与时代造物精神';
+      if (triviaEl) triviaEl.textContent = (guide && guide.trivia) || item.trivia || '凝聚中华五千年美学智慧的传世吉金与重器';
+
+      syncStampUI(item.week, false);
+      renderFilterBars();
+    }
+
+    function syncStampUI(weekNum, animate = false) {
+      const stamped = state.stampedWeeks.has(weekNum);
+      const seal = document.getElementById('cardCollectorSeal');
+      const frontBtn = document.getElementById('stampCardBtn');
+      const backBtn = document.getElementById('backStampBtn');
+
+      if (stamped) {
+        // 触发动态印章生成与音频
+        seal.src = generateSeal('赏'); 
+        seal.classList.remove('hidden');
+        if (animate) {
+          SoundFX.playStamp();
+          seal.classList.remove('animate-bounce-stamp');
+          void seal.offsetWidth; // trigger reflow
+          seal.classList.add('animate-bounce-stamp');
+        }
+        frontBtn.textContent = '已盖章 · 取消印记';
+        backBtn.textContent = '✓ 已落朱砂鉴藏印';
+      } else {
+        seal.classList.add('hidden');
+        seal.classList.remove('animate-bounce-stamp');
+        frontBtn.textContent = '盖章打卡';
+        backBtn.textContent = '盖章打卡此宝';
+      }
+    }
+
+    function saveStamps() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(state.stampedWeeks)));
+      } catch (e) {}
+      const count = state.stampedWeeks.size;
+      document.getElementById('headerStampedCount').textContent = String(count);
+      document.getElementById('atlasStampedCount').textContent = String(count);
+    }
+
+    function toggleStampCurrent() {
+      const item = TREASURES_54.find((t) => t.week === state.currentWeek) || TREASURES_54[0];
+      if (state.stampedWeeks.has(item.week)) {
+        state.stampedWeeks.delete(item.week);
+        syncStampUI(item.week, false);
+        showToast(`已取消「${item.name}」打卡印记`);
+      } else {
+        state.stampedWeeks.add(item.week);
+        syncStampUI(item.week, true);
+        showToast(`已点亮「${item.name}」(${state.stampedWeeks.size}/54)`);
+      }
+      saveStamps();
+    }
+
+    // =========================================================================
+    // 六、模块四：54国宝全年图鉴弹窗与 UTF-8 BOM JSON 导出
+    // =========================================================================
+    function renderAtlasModalGrid() {
+      const mVal = document.getElementById('atlasMonthFilter').value;
+      const cVal = document.getElementById('atlasCategoryFilter').value;
+      const rVal = document.getElementById('atlasRegionFilter').value;
+      const kw = document.getElementById('atlasSearchInput').value.trim().toLowerCase();
+
+      const filtered = TREASURES_54.filter((item) => {
+        const stamped = state.stampedWeeks.has(item.week);
+        if (state.atlasStatus === 'stamped' && !stamped) return false;
+        if (state.atlasStatus === 'unstamped' && stamped) return false;
+        if (mVal !== 'all' && item.month !== parseInt(mVal, 10)) return false;
+        if (cVal !== '全部' && item.category !== cVal) return false;
+        if (rVal !== '全部' && item.province !== rVal) return false;
+        if (kw && !(
+          item.name.toLowerCase().includes(kw) ||
+          item.dynasty.toLowerCase().includes(kw) ||
+          item.province.toLowerCase().includes(kw) ||
+          item.museum.toLowerCase().includes(kw) ||
+          item.category.toLowerCase().includes(kw) ||
+          `第${padWeek(item.week)}周`.includes(kw)
+        )) return false;
+        return true;
+      });
+
+      document.getElementById('atlasCountSummary').textContent = `当前显示 ${filtered.length} / 54 件国宝`;
+      const grid = document.getElementById('atlasGridContainer');
+      grid.innerHTML = '';
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div class="col-span-full py-14 text-center text-sm text-inkMuted">未找到匹配的国宝，请调整筛选条件。</div>`;
+        return;
+      }
+
+      filtered.forEach((item) => {
+        const stamped = state.stampedWeeks.has(item.week);
+        const isCurrent = item.week === state.currentWeek;
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = `text-left p-3.5 rounded-xl border transition flex items-start justify-between gap-2.5 cursor-pointer ${
+          stamped
+            ? 'bg-gradient-to-br from-xuan to-cinnabar/[0.07] border-cinnabar/45 shadow-xs'
+            : 'bg-xuan hover:bg-xuanDark/60 border-bronze/30'
+        } ${isCurrent ? 'ring-2 ring-bronze' : ''}`;
+
+        card.innerHTML = `
+          <div class="w-16 h-16 rounded-lg overflow-hidden border border-bronze/35 bg-[#171310] shrink-0 relative flex items-center justify-center p-0.5">
+            <img src="${state.imageMode === 'alt' ? (item.altImage || item.image) : (item.mainImage || item.image)}" alt="${item.name}" style="object-fit: contain;" class="max-w-full max-h-full w-auto h-auto object-contain object-center" loading="lazy" onerror="this.style.display='none'" />
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-1.5 mb-1">
+              <span class="px-1.5 py-0.5 rounded bg-ink text-bronzeLight font-classical text-[11px] font-bold">第${padWeek(item.week)}周</span>
+              <span class="px-1.5 py-0.5 rounded bg-bronze/20 text-ink font-classical text-[11px] font-semibold">${item.month}月 · ${item.category}</span>
+            </div>
+            <div class="font-classical font-bold text-sm text-ink truncate">${item.name}</div>
+            <div class="text-[11px] text-inkMuted truncate mt-0.5">${item.province} · ${item.dynasty} · ${item.museum}</div>
+          </div>
+          <div class="shrink-0 flex flex-col items-end justify-between self-stretch">
+            ${stamped
+              ? '<span class="w-9 h-9 rounded-lg border-2 border-cinnabar bg-xuan text-cinnabar font-classical font-bold text-[10px] leading-tight flex items-center justify-center text-center -rotate-6 shadow-xs">看见<br>之美</span>'
+              : '<span class="w-9 h-9 rounded-lg border border-dashed border-bronze/45 text-inkMuted/50 text-[10px] flex items-center justify-center">待相遇</span>'
+            }
+          </div>
+        `;
+
+        card.addEventListener('click', () => {
+          document.getElementById('atlasModal').classList.add('hidden');
+          document.getElementById('atlasModal').classList.remove('flex');
+          selectWeek(item.week);
+        });
+
+        grid.appendChild(card);
+      });
+      
+      // 更新图鉴时同步更新博物馆巡游地图
+      renderMuseumMap();
+    }
+
+    // =========================================================================
+    // 七、模块五：1080×1920 高清手机壁纸工坊（纯原生 Canvas 2D API 矢量渲染）
+    // 严格遵守：禁止 btoa() / Base64，直接使用 UTF-8 文本与 Canvas 2D 绘图
+    // =========================================================================
+    function wrapCanvasLines(ctx, text, maxWidth) {
+      const lines = [];
+      let current = '';
+      for (const char of text) {
+        const next = current + char;
+        if (ctx.measureText(next).width > maxWidth && current.length > 0) {
+          lines.push(current);
+          current = char;
+        } else {
+          current = next;
+        }
+      }
+      if (current) lines.push(current);
+      return lines;
+    }
+
+    function renderWallpaper1080x1920() {
+      const item = TREASURES_54.find((t) => t.week === state.currentWeek) || TREASURES_54[0];
+      const canvas = document.getElementById('wallpaperCanvas');
+      const ctx = canvas.getContext('2d');
+      const W = 1080;
+      const H = 1920;
+
+      // 1. 选择三款馆藏配色板式
+      let palette = {
+        bgTop: '#F6F1E7',
+        bgBottom: '#E6DAC3',
+        frameOuter: 'rgba(156, 122, 64, 0.6)',
+        frameInner: 'rgba(168, 50, 38, 0.35)',
+        title: '#1F1B16',
+        sub: '#574E43',
+        quote: '#2E2821',
+        gold: '#9C7A40',
+        sealBg: '#A83226',
+        sealFg: '#F6F1E7',
+        artCardBg: '#1C1712'
+      };
+
+      if (state.wpStyle === 'dark') {
+        palette = {
+          bgTop: '#1A1612',
+          bgBottom: '#0E0B09',
+          frameOuter: 'rgba(216, 190, 138, 0.6)',
+          frameInner: 'rgba(216, 190, 138, 0.25)',
+          title: '#F6F1E7',
+          sub: '#D8BE8A',
+          quote: 'rgba(246, 241, 231, 0.85)',
+          gold: '#D8BE8A',
+          sealBg: '#A83226',
+          sealFg: '#F6F1E7',
+          artCardBg: '#241E18'
+        };
+      } else if (state.wpStyle === 'cinnabar') {
+        palette = {
+          bgTop: '#9E2D22',
+          bgBottom: '#6B1A12',
+          frameOuter: 'rgba(235, 204, 142, 0.75)',
+          frameInner: 'rgba(235, 204, 142, 0.38)',
+          title: '#FFF8EA',
+          sub: '#F0D59B',
+          quote: 'rgba(255, 248, 234, 0.88)',
+          gold: '#E8C67D',
+          sealBg: '#F6F1E7',
+          sealFg: '#9E2D22',
+          artCardBg: '#4A120D'
+        };
+      }
+
+      ctx.save();
+
+      // 背景宣纸/宫墙渐变
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+      bgGrad.addColorStop(0, palette.bgTop);
+      bgGrad.addColorStop(1, palette.bgBottom);
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, W, H);
+
+      // 宋明双线装裱边框
+      ctx.strokeStyle = palette.frameOuter;
+      ctx.lineWidth = 3;
+      ctx.strokeRect(56, 56, W - 112, H - 112);
+      ctx.strokeStyle = palette.frameInner;
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(70, 70, W - 140, H - 140);
+
+      // 顶部留出 0 ~ 430px 锁屏时钟安全区；眉题置于 Y = 465
+      if (state.wpShowSeal) {
+        ctx.fillStyle = palette.sub;
+        ctx.font = 'bold 28px "Noto Serif SC", "Songti SC", serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(`看见中国之美  ·  ${item.month}月 · 第${padWeek(item.week)}周`, W / 2, 468);
+
+        ctx.strokeStyle = palette.gold;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(W / 2 - 190, 494);
+        ctx.lineTo(W / 2 + 190, 494);
+        ctx.stroke();
+      }
+
+      // 中部文物画框 (Y: 535 ~ 1175)
+      const boxX = 120;
+      const boxY = 535;
+      const boxW = W - 240; // 840
+      const boxH = 640;
+
+      ctx.fillStyle = palette.artCardBg;
+      ctx.beginPath();
+      ctx.roundRect(boxX, boxY, boxW, boxH, 24);
+      ctx.fill();
+
+      // 真实高清文物真迹照片渲染
+      if (item._activeImgObj && item._activeImgObj.complete && item._activeImgObj.naturalWidth > 0) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.roundRect(boxX, boxY, boxW, boxH, 24);
+        ctx.clip();
+        
+        const img = item._imgObj;
+        const scale = Math.max(boxW / img.naturalWidth, boxH / img.naturalHeight);
+        const dw = img.naturalWidth * scale;
+        const dh = img.naturalHeight * scale;
+        const dx = boxX + (boxW - dw) / 2;
+        const dy = boxY + (boxH - dh) / 2;
+        ctx.drawImage(img, dx, dy, dw, dh);
+
+        const overlayGrad = ctx.createLinearGradient(0, boxY, 0, boxY + boxH);
+        overlayGrad.addColorStop(0, 'rgba(0,0,0,0.15)');
+        overlayGrad.addColorStop(0.65, 'rgba(0,0,0,0.0)');
+        overlayGrad.addColorStop(1, 'rgba(0,0,0,0.72)');
+        ctx.fillStyle = overlayGrad;
+        ctx.fillRect(boxX, boxY, boxW, boxH);
+        ctx.restore();
+      } else {
+        const activeImgSrc = state.imageMode === 'alt' ? (item.altImage || item.image) : (item.mainImage || item.image);
+        if (!item._activeImgObj || item._activeImgSrc !== activeImgSrc) {
+          item._activeImgSrc = activeImgSrc;
+          item._activeImgObj = new Image();
+          item._activeImgObj.onload = () => {
+            if (state.currentWeek === item.week) renderWallpaper1080x1920();
+          };
+          item._activeImgObj.src = activeImgSrc;
+        }
+        // 占位聚光与矢量徽记
+        const spotGrad = ctx.createRadialGradient(W / 2, boxY + boxH / 2, 30, W / 2, boxY + boxH / 2, 400);
+        spotGrad.addColorStop(0, item.accent);
+        spotGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.save();
+        ctx.globalAlpha = 0.36;
+        ctx.fillStyle = spotGrad;
+        ctx.fillRect(boxX, boxY, boxW, boxH);
+        ctx.restore();
+
+        ctx.strokeStyle = palette.gold;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(W / 2, boxY + boxH / 2, 210, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.fillStyle = item.accent;
+        ctx.globalAlpha = 0.28;
+        ctx.beginPath();
+        ctx.arc(W / 2, boxY + boxH / 2, 136, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+
+        ctx.fillStyle = '#F6F1E7';
+        ctx.font = 'bold 92px "Noto Serif SC", "Songti SC", serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(item.category, W / 2, boxY + boxH / 2 - 14);
+
+        ctx.fillStyle = '#D8BE8A';
+        ctx.font = '500 26px "Noto Serif SC", "Songti SC", serif';
+        ctx.fillText(`${item.dynasty} · ${item.museum}`, W / 2, boxY + boxH / 2 + 68);
+        ctx.textBaseline = 'alphabetic';
+      }
+
+      // 画框外鎏金边框
+      ctx.strokeStyle = palette.gold;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.roundRect(boxX, boxY, boxW, boxH, 24);
+      ctx.stroke();
+
+      // 下部文物题名
+      ctx.fillStyle = palette.title;
+      ctx.font = 'bold 52px "Noto Serif SC", "Songti SC", serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(item.name, W / 2, 1272);
+
+      ctx.fillStyle = palette.sub;
+      ctx.font = '500 28px "PingFang SC", "Microsoft YaHei", sans-serif';
+      ctx.fillText(`${item.dynasty}  ·  ${item.museum}`, W / 2, 1328);
+
+      // 朱砂六艺印章
+      if (state.wpShowSeal) {
+        const sSize = 82;
+        const sx = W / 2 - sSize / 2;
+        const sy = 1368;
+        ctx.fillStyle = palette.sealBg;
+        ctx.beginPath();
+        ctx.roundRect(sx, sy, sSize, sSize, 12);
+        ctx.fill();
+        ctx.strokeStyle = palette.gold;
+        ctx.lineWidth = 2;
+        ctx.strokeRect(sx + 6, sy + 6, sSize - 12, sSize - 12);
+
+        ctx.fillStyle = palette.sealFg;
+        ctx.font = 'bold 28px "Noto Serif SC", "Songti SC", serif';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(item.category, W / 2, sy + sSize / 2 + 2);
+        ctx.textBaseline = 'alphabetic';
+      }
+
+      // 底部策展金句
+      if (state.wpShowQuote) {
+        ctx.fillStyle = palette.quote;
+        ctx.font = '400 30px "Noto Serif SC", "Songti SC", serif';
+        ctx.textAlign = 'center';
+        const lines = wrapCanvasLines(ctx, `“${item.quote}”`, W - 240);
+        lines.slice(0, 3).forEach((line, idx) => {
+          ctx.fillText(line, W / 2, 1525 + idx * 48);
+        });
+      }
+
+      // 底部典藏落款
+      ctx.fillStyle = palette.sub;
+      ctx.font = '400 22px "Noto Serif SC", "Songti SC", serif';
+      ctx.fillText('一年54次与中国之美相遇 · 汉代托克托日晷典藏', W / 2, H - 104);
+
+      ctx.restore();
+    }
+
+    // =========================================================================
+    // 八、事件绑定与页面启动初始化
+    // =========================================================================
+    window.addEventListener('DOMContentLoaded', () => {
+      // 初始化物理系统
+      DustSystem.init();
+      
+      // 1. 初始化托克托日晷（智能识别昼夜）
+      initSundialTicks();
+      const initNow = new Date();
+      const initMins = initNow.getHours() * 60 + initNow.getMinutes();
+      if (initMins >= 300 && initMins <= 1200) {
+        updateSundialEngine(initMins);
+      } else {
+        updateSundialEngine(570); // 夜间保持 09:30 晨光典雅基准
+      }
+
+      document.getElementById('sundialTimeSlider').addEventListener('input', (e) => {
+        updateSundialEngine(parseInt(e.target.value, 10));
+      });
+
+      document.querySelectorAll('.shichen-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          updateSundialEngine(parseInt(btn.dataset.minutes, 10));
+        });
+      });
+
+      document.getElementById('syncNowTimeBtn').addEventListener('click', () => {
+        const now = new Date();
+        const mins = Math.max(300, Math.min(1200, now.getHours() * 60 + now.getMinutes()));
+        updateSundialEngine(mins);
+        showToast(`已同步当前时刻（${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}）`);
+      });
+
+      // 2. 初始化周次导航与卡片
+      initWeekDropdown();
+      voiceGuide.initWave();
+      saveStamps();
+      selectWeek(0);
+
+      document.getElementById('prevWeekBtn').addEventListener('click', () => {
+        const list = getFilteredMainList();
+        if (list.length === 0) return;
+        const idx = list.findIndex((t) => t.week === state.currentWeek);
+        const next = list[(idx - 1 + list.length) % list.length];
+        selectWeek(next.week);
+      });
+
+      document.getElementById('nextWeekBtn').addEventListener('click', () => {
+        const list = getFilteredMainList();
+        if (list.length === 0) return;
+        const idx = list.findIndex((t) => t.week === state.currentWeek);
+        const next = list[(idx + 1) % list.length];
+        selectWeek(next.week);
+      });
+
+      document.getElementById('toggleImageModeBottomBtn').addEventListener('click', () => toggleImageMode());
+      const atlasToggleBtn = document.getElementById('atlasToggleImageModeBtn');
+      if (atlasToggleBtn) {
+        atlasToggleBtn.addEventListener('click', () => toggleImageMode());
+      }
+      const wpMainBtn = document.getElementById('wpImgModeMainBtn');
+      if (wpMainBtn) {
+        wpMainBtn.addEventListener('click', () => toggleImageMode('main'));
+      }
+      const wpAltBtn = document.getElementById('wpImgModeAltBtn');
+      if (wpAltBtn) {
+        wpAltBtn.addEventListener('click', () => toggleImageMode('alt'));
+      }
+      document.getElementById('stampCardBtn').addEventListener('click', toggleStampCurrent);
+      document.getElementById('backStampBtn').addEventListener('click', toggleStampCurrent);
+
+      document.getElementById('flipToBackBtn').addEventListener('click', () => {
+        SoundFX.playFlip(); // 播放翻书音效
+        state.isFlipped = true;
+        document.getElementById('artifactFlipInner').classList.add('is-flipped');
+      });
+
+      document.getElementById('flipToFrontBtn').addEventListener('click', () => {
+        SoundFX.playFlip(); // 播放翻书音效
+        state.isFlipped = false;
+        document.getElementById('artifactFlipInner').classList.remove('is-flipped');
+      });
+
+      document.getElementById('voiceProgressBar').addEventListener('click', (e) => {
+        const bar = e.currentTarget;
+        const rect = bar.getBoundingClientRect();
+        const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+        voiceGuide.seekToProgress(ratio);
+      });
+
+      document.getElementById('voicePlayBtn').addEventListener('click', () => {
+        const item = TREASURES_54.find((t) => t.week === state.currentWeek) || TREASURES_54[0];
+        if (voiceGuide.isPlaying) {
+          voiceGuide.pause();
+        } else {
+          voiceGuide.start(item);
+        }
+      });
+
+      // 3. 54国宝全年图鉴弹窗绑定
+      const atlasModal = document.getElementById('atlasModal');
+      document.getElementById('openAtlasBtn').addEventListener('click', () => {
+        atlasModal.classList.remove('hidden');
+        atlasModal.classList.add('flex');
+        renderAtlasModalGrid();
+      });
+
+      document.getElementById('closeAtlasBtn').addEventListener('click', () => {
+        atlasModal.classList.add('hidden');
+        atlasModal.classList.remove('flex');
+      });
+
+      atlasModal.addEventListener('click', (e) => {
+        if (e.target === atlasModal) {
+          atlasModal.classList.add('hidden');
+          atlasModal.classList.remove('flex');
+        }
+      });
+
+      document.querySelectorAll('.atlas-status-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          state.atlasStatus = btn.dataset.status;
+          document.querySelectorAll('.atlas-status-btn').forEach((b) => {
+            b.className = b === btn
+              ? 'atlas-status-btn px-3 py-1.5 rounded-lg bg-ink text-xuan text-xs font-medium cursor-pointer'
+              : 'atlas-status-btn px-3 py-1.5 rounded-lg bg-xuanDark text-ink/80 hover:bg-bronze/20 text-xs font-medium cursor-pointer';
+          });
+          renderAtlasModalGrid();
+        });
+      });
+
+      document.getElementById('atlasMonthFilter').addEventListener('change', renderAtlasModalGrid);
+      document.getElementById('atlasCategoryFilter').addEventListener('change', renderAtlasModalGrid);
+      document.getElementById('atlasRegionFilter').addEventListener('change', renderAtlasModalGrid);
+      document.getElementById('atlasSearchInput').addEventListener('input', renderAtlasModalGrid);
+
+      // 导出带 UTF-8 BOM 的完整 54 国宝 JSON
+      document.getElementById('exportJsonBtn').addEventListener('click', () => {
+        const exportData = {
+          title: '看见中国之美 · 一年54次与中国之美相遇',
+          exportedAt: new Date().toISOString(),
+          total: TREASURES_54.length,
+          stampedCount: state.stampedWeeks.size,
+          items: TREASURES_54.map((t) => ({
+            week: t.week,
+            weekLabel: `第${padWeek(t.week)}周`,
+            month: t.month,
+            category: t.category,
+            province: t.province,
+            image: t.image,
+            name: t.name,
+            dynasty: t.dynasty,
+            museum: t.museum,
+            quote: t.quote,
+            note: t.note,
+            accent: t.accent,
+            stamped: state.stampedWeeks.has(t.week)
+          }))
+        };
+        const blob = new Blob(['\uFEFF' + JSON.stringify(exportData, null, 2)], {
+          type: 'application/json;charset=utf-8'
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = '看见中国之美-全年54件国宝目录.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('已导出带 UTF-8 BOM 的 54 件国宝 JSON 文件');
+      });
+
+      // 两步安全重置（不使用 confirm / alert）
+      let resetTimeout = null;
+      const resetBtn = document.getElementById('resetStampsBtn');
+      resetBtn.addEventListener('click', () => {
+        if (!state.resetArmed) {
+          state.resetArmed = true;
+          resetBtn.textContent = '再次点击确认清空';
+          resetBtn.classList.add('bg-cinnabar', 'text-xuan');
+          clearTimeout(resetTimeout);
+          resetTimeout = setTimeout(() => {
+            state.resetArmed = false;
+            resetBtn.textContent = '重置进度';
+            resetBtn.classList.remove('bg-cinnabar', 'text-xuan');
+          }, 3500);
+        } else {
+          state.resetArmed = false;
+          clearTimeout(resetTimeout);
+          resetBtn.textContent = '重置进度';
+          resetBtn.classList.remove('bg-cinnabar', 'text-xuan');
+          state.stampedWeeks.clear();
+          saveStamps();
+          syncStampUI(state.currentWeek, false);
+          renderAtlasModalGrid();
+          showToast('已重置全部打卡印记');
+        }
+      });
+
+      // 4. 1080×1920 手机壁纸工坊绑定
+      const wallpaperModal = document.getElementById('wallpaperModal');
+      function openWallpaperStudio() {
+        const item = TREASURES_54.find((t) => t.week === state.currentWeek) || TREASURES_54[0];
+        document.getElementById('lockscreenDateSub').textContent = `看见中国之美 · ${item.month}月 · 第${padWeek(item.week)}周`;
+        syncWallpaperImageModeUI();
+        wallpaperModal.classList.remove('hidden');
+        wallpaperModal.classList.add('flex');
+        renderWallpaper1080x1920();
+      }
+
+      document.getElementById('openWallpaperBtn').addEventListener('click', openWallpaperStudio);
+      document.getElementById('backWallpaperBtn').addEventListener('click', openWallpaperStudio);
+      document.getElementById('closeWallpaperBtn').addEventListener('click', () => {
+        wallpaperModal.classList.add('hidden');
+        wallpaperModal.classList.remove('flex');
+      });
+
+      wallpaperModal.addEventListener('click', (e) => {
+        if (e.target === wallpaperModal) {
+          wallpaperModal.classList.add('hidden');
+          wallpaperModal.classList.remove('flex');
+        }
+      });
+
+      document.querySelectorAll('.wp-style-choice').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          state.wpStyle = btn.dataset.style;
+          document.querySelectorAll('.wp-style-choice').forEach((b) => {
+            b.className = b === btn
+              ? 'wp-style-choice p-3 rounded-xl border-2 border-cinnabar bg-xuanDark/50 flex flex-col items-center gap-1.5 cursor-pointer transition'
+              : 'wp-style-choice p-3 rounded-xl border border-bronze/35 bg-xuan hover:border-bronze flex flex-col items-center gap-1.5 cursor-pointer transition';
+          });
+          renderWallpaper1080x1920();
+        });
+      });
+
+      document.getElementById('toggleLockscreenGuide').addEventListener('change', (e) => {
+        state.wpShowLockscreen = e.target.checked;
+        document.getElementById('lockscreenPreviewOverlay').classList.toggle('hidden', !state.wpShowLockscreen);
+      });
+
+      document.getElementById('toggleWallpaperSeal').addEventListener('change', (e) => {
+        state.wpShowSeal = e.target.checked;
+        renderWallpaper1080x1920();
+      });
+
+      document.getElementById('toggleWallpaperQuote').addEventListener('change', (e) => {
+        state.wpShowQuote = e.target.checked;
+        renderWallpaper1080x1920();
+      });
+
+      // 全局桌面快捷键系统 (Space翻牌 / 方向键翻周 / M切换主备图 / P启闭导览 / Esc关闭弹窗)
+      window.addEventListener('keydown', (e) => {
+        if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA')) {
+          return;
+        }
+
+        const atlasModal = document.getElementById('atlasModal');
+        const wallpaperModal = document.getElementById('wallpaperModal');
+        const isAtlasOpen = atlasModal && !atlasModal.classList.contains('hidden');
+        const isWpOpen = wallpaperModal && !wallpaperModal.classList.contains('hidden');
+
+        if (e.key === 'Escape') {
+          if (isAtlasOpen) {
+            atlasModal.classList.add('hidden');
+            atlasModal.classList.remove('flex');
+          }
+          if (isWpOpen) {
+            wallpaperModal.classList.add('hidden');
+            wallpaperModal.classList.remove('flex');
+          }
+          return;
+        }
+
+        if (isAtlasOpen || isWpOpen) return;
+
+        if (e.key === ' ' || e.code === 'Space') {
+          e.preventDefault();
+          SoundFX.playFlip();
+          state.isFlipped = !state.isFlipped;
+          const inner = document.getElementById('artifactFlipInner');
+          if (inner) inner.classList.toggle('is-flipped', state.isFlipped);
+          return;
+        }
+
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          const list = getFilteredMainList();
+          if (list.length === 0) return;
+          const idx = list.findIndex((t) => t.week === state.currentWeek);
+          const prev = list[(idx - 1 + list.length) % list.length];
+          selectWeek(prev.week);
+          return;
+        }
+
+        if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          const list = getFilteredMainList();
+          if (list.length === 0) return;
+          const idx = list.findIndex((t) => t.week === state.currentWeek);
+          const next = list[(idx + 1) % list.length];
+          selectWeek(next.week);
+          return;
+        }
+
+        if (e.key === 'm' || e.key === 'M' || e.key === 'i' || e.key === 'I') {
+          e.preventDefault();
+          toggleImageMode();
+          return;
+        }
+
+        if (e.key === 'p' || e.key === 'P') {
+          e.preventDefault();
+          const item = TREASURES_54.find((t) => t.week === state.currentWeek) || TREASURES_54[0];
+          if (voiceGuide.isPlaying) {
+            voiceGuide.pause();
+          } else {
+            voiceGuide.start(item);
+          }
+          return;
+        }
+      });
+
+      document.getElementById('downloadWallpaperPngBtn').addEventListener('click', () => {
+        const item = TREASURES_54.find((t) => t.week === state.currentWeek) || TREASURES_54[0];
+        renderWallpaper1080x1920();
+        const canvas = document.getElementById('wallpaperCanvas');
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            showToast('壁纸生成失败，请重试');
+            return;
+          }
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `看见中国之美-第${padWeek(item.week)}周-${item.name}.png`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          showToast(`已下载「${item.name}」1080×1920 高清壁纸`);
+        }, 'image/png');
+      });
+    });
+  </script>
+</body>
+</html>
