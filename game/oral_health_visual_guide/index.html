@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>7天逆转烂牙图解</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@700;900&display=swap">
+<style>
+/* 布局思路：单栏长图，按“原理→风险→方法→工具→误区→习惯”纵向展开，每节一个图形 */
+:root{
+  --bg:#f2f7f7; --card:#ffffff; --ink:#0f3d44; --muted:#58767b; --line:#d3e3e4;
+  --accent:#16a085; --accent-soft:#d9f2ec; --warn:#d9482b; --warn-soft:#fbe3dd; --gold:#c98a12; --gold-soft:#fbf0d6;
+  --display:"Noto Serif SC","Songti SC",serif; --body:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0b1a1d; --card:#12272b; --ink:#e3f1f0; --muted:#93b0b3; --line:#244146;
+    --accent:#3fd0b4; --accent-soft:#143a38; --warn:#ff7a5c; --warn-soft:#3a201b; --gold:#e8b44a; --gold-soft:#3a2f14; color-scheme:dark;}
+}
+:root[data-theme="dark"]{
+  --bg:#0b1a1d; --card:#12272b; --ink:#e3f1f0; --muted:#93b0b3; --line:#244146;
+  --accent:#3fd0b4; --accent-soft:#143a38; --warn:#ff7a5c; --warn-soft:#3a201b; --gold:#e8b44a; --gold-soft:#3a2f14; color-scheme:dark;}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.75 var(--body)}
+.wrap{max-width:880px;margin:0 auto;padding:32px 16px 64px;display:flex;flex-direction:column;gap:28px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.3}
+h1{font-size:clamp(28px,6vw,42px);font-weight:900}
+h2{font-size:24px;font-weight:900}
+h3{font-size:17px;font-weight:700;font-family:var(--body)}
+p{margin:0}
+.hero{display:flex;flex-direction:column;gap:14px;padding:8px 0 4px}
+.meta{color:var(--muted);font-size:14px}
+.lead{font-size:18px;max-width:34em}
+section{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:18px}
+.sec-head{display:flex;flex-direction:column;gap:4px}
+.sec-head .k{color:var(--accent);font-weight:700;font-size:13px;letter-spacing:.08em}
+.note{color:var(--muted);font-size:14px}
+.grid{display:grid;gap:12px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+.box{border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;background:var(--bg)}
+.box.ok{background:var(--accent-soft);border-color:transparent}
+.box.bad{background:var(--warn-soft);border-color:transparent}
+.box.gold{background:var(--gold-soft);border-color:transparent}
+.tag{display:inline-block;font-size:12px;font-weight:700;padding:2px 10px;border-radius:99px;background:var(--accent);color:#fff;align-self:flex-start}
+.tag.bad{background:var(--warn)} .tag.gold{background:var(--gold)}
+:root[data-theme="dark"] .tag,:root:not([data-theme="light"]) .tag{color:#08201e}
+.small{font-size:14px;color:var(--muted)}
+/* 公式 */
+.eq{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.eq .c{padding:8px 14px;border-radius:10px;background:var(--accent-soft);font-weight:700}
+.eq .op{font-weight:900;color:var(--muted)} .eq .res{background:var(--warn);color:#fff;padding:8px 14px;border-radius:10px;font-weight:700}
+/* 阶段轨道 */
+.track{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0}
+.stage{padding:16px;display:flex;flex-direction:column;gap:6px;position:relative}
+.stage:nth-child(1){background:var(--gold-soft);border-radius:12px 0 0 12px}
+.stage:nth-child(2){background:var(--accent-soft)}
+.stage:nth-child(3){background:var(--warn-soft);border-radius:0 12px 12px 0}
+@media(max-width:640px){.stage:nth-child(n){border-radius:0}.stage:first-child{border-radius:12px 12px 0 0}.stage:last-child{border-radius:0 0 12px 12px}}
+.stage b{font-size:13px;color:var(--muted)}
+/* 条形 */
+.bars{display:flex;flex-direction:column;gap:14px}
+.bar .lab{display:flex;justify-content:space-between;gap:12px;font-size:15px;margin-bottom:4px}
+.bar .lab b{font-variant-numeric:tabular-nums}
+.bar .rail{height:14px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar .fill{height:100%;border-radius:99px;background:var(--accent)}
+.bar .fill.w{background:var(--warn)}
+/* 酸暴露 */
+.acid{display:flex;flex-direction:column;gap:6px}
+.acid .row{display:grid;grid-template-columns:110px 1fr;gap:10px;align-items:center;font-size:14px}
+.acid .lane{height:26px;border-radius:6px;background:var(--line);position:relative;overflow:hidden}
+.acid .hit{position:absolute;top:0;bottom:0;background:var(--warn)}
+.acid .rest{position:absolute;top:0;bottom:0;background:var(--accent)}
+/* 步骤 */
+.steps{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));counter-reset:s}
+.step{border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;counter-increment:s}
+.step::before{content:counter(s);width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:700;font-size:14px}
+:root[data-theme="dark"] .step::before{color:#08201e}
+.path{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:14px}
+.path span.n{padding:6px 12px;border-radius:8px;background:var(--accent-soft);font-weight:500}
+.path span.a{color:var(--muted)}
+.path .sep{flex-basis:100%;height:0}
+.fail{display:flex;gap:12px;align-items:flex-start}
+.fail .x{flex:none;width:28px;height:28px;border-radius:50%;background:var(--warn);color:#fff;display:grid;place-items:center;font-weight:900}
+/* 工具表 */
+.tools{display:flex;flex-direction:column;gap:10px}
+.tool{display:grid;grid-template-columns:96px 1fr;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.tool:first-child{border-top:0}
+.tool .name{font-weight:700}
+.meter{display:flex;gap:4px;margin:4px 0 4px}
+.meter i{width:26px;height:8px;border-radius:4px;background:var(--line)}
+.meter i.on{background:var(--accent)}
+.meter.low i.on{background:var(--warn)}
+.vs{display:grid;grid-template-columns:1fr;gap:10px}
+.mythq{font-weight:700}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+footer{color:var(--muted);font-size:13px;text-align:center}
+svg text{font-family:var(--body)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <span class="meta">《下班经济学》第 335 集 · 风传媒 · 2023-03-03 · 20分13秒</span>
+  <h1>7天逆转烂牙，一辈子不蛀牙</h1>
+  <p class="lead">主讲：黄伟家牙医师（良品牙医诊所 / YouTuber“面白牙医”），临床记录从小到大未曾蛀牙。以下把节目内容整理成一页图解。</p>
+</header>
+
+<!-- 1 四要素 -->
+<section>
+  <div class="sec-head"><span class="k">第一部分 · 基本原理</span><h2>蛀牙需要四个条件同时成立</h2></div>
+  <div class="eq" role="img" aria-label="牙齿加食物残渣加口腔细菌加时间等于蛀牙">
+    <span class="c">牙齿本体</span><span class="op">+</span>
+    <span class="c">食物残渣（糖类）</span><span class="op">+</span>
+    <span class="c">口腔细菌（牙菌斑）</span><span class="op">+</span>
+    <span class="c">时间</span><span class="op">=</span>
+    <span class="res">蛀牙</span>
+  </div>
+  <p>少一个就不会蛀：食物没有细菌分解就不会产酸；就算产了酸，只要及时清洁或中和，酸没有长时间接触牙面，也不会蛀。</p>
+
+  <h3>脱钙与再矿化：牙釉质的三个阶段</h3>
+  <div class="track">
+    <div class="stage"><b>阶段 1 · 脱钙</b><h3>初期蛀牙</h3><p class="small">细菌代谢糖产酸，口腔 pH 下降，酸侵蚀釉质，钙离子流失，出现微观孔洞与泛黄。</p></div>
+    <div class="stage"><b>阶段 2 · 约 7 天</b><h3>可以逆转</h3><p class="small">彻底清除细菌生物膜、停止产酸后，唾液中的钙离子与唾液富酪蛋白（Statherin）重新沉积，修复釉质，硬度恢复。</p></div>
+    <div class="stage"><b>阶段 3 · 临界点</b><h3>不可逆</h3><p class="small">釉质崩塌，出现肉眼可见的实体窝洞，再矿化无法填补，必须由牙医补牙。</p></div>
+  </div>
+</section>
+
+<!-- 2 现况 -->
+<section>
+  <div class="sec-head"><span class="k">第二部分 · 现况与风险</span><h2>数字比想象的严重</h2></div>
+  <div class="bars">
+    <div class="bar"><div class="lab"><span>牙周病罹患率（中国台湾，亚洲之冠）</span><b>99.2%</b></div><div class="rail"><div class="fill w" style="width:99.2%"></div></div></div>
+    <div class="bar"><div class="lab"><span>蛀牙盛行率（中国台湾，接近）</span><b>约 90%</b></div><div class="rail"><div class="fill w" style="width:90%"></div></div></div>
+    <div class="bar"><div class="lab"><span>初期与中期蛀牙完全不痛的比例</span><b>90%</b></div><div class="rail"><div class="fill" style="width:90%"></div></div></div>
+  </div>
+  <p class="small">数据来源于节目引用的台湾卫生福利部国民健康署调查与临床统计。口腔不卫生与慢性发炎也被研究证实会提高失智症风险。等到酸痛时，细菌往往已深入牙本质甚至逼近牙髓腔，所以“不痛”不能当作健康的标准。</p>
+</section>
+
+<!-- 3 三大地雷 -->
+<section>
+  <div class="sec-head"><span class="k">第三部分 · 三大致病地雷</span><h2>“老了就会掉牙”“体质遗传”都是错误归因</h2></div>
+  <p class="small">临床上甚至有 90 岁长者保有完整真牙。真正的原因是下面三件事。</p>
+  <div class="grid g3">
+    <div class="box bad"><span class="tag bad">地雷 1</span><h3>无效清洁</h3><p class="small">随意刷牙无法破坏牙菌斑的黏附结构，刷毛也进不了牙齿邻接面，死角里的细菌持续产酸。</p></div>
+    <div class="box bad"><span class="tag bad">地雷 2</span><h3>吃糖的频率与时间太长</h3><p class="small">决定风险的不是单次的总量，而是口腔处于酸性环境的累积时间。</p></div>
+    <div class="box bad"><span class="tag bad">地雷 3</span><h3>唾液分泌不足</h3><p class="small">唾液是天然的缓冲液与修复剂。饭后漱口不如多喝水，水分充足才能促进唾液腺分泌。</p></div>
+  </div>
+
+  <h3>同一杯珍珠奶茶，两种喝法（示意图）</h3>
+  <div class="acid" role="img" aria-label="一分钟喝完与喝一整个下午的口腔酸暴露时间对比">
+    <div class="row"><span>1 分钟喝完</span><div class="lane"><div class="hit" style="left:0;width:6%"></div><div class="rest" style="left:6%;width:94%"></div></div></div>
+    <div class="row"><span>喝一整个下午</span><div class="lane"><div class="hit" style="left:0;width:100%"></div></div></div>
+  </div>
+  <div class="legend"><span><i style="background:var(--warn)"></i>口腔处于酸性（脱钙）</span><span><i style="background:var(--accent)"></i>唾液缓冲与再矿化</span></div>
+  <p class="small">条形长度仅为示意，用来说明“时间长度”的重要性。持续进食让口腔不断循环“产酸→脱钙”，唾液没有机会修复。</p>
+</section>
+
+<!-- 4 刷牙错误 -->
+<section>
+  <div class="sec-head"><span class="k">第四部分 · 刷牙</span><h2>国人最常犯的三个错误</h2></div>
+  <div class="grid g3">
+    <div class="box bad fail"><span class="x">1</span><div><h3>只刷牙面，漏掉牙龈沟</h3><p class="small">牙齿与牙肉交界的沟槽最容易堆积牙菌斑，引发牙龈发炎与萎缩。</p></div></div>
+    <div class="box bad fail"><span class="x">2</span><div><h3>大范围横向乱刷</h3><p class="small">没有局部定点刷，受力不均，刷毛进不了死角，还会造成齿颈部磨耗。</p></div></div>
+    <div class="box bad fail"><span class="x">3</span><div><h3>完全不用牙线或牙间刷</h3><p class="small">牙刷最多只能清洁 60%～70% 的牙面，剩下的邻接面最容易形成隐蔽蛀牙。</p></div></div>
+  </div>
+
+  <h3>牙刷的三个规格</h3>
+  <div class="grid g3">
+    <div class="box ok"><h3>软毛</h3><p class="small">避免刮伤釉质、造成牙龈萎缩。</p></div>
+    <div class="box ok"><h3>刷头小</h3><p class="small">刷头太长太宽会被下颌骨、脸颊与舌头挡住，进不了后排臼齿，还可能引发呕吐反射。</p></div>
+    <div class="box ok"><h3>刷柄薄</h3><p class="small">在狭小口腔内更容易转动角度，刷到后牙内外侧。</p></div>
+  </div>
+
+  <h3>刷牙口诀：轻、小、多、顺序</h3>
+  <div class="grid g2">
+    <div class="box"><span class="tag">轻 · 力道</span><p>用平常刷牙的力道刷自己的指甲。如果指甲面被压得泛白，就是太用力，长期会刷到牙龈萎缩。</p></div>
+    <div class="box"><span class="tag">小 · 工具</span><p>选小刷头，才能贴合单颗牙的曲面与牙龈沟。</p></div>
+    <div class="box"><span class="tag">多 · 次数</span><p>局部定点：每 2 颗牙为一个单位，在同一区域来回轻刷至少 15 下，再移到下一个单位。</p></div>
+    <div class="box"><span class="tag">顺序 · 路径</span><p>固定路线、不遗漏：从哪里开始，就从哪里结束。</p></div>
+  </div>
+  <div class="path" aria-label="刷牙路径">
+    <span class="n">上排 左外侧</span><span class="a">→</span><span class="n">右外侧</span><span class="a">→</span><span class="n">右内侧</span><span class="a">→</span><span class="n">左内侧</span>
+    <span class="sep"></span>
+    <span class="n">下排 左外侧</span><span class="a">→</span><span class="n">右外侧</span><span class="a">→</span><span class="n">右内侧</span><span class="a">→</span><span class="n">左内侧</span>
+    <span class="sep"></span>
+    <span class="a">最后</span><span class="n">咬合面</span>
+  </div>
+</section>
+
+<!-- 5 牙线 -->
+<section>
+  <div class="sec-head"><span class="k">第五部分 · 牙线</span><h2>正确使用牙线的四个步骤</h2></div>
+  <div class="steps">
+    <div class="step"><h3>取线</h3><p class="small">拉出约一只手臂长的牙线，约 45 厘米。</p></div>
+    <div class="step"><h3>固定</h3><p class="small">两端缠在双手中指上，中间留 2～3 厘米的操作段，用食指（或食指加拇指）控制方向。</p></div>
+    <div class="step"><h3>C 字形刮除</h3><p class="small">轻轻滑入牙缝，拉紧并弯成 C 字形环抱单侧牙面，由牙龈沟向咬合面方向刮除。一个牙缝有两颗牙，左右两侧各刮一次。</p></div>
+    <div class="step"><h3>换段</h3><p class="small">每清完一个牙缝，用中指卷动换一段干净的线，避免把细菌带进下一个牙缝。</p></div>
+  </div>
+</section>
+
+<!-- 6 工具 -->
+<section>
+  <div class="sec-head"><span class="k">第六部分 · 工具评估</span><h2>每种清洁工具到底有多大用</h2></div>
+  <div class="tools">
+    <div class="tool"><div class="name">电动牙刷</div><div><div class="meter"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div><p class="small">只是“加强版的普通牙刷”。不要在口中横向快速移动，把刷头对准牙齿与牙龈交界处，每 2 颗牙停留 3～5 秒再移动。</p></div></div>
+    <div class="tool"><div class="name">牙线</div><div><div class="meter"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div><p class="small">一般人清洁牙缝的首选，用来补上牙刷够不到的 30%～40% 牙面。</p></div></div>
+    <div class="tool"><div class="name">牙间刷</div><div><div class="meter"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div><p class="small">并非人人适用，主要给牙周病或牙龈萎缩、牙缝变大的人。牙龈健康、牙缝紧密的人硬塞，会压迫伤害牙龈乳头。</p></div></div>
+    <div class="tool"><div class="name">漱口水</div><div><div class="meter low"><i class="on"></i><i></i><i></i><i></i></div><p class="small">不刷牙只漱口，清除牙菌斑的效果非常低。牙菌斑有生物膜保护，必须靠刷毛与牙线的摩擦才能破坏，漱口水只能当刷牙后的辅助。</p></div></div>
+    <div class="tool"><div class="name">牙签</div><div><div class="meter low"><i class="on"></i><i></i><i></i><i></i></div><p class="small">只能剔出卡在牙缝的大块菜渣，不能清除牙菌斑，也不能预防蛀牙或牙周病，用不好还会刺伤牙龈。</p></div></div>
+  </div>
+  <div class="legend"><span>格数为按节目叙述整理的相对有效度示意，不是节目给出的评分。</span></div>
+  <div class="box gold"><h3>饭后要不要马上刷牙？</h3><p class="small">理论上刚吃完口腔偏酸、釉质表面稍软，有人担心立刻刷会磨损，但这个说法尚未被严谨的临床实验证实。医师的原则是“有刷总比没刷好”，别把时机规则弄复杂而不想刷，想刷、方便刷时就去刷。</p></div>
+</section>
+
+<!-- 7 迷思 -->
+<section>
+  <div class="sec-head"><span class="k">第七部分 · 三个迷思</span><h2>蛀牙治疗的常见误会</h2></div>
+  <div class="grid g3">
+    <div class="box"><p class="mythq">“蛀牙一旦发生就不可能自己好？”</p><span class="tag">部分错误</span><p class="small">初期蛀牙还停在釉质表层的脱钙阶段、没有实体破洞时，连续 7 天认真刷牙加牙线，唾液就能让它再矿化修复。一旦蛀出破洞就无法逆转，必须补牙。</p></div>
+    <div class="box"><p class="mythq">“装了假牙或全瓷冠就一劳永逸？”</p><span class="tag bad">错误</span><p class="small">牙套的正式名称是“固定假牙”，套在修磨后的真牙外面。材质不会蛀，但边缘与牙龈交界处仍是你自己的真牙，清洁不到位会二次蛀牙，甚至整颗假牙脱落。</p></div>
+    <div class="box"><p class="mythq">“蛀得深就一定要抽神经？”</p><span class="tag gold">不一定</span><p class="small">只要细菌还没感染最内层的牙髓腔，就不必做根管治疗。已接近或局部暴露牙髓时，可评估“活髓治疗”：在暴露处放生物相容性材料，诱导牙髓自我再生。成功率依受损程度在 20%～100% 之间，健保不给付，需自费。</p></div>
+  </div>
+</section>
+
+<!-- 8 习惯 -->
+<section>
+  <div class="sec-head"><span class="k">第八部分 · 日常习惯</span><h2>黄医师自己做的三件事</h2></div>
+  <div class="grid g3">
+    <div class="box ok"><h3>嚼无糖口香糖</h3><p class="small">咀嚼刺激唾液腺分泌，快速中和酸性、促进再矿化。木糖醇（Xylitol）还被研究证实能干扰蛀牙菌的代谢，抑制牙菌斑形成。</p></div>
+    <div class="box ok"><h3>减糖饮食</h3><p class="small">依 WHO 建议，每日精制糖应低于总热量的 10%，能降到 5% 以下更好，同时减少含糖饮食的接触时间。</p></div>
+    <div class="box ok"><h3>用含氟牙膏</h3><p class="small">氟离子与牙面的氢氧基磷灰石结合，转化为更耐酸的氟磷灰石，强化釉质、加速再矿化，是实证医学公认最基础有效的防蛀手段。</p></div>
+  </div>
+</section>
+
+<footer>整理自《下班经济学》第 335 集的内容，仅供健康信息参考，不能代替牙医诊断。</footer>
+</div>
+</body>
+</html>
