@@ -2584,13 +2584,14 @@
       ctx.fill();
 
       // 真实高清文物真迹照片渲染
-      if (item._activeImgObj && item._activeImgObj.complete && item._activeImgObj.naturalWidth > 0) {
+      const activeImgSrc = state.imageMode === 'alt' ? (item.altImage || item.image) : (item.mainImage || item.image);
+      if (item._activeImgObj && item._activeImgSrc === activeImgSrc && item._activeImgObj.complete && item._activeImgObj.naturalWidth > 0) {
         ctx.save();
         ctx.beginPath();
         ctx.roundRect(boxX, boxY, boxW, boxH, 24);
         ctx.clip();
         
-        const img = item._imgObj;
+        const img = item._activeImgObj;
         const scale = Math.max(boxW / img.naturalWidth, boxH / img.naturalHeight);
         const dw = img.naturalWidth * scale;
         const dh = img.naturalHeight * scale;
@@ -2606,7 +2607,6 @@
         ctx.fillRect(boxX, boxY, boxW, boxH);
         ctx.restore();
       } else {
-        const activeImgSrc = state.imageMode === 'alt' ? (item.altImage || item.image) : (item.mainImage || item.image);
         if (!item._activeImgObj || item._activeImgSrc !== activeImgSrc) {
           item._activeImgSrc = activeImgSrc;
           item._activeImgObj = new Image();
