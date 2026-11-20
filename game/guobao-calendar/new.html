@@ -56,28 +56,67 @@
     /* 3D 卡片翻转舞台 */
     .perspective-stage {
       perspective: 1600px;
+      -webkit-perspective: 1600px;
     }
 
     .flip-card-inner {
       position: relative;
       width: 100%;
       transform-style: preserve-3d;
+      -webkit-transform-style: preserve-3d;
       transition: transform 0.72s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     .flip-card-inner.is-flipped {
       transform: rotateY(180deg);
+      -webkit-transform: rotateY(180deg);
     }
 
     .flip-face {
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
+      transform: translate3d(0, 0, 0);
+      -webkit-transform: translate3d(0, 0, 0);
+    }
+
+    .flip-front {
+      z-index: 2;
+      transform: rotateY(0deg) translate3d(0, 0, 1px);
+      -webkit-transform: rotateY(0deg) translate3d(0, 0, 1px);
     }
 
     .flip-back {
       position: absolute;
       inset: 0;
-      transform: rotateY(180deg);
+      z-index: 1;
+      transform: rotateY(180deg) translate3d(0, 0, 1px);
+      -webkit-transform: rotateY(180deg) translate3d(0, 0, 1px);
+    }
+
+    /* iOS Safari 3D 穿透防护：在翻转过半程(0.36s)后切换 visibility，彻底隔离 GPU 独立合成层穿透 */
+    .flip-card-inner.is-flipped .flip-front {
+      visibility: hidden;
+      pointer-events: none;
+      transition: visibility 0s linear 0.36s;
+    }
+
+    .flip-card-inner:not(.is-flipped) .flip-front {
+      visibility: visible;
+      transition: visibility 0s linear 0.36s;
+    }
+
+    .flip-card-inner.is-flipped .flip-back {
+      visibility: visible;
+      z-index: 2;
+      pointer-events: auto;
+      transition: visibility 0s linear 0.36s;
+    }
+
+    .flip-card-inner:not(.is-flipped) .flip-back {
+      visibility: hidden;
+      z-index: 1;
+      pointer-events: none;
+      transition: visibility 0s linear 0.36s;
     }
 
     /* 朱砂印章落印动画 */
@@ -354,9 +393,9 @@
       <div class="perspective-stage">
         <div id="artifactFlipInner" class="flip-card-inner">
           <!-- 卡片正面 -->
-          <article id="cardFrontFace" class="flip-face bg-xuan rounded-2xl border-2 border-bronze/45 shadow-md overflow-hidden relative">
+          <article id="cardFrontFace" class="flip-face flip-front bg-xuan rounded-2xl border-2 border-bronze/45 shadow-md relative">
             <!-- 顶部日历历头 -->
-            <div class="px-5 py-4 bg-gradient-to-r from-xuanDark/90 via-xuan to-xuanDark/70 border-b border-bronze/30 flex items-center justify-between gap-3">
+            <div class="px-5 py-4 rounded-t-[14px] bg-gradient-to-r from-xuanDark/90 via-xuan to-xuanDark/70 border-b border-bronze/30 flex items-center justify-between gap-3">
               <div class="flex items-center gap-3">
                 <div class="px-3 py-1.5 rounded-xl bg-ink text-bronzeLight font-classical font-bold text-lg sm:text-xl tracking-wider shadow-sm">
                   第 <span id="cardWeekNum">00</span> 周
@@ -1878,35 +1917,8 @@
         return 0;
       },
 
-      // 异步加载音频源为内存 Blob URL（若环境支持），彻底消除缺少 HTTP 206 导致的 seek 重置问题
-      async loadAudioSource(rawSrc) {
-        if (this.blobCache.has(rawSrc)) {
-          return { url: this.blobCache.get(rawSrc), isBlob: true };
-        }
-        if (this.fetchPromises.has(rawSrc)) {
-          return this.fetchPromises.get(rawSrc);
-        }
-        const p = (async () => {
-          try {
-            const resp = await fetch(rawSrc);
-            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-            const blob = await resp.blob();
-            const url = URL.createObjectURL(blob);
-            this.blobCache.set(rawSrc, url);
-            return { url, isBlob: true };
-          } catch (e) {
-            // 在 file:// 协议或特殊安全策略下优雅降级为直接 URL
-            return { url: rawSrc, isBlob: false };
-          } finally {
-            this.fetchPromises.delete(rawSrc);
-          }
-        })();
-        this.fetchPromises.set(rawSrc, p);
-        return p;
-      },
-
-      // 核心调度器：在指定的真实时间点起播或跳转
-      async playAt(item, targetTime, pIdx = null) {
+      // 核心调度器：在指定的真实时间点起播或跳转（严格保持在同步手势栈中执行，适配 iOS Safari）
+      playAt(item, targetTime, pIdx = null) {
         const src = item.audioSrc || (typeof GUOBAO_AUDIO_GUIDES !== 'undefined' && GUOBAO_AUDIO_GUIDES[item.week]?.audioSrc) || `audio/week-${String(item.week).padStart(2, '0')}.mp3`;
         
         // 确保字幕 DOM 已同步到当前周
@@ -1926,65 +1938,58 @@
         const highlightIdx = pIdx !== null ? pIdx : this.getActiveIndexForTime(safeTime);
         this.highlightSubtitle(highlightIdx);
 
-        // 如果当前音频对象已加载当前周音频，直接同步 seek 并播放，避免异步延迟与重新加载
-        const isLoadedForCurrentWeek = (
-          this.currentWeek === item.week &&
-          this.currentSrc === src &&
-          this.audioObj &&
-          this.audioObj.src &&
-          this.audioObj.readyState >= 1
-        );
+        const audio = this.audioObj;
+        const isSrcChanged = (this.currentSrc !== src || this.currentWeek !== item.week);
 
-        const doSeekAndPlay = (audio) => {
-          try {
-            const maxDur = audio.duration;
-            const clampedTime = (maxDur && isFinite(maxDur)) ? Math.min(safeTime, Math.max(0, maxDur - 0.1)) : safeTime;
-            audio.currentTime = clampedTime;
-          } catch (e) {}
-          audio.play().then(() => {
+        if (isSrcChanged) {
+          this.isLoading = true;
+          this.updateUI();
+          this.currentSrc = src;
+          this.currentWeek = item.week;
+          audio.src = src;
+          audio.load();
+        }
+
+        const applySeek = () => {
+          if (safeTime > 0) {
+            try {
+              const maxDur = audio.duration;
+              const clampedTime = (maxDur && isFinite(maxDur)) ? Math.min(safeTime, Math.max(0, maxDur - 0.1)) : safeTime;
+              if (Math.abs(audio.currentTime - clampedTime) > 0.3) {
+                audio.currentTime = clampedTime;
+              }
+            } catch (e) {}
+          }
+        };
+
+        if (audio.readyState >= 1) {
+          applySeek();
+        } else if (safeTime > 0) {
+          const onMeta = () => {
+            audio.removeEventListener('loadedmetadata', onMeta);
+            applySeek();
+          };
+          audio.addEventListener('loadedmetadata', onMeta);
+        }
+
+        // 关键：在用户点击的同步执行栈内立即触发 play()，这是 iOS Safari 解锁播放音频的唯一凭证
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
             if (this.playRequestToken !== reqToken) return;
             this.isPlaying = true;
             this.isLoading = false;
             this.updateUI();
-          }).catch(() => {
+          }).catch((err) => {
+            console.warn('Audio play restricted or failed:', err);
+            if (this.playRequestToken !== reqToken) return;
             this.isPlaying = false;
             this.isLoading = false;
+            this.fallbackSpeechSynthesis();
             this.updateUI();
           });
-          this.updateTimeDisplay(safeTime, audio.duration || 0);
-        };
-
-        if (isLoadedForCurrentWeek) {
-          this.isLoading = false;
-          doSeekAndPlay(this.audioObj);
-          return;
         }
-
-        // 加载新周音频源
-        this.isLoading = true;
-        this.updateUI();
-
-        const resolved = await this.loadAudioSource(src);
-        if (this.playRequestToken !== reqToken) return;
-
-        this.currentSrc = src;
-        this.currentWeek = item.week;
-        this.audioObj.src = resolved.url;
-
-        const onReady = () => {
-          this.audioObj.removeEventListener('loadedmetadata', onReady);
-          this.audioObj.removeEventListener('canplay', onReady);
-          if (this.playRequestToken !== reqToken) return;
-          doSeekAndPlay(this.audioObj);
-        };
-
-        if (this.audioObj.readyState >= 1) {
-          doSeekAndPlay(this.audioObj);
-        } else {
-          this.audioObj.addEventListener('loadedmetadata', onReady);
-          this.audioObj.addEventListener('canplay', onReady);
-          this.audioObj.load();
-        }
+        this.updateTimeDisplay(safeTime, audio.duration || 0);
       },
 
       bindAudioEvents() {
@@ -2030,6 +2035,9 @@
 
         this.audioObj.addEventListener('error', () => {
           this.isLoading = false;
+          console.warn('Audio resource failed or 404, fallback to speechSynthesis');
+          const statusText = document.getElementById('voiceStatusText');
+          if (statusText) statusText.textContent = '音频未就绪(已切语音)';
           this.fallbackSpeechSynthesis();
         });
       },
@@ -2159,12 +2167,18 @@
         try {
           if ('speechSynthesis' in window) {
             window.speechSynthesis.cancel();
-            const utter = new SpeechSynthesisUtterance(this.sentences.join(' '));
+            const text = (this.sentences && this.sentences.length > 0) ? this.sentences.join(' ') : '暂无导览内容';
+            const utter = new SpeechSynthesisUtterance(text);
             utter.lang = 'zh-CN';
             utter.rate = 0.96;
+            utter.volume = 1.0;
             window.speechSynthesis.speak(utter);
+            this.isPlaying = true;
           }
-        } catch (e) {}
+        } catch (e) {
+          console.warn('SpeechSynthesis error:', e);
+        }
+        this.updateUI();
         clearInterval(this.timerId);
         this.timerId = setInterval(() => {
           this.stepIdx += 1;
@@ -2258,19 +2272,19 @@
           <div class="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-ink/85 via-ink/40 to-transparent pointer-events-none z-20"></div>
 
           <!-- 左下角文博馆藏展签铭牌 -->
-          <div class="absolute bottom-2.5 left-3 flex items-center gap-1.5 bg-ink/85 backdrop-blur-md px-2.5 py-1 rounded-md border border-bronze/40 pointer-events-none z-30 shadow-md">
+          <div class="absolute bottom-2.5 left-3 flex items-center gap-1.5 bg-ink/90 px-2.5 py-1 rounded-md border border-bronze/40 pointer-events-none z-30 shadow-md">
             <span class="w-1.5 h-1.5 rounded-full bg-cinnabar"></span>
             <span class="text-xs font-classical text-xuan font-semibold">${item.dynasty} · ${item.name}</span>
           </div>
 
           <!-- 右下角馆藏地标识 -->
-          <div class="absolute bottom-2.5 right-3 text-[10px] font-classical text-bronzeLight bg-black/60 backdrop-blur-md px-2 py-0.5 rounded border border-bronze/35 pointer-events-none z-30 shadow-md">
+          <div class="absolute bottom-2.5 right-3 text-[10px] font-classical text-bronzeLight bg-black/80 px-2 py-0.5 rounded border border-bronze/35 pointer-events-none z-30 shadow-md">
             ${item.museum}
           </div>
 
           <!-- 右上角：主图/备选图 快速切换浮标按钮 -->
           <div class="absolute top-2.5 right-2.5 z-30">
-            <button id="stageImageToggleBtn" type="button" class="group/btn flex items-center gap-1.5 px-3 py-1 rounded-full bg-ink/85 hover:bg-ink backdrop-blur-md border border-bronze/50 hover:border-bronze text-xs font-classical text-xuan shadow-md transition-all cursor-pointer" title="点击在主图与备选图之间切换">
+            <button id="stageImageToggleBtn" type="button" class="group/btn flex items-center gap-1.5 px-3 py-1 rounded-full bg-ink/90 hover:bg-ink border border-bronze/50 hover:border-bronze text-xs font-classical text-xuan shadow-md transition-all cursor-pointer" title="点击在主图与备选图之间切换">
               <svg class="w-3.5 h-3.5 text-cinnabar group-hover/btn:rotate-180 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
               <span class="font-medium">${toggleLabel}</span>
               <span class="text-[9px] px-1.5 py-0.2 rounded font-sans font-bold ${badgeClass}">${badgeText}</span>
@@ -2782,6 +2796,10 @@
         SoundFX.playFlip(); // 播放翻书音效
         state.isFlipped = true;
         document.getElementById('artifactFlipInner').classList.add('is-flipped');
+        if (!voiceGuide.audioObj) {
+          voiceGuide.audioObj = new Audio();
+          voiceGuide.bindAudioEvents();
+        }
       });
 
       document.getElementById('flipToFrontBtn').addEventListener('click', () => {
